@@ -3,7 +3,7 @@
 import { UserRole } from "@prisma/client";
 
 import { useCurrentRole } from "@/hooks/use-current-role";
-import { FormError } from "@/components/form-error";
+import { notify } from "@/lib/utils";
 
 interface RoleGateProps {
   children: React.ReactNode;
@@ -17,9 +17,8 @@ export const RoleGate = ({
   const role = useCurrentRole();
 
   if (role !== allowedRole) {
-    return (
-      <FormError message="You do not have permission to view this content!" />
-    )
+    notify('Unauthorized', 'You are not authorized to view this page', 'red');
+    return <></>
   }
 
   return (
