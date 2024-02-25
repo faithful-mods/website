@@ -1,13 +1,13 @@
 'use client';
 
+import { Button, Card, Group, } from '@mantine/core';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { LoggedUser } from '@/src/components/auth/logged-user';
-import { GitHubLogin } from '@/src/components/auth/github-login';
+import { GitHubLogin } from '@/components/auth/github-login';
+import { LoggedUser } from '@/components/auth/logged-user';
+import { useCurrentUser } from '@/hooks/use-current-user';
 
-import { useCurrentUser } from '@/src/hooks/use-current-user';
-import { Button, Card, Group, } from '@mantine/core';
 import { ThemeSwitch } from './theme-switch';
 
 export const Navbar = () => {

@@ -1,14 +1,14 @@
 'use server';
 
+import { User } from '@prisma/client';
 import * as z from 'zod';
 
-import { update } from '@/src/auth';
-import { db } from '@/src/lib/db';
-import { UserSettingsSchema } from '@/src/schemas';
-import { getUserById } from '@/src/server/data/user';
-import { currentUser } from '@/src/lib/auth';
-import { Accessing, loggedIn } from '@/src/lib/decorators';
-import { User } from '@prisma/client';
+import { update } from '@/auth';
+import { currentUser } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { Accessing, loggedIn } from '@/lib/decorators';
+import { UserSettingsSchema } from '@/schemas';
+import { getUserById } from '@/server/data/user';
 
 class UserSettings {
   @loggedIn()

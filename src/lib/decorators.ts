@@ -1,4 +1,5 @@
 import { UserRole } from '@prisma/client';
+
 import { currentRole, currentUser } from './auth';
 
 export function checkAccess(role: UserRole = 'ADMIN') {

@@ -1,7 +1,9 @@
 'use client';
 
-import { RoleGate } from '@/src/components/auth/role-gate';
 import { UserRole } from '@prisma/client';
+
+import { RoleGate } from '@/components/auth/role-gate';
+
 import { UsersPanel } from './users-panel';
 
 const AdminPage = () => {

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 
-import { SessionProvider } from 'next-auth/react'
-import { auth } from '@/src/auth'
-import { Navbar } from '@/src/components/navbar';
 import { ColorSchemeScript, createTheme, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
+import { SessionProvider } from 'next-auth/react'
+
+import { auth } from '@/auth'
+import { Navbar } from '@/components/navbar';
 
 // Import styles of packages that you"ve installed.
 // All packages except `@mantine/hooks` require styles imports

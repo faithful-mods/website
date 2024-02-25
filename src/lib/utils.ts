@@ -2,6 +2,7 @@ import { MantineColor } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+
 import { NOTIFICATIONS_DURATION_MS } from './constants'
 
 export function cn(...inputs: ClassValue[]) {

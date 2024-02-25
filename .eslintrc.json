@@ -1,7 +1,25 @@
 {
-  "extends": "next/core-web-vitals",
+	"extends": "next/core-web-vitals",
 	"rules": {
 		"indent": ["error", "tab"],
-		"quotes": ["error", "single"]
+		"quotes": ["error", "single"],
+		"import/order": [
+			"error",
+			{
+				"newlines-between": "always",
+				"groups": ["type", "builtin", "external", "internal", ["parent","sibling", "index"]],
+				"pathGroups": [
+					{
+						"pattern": "@/(app|components|hooks|lib|schemas|server)/**",
+						"group": "internal"
+					}
+				],
+				"pathGroupsExcludedImportTypes": ["builtin"],
+				"alphabetize": {
+					"order": "asc",
+					"caseInsensitive": false
+				}
+			}
+		]
 	}
 }

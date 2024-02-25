@@ -1,13 +1,14 @@
 'use client';
 
-import { getUsers, updateUserRole } from '@/src/server/actions/admin';
-import { User, UserRole } from '@prisma/client';
-import { useEffect, useState } from 'react';
-import { UserSettingsSchema } from '@/src/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Avatar, Badge, Card, Code, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { notify } from '@/src/lib/utils';
+import { User, UserRole } from '@prisma/client';
+import { useEffect, useState } from 'react';
+
+import { notify } from '@/lib/utils';
+import { UserSettingsSchema } from '@/schemas';
+import { getUsers, updateUserRole } from '@/server/actions/admin';
 
 export function UsersPanel() {
 	const [users, setUsers] = useState<User[] | undefined>();
