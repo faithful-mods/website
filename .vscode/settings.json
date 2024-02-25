@@ -3,7 +3,8 @@
 		"hookform",
 		"mantine",
 		"Mantine",
-		"prisma"
+		"prisma",
+		"tailwindcss"
 	],
 	"files.exclude": {
 		"**/.git": true,
