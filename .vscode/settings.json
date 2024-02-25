@@ -4,6 +4,7 @@
 		"mantine",
 		"Mantine",
 		"prisma",
+		"stylelint",
 		"tailwindcss"
 	],
 	"files.exclude": {
@@ -14,5 +15,7 @@
 		"**/.DS_Store": true,
 		"**/Thumbs.db": true,
 		"**/node_modules": true
-	}
+	},
+	"css.validate": false,
+	"scss.validate": false
 }
