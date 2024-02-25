@@ -1,10 +1,10 @@
-import { Poppins } from "next/font/google";
+import { Poppins } from 'next/font/google';
 
-import { cn } from "@/src/lib/utils";
+import { cn } from '@/src/lib/utils';
 
 const font = Poppins({
-	subsets: ["latin"],
-	weight: ["600"]
+	subsets: ['latin'],
+	weight: ['600']
 })
 
 export default async function Home() {

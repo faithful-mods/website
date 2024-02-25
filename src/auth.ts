@@ -1,11 +1,11 @@
-import NextAuth from "next-auth";
-import { UserRole } from "@prisma/client";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import NextAuth from 'next-auth';
+import { UserRole } from '@prisma/client';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 
-import { db } from "@/src/lib/db";
-import authConfig from "@/src/auth.config";
-import { getUserById } from "@/src/server/data/user";
-import { getAccountByUserId } from "./server/data/account";
+import { db } from '@/src/lib/db';
+import authConfig from '@/src/auth.config';
+import { getUserById } from '@/src/server/data/user';
+import { getAccountByUserId } from './server/data/account';
 
 export const {
 	handlers: { GET, POST },
@@ -15,8 +15,8 @@ export const {
 	update,
 } = NextAuth({
 	pages: {
-		signIn: "/auth/login",
-		error: "/auth/error",
+		signIn: '/auth/login',
+		error: '/auth/error',
 	},
 	callbacks: {
 		async session({ token, session }) {
@@ -53,6 +53,6 @@ export const {
 		},
 	},
 	adapter: PrismaAdapter(db),
-	session: { strategy: "jwt" },
+	session: { strategy: 'jwt' },
 	...authConfig,
 });

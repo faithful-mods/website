@@ -1,5 +1,5 @@
-import { UserRole } from "@prisma/client";
-import { currentRole, currentUser } from "./auth";
+import { UserRole } from '@prisma/client';
+import { currentRole, currentUser } from './auth';
 
 export function checkAccess(role: UserRole = 'ADMIN') {
 	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -7,7 +7,7 @@ export function checkAccess(role: UserRole = 'ADMIN') {
 
 		descriptor.value = async function (...args: any[]) {
 			const roles = ['ADMIN', await currentRole()]; // let 'ADMIN' access everything
-			if (!roles.includes(role)) return { success: false, error: "Forbidden, no permission" };
+			if (!roles.includes(role)) return { success: false, error: 'Forbidden, no permission' };
 
 			return originalMethod.apply(this, args);
 		};

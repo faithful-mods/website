@@ -1,10 +1,10 @@
-"use server";
+'use server';
 
-import { db } from "@/src/lib/db";
-import { checkAccess, Accessing } from "@/src/lib/decorators";
-import { UpdateUserRoleSchema } from "@/src/schemas";
-import { User, UserRole } from "@prisma/client";
-import { z } from "zod";
+import { db } from '@/src/lib/db';
+import { checkAccess, Accessing } from '@/src/lib/decorators';
+import { UpdateUserRoleSchema } from '@/src/schemas';
+import { User, UserRole } from '@prisma/client';
+import { z } from 'zod';
 
 class Admin {
   @checkAccess()

@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import * as z from "zod";
-import { useTransition, useState } from "react";
-import { useSession } from "next-auth/react";
+import * as z from 'zod';
+import { useTransition, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useForm, FormErrors } from '@mantine/form';
 
-import { UserSettingsSchema } from "@/src/schemas";
-import { updateUser } from "@/src/server/actions/settings";
-import { useCurrentUser } from "@/src/hooks/use-current-user";
-import { Button, Text, Card, TextInput } from "@mantine/core";
-import { capitalize, notify } from "@/src/lib/utils";
-import { MAX_USERNAME_LENGTH, MIN_USERNAME_LENGTH } from "@/src/lib/constants";
+import { UserSettingsSchema } from '@/src/schemas';
+import { updateUser } from '@/src/server/actions/settings';
+import { useCurrentUser } from '@/src/hooks/use-current-user';
+import { Button, Text, Card, TextInput } from '@mantine/core';
+import { capitalize, notify } from '@/src/lib/utils';
+import { MAX_USERNAME_LENGTH, MIN_USERNAME_LENGTH } from '@/src/lib/constants';
 
 export function UserSettingsPanel() {
 	const user = useCurrentUser();

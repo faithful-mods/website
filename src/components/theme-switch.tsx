@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { ActionIcon, MantineColorScheme, useComputedColorScheme, useMantineColorScheme } from "@mantine/core";
-import { useEffect, useState } from "react";
-import { TbSun, TbMoon, TbSunMoon, TbCloud } from "react-icons/tb";
+import { ActionIcon, MantineColorScheme, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { TbSun, TbMoon, TbSunMoon, TbCloud } from 'react-icons/tb';
 
 export const ThemeSwitch = () => {
 	const colorSchemes: MantineColorScheme[] = ['light', 'dark', 'auto'];
