@@ -3,11 +3,11 @@ interface ProtectedLayoutProps {
 };
 
 const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
-  return ( 
-    <div>
-      {children}
-    </div>
-   );
+	return ( 
+		<div>
+			{children}
+		</div>
+	);
 }
  
 export default ProtectedLayout;

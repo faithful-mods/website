@@ -12,15 +12,15 @@ export const ThemeSwitch = () => {
 
 	const setIconFromStr = (scheme: MantineColorScheme) => {
 		switch (scheme) {
-			case 'light':
-				setIcon(<TbSun className="w-4 h-4"/>);
-				break;
-			case 'dark':
-				setIcon(<TbMoon className="w-4 h-4"/>);
-				break;
-			default:
-				setIcon(<TbSunMoon className="w-4 h-4"/>);
-				break;
+		case 'light':
+			setIcon(<TbSun className="w-4 h-4"/>);
+			break;
+		case 'dark':
+			setIcon(<TbMoon className="w-4 h-4"/>);
+			break;
+		default:
+			setIcon(<TbSunMoon className="w-4 h-4"/>);
+			break;
 		}
 	}
 
@@ -44,5 +44,5 @@ export const ThemeSwitch = () => {
 		>
 			{icon}
 		</ActionIcon>
-  );
+	);
 }

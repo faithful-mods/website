@@ -10,50 +10,50 @@ import { useForm } from "@mantine/form";
 import { notify } from "@/src/lib/utils";
 
 export function UsersPanel() {
-  const [users, setUsers] = useState<User[] | undefined>();
-  const [filteredUsers, setFilteredUsers] = useState<User[] | undefined>();
+	const [users, setUsers] = useState<User[] | undefined>();
+	const [filteredUsers, setFilteredUsers] = useState<User[] | undefined>();
 
 	const form = useForm({
-    initialValues: {
-      search: '',
-    },
-  });
+		initialValues: {
+			search: '',
+		},
+	});
 
-  const sortUsers = (a: User, b: User) => a.name?.localeCompare(b.name ?? '') || 0;
+	const sortUsers = (a: User, b: User) => a.name?.localeCompare(b.name ?? '') || 0;
 
-  const filterUsers = () => {
-    const search = form.values['search'];
-    if (!search || search.length === 0 || !users) {
-      setFilteredUsers(users?.sort(sortUsers));
-      return;
-    }
+	const filterUsers = () => {
+		const search = form.values['search'];
+		if (!search || search.length === 0 || !users) {
+			setFilteredUsers(users?.sort(sortUsers));
+			return;
+		}
 
-    const filtered = users.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
-    setFilteredUsers(filtered.sort(sortUsers));
-  }
+		const filtered = users.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
+		setFilteredUsers(filtered.sort(sortUsers));
+	}
 
-  useEffect(() => {
-    getUsers()
-      .then((data) => {
-        if (!data.success) return notify('Error', data.error, 'red');
+	useEffect(() => {
+		getUsers()
+			.then((data) => {
+				if (!data.success) return notify('Error', data.error, 'red');
 
-        setUsers(data.result.users.sort(sortUsers));
-        setFilteredUsers(data.result.users.sort(sortUsers));
-      })
-      .catch((err) => {
+				setUsers(data.result.users.sort(sortUsers));
+				setFilteredUsers(data.result.users.sort(sortUsers));
+			})
+			.catch((err) => {
 				console.error(err);
 				notify('Error', 'Something went wrong', 'red');
 			});
-  }, []);
+	}, []);
 
 	return (
 		<Card 
-      className="w-[500px]"
-      shadow="sm" 
-      padding="md" 
-      radius="md" 
-      withBorder
-    >
+			className="w-[500px]"
+			shadow="sm" 
+			padding="md" 
+			radius="md" 
+			withBorder
+		>
 			<Group justify="space-between">
 				<Text fw={500}>Users Dashboard</Text>
 				<Badge color="teal" variant="filled">{users?.length ?? '?'}</Badge>

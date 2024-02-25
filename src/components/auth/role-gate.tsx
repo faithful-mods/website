@@ -11,19 +11,19 @@ interface RoleGateProps {
 };
 
 export const RoleGate = ({
-  children,
-  allowedRole,
+	children,
+	allowedRole,
 }: RoleGateProps) => {
-  const role = useCurrentRole();
+	const role = useCurrentRole();
 
-  if (role !== allowedRole) {
-    notify('Unauthorized', 'You are not authorized to view this page', 'red');
-    return <></>
-  }
+	if (role !== allowedRole) {
+		notify('Unauthorized', 'You are not authorized to view this page', 'red');
+		return <></>
+	}
 
-  return (
-    <>
-      {children}
-    </>
-  );
+	return (
+		<>
+			{children}
+		</>
+	);
 };

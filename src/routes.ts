@@ -11,7 +11,7 @@ export const publicRoutes: string[] = ['/', '/about', '/modpacks', '/mods'];
  * @type {string[]}
  */
 export const authRoutes: string[] = [
-  '/auth/error',
+	'/auth/error',
 ];
 
 /**
