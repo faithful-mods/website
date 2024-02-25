@@ -7,7 +7,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint --fix",
-		"postinstall": "prisma generate --schema=./src/prisma/schema.prisma",
+		"postinstall": "prisma generate",
 		"prepare": "husky install"
 	},
 	"dependencies": {
