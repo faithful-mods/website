@@ -2,44 +2,40 @@
 
 ### Prerequisites
 
-**Node version 18.7.x**
+- Node **18**
+- Docker
 
-### Cloning the repository
-
-```shell
-git clone https://github.com/AntonioErdeljac/next-auth-v5-advanced-guide.git
-```
-
-### Install packages
+### Project setup
 
 ```shell
-npm i
+# install dependencies
+npm ci
+# to setup conventional commits
+npm run prepare
 ```
 
 ### Setup .env file
 
-```env
-DATABASE_URL=
-DIRECT_URL=
+```properties
+# local/prod postgres database url
+DATABASE_URL= postgres_url
+DIRECT_URL= postgres_url + &pgbouncer=true&connect_timeout=15
 
+# openssl rand -base64 32
 AUTH_SECRET=
-NEXT_PUBLIC_APP_URL=
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
+# Github OAuth credentials, create a new OAuth app at
+# https://github.com/settings/developers
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 ```
-<!-- 
-### Setup PostgreSQL
-
-Download Docker image
-```shell
-docker pull postgres
-```
-
 
 ### Setup Prisma
 ```shell
+# generate prisma client types
 npx prisma generate
+# update the database (create tables, columns, etc)
 npx prisma db push
 ```
 
@@ -48,11 +44,3 @@ npx prisma db push
 ```shell
 npm run dev
 ```
-
-## Available commands
-
-Running commands with npm `npm run [command]`
-
-| command         | description                              |
-| :-------------- | :--------------------------------------- |
-| `dev`           | Starts a development instance of the app | -->
