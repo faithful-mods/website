@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { GitHubLogin } from '@/components/auth/github-login';
 import { LoggedUser } from '@/components/auth/logged-user';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { cn, gradient } from '@/lib/utils';
 
 import { ThemeSwitch } from './theme-switch';
 
@@ -33,8 +34,8 @@ export const Navbar = () => {
 							<Button
 								autoContrast
 								variant={pathname === link.href ? 'gradient' : 'transparent'}
-								gradient={{ from: 'cyan', to: 'teal', deg: 90 }}
-								color="teal"
+								gradient={gradient}
+								color={gradient.to}
 							>
 								{link.label}
 							</Button>

@@ -1,7 +1,7 @@
 // prisma/schema.prisma
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -31,17 +31,130 @@ model Account {
 	user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
 	@@unique([provider, providerAccountId])
-	@@map("auth_accounts")
+	@@map("users_accounts")
+}
+
+model Modpack {
+  id        String           @id @default(cuid())
+  name      String
+  versions  ModpackVersion[]
+  createdAt DateTime         @default(now())
+
+  @@map("modpacks")
+}
+
+model ModpackVersion {
+  id        String       @id @default(cuid())
+  version   String
+  modpack   Modpack      @relation(fields: [modpackId], references: [id])
+  modpackId String       @map("modpack_id")
+  mods      ModVersion[]
+
+  @@map("modpacks_versions")
+}
+
+model Mod {
+  id        String       @id @default(cuid())
+  name      String
+  versions  ModVersion[]
+  createdAt DateTime     @default(now())
+
+  @@map("mods")
+}
+
+model ModVersion {
+  id               String          @id @default(cuid())
+  version          String
+  mod              Mod             @relation(fields: [modId], references: [id])
+  modId            String          @map("mod_id")
+  resources        Resource[]
+  ModpackVersion   ModpackVersion? @relation(fields: [modpackVersionId], references: [id])
+  modpackVersionId String?
+
+  @@map("mods_versions")
+}
+
+model Resource {
+	id          String       @id @default(cuid())
+	assetFolder String
+	modId       String       @map("mod_id")
+	mod         ModVersion   @relation(fields: [modId], references: [id])
+	textures    Texture[]
+	blockModels BlockModel[]
+	itemModels  ItemModel[]
+
+	@@unique([assetFolder, modId])
+	@@map("resources")
+}
+
+model Texture {
+  id            String         @id @default(cuid())
+  name          String
+  contributions Contribution[]
+	filepath			String
+  resourceId    String         @map("resource_id")
+  resource      Resource       @relation(fields: [resourceId], references: [id])
+
+  @@map("textures")
+}
+
+model BlockModel {
+  id            String         @id @default(cuid())
+  name          String
+  contributions Contribution[]
+	json					String
+  resourceId    String         @map("resource_id")
+  resource      Resource       @relation(fields: [resourceId], references: [id])
+
+  @@map("block_models")
+}
+
+model ItemModel {
+  id            String         @id @default(cuid())
+  name          String
+  contributions Contribution[]
+	json					String
+  resourceId    String         @map("resource_id")
+  resource      Resource       @relation(fields: [resourceId], references: [id])
+
+  @@map("item_models")
+}
+
+model Contribution {
+  id           String      @id @default(cuid())
+  file         String
+  date         DateTime    @default(now())
+  users        User[]
+  Texture      Texture?    @relation(fields: [textureId], references: [id])
+  textureId    String?
+  blockModel   BlockModel? @relation(fields: [blockModelId], references: [id])
+  blockModelId String?
+  itemModel    ItemModel?  @relation(fields: [itemModelId], references: [id])
+  itemModelId  String?
+
+  @@map("users_contributions")
 }
 
 model User {
-	id            String    @id @default(cuid())
-	name          String?
-	email         String?   @unique
-	emailVerified DateTime? @map("email_verified")
-	image         String?
-	role          UserRole  @default(USER)
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?      @map("email_verified")
+  image         String?
+  role          UserRole       @default(USER)
 	accounts      Account[]
+  contributions Contribution[]
 
-	@@map("auth_users")
+  pollsUpvoted   Poll[] @relation("Upvotes")
+  pollsDownvoted Poll[] @relation("Downvotes")
+
+	@@map("users")
+}
+
+model Poll {
+  id        String @id @default(cuid())
+  upvotes   User[] @relation("Upvotes")
+  downvotes User[] @relation("Downvotes")
+
+  @@map("users_polls")
 }

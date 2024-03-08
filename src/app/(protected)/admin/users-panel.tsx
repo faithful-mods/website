@@ -7,7 +7,6 @@ import { User, UserRole } from '@prisma/client';
 import { useEffect, useState } from 'react';
 
 import { notify } from '@/lib/utils';
-import { UserSettingsSchema } from '@/schemas';
 import { getUsers, updateUserRole } from '@/server/actions/admin';
 
 export function UsersPanel() {

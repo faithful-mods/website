@@ -1,14 +1,14 @@
 'use client';
 
-import { Button, Text, Card, TextInput } from '@mantine/core';
-import { useForm, FormErrors } from '@mantine/form';
+import { Button, Text, Card, TextInput, Image, Group, Stack, Badge } from '@mantine/core';
+import { useForm } from '@mantine/form';
 import { useSession } from 'next-auth/react';
-import { useTransition, useState } from 'react';
+import { useTransition } from 'react';
 import * as z from 'zod';
 
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { MAX_USERNAME_LENGTH, MIN_USERNAME_LENGTH } from '@/lib/constants';
-import { capitalize, notify } from '@/lib/utils';
+import { capitalize, gradient, notify } from '@/lib/utils';
 import { UserSettingsSchema } from '@/schemas';
 import { updateUser } from '@/server/actions/settings';
 
@@ -22,7 +22,7 @@ export function UserSettingsPanel() {
 	const form = useForm<z.infer<typeof UserSettingsSchema>>({
 		initialValues: {
 			name: user?.name || '',
-			role: capitalize(user?.role || 'USER') as z.infer<typeof UserSettingsSchema>['role']
+			image: user?.image || '',
 		},
 		validateInputOnBlur: true,
 		validateInputOnChange: true,
@@ -59,14 +59,21 @@ export function UserSettingsPanel() {
 			radius="md" 
 			withBorder
 		>
-			<Text fw={500}>Profile Settings</Text>
+			<Group align="start">
+				<Image radius="md" src={user?.image || ''} alt="User avatar" width={100} height={100} />
+				<Stack align="start" gap={0}>
+					<Text size="md" fw={700}>Profile Settings</Text>
+					<Text size="sm">Update your profile information</Text>
+					<Badge mt="sm" color="teal" variant="filled">{user?.role}</Badge>
+				</Stack>
+			</Group>
 
 			<TextInput label="Name" {...form.getInputProps('name')} mt="md" />
-			<TextInput label="Status" {...form.getInputProps('role')} mt="sm" disabled />
+			<TextInput label="Picture URL" {...form.getInputProps('image')} mt="sm" />
 
 			<Button 
 				variant="gradient"
-				gradient={{ from: 'cyan', to: 'teal', deg: 90 }}
+				gradient={gradient}
 				onClick={() => onSubmit(form.values)}
 				fullWidth 
 				loading={isPending}

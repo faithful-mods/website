@@ -29,11 +29,11 @@ class UserSettings {
 		});
 
 		update({
-			user: {
-				name: updatedUser.name,
-				email: updatedUser.email,
-			}
+			user: updatedUser,
 		});
+
+		// refresh logged in user
+		await currentUser();
 
 		return { success: true, result: { user: updatedUser } };
 	}

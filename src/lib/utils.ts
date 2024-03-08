@@ -1,4 +1,4 @@
-import { MantineColor } from '@mantine/core'
+import { MantineColor, MantineGradient } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
@@ -8,6 +8,12 @@ import { NOTIFICATIONS_DURATION_MS } from './constants'
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
 }
+
+export const gradient: MantineGradient = {
+	from: 'cyan',
+	to: 'blue',
+	deg: 69,
+}; 
 
 export function capitalize(str: string) {
 	if (str.length === 0) return str
