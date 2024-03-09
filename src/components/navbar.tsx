@@ -22,7 +22,7 @@ export const Navbar = () => {
 		{ href: '/mods', label: 'Mods' },
 	]
 
-	if (user) links.push({ href: '/settings', label: 'Settings' });
+	if (user) links.push({ href: '/settings/me', label: 'Settings' });
 	if (user && user.role === 'ADMIN') links.push({ href: '/admin', label: 'Dashboard' });
 
 	return (

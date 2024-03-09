@@ -10,9 +10,7 @@ export const publicRoutes: string[] = ['/', '/about', '/modpacks', '/mods'];
  * These routes will redirect logged in users to /settings
  * @type {string[]}
  */
-export const authRoutes: string[] = [
-	'/auth/error',
-];
+export const authRoutes: string[] = [];
 
 /**
  * The prefix for API authentication routes

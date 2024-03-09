@@ -7,7 +7,7 @@ import { useTransition } from 'react';
 import * as z from 'zod';
 
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { MAX_USERNAME_LENGTH, MIN_USERNAME_LENGTH } from '@/lib/constants';
+import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '@/lib/constants';
 import { capitalize, gradient, notify } from '@/lib/utils';
 import { UserSettingsSchema } from '@/schemas';
 import { updateUser } from '@/server/actions/settings';
@@ -29,8 +29,8 @@ export function UserSettingsPanel() {
 		validate: {
 			name: (value) => {
 				if (!value) return 'You must provide a name';
-				if (value.length < MIN_USERNAME_LENGTH) return `Your name should be at least ${MIN_USERNAME_LENGTH} characters long`;
-				if (value.length > MAX_USERNAME_LENGTH) return `Your name should be less than ${MAX_USERNAME_LENGTH} characters long`;
+				if (value.length < MIN_NAME_LENGTH) return `Your name should be at least ${MIN_NAME_LENGTH} characters long`;
+				if (value.length > MAX_NAME_LENGTH) return `Your name should be less than ${MAX_NAME_LENGTH} characters long`;
 			},
 		}
 	});
@@ -64,7 +64,9 @@ export function UserSettingsPanel() {
 				<Stack align="start" gap={0}>
 					<Text size="md" fw={700}>Profile Settings</Text>
 					<Text size="sm">Update your profile information</Text>
-					<Badge mt="sm" color="teal" variant="filled">{user?.role}</Badge>
+					<Group gap="sm">
+						<Badge mt="sm" color="teal" variant="filled">{user?.role}</Badge>
+					</Group>
 				</Stack>
 			</Group>
 
@@ -76,6 +78,7 @@ export function UserSettingsPanel() {
 				gradient={gradient}
 				onClick={() => onSubmit(form.values)}
 				fullWidth 
+				disabled={isPending || !form.isValid()}
 				loading={isPending}
 				mt="md"
 			>
