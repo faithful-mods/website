@@ -25,16 +25,16 @@ export default async function RootLayout({children}: { children: React.ReactNode
 	const session = await auth();
 
 	return (
-		<html lang="en">
+		<html lang='en'>
 			<head>
 				<ColorSchemeScript />
 			</head>
 			<body>
 				<SessionProvider session={session}>
 					<MantineProvider theme={theme}>
-						<Notifications className="w-[200px] absolute" right={20} bottom={20} />
 						<Navbar />
 						{children}
+						<Notifications w='fit-content' className='absolute' left={20} bottom={20} />
 					</MantineProvider>
 				</SessionProvider>
 			</body>

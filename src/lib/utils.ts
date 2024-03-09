@@ -1,5 +1,5 @@
 import { MantineColor, MantineGradient } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
+import { showNotification } from '@mantine/notifications'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -23,7 +23,7 @@ export function capitalize(str: string) {
 }
 
 export function notify(title: string, message: React.ReactNode, color: MantineColor) {
-	notifications.show({
+	showNotification({
 		title,
 		message,
 		autoClose: NOTIFICATIONS_DURATION_MS,
