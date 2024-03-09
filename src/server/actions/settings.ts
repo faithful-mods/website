@@ -32,9 +32,6 @@ class UserSettings {
 			user: updatedUser,
 		});
 
-		// refresh logged in user
-		await currentUser();
-
 		return { success: true, result: { user: updatedUser } };
 	}
 }

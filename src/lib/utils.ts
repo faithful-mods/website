@@ -31,3 +31,14 @@ export function notify(title: string, message: React.ReactNode, color: MantineCo
 		color,
 	});
 }
+
+/**
+ * @deprecated FILES SHOULD NOT BE CONVERTED TO BASE64
+ */
+export const toBase64 = async (file: File): Promise<`data:${string}/${string};base64,${string}`> =>
+	new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = () => resolve(reader.result as any);
+		reader.onerror = reject;
+	});
