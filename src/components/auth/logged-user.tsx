@@ -18,6 +18,7 @@ export const LoggedUser = () => {
 			<Avatar 
 				className="cursor-pointer navbar-icon-fix"
 				variant="outline"
+				radius={4}
 				src={user?.image}
 				onClick={() => logout()}
 			>

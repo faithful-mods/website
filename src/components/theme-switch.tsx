@@ -7,19 +7,19 @@ import { TbSun, TbMoon, TbSunMoon, TbCloud } from 'react-icons/tb';
 export const ThemeSwitch = () => {
 	const colorSchemes: MantineColorScheme[] = ['light', 'dark', 'auto'];
 
-	const [icon, setIcon] = useState<React.ReactNode>(<TbCloud className="w-4 h-4"/>);
+	const [icon, setIcon] = useState<React.ReactNode>(<TbCloud className="w-5 h-5"/>);
 	const { colorScheme, setColorScheme } = useMantineColorScheme();
 
 	const setIconFromStr = (scheme: MantineColorScheme) => {
 		switch (scheme) {
 		case 'light':
-			setIcon(<TbSun className="w-4 h-4"/>);
+			setIcon(<TbMoon className="w-5 h-5"/>);
 			break;
 		case 'dark':
-			setIcon(<TbMoon className="w-4 h-4"/>);
+			setIcon(<TbSun className="w-5 h-5"/>);
 			break;
 		default:
-			setIcon(<TbSunMoon className="w-4 h-4"/>);
+			setIcon(<TbSunMoon className="w-5 h-5"/>);
 			break;
 		}
 	}
@@ -36,9 +36,8 @@ export const ThemeSwitch = () => {
 
 	return (
 		<ActionIcon 
-			size="lg" 
+			size="sm"
 			onClick={() => toggleColorScheme()}
-			radius={100}
 			variant="outline"
 			className="navbar-icon-fix"
 		>

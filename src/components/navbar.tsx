@@ -1,8 +1,9 @@
 'use client';
 
-import { Button, Card, Group, } from '@mantine/core';
+import { ActionIcon, Avatar, Button, Card, Group, Image, } from '@mantine/core';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { TbSettings2 } from 'react-icons/tb';
 
 import { GitHubLogin } from '@/components/auth/github-login';
 import { LoggedUser } from '@/components/auth/logged-user';
@@ -16,19 +17,20 @@ export const Navbar = () => {
 	const user = useCurrentUser();
 
 	const links = [
-		{ href: '/', label: 'Home' },
 		{ href: '/about', label: 'About' },
 		{ href: '/modpacks', label: 'Modpacks' },
 		{ href: '/mods', label: 'Mods' },
 	]
 
-	if (user) links.push({ href: '/settings/me', label: 'Settings' });
 	if (user && user.role === 'ADMIN') links.push({ href: '/dashboard', label: 'Dashboard' });
 
 	return (
 		<Card padding="sm" withBorder mb="sm">
 			<Group justify="space-between">
 				<Group gap="sm">
+					<Link href="/" className="navbar-icon-fix">
+						<Image src="/icon.png" alt="FM" className="navbar-icon-fix" />
+					</Link>
 					{links.map((link, index) => (
 						<Link href={link.href} key={index}>
 							<Button
@@ -44,6 +46,13 @@ export const Navbar = () => {
 				</Group>
 				<Group gap="sm">
 					<ThemeSwitch />
+					{user && <Link href='/settings/me'>
+						<ActionIcon 
+							size="lg" 
+							variant="outline"
+							className="navbar-icon-fix"
+						><TbSettings2 className="w-5 h-5"/></ActionIcon>
+					</Link>}
 					{user && <LoggedUser />}
 					{!user && <GitHubLogin />}
 				</Group>
