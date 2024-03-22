@@ -10,9 +10,10 @@ export const LoggedUser = () => {
 
 	return (
 		<Tooltip 
-			label={<span className="text-red-500">Click to logout</span>}
+			label={<span className="text-white">Logout</span>}
 			position="left"
-			className="border"
+			className="border shadow-md"
+			style={{ background: 'linear-gradient(69deg, var(--mantine-color-red-filled) 0%, var(--mantine-color-pink-filled) 100%)' }}
 		>
 			<Avatar 
 				className="cursor-pointer navbar-icon-fix"
