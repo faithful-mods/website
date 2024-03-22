@@ -5,9 +5,13 @@
 		"Mantine",
 		"prisma",
 		"stylelint",
-		"tailwindcss"
+		"tailwindcss",
+		"uploadthing",
+		"Uploadthing"
 	],
 	"files.exclude": {
+		"**/.husky": true,
+		"**/.next": true,
 		"**/.git": true,
 		"**/.svn": true,
 		"**/.hg": true,

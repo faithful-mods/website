@@ -1,6 +1,7 @@
 [*]
 tab_width = 2
 indent_style = tab
+quote_type = single
 
 [*.yml]
 tab_width = 2
