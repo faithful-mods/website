@@ -10,7 +10,6 @@
 		"Uploadthing"
 	],
 	"files.exclude": {
-		"**/.husky": true,
 		"**/.next": true,
 		"**/.git": true,
 		"**/.svn": true,
