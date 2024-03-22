@@ -1,15 +1,15 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Avatar, Badge, Card, Code, Group, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Avatar, Badge, Card, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { User, UserRole } from '@prisma/client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TbExternalLink } from 'react-icons/tb';
 
+import { useEffectOnce } from '@/hooks/use-effect-once';
 import { notify } from '@/lib/utils';
-import { getUsers, updateUserRole } from '@/server/actions/admin';
+import { getUsers, updateUserRole } from '@/server/data/user';
 
 export function UsersPanel() {
 	const [users, setUsers] = useState<User[] | undefined>();
@@ -34,19 +34,17 @@ export function UsersPanel() {
 		setFilteredUsers(filtered.sort(sortUsers));
 	}
 
-	useEffect(() => {
+	useEffectOnce(() => {
 		getUsers()
-			.then((data) => {
-				if (!data.success) return notify('Error', data.error, 'red');
-
-				setUsers(data.result.users.sort(sortUsers));
-				setFilteredUsers(data.result.users.sort(sortUsers));
+			.then((users) => {
+				setUsers(users.sort(sortUsers));
+				setFilteredUsers(users.sort(sortUsers));
 			})
 			.catch((err) => {
 				console.error(err);
-				notify('Error', 'Something went wrong', 'red');
+				notify('Error', err.message, 'red');
 			});
-	}, []);
+	});
 
 	return (
 		<Card 
@@ -88,7 +86,7 @@ export function UsersPanel() {
 									onChange={(role) => {
 										setFilteredUsers(filteredUsers.map((u) => u.id === user.id ? { ...u, role: role as UserRole } : u));
 										setUsers(users?.map((u) => u.id === user.id ? { ...u, role: role as UserRole } : u));
-										updateUserRole({ id: user.id, role: (role as UserRole) ?? 'USER' });
+										updateUserRole(user.id, role as UserRole ?? 'USER');
 										// TODO: refresh logged in user if it's the same user
 									}}
 								/>

@@ -15,6 +15,12 @@ export const gradient: MantineGradient = {
 	deg: 69,
 }; 
 
+export const gradientDanger: MantineGradient = {
+	from: 'red',
+	to: 'pink',
+	deg: 69,
+};
+
 export function capitalize(str: string) {
 	if (str.length === 0) return str
 
@@ -32,13 +38,6 @@ export function notify(title: string, message: React.ReactNode, color: MantineCo
 	});
 }
 
-/**
- * @deprecated FILES SHOULD NOT BE CONVERTED TO BASE64
- */
-export const toBase64 = async (file: File): Promise<`data:${string}/${string};base64,${string}`> =>
-	new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.readAsDataURL(file);
-		reader.onload = () => resolve(reader.result as any);
-		reader.onerror = reject;
-	});
+export function sortByName<T extends { name: string }>(a: T, b: T) {
+	return a.name.localeCompare(b.name) || 0;
+}

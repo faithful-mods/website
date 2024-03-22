@@ -23,7 +23,7 @@ export const Navbar = () => {
 	]
 
 	if (user) links.push({ href: '/settings/me', label: 'Settings' });
-	if (user && user.role === 'ADMIN') links.push({ href: '/admin', label: 'Dashboard' });
+	if (user && user.role === 'ADMIN') links.push({ href: '/dashboard', label: 'Dashboard' });
 
 	return (
 		<Card padding="sm" withBorder mb="sm">

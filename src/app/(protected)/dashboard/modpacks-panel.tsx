@@ -4,39 +4,37 @@ import { Image, Badge, Card, Group, Text, TextInput, Button, Stack, Modal } from
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack } from '@prisma/client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TbPlus } from 'react-icons/tb';
 
-import { gradient, notify } from '@/lib/utils';
-import { getModpacks } from '@/server/actions/admin';
+import { useEffectOnce } from '@/hooks/use-effect-once';
+import { gradient, notify, sortByName } from '@/lib/utils';
+import { getModpacks } from '@/server/data/modpacks';
 
 import { ModpackModal } from './modpack-modal';
 
 export function ModpacksPanel() {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
+
 	const [modalModpack, setModalModpack] = useState<Modpack | undefined>();
+	const [modpacks, setModpacks] = useState<[Modpack[] | undefined, Modpack[] | undefined]>();
 
-	const [modpacks, setModpacks] = useState<Modpack[] | undefined>();
-	const [filteredModpacks, setFilteredUsers] = useState<Modpack[] | undefined>();
-
-
-	const form = useForm({
+	const form = useForm<{ search: string }>({
 		initialValues: {
 			search: '',
 		},
 	});
 
-	const sortModpacks = (a: Modpack, b: Modpack) => a.name?.localeCompare(b.name ?? '') || 0;
+	const searchModpack = (search: string) => {
+		if (!modpacks) return;
 
-	const filterModpacks = () => {
-		const search = form.values['search'];
-		if (!search || search.length === 0 || !modpacks) {
-			setFilteredUsers(modpacks?.sort(sortModpacks));
+		if (!search || search.length === 0) {
+			setModpacks([modpacks[0], modpacks[0]]);
 			return;
 		}
 
-		const filtered = modpacks.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
-		setFilteredUsers(filtered.sort(sortModpacks));
+		const filtered = modpacks[0]?.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
+		setModpacks([modpacks[0], filtered]);
 	}
 
 	const openModpackModal = (modpack?: Modpack | undefined) => {
@@ -44,19 +42,34 @@ export function ModpacksPanel() {
 		openModal();
 	};
 
-	useEffect(() => {
-		getModpacks()
-			.then((data) => {
-				if (!data.success) return notify('Error', data.error, 'red');
+	const closeModpackModal = (editedModpack: Modpack | string) => {
+		const [base, _] = modpacks ?? [];
 
-				setModpacks(data.result.modpacks.sort(sortModpacks));
-				setFilteredUsers(data.result.modpacks.sort(sortModpacks));
+		// deleted
+		if (typeof editedModpack === 'string') {
+			
+			const cleared = (base?.filter((modpack) => modpack.id !== editedModpack) ?? []).sort(sortByName);
+			setModpacks([cleared, cleared]);
+			closeModal();
+			return;
+		}
+
+		// edited
+		const updated = [...base?.filter((modpack) => modpack.id !== editedModpack.id) ?? [], editedModpack].sort(sortByName);
+		setModpacks([updated, updated]);
+		closeModal();
+	}
+
+	useEffectOnce(() => {
+		getModpacks()
+			.then((modpacks) => {
+				setModpacks([modpacks.sort(sortByName), modpacks.sort(sortByName)]);
 			})
 			.catch((err) => {
 				console.error(err);
-				notify('Error', 'Something went wrong', 'red');
+				notify('Error', err.message, 'red');
 			});
-	}, []);
+	});
 
 	return (
 		<>
@@ -64,9 +77,9 @@ export function ModpacksPanel() {
 				size="100%"
 				opened={modalOpened} 
 				onClose={closeModal} 
-				title={modalModpack ? `Update ${modalModpack.name}` : 'Create a new modpack'}
+				title={modalModpack ? `Update "${modalModpack.name}"` : 'Create a new modpack'}
 			>
-				<ModpackModal modpack={modalModpack} onClose={closeModal} />
+				<ModpackModal modpack={modalModpack} onClose={closeModpackModal} />
 			</Modal>
 			<Card 
 				shadow="sm" 
@@ -79,14 +92,14 @@ export function ModpacksPanel() {
 					<Badge color="teal" variant="filled">{modpacks?.length ?? '?'}</Badge>
 				</Group>
 				<TextInput 
-					placeholder="Search modpacks..." 
-					onKeyUp={filterModpacks}
-					{...form.getInputProps('search')}
 					mt="md"
+					placeholder="Search modpacks..." 
+					onKeyUp={() => searchModpack(form.values.search)}
+					{...form.getInputProps('search')}
 				/>
 
 				{!modpacks && (<Text mt="sm">Loading...</Text>)}
-				{filteredModpacks && (
+				{modpacks && (
 					<Group mt="md" align="start">
 						<Stack gap={5}>
 							<Button 
@@ -100,7 +113,7 @@ export function ModpacksPanel() {
 							<Text size="sm" ta="center" maw={90}>Add</Text>
 						</Stack>
 
-						{filteredModpacks.map((modpack, index) => (
+						{modpacks && modpacks[1]?.map((modpack, index) => (
 							<Stack gap={5} key={index}>
 								<Image 
 									radius="sm"

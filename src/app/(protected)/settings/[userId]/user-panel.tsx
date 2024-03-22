@@ -1,31 +1,30 @@
 'use client';
 
-import { Button, Text, Card, TextInput, Image, Group, Stack, Badge } from '@mantine/core';
+import { Button, Text, Card, TextInput, Image, Group, Stack, Badge, Skeleton } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { User } from '@prisma/client';
+import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useTransition } from 'react';
-import * as z from 'zod';
+import { useState, useTransition } from 'react';
 
+import { useCurrentRole } from '@/hooks/use-current-role';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { useEffectOnce } from '@/hooks/use-effect-once';
 import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '@/lib/constants';
-import { capitalize, gradient, notify } from '@/lib/utils';
-import { UserSettingsSchema } from '@/schemas';
+import { gradient, notify } from '@/lib/utils';
 import { updateUser } from '@/server/actions/settings';
-
+import { getUserById } from '@/server/data/user';
 
 export function UserSettingsPanel() {
-	const user = useCurrentUser();
+	const loggedUser = useCurrentUser();
+	const currRole = useCurrentRole();
+	const params = useParams();
 
 	const { update } = useSession();
 	const [isPending, startTransition] = useTransition();
+	const [displayedUser, setDisplayedUser] = useState<User>();
 
-	const form = useForm<z.infer<typeof UserSettingsSchema>>({
-		initialValues: {
-			name: user?.name || '',
-			image: user?.image || '',
-		},
-		validateInputOnBlur: true,
-		validateInputOnChange: true,
+	const form = useForm<{ name: string, image: string }>({
 		validate: {
 			name: (value) => {
 				if (!value) return 'You must provide a name';
@@ -35,18 +34,34 @@ export function UserSettingsPanel() {
 		}
 	});
 
-	const onSubmit = (values: z.infer<typeof UserSettingsSchema>) => {
+	useEffectOnce(() => {
+		const userId = params.userId === 'me' ? loggedUser?.id! : params.userId as string;
+		
+		getUserById(userId)
+			.then((user) => {
+				setDisplayedUser(user);
+				form.setFieldValue('name', user.name ?? '');
+				form.setFieldValue('image', user.image ?? '');
+			})
+			.catch((err: Error) => {
+				notify('Error', err.message, 'red');
+			})
+	})
+
+	const onSubmit = (values: typeof form.values) => {
+		if (displayedUser === undefined) return;
+
 		startTransition(() => {
-			updateUser(values)
+			updateUser(values, displayedUser.id)
 				.then((data) => {
 					if (!data.success) return notify('Error', data.error, 'red');
 
-					update();
+					update(data);
 					notify('Success', 'Profile updated', 'teal');
 				})
 				.catch((err) => {
 					console.error(err);
-					notify('Error', 'Something went wrong', 'red')
+					notify('Error', err.message, 'red')
 				});
 		});
 	}
@@ -60,25 +75,26 @@ export function UserSettingsPanel() {
 			withBorder
 		>
 			<Group align="start">
-				<Image radius="md" src={user?.image || ''} alt="User avatar" width={100} height={100} />
+				{displayedUser?.image && <Image radius="md" src={displayedUser?.image} alt="User avatar" width={100} height={100} />}
+				{!displayedUser?.image && <Skeleton width={100} height={100} radius="md" animate={false} />}
 				<Stack align="start" gap={0}>
 					<Text size="md" fw={700}>Profile Settings</Text>
-					<Text size="sm">Update your profile information</Text>
+					<Text size="sm">Update {params.userId === 'me' ? 'your profile' : `${displayedUser?.name} profile's` } information</Text>
 					<Group gap="sm">
-						<Badge mt="sm" color="teal" variant="filled">{user?.role}</Badge>
+						<Badge mt="sm" color="teal" variant="filled">{displayedUser?.role ?? '???'}</Badge>
 					</Group>
 				</Stack>
 			</Group>
 
-			<TextInput label="Name" {...form.getInputProps('name')} mt="md" />
-			<TextInput label="Picture URL" {...form.getInputProps('image')} mt="sm" />
+			<TextInput mt="md" label="Name" {...form.getInputProps('name')} />
+			<TextInput mt="sm" label="Picture URL" {...form.getInputProps('image')} />
 
 			<Button 
 				variant="gradient"
 				gradient={gradient}
 				onClick={() => onSubmit(form.values)}
 				fullWidth 
-				disabled={isPending || !form.isValid()}
+				disabled={isPending || !form.isValid() || displayedUser === undefined}
 				loading={isPending}
 				mt="md"
 			>
