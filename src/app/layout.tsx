@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 
 import { ColorSchemeScript, createTheme, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import Head from 'next/head';
 import { SessionProvider } from 'next-auth/react'
 
 import { auth } from '@/auth'
@@ -26,9 +25,9 @@ export default async function RootLayout({children}: { children: React.ReactNode
 
 	return (
 		<html lang='en'>
-			<Head>
+			<head>
 				<ColorSchemeScript />
-			</Head>
+			</head>
 			<body>
 				<SessionProvider session={session}>
 					<MantineProvider theme={theme}>
