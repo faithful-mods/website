@@ -7,7 +7,6 @@ import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState, useTransition } from 'react';
 
-import { useCurrentRole } from '@/hooks/use-current-role';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useEffectOnce } from '@/hooks/use-effect-once';
 import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '@/lib/constants';
@@ -17,7 +16,6 @@ import { getUserById } from '@/server/data/user';
 
 export function UserSettingsPanel() {
 	const loggedUser = useCurrentUser();
-	const currRole = useCurrentRole();
 	const params = useParams();
 
 	const { update } = useSession();
@@ -75,7 +73,7 @@ export function UserSettingsPanel() {
 			withBorder
 		>
 			<Group align="start">
-				{displayedUser?.image && <Image radius="md" src={displayedUser?.image} alt="User avatar" width={100} height={100} />}
+				{displayedUser?.image && <Image radius="md" src={displayedUser?.image} alt="User avatar" width={100} height={100} style={{ backgroundColor: 'var(--mantine-color-dark-7)' }} />}
 				{!displayedUser?.image && <Skeleton width={100} height={100} radius="md" animate={false} />}
 				<Stack align="start" gap={0}>
 					<Text size="md" fw={700}>Profile Settings</Text>

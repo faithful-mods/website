@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Badge, Card, Group, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Badge, Button, Card, Group, Image, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { User, UserRole } from '@prisma/client';
 import Link from 'next/link';
@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { TbExternalLink } from 'react-icons/tb';
 
 import { useEffectOnce } from '@/hooks/use-effect-once';
-import { notify } from '@/lib/utils';
+import { gradient, notify } from '@/lib/utils';
 import { getUsers, updateUserRole } from '@/server/data/user';
 
 export function UsersPanel() {
@@ -71,9 +71,13 @@ export function UsersPanel() {
 					{filteredUsers.map((user, index) => (
 						<Group key={index} justify="space-between" align="center">
 							<Group gap="sm">
-								<Avatar variant="outline" src={user?.image} radius={4}>
-									{ (user.name ?? '?')[0] }
-								</Avatar>
+								<Image 
+									src={user?.image} 
+									alt={(user.name ?? '?')[0]}
+									radius={4}
+									className="navbar-icon-fix"
+									style={{ backgroundColor: 'var(--mantine-color-dark-7)' }}
+								/>
 								<Text>{user.name ?? 'Unknown User'}</Text>
 							</Group>
 							<Group gap="sm">
@@ -90,8 +94,14 @@ export function UsersPanel() {
 										// TODO: refresh logged in user if it's the same user
 									}}
 								/>
-								<Link href={'/settings/' + user.id} style={{ height: '22px' }}>
-									<TbExternalLink />	
+								<Link href={'/settings/' + user.id}>
+									<Button 
+										variant='gradient'
+										gradient={gradient}
+										className="navbar-icon-fix"
+									>
+										<TbExternalLink />	
+									</Button>
 								</Link>
 							</Group>
 						</Group>

@@ -4,11 +4,9 @@ import { Group, Image, Skeleton, FileInput, TextInput, Badge, Stack } from '@man
 import { UseFormReturnType } from '@mantine/form';
 
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<{ id: string, name: string, image: File | string }>, previewImg: string, modpack: Modpack | undefined }) {
-	console.log(modpack, form.values.image);
-
 	return (
 		<Group gap="md" align="start" mt="md">
-			{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={200} height={200} fit="contain" />}
+			{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={200} height={200} fit="contain" style={{ backgroundColor: 'var(--mantine-color-dark-8)' }} />}
 			{previewImg === '' && <Skeleton width={200} height={200} radius="md" animate={false} />}
 
 			<Stack w="calc(100% - 200px - var(--mantine-spacing-md))" gap="sm">

@@ -30,7 +30,7 @@ export const Navbar = () => {
 	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home' });
 
 	return (
-		<Card padding="sm" withBorder mb="sm" mt={windowWidth >= BREAKPOINT_TABLET ? 'sm' : 0}>
+		<Card padding="sm" withBorder mb="sm" mt="sm">
 			<Group justify="space-between" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 				<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 					{windowWidth >= BREAKPOINT_MOBILE_MEDIUM && 

@@ -77,7 +77,7 @@ export function ModpacksPanel() {
 				size="100%"
 				opened={modalOpened} 
 				onClose={closeModal} 
-				title={modalModpack ? `Update "${modalModpack.name}"` : 'Create a new modpack'}
+				title={modalModpack ? modalModpack.name : 'Create a new modpack'}
 			>
 				<ModpackModal modpack={modalModpack} onClose={closeModpackModal} />
 			</Modal>
@@ -89,35 +89,38 @@ export function ModpacksPanel() {
 			>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Modpacks</Text>
-					<Badge color="teal" variant="filled">{modpacks?.length ?? '?'}</Badge>
+					<Badge color="teal" variant="filled">{(modpacks && modpacks[0]?.length) ?? '?'}</Badge>
 				</Group>
-				<TextInput 
-					mt="md"
-					placeholder="Search modpacks..." 
-					onKeyUp={() => searchModpack(form.values.search)}
-					{...form.getInputProps('search')}
-				/>
+				<Group align="center" mt="md" gap="sm" wrap="nowrap">
+					<TextInput 
+						className="w-full"
+						placeholder="Search modpacks..." 
+						onKeyUp={() => searchModpack(form.values.search)}
+						{...form.getInputProps('search')}
+					/>
+					<Button 
+						variant='gradient'
+						gradient={gradient}
+						className="navbar-icon-fix"
+						onClick={() => openModpackModal()} 
+					>
+						<TbPlus />
+					</Button>
+				</Group>
 
 				{!modpacks && (<Text mt="sm">Loading...</Text>)}
-				{modpacks && (
+				
+				{modpacks && modpacks[0]?.length === 0 && (<Text mt="sm">No modpacks created yet!</Text>)}
+				{modpacks && modpacks[0]?.length !== 0 && modpacks[1]?.length === 0 && (<Text mt="sm">No results found!</Text>)}
+				
+				{modpacks && (modpacks[0]?.length ?? 0) > 0 && (
 					<Group mt="md" align="start">
-						<Stack gap={5}>
-							<Button 
-								variant='gradient'
-								gradient={gradient}
-								onClick={() => openModpackModal()} 
-								className="w-[90px] h-[90px]"
-							>
-								<TbPlus className="w-[45px] h-[45px]"/>
-							</Button>
-							<Text size="sm" ta="center" maw={90}>Add</Text>
-						</Stack>
-
 						{modpacks && modpacks[1]?.map((modpack, index) => (
 							<Stack gap={5} key={index}>
 								<Image 
 									radius="sm"
 									className='cursor-pointer'
+									style={{ backgroundColor: 'var(--mantine-color-dark-7)' }}
 									onClick={() => openModpackModal(modpack)} 
 									src={modpack.image}
 									alt={modpack.name} 
