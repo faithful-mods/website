@@ -11,7 +11,7 @@ import { useEffectOnce } from '@/hooks/use-effect-once';
 import { gradient, notify, sortByName } from '@/lib/utils';
 import { getModpacks } from '@/server/data/modpacks';
 
-import { ModpackModal } from './modpack-modal';
+import { ModpackModal } from './modal/modpack-modal';
 
 export function ModpacksPanel() {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);

@@ -4,9 +4,8 @@ import { Grid, Stack } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 
 import { RoleGate } from '@/components/auth/role-gate';
-
-import { ModpacksPanel } from './modpacks-panel';
-import { UsersPanel } from './users-panel';
+import { ModpacksPanel } from '@/components/dashboard/modpacks/modpacks-panel';
+import { UsersPanel } from '@/components/dashboard/users/users-panel';
 
 const AdminPage = () => {
 	return (
