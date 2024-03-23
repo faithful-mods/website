@@ -6,6 +6,7 @@ import { SessionProvider } from 'next-auth/react'
 
 import { auth } from '@/auth'
 import { Navbar } from '@/components/navbar';
+import { BREAKPOINT_DESKTOP_LARGE } from '@/lib/constants';
 
 // Import styles of packages that you"ve installed.
 // All packages except `@mantine/hooks` require styles imports
@@ -28,7 +29,7 @@ export default async function RootLayout({children}: { children: React.ReactNode
 			<head>
 				<ColorSchemeScript />
 			</head>
-			<body>
+			<body style={{ maxWidth: BREAKPOINT_DESKTOP_LARGE }}>
 				<SessionProvider session={session}>
 					<MantineProvider theme={theme}>
 						<Navbar />

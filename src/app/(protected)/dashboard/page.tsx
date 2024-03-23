@@ -11,7 +11,7 @@ import { UsersPanel } from './users-panel';
 const AdminPage = () => {
 	return (
 		<RoleGate allowedRole={UserRole.ADMIN}>
-			<Grid gutter="sm" grow m="sm">
+			<Grid gutter="sm" grow mt="sm">
 				<Grid.Col span={4}>
 					<UsersPanel />
 				</Grid.Col>

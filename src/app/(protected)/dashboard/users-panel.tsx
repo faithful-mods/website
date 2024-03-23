@@ -71,7 +71,7 @@ export function UsersPanel() {
 					{filteredUsers.map((user, index) => (
 						<Group key={index} justify="space-between" align="center">
 							<Group gap="sm">
-								<Avatar variant="outline" src={user?.image}>
+								<Avatar variant="outline" src={user?.image} radius={4}>
 									{ (user.name ?? '?')[0] }
 								</Avatar>
 								<Text>{user.name ?? 'Unknown User'}</Text>

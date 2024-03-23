@@ -2,29 +2,35 @@
 @tailwind utilities;
 
 html {
-  @apply h-full;
+	@apply h-full;
+
+	display: flex;
+	justify-content: center;
 }
 
 body {
-  @apply h-full;
+	@apply h-full;
+
+	width: 100%;
+	margin: 0 var(--mantine-spacing-sm);
 }
 
 div#__next {
-  @apply h-full;
+	@apply h-full;
 }
 
 main {
-  @apply h-full;
+	@apply h-full;
 }
 
 .navbar-icon-fix {
-  max-width: 36px;
-  max-height: 36px;
-  min-width: 36px !important;
-  min-height: 36px;
-  width: 36px !important;
-  height: 36px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	max-width: 36px;
+	max-height: 36px;
+	min-width: 36px !important;
+	min-height: 36px;
+	width: 36px !important;
+	height: 36px !important;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
