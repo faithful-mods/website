@@ -30,51 +30,55 @@ export const Navbar = () => {
 	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home' });
 
 	return (
-		<Card padding="sm" withBorder mb="sm" mt="sm">
-			<Group justify="space-between" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
-				<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
-					{windowWidth >= BREAKPOINT_MOBILE_MEDIUM && 
-						<Link href="/" className="navbar-icon-fix">
-							<Image src="/icon.png" alt="FM" className="navbar-icon-fix" />
-						</Link>
-					}
-					{windowWidth < BREAKPOINT_TABLET && 
-						<Select 
-							data={links.map(link => link.label).sort()}
-							value={links.find(link => link.href === pathname)?.label}
-							onChange={(value) => router.push(links.find(link => link.label === value)?.href ?? '/')}
-							
-							variant="filled"
-							color={gradient.to}
-							className="w-100"
-						/>
-					}
-					{windowWidth >= BREAKPOINT_TABLET && links.map((link, index) => (
-						<Link href={link.href} key={index}>
-							<Button
-								autoContrast
-								variant={pathname === link.href ? 'gradient' : 'transparent'}
-								gradient={gradient}
+		<Group gap="sm" mb="sm" mt="sm" wrap="nowrap">
+			{windowWidth >= BREAKPOINT_MOBILE_MEDIUM && 
+				<Card padding="sm" withBorder style={{ minWidth: '62px' }}>
+					<Link href="/" className="navbar-icon-fix">
+						<Image src="/icon.png" alt="FM" className="navbar-icon-fix" />
+					</Link>
+				</Card>
+			}
+			<Card padding="sm" withBorder className="w-full">
+				<Group justify="space-between" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+						{windowWidth < BREAKPOINT_TABLET && 
+							<Select 
+								data={links.map(link => link.label).sort()}
+								value={links.find(link => link.href === pathname)?.label}
+								onChange={(value) => router.push(links.find(link => link.label === value)?.href ?? '/')}
+								
+								variant="filled"
 								color={gradient.to}
-							>
-								{link.label}
-							</Button>
-						</Link>
-					))}
+								className="w-100"
+							/>
+						}
+						{windowWidth >= BREAKPOINT_TABLET && links.map((link, index) => (
+							<Link href={link.href} key={index}>
+								<Button
+									autoContrast
+									variant={pathname === link.href ? 'gradient' : 'transparent'}
+									gradient={gradient}
+									color={gradient.to}
+								>
+									{link.label}
+								</Button>
+							</Link>
+						))}
+					</Group>
+					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+						{!user && <GitHubLogin />}
+						<ThemeSwitch />
+						{user && <Link href='/settings/me'>
+							<ActionIcon 
+								size="lg" 
+								variant="outline"
+								className="navbar-icon-fix"
+							><TbSettings2 className="w-5 h-5"/></ActionIcon>
+						</Link>}
+						{user && <LoggedUser />}
+					</Group>
 				</Group>
-				<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
-					{!user && <GitHubLogin />}
-					<ThemeSwitch />
-					{user && <Link href='/settings/me'>
-						<ActionIcon 
-							size="lg" 
-							variant="outline"
-							className="navbar-icon-fix"
-						><TbSettings2 className="w-5 h-5"/></ActionIcon>
-					</Link>}
-					{user && <LoggedUser />}
-				</Group>
-			</Group>
-		</Card>
+			</Card>
+		</Group>
 	);
 };
