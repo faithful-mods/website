@@ -7,9 +7,9 @@ import { Modpack } from '@prisma/client';
 import { useState } from 'react';
 import { TbPlus } from 'react-icons/tb';
 
-import { useEffectOnce } from '@/hooks/use-effect-once';
-import { gradient, notify, sortByName } from '@/lib/utils';
-import { getModpacks } from '@/server/data/modpacks';
+import { useEffectOnce } from '~/hooks/use-effect-once';
+import { gradient, notify, sortByName } from '~/lib/utils';
+import { getModpacks } from '~/server/data/modpacks';
 
 import { ModpackModal } from './modal/modpack-modal';
 

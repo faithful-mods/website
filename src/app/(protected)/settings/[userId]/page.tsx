@@ -2,7 +2,7 @@
 
 import { Group } from '@mantine/core';
 
-import { UserSettingsPanel } from '@/components/settings/user-panel';
+import { UserSettingsPanel } from '~/components/settings/user-panel';
 
 const SettingsPage = () => {
 	return (

@@ -7,12 +7,12 @@ import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState, useTransition } from 'react';
 
-import { useCurrentUser } from '@/hooks/use-current-user';
-import { useEffectOnce } from '@/hooks/use-effect-once';
-import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '@/lib/constants';
-import { gradient, notify } from '@/lib/utils';
-import { updateUser } from '@/server/actions/settings';
-import { getUserById } from '@/server/data/user';
+import { useCurrentUser } from '~/hooks/use-current-user';
+import { useEffectOnce } from '~/hooks/use-effect-once';
+import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
+import { gradient, notify } from '~/lib/utils';
+import { updateUser } from '~/server/actions/settings';
+import { getUserById } from '~/server/data/user';
 
 export function UserSettingsPanel() {
 	const loggedUser = useCurrentUser();

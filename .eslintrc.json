@@ -10,7 +10,7 @@
 				"groups": ["type", "builtin", "external", "internal", ["parent","sibling", "index"]],
 				"pathGroups": [
 					{
-						"pattern": "@/(app|components|hooks|lib|schemas|server)/**",
+						"pattern": "~/**",
 						"group": "internal"
 					}
 				],

@@ -3,11 +3,11 @@
 import { User } from '@prisma/client';
 import * as z from 'zod';
 
-import { update } from '@/auth';
-import { db } from '@/lib/db';
-import { Accessing, loggedIn } from '@/lib/decorators';
-import { UserSettingsSchema } from '@/schemas';
-import { getUserById } from '@/server/data/user';
+import { update } from '~/auth';
+import { db } from '~/lib/db';
+import { Accessing, loggedIn } from '~/lib/decorators';
+import { UserSettingsSchema } from '~/schemas';
+import { getUserById } from '~/server/data/user';
 
 class UserSettings {
   @loggedIn()

@@ -2,8 +2,8 @@
 
 import { User, UserRole } from '@prisma/client';
 
-import { canAccess } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { canAccess } from '~/lib/auth';
+import { db } from '~/lib/db';
 
 /**
  * Get all users from the database

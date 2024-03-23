@@ -2,10 +2,10 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { UserRole } from '@prisma/client';
 import NextAuth from 'next-auth';
 
-import authConfig from '@/auth.config';
-import { db } from '@/lib/db';
-import { getAccountByUserId } from '@/server/data/account';
-import { getUserById } from '@/server/data/user';
+import authConfig from '~/auth.config';
+import { db } from '~/lib/db';
+import { getAccountByUserId } from '~/server/data/account';
+import { getUserById } from '~/server/data/user';
 
 export const {
 	handlers: { GET, POST },

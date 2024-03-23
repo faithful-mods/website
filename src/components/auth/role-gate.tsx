@@ -2,8 +2,8 @@
 
 import { UserRole } from '@prisma/client';
 
-import { useCurrentRole } from '@/hooks/use-current-role';
-import { notify } from '@/lib/utils';
+import { useCurrentRole } from '~/hooks/use-current-role';
+import { notify } from '~/lib/utils';
 
 interface RoleGateProps {
   children: React.ReactNode;

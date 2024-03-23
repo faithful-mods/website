@@ -1,6 +1,6 @@
 import { UserRole } from '@prisma/client';
 
-import { auth } from '@/auth';
+import { auth } from '~/auth';
 
 import { ExtendedUser } from '../../next-auth';
 

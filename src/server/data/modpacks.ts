@@ -1,10 +1,10 @@
 'use server';
 
-import type { CreateObject, UpdateObject } from '@/types';
 import type { Modpack } from '@prisma/client';
 
-import { canAccess } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { canAccess } from '~/lib/auth';
+import { db } from '~/lib/db';
+import type { CreateObject, UpdateObject } from '~/types';
 
 import { remove, upload } from '../actions/files';
 

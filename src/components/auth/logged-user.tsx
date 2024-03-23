@@ -2,8 +2,8 @@
 
 import { Avatar, Tooltip } from '@mantine/core';
 
-import { useCurrentUser } from '@/hooks/use-current-user';
-import { logout } from '@/server/actions/logout';
+import { useCurrentUser } from '~/hooks/use-current-user';
+import { logout } from '~/server/actions/logout';
 
 export const LoggedUser = () => {
 	const user = useCurrentUser();

@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { TbSettings2 } from 'react-icons/tb';
 
-import { GitHubLogin } from '@/components/auth/github-login';
-import { LoggedUser } from '@/components/auth/logged-user';
-import { useCurrentUser } from '@/hooks/use-current-user';
-import { useDeviceSize } from '@/hooks/use-device-size';
-import { BREAKPOINT_MOBILE_MEDIUM, BREAKPOINT_TABLET } from '@/lib/constants';
-import { gradient } from '@/lib/utils';
+import { GitHubLogin } from '~/components/auth/github-login';
+import { LoggedUser } from '~/components/auth/logged-user';
+import { useCurrentUser } from '~/hooks/use-current-user';
+import { useDeviceSize } from '~/hooks/use-device-size';
+import { BREAKPOINT_MOBILE_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
+import { gradient } from '~/lib/utils';
 
 import { ThemeSwitch } from './theme-switch';
 

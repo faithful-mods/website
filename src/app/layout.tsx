@@ -4,9 +4,9 @@ import { ColorSchemeScript, createTheme, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { SessionProvider } from 'next-auth/react'
 
-import { auth } from '@/auth'
-import { Navbar } from '@/components/navbar';
-import { BREAKPOINT_DESKTOP_LARGE } from '@/lib/constants';
+import { auth } from '~/auth'
+import { Navbar } from '~/components/navbar';
+import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 
 // Import styles of packages that you"ve installed.
 // All packages except `@mantine/hooks` require styles imports

@@ -3,9 +3,9 @@ import { useForm } from '@mantine/form';
 import { Modpack } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
-import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '@/lib/constants';
-import { gradient, gradientDanger, notify } from '@/lib/utils';
-import { createModpack, deleteModpack, updateModpack, updateModpackPicture } from '@/server/data/modpacks';
+import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
+import { gradient, gradientDanger, notify } from '~/lib/utils';
+import { createModpack, deleteModpack, updateModpack, updateModpackPicture } from '~/server/data/modpacks';
 
 import { ModpackModalGeneral } from './modpack-general';
 

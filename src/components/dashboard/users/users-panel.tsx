@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { TbExternalLink } from 'react-icons/tb';
 
-import { useEffectOnce } from '@/hooks/use-effect-once';
-import { gradient, notify } from '@/lib/utils';
-import { getUsers, updateUserRole } from '@/server/data/user';
+import { useEffectOnce } from '~/hooks/use-effect-once';
+import { gradient, notify } from '~/lib/utils';
+import { getUsers, updateUserRole } from '~/server/data/user';
 
 export function UsersPanel() {
 	const [users, setUsers] = useState<User[] | undefined>();

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { FaGithub } from 'react-icons/fa';
 
-import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
+import { DEFAULT_LOGIN_REDIRECT } from '~/routes';
 
 export const GitHubLogin = () => {
 	const searchParams = useSearchParams();
