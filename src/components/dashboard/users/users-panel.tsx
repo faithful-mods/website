@@ -75,8 +75,7 @@ export function UsersPanel() {
 									src={user?.image} 
 									alt={(user.name ?? '?')[0]}
 									radius={4}
-									className="navbar-icon-fix"
-									style={{ backgroundColor: 'var(--mantine-color-dark-7)' }}
+									className="navbar-icon-fix image-background"
 								/>
 								<Text>{user.name ?? 'Unknown User'}</Text>
 							</Group>

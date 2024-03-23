@@ -23,6 +23,14 @@ main {
 	@apply h-full;
 }
 
+.image-background {
+	background-color: var(--mantine-color-dark-7);
+}
+
+:where([data-mantine-color-scheme='light']) .image-background {
+	background-color: var(--mantine-primary-color-1);
+}
+
 .navbar-icon-fix {
 	max-width: 36px;
 	max-height: 36px;

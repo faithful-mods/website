@@ -73,7 +73,7 @@ export function UserSettingsPanel() {
 			withBorder
 		>
 			<Group align="start">
-				{displayedUser?.image && <Image radius="md" src={displayedUser?.image} alt="User avatar" width={100} height={100} style={{ backgroundColor: 'var(--mantine-color-dark-7)' }} />}
+				{displayedUser?.image && <Image radius="md" src={displayedUser?.image} alt="User avatar" width={100} height={100} className="image-background"/>}
 				{!displayedUser?.image && <Skeleton width={100} height={100} radius="md" animate={false} />}
 				<Stack align="start" gap={0}>
 					<Text size="md" fw={700}>Profile Settings</Text>

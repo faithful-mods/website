@@ -6,7 +6,7 @@ import { UseFormReturnType } from '@mantine/form';
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<{ id: string, name: string, image: File | string }>, previewImg: string, modpack: Modpack | undefined }) {
 	return (
 		<Group gap="md" align="start" mt="md">
-			{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={200} height={200} fit="contain" style={{ backgroundColor: 'var(--mantine-color-dark-8)' }} />}
+			{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={200} height={200} fit="contain" className="image-background" />}
 			{previewImg === '' && <Skeleton width={200} height={200} radius="md" animate={false} />}
 
 			<Stack w="calc(100% - 200px - var(--mantine-spacing-md))" gap="sm">

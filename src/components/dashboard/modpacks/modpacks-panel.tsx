@@ -119,8 +119,7 @@ export function ModpacksPanel() {
 							<Stack gap={5} key={index}>
 								<Image 
 									radius="sm"
-									className='cursor-pointer'
-									style={{ backgroundColor: 'var(--mantine-color-dark-7)' }}
+									className="cursor-pointer image-background"
 									onClick={() => openModpackModal(modpack)} 
 									src={modpack.image}
 									alt={modpack.name} 

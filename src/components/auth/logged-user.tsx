@@ -16,7 +16,7 @@ export const LoggedUser = () => {
 			style={{ background: 'linear-gradient(69deg, var(--mantine-color-red-filled) 0%, var(--mantine-color-pink-filled) 100%)' }}
 		>
 			<Avatar 
-				className="cursor-pointer navbar-icon-fix"
+				className="cursor-pointer navbar-icon-fix image-background"
 				variant="outline"
 				radius={4}
 				src={user?.image}
