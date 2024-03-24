@@ -1,4 +1,4 @@
-import { Group, Image, Text, Stack, Badge, TextInput, Button, FileInput, Skeleton, Tabs } from '@mantine/core';
+import { Group, Button, Tabs } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { Modpack } from '@prisma/client';
 import { useState, useTransition } from 'react';
@@ -99,5 +99,6 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 					{modpack ? 'Update' : 'Create'}
 				</Button>
 			</Group>	
-		</>)
+		</>
+	)
 }

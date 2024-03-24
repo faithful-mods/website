@@ -12,7 +12,6 @@ export const {
 	auth,
 	signIn,
 	signOut,
-	update,
 } = NextAuth({
 	pages: {
 		signIn: '/auth/login',
@@ -28,7 +27,7 @@ export const {
 				session.user.role = token.role as UserRole;
 			}
 
-			if (session.user) {
+			if (token.name && token.email && session.user) {
 				session.user.name = token.name;
 				session.user.email = token.email;
 			}
