@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { TbExternalLink } from 'react-icons/tb';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { MINIMUM_CARD_WIDTH } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
 import { getUsers, updateUserRole } from '~/server/data/user';
 
@@ -50,7 +51,8 @@ export function UsersPanel() {
 		<Card 
 			shadow="sm" 
 			padding="md" 
-			radius="md" 
+			radius="md"
+			style={{ minWidth: MINIMUM_CARD_WIDTH }} 
 			withBorder
 		>
 			<Group justify="space-between">
