@@ -1,15 +1,17 @@
 'use client';
 
-import { ActionIcon, Avatar, Button, Card, Group, Image, Select, } from '@mantine/core';
+import { ActionIcon, Button, Card, Combobox, Group, Image, useCombobox, } from '@mantine/core';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { TbSettings2 } from 'react-icons/tb';
+import { HiOutlineMenu } from 'react-icons/hi';
+import { IoMdSettings } from 'react-icons/io';
+import { MdDashboard } from 'react-icons/md';
 
 import { GitHubLogin } from '~/components/auth/github-login';
 import { LoggedUser } from '~/components/auth/logged-user';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
-import { BREAKPOINT_MOBILE_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
+import { BREAKPOINT_TABLET } from '~/lib/constants';
 import { gradient } from '~/lib/utils';
 
 import { ThemeSwitch } from './theme-switch';
@@ -18,20 +20,20 @@ export const Navbar = () => {
 	const pathname = usePathname();
 	const router = useRouter();
 	const user = useCurrentUser();
+	const combobox = useCombobox();
 	const [windowWidth, _] = useDeviceSize();
 
 	const links = [
-		{ href: '/about', label: 'About' },
 		{ href: '/modpacks', label: 'Modpacks' },
 		{ href: '/mods', label: 'Mods' },
+		{ href: '/gallery', label: 'Gallery' },
 	]
 
-	if (user && user.role === 'ADMIN') links.push({ href: '/dashboard', label: 'Dashboard' });
 	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home' });
 
 	return (
 		<Group gap="sm" mb="sm" mt="sm" wrap="nowrap">
-			{windowWidth >= BREAKPOINT_MOBILE_MEDIUM && 
+			{windowWidth >= BREAKPOINT_TABLET && 
 				<Card padding="sm" withBorder style={{ minWidth: '62px' }}>
 					<Link href="/" className="navbar-icon-fix">
 						<Image src="/icon.png" alt="FM" className="navbar-icon-fix" />
@@ -42,15 +44,37 @@ export const Navbar = () => {
 				<Group justify="space-between" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 						{windowWidth < BREAKPOINT_TABLET && 
-							<Select 
-								data={links.map(link => link.label).sort()}
-								value={links.find(link => link.href === pathname)?.label}
-								onChange={(value) => router.push(links.find(link => link.label === value)?.href ?? '/')}
-								
-								variant="filled"
-								color={gradient.to}
-								className="w-100"
-							/>
+							<Combobox
+								store={combobox}
+								width={250}
+								position="bottom-start"
+								withArrow
+								onOptionSubmit={(value) => {
+									router.push(links.find(link => link.label === value)?.href ?? '/');
+									combobox.closeDropdown();
+								}}
+							>
+								<Combobox.Target>
+									<Button 
+										onClick={() => combobox.toggleDropdown()}
+										variant="transparent"
+										color={gradient.to}
+										className="navbar-icon-fix"
+									>
+										<HiOutlineMenu className="w-5 h-5" />
+									</Button>
+								</Combobox.Target>
+
+								<Combobox.Dropdown>
+									<Combobox.Options>
+										{links.map(link => link.label).sort().map((item) => (
+											<Combobox.Option value={item} key={item}>
+												{item}
+											</Combobox.Option>
+										))}
+									</Combobox.Options>
+								</Combobox.Dropdown>
+							</Combobox>
 						}
 						{windowWidth >= BREAKPOINT_TABLET && links.map((link, index) => (
 							<Link href={link.href} key={index}>
@@ -66,15 +90,31 @@ export const Navbar = () => {
 						))}
 					</Group>
 					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
-						{!user && <GitHubLogin />}
 						<ThemeSwitch />
-						{user && <Link href='/settings/me'>
-							<ActionIcon 
-								size="lg" 
-								variant="outline"
-								className="navbar-icon-fix"
-							><TbSettings2 className="w-5 h-5"/></ActionIcon>
-						</Link>}
+						
+						{!user && <GitHubLogin />}
+						
+						{user && user.role === 'ADMIN' && 
+							<Link href='/dashboard'>
+								<ActionIcon 
+									size="lg" 
+									variant="transparent"
+									className="navbar-icon-fix"
+								><MdDashboard className="w-5 h-5"/></ActionIcon>
+							</Link>
+						
+						}
+						
+						{user && 
+							<Link href='/settings/me'>
+								<ActionIcon 
+									size="lg" 
+									variant="transparent"
+									className="navbar-icon-fix"
+								><IoMdSettings className="w-5 h-5"/></ActionIcon>
+							</Link>
+						}
+
 						{user && <LoggedUser />}
 					</Group>
 				</Group>
