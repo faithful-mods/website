@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { User, UserRole } from '@prisma/client';
 
 import { auth } from '~/auth';
 
@@ -26,9 +26,12 @@ export async function currentRole(): Promise<UserRole | undefined> {
  * Determine if the current user has a role, throws an error if not
  * @param {UserRole} role the role to check for
  */
-export async function canAccess(role: UserRole = UserRole.ADMIN) {
+export async function canAccess(role: UserRole = UserRole.ADMIN, self?: User['id']) {
 	const session = await auth();
+	if (!session || !session.user) throw new Error('Unauthorized');
 
-	if (session?.user?.role === role) return;
+	if (self && session?.user.id === self) return;
+	if (session?.user.role === role) return;
+
 	throw new Error('Forbidden, no permission');
 }
