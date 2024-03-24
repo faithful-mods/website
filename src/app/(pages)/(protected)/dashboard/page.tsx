@@ -7,7 +7,7 @@ import { RoleGate } from '~/components/auth/role-gate';
 import { ModpacksPanel } from '~/components/dashboard/modpacks/modpacks-panel';
 import { UsersPanel } from '~/components/dashboard/users/users-panel';
 
-const AdminPage = () => {
+const DashboardPage = () => {
 	return (
 		<RoleGate allowedRole={UserRole.ADMIN}>
 			<Grid gutter="sm" grow mt="sm">
@@ -26,4 +26,4 @@ const AdminPage = () => {
 	);
 };
 
-export default AdminPage;
+export default DashboardPage;

@@ -7,10 +7,10 @@ const font = Poppins({
 	weight: ['600']
 })
 
-export default async function Home() {
+export default async function Mods() {
 	return (
 		<main className="flex flex-col items-center justify-center">
-			<h1 className={cn(font)}>Faithful Mods mods page</h1>
+			<h1 className={cn(font)}>Mods page</h1>
 		</main>
 	)
 }
