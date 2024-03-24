@@ -22,6 +22,7 @@ export function UserSettingsPanel() {
 	const [displayedUser, setDisplayedUser] = useState<User>();
 
 	const form = useForm<{ name: string, image: string }>({
+		initialValues: { name: '', image: '' },
 		validate: {
 			name: (value) => {
 				if (!value) return 'You must provide a name';
