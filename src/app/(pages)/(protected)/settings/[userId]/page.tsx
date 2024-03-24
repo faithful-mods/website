@@ -1,14 +1,22 @@
 'use client';
 
-import { Group } from '@mantine/core';
+import { Grid } from '@mantine/core';
 
 import { UserSettingsPanel } from '~/components/settings/user-panel';
 
 const SettingsPage = () => {
 	return (
-		<Group justify="center">
-			<UserSettingsPanel />
-		</Group>
+		<Grid gutter="sm" grow mt="sm">
+			<Grid.Col span={4}>
+			</Grid.Col>
+
+			<Grid.Col span={4}>
+				<UserSettingsPanel />
+			</Grid.Col>
+
+			<Grid.Col span={4}>
+			</Grid.Col>
+		</Grid>
 	);
 }
  

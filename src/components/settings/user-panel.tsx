@@ -64,7 +64,6 @@ export function UserSettingsPanel() {
 
 	return (
 		<Card 
-			className="w-[500px]"
 			shadow="sm" 
 			padding="md" 
 			radius="md" 
