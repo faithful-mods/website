@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Group, Image, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Avatar, Badge, Button, Card, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { User, UserRole } from '@prisma/client';
 import Link from 'next/link';
@@ -73,12 +73,15 @@ export function UsersPanel() {
 					{filteredUsers.map((user, index) => (
 						<Group key={index} justify="space-between" align="center">
 							<Group gap="sm">
-								<Image 
-									src={user?.image} 
-									alt={(user.name ?? '?')[0]}
-									radius={4}
+								<Avatar 
 									className="navbar-icon-fix image-background"
-								/>
+									variant="outline"
+									radius={4}
+									src={user?.image}
+									onError={() => setUsers(users?.map((u) => u.id === user.id ? { ...u, image: null } : u))}
+								>
+									{ (user?.name ?? '?')[0] }
+								</Avatar>
 								<Text>{user.name ?? 'Unknown User'}</Text>
 							</Group>
 							<Group gap="sm">

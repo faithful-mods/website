@@ -71,8 +71,19 @@ export function UserSettingsPanel() {
 			withBorder
 		>
 			<Group align="start">
-				{displayedUser?.image && <Image radius="md" src={displayedUser?.image} alt="User avatar" width={100} height={100} className="image-background"/>}
+				{displayedUser?.image && 
+					<Image 
+						radius="md" 
+						src={displayedUser?.image} 
+						alt="User avatar" 
+						width={100} 
+						height={100} 
+						className="image-background"
+						onError={() => setDisplayedUser({ ...displayedUser, image: null })}
+					/>
+				}
 				{!displayedUser?.image && <Skeleton width={100} height={100} radius="md" animate={false} />}
+
 				<Stack align="start" gap={0}>
 					<Text size="md" fw={700}>Profile Settings</Text>
 					<Text size="sm">Update {params.userId === 'me' ? 'your profile' : `${displayedUser?.name} profile's` } information</Text>
