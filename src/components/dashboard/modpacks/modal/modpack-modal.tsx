@@ -8,6 +8,7 @@ import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createModpack, deleteModpack, updateModpack, updateModpackPicture } from '~/server/data/modpacks';
 
 import { ModpackModalGeneral } from './modpack-general';
+import { ModpackVersions } from '../../modpack-versions/modpack-version';
 
 export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefined, onClose: (editedModpack: Modpack | string) => void }) {
 	const [isPending, startTransition] = useTransition();
@@ -67,15 +68,20 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 
 	return (
 		<>
-			<Tabs defaultValue="first">
-				<Tabs.List>
-					<Tabs.Tab value="first">General</Tabs.Tab>
-					<Tabs.Tab value="second">Versions</Tabs.Tab>
-				</Tabs.List>
+			{modpack 
+				? 
+				<Tabs defaultValue="first">
+					<Tabs.List>
+						<Tabs.Tab value="first">General</Tabs.Tab>
+						<Tabs.Tab value="second">Versions</Tabs.Tab>
+					</Tabs.List>
 
-				<Tabs.Panel value="first"><ModpackModalGeneral form={form} previewImg={previewImg} modpack={modpack} /></Tabs.Panel>
-				<Tabs.Panel value="second">Second panel</Tabs.Panel>
-			</Tabs>
+					<Tabs.Panel value="first"><ModpackModalGeneral form={form} previewImg={previewImg} modpack={modpack} /></Tabs.Panel>
+					<Tabs.Panel value="second"><ModpackVersions modpack={modpack} /></Tabs.Panel>
+				</Tabs>
+				:
+				<ModpackModalGeneral form={form} previewImg={previewImg} modpack={modpack} />
+			}
 			
 			<Group justify="end" mt="md">
 				{modpack && 
@@ -86,7 +92,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 						disabled={isPending}
 						loading={isPending}
 					>
-						Delete
+						Delete Modpack
 					</Button>
 				}
 				<Button 
@@ -96,7 +102,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 					disabled={isPending || !form.isValid()}
 					loading={isPending}
 				>
-					{modpack ? 'Update' : 'Create'}
+					{modpack ? 'Update' : 'Create'} Modpack
 				</Button>
 			</Group>	
 		</>

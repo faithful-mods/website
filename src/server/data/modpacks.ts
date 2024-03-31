@@ -37,5 +37,10 @@ export async function deleteModpack(id: string): Promise<Modpack> {
 	const modpackImg = await db.modpack.findUnique({ where: { id } }).then((modpack) => modpack?.image);
 	if (modpackImg) await remove(modpackImg as `files/${string}`);
 
-	return db.modpack.delete({ where: { id } });
+	const modpackVersions = await db.modpackVersion.findMany({ where: { modpackId: id } });
+	for (const modpackVersion of modpackVersions) {
+		await db.modpackVersion.delete({ where: { id: modpackVersion.id } });
+	}
+
+	return db.modpack.delete({ where: { id }});
 }

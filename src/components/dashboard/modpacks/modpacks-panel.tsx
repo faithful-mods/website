@@ -77,7 +77,7 @@ export function ModpacksPanel() {
 				size="100%"
 				opened={modalOpened} 
 				onClose={closeModal} 
-				title={modalModpack ? modalModpack.name : 'Create a new modpack'}
+				title="Modpack Edition"
 			>
 				<ModpackModal modpack={modalModpack} onClose={closeModpackModal} />
 			</Modal>
@@ -117,14 +117,17 @@ export function ModpacksPanel() {
 					<Group mt="md" align="start">
 						{modpacks && modpacks[1]?.map((modpack, index) => (
 							<Stack gap={5} key={index}>
-								<Image 
+								<Image
 									radius="sm"
 									className="cursor-pointer image-background"
-									onClick={() => openModpackModal(modpack)} 
+									onClick={() => openModpackModal(modpack)}
 									src={modpack.image}
-									alt={modpack.name} 
-									width={90} 
-									height={90} />
+									alt={modpack.name}
+									width={90}
+									height={90}
+									fit="contain"
+									style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }} 
+								/>
 								<Text size="sm" ta="center" maw={90} truncate="end">{modpack.name}</Text>
 							</Stack>
 						))}

@@ -1,13 +1,17 @@
 {
 	"cSpell.words": [
+		"dependants",
+		"dropzone",
 		"hookform",
 		"mantine",
 		"Mantine",
+		"mcmod",
+		"mcversion",
+		"modid",
 		"prisma",
 		"stylelint",
 		"tailwindcss",
-		"uploadthing",
-		"Uploadthing"
+		"unzipper"
 	],
 	"files.exclude": {
 		"**/.git": true,

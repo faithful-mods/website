@@ -11,7 +11,8 @@ import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 // Import styles of packages that you"ve installed.
 // All packages except `@mantine/hooks` require styles imports
 import '@mantine/core/styles.css';
-import './globals.scss'
+import '@mantine/dropzone/styles.css';
+import '../globals.scss'
 
 export const metadata: Metadata = {
 	title: 'Faithful Mods',

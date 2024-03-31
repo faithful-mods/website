@@ -28,8 +28,8 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -43,8 +43,8 @@ model Modpack {
   image    String?
   versions ModpackVersion[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("modpacks")
 }
@@ -56,34 +56,39 @@ model ModpackVersion {
   modpackId String       @map("modpack_id")
   mods      ModVersion[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("modpacks_versions")
 }
 
 model Mod {
-  id       String       @id @default(cuid())
-  name     String
-  versions ModVersion[]
+  id          String       @id @default(cuid())
+  forgeId     String?      @map("forge_id")
+  name        String
+  description String?
+  versions    ModVersion[]
+  authors     String[]
+  url         String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("mods")
 }
 
 model ModVersion {
-  id               String          @id @default(cuid())
-  version          String
-  mod              Mod             @relation(fields: [modId], references: [id])
-  modId            String          @map("mod_id")
-  resources        Resource[]
-  ModpackVersion   ModpackVersion? @relation(fields: [modpackVersionId], references: [id])
-  modpackVersionId String?
+  id        String     @id @default(cuid())
+  version   String
+  mcVersion String     @map("minecraft_version")
+  mod       Mod        @relation(fields: [modId], references: [id])
+  modId     String     @map("mod_id")
+  resources Resource[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  ModpackVersion ModpackVersion[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("mods_versions")
 }
@@ -97,8 +102,8 @@ model Resource {
   blockModels BlockModel[]
   itemModels  ItemModel[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([assetFolder, modId])
   @@map("resources")
@@ -112,8 +117,8 @@ model Texture {
   resourceId    String         @map("resource_id")
   resource      Resource       @relation(fields: [resourceId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("textures")
 }
@@ -126,8 +131,8 @@ model BlockModel {
   resourceId    String         @map("resource_id")
   resource      Resource       @relation(fields: [resourceId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("block_models")
 }
@@ -140,26 +145,29 @@ model ItemModel {
   resourceId    String         @map("resource_id")
   resource      Resource       @relation(fields: [resourceId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("item_models")
 }
 
 model Contribution {
-  id           String      @id @default(cuid())
-  file         String
-  date         DateTime    @default(now())
-  users        User[]
-  Texture      Texture?    @relation(fields: [textureId], references: [id])
-  textureId    String?
+  id    String   @id @default(cuid())
+  file  String
+  date  DateTime @default(now())
+  users User[]
+
+  Texture   Texture? @relation(fields: [textureId], references: [id])
+  textureId String?
+
   blockModel   BlockModel? @relation(fields: [blockModelId], references: [id])
   blockModelId String?
-  itemModel    ItemModel?  @relation(fields: [itemModelId], references: [id])
-  itemModelId  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  itemModel   ItemModel? @relation(fields: [itemModelId], references: [id])
+  itemModelId String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users_contributions")
 }
@@ -170,12 +178,12 @@ model User {
   email         String?        @unique
   emailVerified DateTime?      @map("email_verified")
   image         String?
-  role          UserRole
+  role          UserRole       @default(USER)
   accounts      Account[]
   contributions Contribution[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   pollsUpvoted   Poll[] @relation("Upvotes")
   pollsDownvoted Poll[] @relation("Downvotes")
@@ -188,8 +196,8 @@ model Poll {
   upvotes   User[] @relation("Upvotes")
   downvotes User[] @relation("Downvotes")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users_polls")
 }
