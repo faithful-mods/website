@@ -4,8 +4,12 @@ import type { Mod } from '@prisma/client';
 
 import { db } from '~/lib/db';
 
-export async function getMods(ids: string[]): Promise<Mod[]> {
+export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 	return db.mod.findMany({ where: { id: { in: ids } } });
+}
+
+export async function getMods(): Promise<Mod[]> {
+	return db.mod.findMany();
 }
 
 export async function createMod({

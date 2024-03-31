@@ -5,6 +5,7 @@ import { UserRole } from '@prisma/client';
 
 import { RoleGate } from '~/components/auth/role-gate';
 import { ModpacksPanel } from '~/components/dashboard/modpacks/modpacks-panel';
+import { ModsPanel } from '~/components/dashboard/mods/mods-panel';
 import { UsersPanel } from '~/components/dashboard/users/users-panel';
 
 const DashboardPage = () => {
@@ -18,7 +19,7 @@ const DashboardPage = () => {
 				<Grid.Col span={8}>
 					<Stack gap="sm">
 						<ModpacksPanel />
-						{/* <ModsPanel /> */}
+						<ModsPanel />
 					</Stack>
 				</Grid.Col>
 			</Grid>

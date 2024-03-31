@@ -9,7 +9,7 @@ import { useState, useTransition } from 'react';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createModpackVersion, deleteModpackVersion, updateModpackVersion, addModsToModpackVersion, removeModFromModpackVersion } from '~/server/data/modpacks-version';
-import { getMods } from '~/server/data/mods';
+import { getModsFromIds } from '~/server/data/mods';
 import type { ModpackVersionWithMods } from '~/types';
 
 export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modpack: Modpack, modpackVersion?: ModpackVersionWithMods, onClose: () => void }) {
@@ -19,7 +19,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 	const [mods, setMods] = useState<Mod[]>([]);
 
 	useEffectOnce(() => {
-		getMods(modVersions.map((modVersion) => modVersion.modId))
+		getModsFromIds(modVersions.map((modVersion) => modVersion.modId))
 			.then(setMods)
 			.catch((error) => {
 				console.error(error);
@@ -67,7 +67,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			setModpackVersion(updated);
 			setModVersions(updated.mods);
 
-			const mods = await getMods(updated.mods.map((modVersion) => modVersion.modId))
+			const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId))
 			setMods(mods);
 		});
 	}
@@ -86,7 +86,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				setModpackVersion(updated);
 				setModVersions(updated.mods);
 
-				const mods = await getMods(updated.mods.map((modVersion) => modVersion.modId))
+				const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId))
 				setMods(mods);
 			} catch (e) {
 				notify('Error', (e as Error).message, 'red');
