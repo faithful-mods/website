@@ -94,28 +94,29 @@ model ModVersion {
 }
 
 model Resource {
-  id          String       @id @default(cuid())
-  assetFolder String
-  modId       String       @map("mod_id")
-  mod         ModVersion   @relation(fields: [modId], references: [id])
-  textures    Texture[]
-  blockModels BlockModel[]
-  itemModels  ItemModel[]
+  id           String     @id @default(cuid())
+  assetFolder  String     @map("asset_folder")
+  modVersionId String     @map("mod_version_id")
+  mod          ModVersion @relation(fields: [modVersionId], references: [id])
+
+  textures LinkedTexture[]
+  // blockModels  LinkedBlockModel[]
+  // itemModels   LinkedItemModel[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([assetFolder, modId])
+  @@unique([assetFolder, modVersionId])
   @@map("resources")
 }
 
 model Texture {
-  id            String         @id @default(cuid())
-  name          String
-  contributions Contribution[]
-  filepath      String
-  resourceId    String         @map("resource_id")
-  resource      Resource       @relation(fields: [resourceId], references: [id])
+  id             String          @id @default(cuid())
+  name           String
+  contributions  Contribution[]
+  filepath       String
+  hash           String          @unique
+  linkedTextures LinkedTexture[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -123,33 +124,49 @@ model Texture {
   @@map("textures")
 }
 
-model BlockModel {
-  id            String         @id @default(cuid())
-  name          String
-  contributions Contribution[]
-  json          String
-  resourceId    String         @map("resource_id")
-  resource      Resource       @relation(fields: [resourceId], references: [id])
+model LinkedTexture {
+  id        String @id @default(cuid())
+  assetPath String @map("asset_path")
+
+  textureId String  @map("texture_id")
+  texture   Texture @relation(fields: [textureId], references: [id])
+
+  Resource   Resource @relation(fields: [resourceId], references: [id])
+  resourceId String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("block_models")
+  @@map("linked_textures")
 }
 
-model ItemModel {
-  id            String         @id @default(cuid())
-  name          String
-  contributions Contribution[]
-  json          String
-  resourceId    String         @map("resource_id")
-  resource      Resource       @relation(fields: [resourceId], references: [id])
+// model BlockModel {
+//   id            String         @id @default(cuid())
+//   name          String
+//   contributions Contribution[]
+//   json          String
+//   resourceId    String         @map("resource_id")
+//   resource      Resource       @relation(fields: [resourceId], references: [id])
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("item_models")
-}
+//   @@map("block_models")
+// }
+
+// model ItemModel {
+//   id            String         @id @default(cuid())
+//   name          String
+//   contributions Contribution[]
+//   json          String
+//   resourceId    String         @map("resource_id")
+//   resource      Resource       @relation(fields: [resourceId], references: [id])
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@map("item_models")
+// }
 
 model Contribution {
   id    String   @id @default(cuid())
@@ -160,11 +177,11 @@ model Contribution {
   Texture   Texture? @relation(fields: [textureId], references: [id])
   textureId String?
 
-  blockModel   BlockModel? @relation(fields: [blockModelId], references: [id])
-  blockModelId String?
+  // blockModel   BlockModel? @relation(fields: [blockModelId], references: [id])
+  // blockModelId String?
 
-  itemModel   ItemModel? @relation(fields: [itemModelId], references: [id])
-  itemModelId String?
+  // itemModel   ItemModel? @relation(fields: [itemModelId], references: [id])
+  // itemModelId String?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

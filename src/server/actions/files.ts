@@ -1,6 +1,6 @@
 'use server';
 
-import { randomUUID } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
@@ -8,6 +8,9 @@ import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
 import type { MCModInfoData } from '~/types';
+
+import { linkTextureToResource, createResource, getResource } from '../data/resource';
+import { createTexture, findTexture } from '../data/texture';
 
 export async function upload(file: File, path: `${string}/` = '/'): Promise<string> {
 	const bytes = await file.arrayBuffer();
@@ -57,5 +60,65 @@ export async function fetchMCModInfoFromJar(jar: File): Promise<MCModInfoData> {
 	return mcmodInfo;
 }
 
-// TODO: implement
-export async function extractDefaultResourcePack(jar: File, modVersion: ModVersion): Promise<void> {}
+/**
+ * Extract blocks and items models, textures to the /public dir
+ * 
+ * TODO add support for models
+ * 
+ * @param jar The jar file to extract the resources from
+ * @param modVersion The mod version to extract the resources from and to be linked to the extracted resources
+ */
+export async function extractDefaultResourcePack(jar: File, modVersion: ModVersion): Promise<void> {
+	const bytes = await jar.arrayBuffer();
+	const buffer = Buffer.from(bytes);
+
+	const archive = await unzipper.Open.buffer(buffer);
+
+	// Get textures assets
+	const texturesAssets = archive.files.filter(
+		(file) =>
+			file.path.startsWith('assets') &&
+			file.path.includes('textures') &&
+			!file.path.endsWith('/')
+	)
+
+	// TODO: Get models assets
+
+	const fileDir = join(process.cwd(), 'public', 'files', 'textures', 'default');
+	if (!existsSync(fileDir)) mkdirSync(fileDir, { recursive: true });
+
+	// Check if the extracted file already exists in the public dir
+	for (const textureAsset of texturesAssets) {
+		const asset = textureAsset.path.split('/')[1];
+		const buffer = await textureAsset.buffer();
+		const hash = calculateHash(buffer);
+
+		let texture = await findTexture({ hash });
+		if (!texture) {
+			const filename = textureAsset.path.includes('/') ? textureAsset.path.split('/').pop()! : textureAsset.path;
+			const filepath = join(fileDir, filename);
+
+			writeFileSync(filepath, buffer);
+
+			texture = await createTexture({
+				filepath,
+				hash,
+				name: filename,
+			});
+
+			console.log(texture, filepath);
+		}
+
+		let resource = await getResource({ asset, modVersion });
+		if (!resource) resource = await createResource({ asset, modVersion });
+		console.log(resource);
+
+		await linkTextureToResource({ resource, texture, assetPath: textureAsset.path });
+	}
+}
+
+function calculateHash(buffer: Buffer) {
+	const hash = createHash('sha256');
+	hash.update(buffer);
+	return hash.digest('hex');
+}
