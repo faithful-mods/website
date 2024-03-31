@@ -90,12 +90,13 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 	// Check if the extracted file already exists in the public dir
 	for (const textureAsset of texturesAssets) {
 		const asset = textureAsset.path.split('/')[1];
+		const uuid = randomUUID();
 		const buffer = await textureAsset.buffer();
 		const hash = calculateHash(buffer);
 
 		let texture = await findTexture({ hash });
 		if (!texture) {
-			const filename = textureAsset.path.includes('/') ? textureAsset.path.split('/').pop()! : textureAsset.path;
+			const filename = `${uuid}_${textureAsset.path.split('/').pop()}`;
 			const filepath = join(fileDir, filename);
 
 			writeFileSync(filepath, buffer);
