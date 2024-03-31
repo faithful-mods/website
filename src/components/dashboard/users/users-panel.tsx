@@ -60,7 +60,7 @@ export function UsersPanel() {
 				<Badge color="teal" variant="filled">{users?.length ?? '?'}</Badge>
 			</Group>
 			<TextInput 
-				placeholder="Search for a user" 
+				placeholder="Search users..." 
 				onKeyUp={filterUsers}
 				{...form.getInputProps('search')}
 				mt="md"
