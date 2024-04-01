@@ -48,7 +48,7 @@ export async function fetchMCModInfoFromJAR(jar: File): Promise<MCModInfo[]> {
 	const bytes = await jar.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 
-	const mcmodInfo = await unzipper.Open.buffer(buffer)
+	const mcmodInfo: MCModInfoData = await unzipper.Open.buffer(buffer)
 		.then((archive) => {
 			const entry = archive.files.find((file) => file.path === 'mcmod.info');
 			if (entry) {
@@ -58,7 +58,15 @@ export async function fetchMCModInfoFromJAR(jar: File): Promise<MCModInfo[]> {
 			}
 		})
 		.then((buffer) => buffer.toString('utf-8'))
-		.then((jsonString) => JSON.parse(jsonString));
+		.then((jsonString) => {
+			try {
+				return JSON.parse(jsonString.replaceAll('\n', '')) satisfies MCModInfoData;
+			} catch (err) {
+				console.log(jsonString);
+				console.error(err);
+				return [];
+			}
+		});
 
 	return sanitizeMCModInfo(mcmodInfo);
 }
