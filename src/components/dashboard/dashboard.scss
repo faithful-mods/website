@@ -1,0 +1,10 @@
+
+.dashboard-item {
+	width: calc((100% - ((var(--dashboard-item-count) - 1) * var(--mantine-spacing-md))) / var(--dashboard-item-count));
+	border: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-dark-4);
+	border-radius: var(--mantine-radius-default);
+}
+
+:where([data-mantine-color-scheme='light']) .dashboard-item {
+	border-color: var(--mantine-color-gray-4);
+}

@@ -12,6 +12,7 @@ import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
 import { ModpackModal } from './modal/modpack-modal';
+import { DashboardItem } from '../dashboard-item';
 
 export function ModpacksPanel() {
 	const [isPending, startTransition] = useTransition();
@@ -134,20 +135,13 @@ export function ModpacksPanel() {
 				{modpacks && (modpacks[0]?.length ?? 0) > 0 && (
 					<Group mt="md" align="start">
 						{modpacks && modpacks[1]?.map((modpack, index) => (
-							<Stack gap={5} key={index}>
-								<Image
-									radius="sm"
-									className="cursor-pointer image-background"
-									onClick={() => openModpackModal(modpack)}
-									src={modpack.image}
-									alt={modpack.name}
-									width={90}
-									height={90}
-									fit="contain"
-									style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }} 
-								/>
-								<Text size="sm" ta="center" maw={90} truncate="end">{modpack.name}</Text>
-							</Stack>
+							<DashboardItem 
+								key={index}
+								image={modpack.image}
+								title={modpack.name}
+								description={modpack.description}
+								onClick={() => openModpackModal(modpack)}
+							/>
 						))}
 					</Group>
 				)}
