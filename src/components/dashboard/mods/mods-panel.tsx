@@ -10,6 +10,8 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, notify, sortByName } from '~/lib/utils';
 import { getMods } from '~/server/data/mods';
 
+import { ModModal } from './modal/mods-modal';
+
 export function ModsPanel() {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	
@@ -26,6 +28,24 @@ export function ModsPanel() {
 		setModalMod(mod);
 		openModal();
 	};
+
+	const closeModModal = (editedMod: Mod | string) => {
+		const [base, _] = mods ?? [];
+
+		// deleted
+		if (typeof editedMod === 'string') {
+			
+			const cleared = (base?.filter((modpack) => modpack.id !== editedMod) ?? []).sort(sortByName);
+			setMods([cleared, cleared]);
+			closeModal();
+			return;
+		}
+
+		// edited
+		const updated = [...base?.filter((modpack) => modpack.id !== editedMod.id) ?? [], editedMod].sort(sortByName);
+		setMods([updated, updated]);
+		closeModal();
+	}
 
 	const searchMods = (search: string) => {
 		if (!mods) return;
@@ -58,7 +78,7 @@ export function ModsPanel() {
 				onClose={closeModal}
 				title="Mod Edition"
 			>
-				Hello World!
+				<ModModal mod={modalMod} onClose={closeModModal} />
 			</Modal>
 			<Card
 				shadow="sm"

@@ -2,6 +2,8 @@ import type { Resource } from '@prisma/client';
 
 import { db } from '~/lib/db';
 
+import { deleteTexture } from './texture';
+
 export async function createResource({
 	asset,
 	modVersion,
@@ -48,4 +50,16 @@ export async function linkTextureToResource({
 			textureId: texture.id,
 		},
 	});
+}
+
+export async function deleteResource(id: string): Promise<Resource> {
+	const linkedTextures = await db.linkedTexture.findMany({ where: { resourceId: id } });
+	for (const linkedTexture of linkedTextures) {
+		await db.linkedTexture.delete({ where: { id: linkedTexture.id } });
+
+		const texture = await db.texture.findUnique({ where: { id: linkedTexture.textureId }, include: { linkedTextures: true }});
+		if (texture && texture.linkedTextures.length === 0) await deleteTexture(texture.id);
+	}
+
+	return db.resource.delete({ where: { id } });
 }

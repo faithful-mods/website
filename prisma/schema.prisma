@@ -67,6 +67,7 @@ model Mod {
   forgeId     String?      @map("forge_id")
   name        String
   description String?
+  image       String?
   versions    ModVersion[]
   authors     String[]
   url         String?
