@@ -123,8 +123,8 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 					{modVersions.map((modVersion, index) =>
 						<Group key={index} justify="space-between">
 							<Stack gap="0">
-								<Text size="sm">{mods.find((mod) => mod.id === modVersion.modId)?.name}</Text>
-								<Text size="xs" c="dimmed">{modVersion.version}</Text>
+								<Text size="sm" maw={280} truncate="end">{mods.find((mod) => mod.id === modVersion.modId)?.name}</Text>
+								<Text size="xs" maw={280} truncate="end" c="dimmed">{modVersion.version}</Text>
 							</Stack>
 							<Button
 								variant="light"
