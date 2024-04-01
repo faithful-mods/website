@@ -7,6 +7,7 @@ import { useState, useTransition } from 'react';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createMod, deleteMod, updateMod, updateModPicture } from '~/server/data/mods';
 
+import { ModVersions } from './mod-versions/mod-version';
 import { ModModalGeneral } from './mods-general';
 
 export interface ModModalFormValues {
@@ -91,7 +92,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 					</Tabs.List>
 
 					<Tabs.Panel value="first"><ModModalGeneral form={form} previewImg={previewImg} mod={mod} /></Tabs.Panel>
-					<Tabs.Panel value="second">Todo 2</Tabs.Panel>
+					<Tabs.Panel value="second"><ModVersions mod={mod} /></Tabs.Panel>
 				</Tabs>
 				: 
 				'Hello World'

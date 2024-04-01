@@ -7,12 +7,11 @@ import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient } from '~/lib/utils';
+import { gradient, notify } from '~/lib/utils';
 import { getModpackVersions } from '~/server/data/modpacks-version';
 import type { ModpackVersionWithMods } from '~/types';
 
 import { ModpackVersionModal } from './modpack-version-modal';
-
 
 export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -24,6 +23,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 			.then(setModpackVersions)
 			.catch((error) => {
 				console.error(error);
+				notify('Error', error.message, 'red');
 			});
 	})
 
@@ -47,8 +47,8 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 				<ModpackVersionModal modpack={modpack} modpackVersion={modalModpackVersion} onClose={closeModpackVersionModal} />
 			</Modal>
 			<Group gap="md" align="start" mt="md">
-				{!modpackVersions && (<Text mt="sm">Loading...</Text>)}
-				{modpackVersions.length === 0 && (<Text mt="sm">This Modpack has no versions yet</Text>)}
+				{!modpackVersions && <Text mt="sm">Loading...</Text>}
+				{modpackVersions.length === 0 && <Text mt="sm">This Modpack has no versions yet</Text>}
 				
 				{modpackVersions.length > 0 && <>
 					<Table striped highlightOnHover withColumnBorders withTableBorder>

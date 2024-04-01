@@ -8,7 +8,7 @@ import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createModpack, deleteModpack, updateModpack, updateModpackPicture } from '~/server/data/modpacks';
 
 import { ModpackModalGeneral } from './modpack-general';
-import { ModpackVersions } from '../../modpack-versions/modpack-version';
+import { ModpackVersions } from './modpack-versions/modpack-version';
 
 export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefined, onClose: (editedModpack: Modpack | string) => void }) {
 	const [isPending, startTransition] = useTransition();
