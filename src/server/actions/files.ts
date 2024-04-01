@@ -147,6 +147,7 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 		(file) =>
 			file.path.startsWith('assets') &&
 			file.path.includes('textures') &&
+			(file.path.endsWith('.png') || file.path.endsWith('.mcmeta')) &&
 			!file.path.endsWith('/')
 	)
 
