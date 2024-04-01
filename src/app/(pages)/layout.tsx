@@ -30,7 +30,7 @@ export default async function RootLayout({children}: { children: React.ReactNode
 			<head>
 				<ColorSchemeScript />
 			</head>
-			<body style={{ maxWidth: BREAKPOINT_DESKTOP_LARGE, margin: '0 var(--mantine-spacing-sm)' }}>
+			<body style={{ maxWidth: BREAKPOINT_DESKTOP_LARGE, padding: '0 var(--mantine-spacing-sm)' }}>
 				<SessionProvider session={session}>
 					<MantineProvider theme={theme}>
 						<Navbar />
