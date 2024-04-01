@@ -4,9 +4,7 @@ import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import type { ModpackVersionWithMods } from '~/types';
 
-import { createMod } from './mods';
-import { createModVersion } from './mods-version';
-import { extractDefaultResourcePack, fetchMCModInfoFromJar } from '../actions/files';
+import { extractModVersionsFromJAR } from '../actions/files';
 
 export async function getModpackVersions(modpackId: string) {
 	return await db.modpackVersion.findMany({ where: { modpackId }, include: { mods: true } });
@@ -66,43 +64,9 @@ export async function addModsToModpackVersion(id: string, data: FormData): Promi
 
 	const files = data.getAll('file') as unknown as File[];
 	for (const file of files) {
-		const modInfos = await fetchMCModInfoFromJar(file)
-			.then((info) => Array.isArray(info) ? info : info.modList)
-			.catch((err) => {
-				console.error(`Error while fetching 'mcmod.info' file from ${file.name}\n${err}`);
-				return [];
-			});
-
-		for (const modInfo of modInfos) {
-			// Sanitize modInfo
-			if (modInfo.mcversion === 'extension \'minecraft\' property \'mcVersion\'')
-				modInfo.mcversion = 'unknown';
-
-			// Fetch corresponding mod or create it
-			let mod = await db.mod.findFirst({ where: { forgeId: modInfo.modid } });
-			if (!mod)
-				mod = await createMod({
-					name: modInfo.name,
-					forgeId: modInfo.modid,
-					description: modInfo.description,
-					authors: modInfo.authorList,
-					url: modInfo.url?.replace('http://', 'https://'),
-				});
-
-			// Fetch corresponding mod version or create it
-			let modVersion = await db.modVersion.findFirst({
-				where: { modId: mod.id, version: modInfo.version ?? 'unknown' },
-			});
-			if (!modVersion) {
-				modVersion = await createModVersion({
-					mod,
-					version: modInfo.version ?? 'unknown',
-					mcVersion: modInfo.mcversion ?? 'unknown',
-				});
-
-				await extractDefaultResourcePack(file, modVersion);
-			}
-
+		// Create all mod versions from the JAR file, can be multiple mods in one file
+		const modVersions = await extractModVersionsFromJAR(file);
+		for (const modVersion of modVersions) {
 			await db.modpackVersion.update({
 				where: { id },
 				data: { mods: { connect: { id: modVersion.id } } },

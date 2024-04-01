@@ -7,8 +7,11 @@ import { join } from 'path';
 import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
-import type { MCModInfoData } from '~/types';
+import { db } from '~/lib/db';
+import type { MCModInfo, MCModInfoData } from '~/types';
 
+import { createMod } from '../data/mods';
+import { createModVersion } from '../data/mods-version';
 import { linkTextureToResource, createResource, getResource } from '../data/resource';
 import { createTexture, findTexture } from '../data/texture';
 
@@ -41,7 +44,7 @@ export async function remove(publicPath: `files/${string}`): Promise<void> {
  * @param jar the jar file to extract the mcmod.info from
  * @returns The mcmod.info data
  */
-export async function fetchMCModInfoFromJar(jar: File): Promise<MCModInfoData> {
+export async function fetchMCModInfoFromJAR(jar: File): Promise<MCModInfo[]> {
 	const bytes = await jar.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 
@@ -57,7 +60,72 @@ export async function fetchMCModInfoFromJar(jar: File): Promise<MCModInfoData> {
 		.then((buffer) => buffer.toString('utf-8'))
 		.then((jsonString) => JSON.parse(jsonString));
 
-	return mcmodInfo;
+	return sanitizeMCModInfo(mcmodInfo);
+}
+
+/**
+ * Sanitize the mcmod.info data
+ * @param mcmodInfo The mcmod.info data to sanitize
+ * @returns The sanitized mcmod.info data
+ */
+function sanitizeMCModInfo(mcmodInfo: MCModInfoData): MCModInfo[] {
+	return (Array.isArray(mcmodInfo) ? mcmodInfo : mcmodInfo.modList)
+		.map((modInfo) => {
+			if (modInfo.mcversion === 'extension \'minecraft\' property \'mcVersion\'')
+				modInfo.mcversion = 'unknown';
+
+			if (modInfo.url && modInfo.url.startsWith('http://')) modInfo.url = modInfo.url.replace('http://', 'https://');
+			if (modInfo.url && modInfo.url.startsWith('!https://')) modInfo.url = undefined;
+
+			if (!modInfo.mcversion) modInfo.mcversion = 'unknown';
+			if (!modInfo.version) modInfo.name = 'unknown';
+
+			return modInfo;
+		})
+}
+
+/**
+ * Extract mod(s) versions from given JAR file
+ * - If mod(s) does not exist, create it
+ * - If mod(s) version(s) does not exist, create it and extract the default resource pack
+ * 
+ * @param jar the jar file to extract the mod versions from
+ * @returns The extracted mod versions
+ */
+export async function extractModVersionsFromJAR(
+	jar: File
+): Promise<ModVersion[]> {
+	const res: ModVersion[] = [];
+
+	const modInfos = await fetchMCModInfoFromJAR(jar);
+
+	// Check if all mods exists, if not create them
+	for (const modInfo of modInfos) {
+		let mod = await db.mod.findFirst({ where: { forgeId: modInfo.modid } });
+		if (!mod) {
+			mod = await createMod({
+				name: modInfo.name,
+				forgeId: modInfo.modid,
+				description: modInfo.description,
+				authors: modInfo.authorList,
+				url: modInfo.url,
+			});
+		}
+
+		let modVersion = await db.modVersion.findFirst({ where: { modId: mod.id, version: modInfo.version } });
+		if (!modVersion) {
+			modVersion = await createModVersion({
+				mod,
+				version: modInfo.version,
+				mcVersion: modInfo.mcversion,
+			});
+			await extractDefaultResourcePack(jar, modVersion);
+		}
+
+		res.push(modVersion);
+	}
+
+	return res;
 }
 
 /**

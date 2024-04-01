@@ -39,11 +39,11 @@ export interface MCModInfo {
 	/**
 	 * The version of the mod.
 	 */
-	version?: string;
+	version: string;
 	/**
 	 * The Minecraft version.
 	 */
-	mcversion?: string;
+	mcversion: string;
 	/**
 	 * A link to the mod’s homepage.
 	 */

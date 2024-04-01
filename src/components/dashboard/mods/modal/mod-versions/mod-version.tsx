@@ -1,11 +1,12 @@
 import type { Mod } from '@prisma/client';
 
-import { Group, Table, Text } from '@mantine/core';
-import { useState } from 'react';
+import { Code, Group, Table, Text } from '@mantine/core';
+import { Dropzone } from '@mantine/dropzone';
+import { useTransition, useState, startTransition } from 'react';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { notify } from '~/lib/utils';
-import { getModVersionsWithModpacks } from '~/server/data/mods-version';
+import { addModVersionsFromJAR, getModVersionsWithModpacks } from '~/server/data/mods-version';
 import { ModVersionWithModpacks } from '~/types';
 
 export function ModVersions({ mod }: { mod: Mod }) {
@@ -19,6 +20,21 @@ export function ModVersions({ mod }: { mod: Mod }) {
 				notify('Error', err.message, 'red');
 			})
 	})
+
+	const filesDrop = (files: File[]) => {
+		startTransition(() => {
+			const data = new FormData();
+			files.forEach((file) => data.append('files', file));
+
+			addModVersionsFromJAR(data)
+				.then((updated) => {
+					setModVersions(updated
+						.filter((modVer) => modVer.modId === mod.id)
+						.map((modVer) => ({ ...modVer, modpacks: [] }))
+					);
+				});
+		});
+	}
 
 	return (
 		<Group gap="md" align="start" mt="md">
@@ -49,6 +65,23 @@ export function ModVersions({ mod }: { mod: Mod }) {
 					</Table.Tbody>
 				</Table>
 			</>}
+
+			<Dropzone 
+				className="w-full"
+				onDrop={filesDrop}
+				accept={['application/java-archive']}
+				mt="0"
+			>
+				<div>
+					<Text size="l" inline>
+						Drag <Code>.JAR</Code> files here or click to select files
+					</Text>
+					<Text size="sm" c="dimmed" inline mt={7}>
+						Attach as many files as you like, each file will be added as a separate mod version.
+						If there is another mod in the JAR, it will be added as a new mod and its version added to it.
+					</Text>
+				</div>
+			</Dropzone>
 		</Group>
 	)
 }
