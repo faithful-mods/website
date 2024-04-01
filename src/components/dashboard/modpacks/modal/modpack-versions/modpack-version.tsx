@@ -62,7 +62,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 						</Table.Thead>
 						<Table.Tbody>
 							{modpackVersions.map((version) => (
-								<Table.Tr key={version.id} onClick={() => openModpackVersionModal(version)}>
+								<Table.Tr key={version.id} onClick={() => openModpackVersionModal(version)} className="cursor-pointer">
 									<Table.Td>{version.version}</Table.Td>
 									<Table.Td>{version.mods.length}</Table.Td>
 									<Table.Td>{version.createdAt.toLocaleString()}</Table.Td>

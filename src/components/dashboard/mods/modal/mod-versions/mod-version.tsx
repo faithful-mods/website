@@ -54,7 +54,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 					</Table.Thead>
 					<Table.Tbody>
 						{modVersions.map((version) => (
-							<Table.Tr key={version.id} onClick={() => {}}>
+							<Table.Tr key={version.id} onClick={() => {}} className="cursor-pointer">
 								<Table.Td>{version.version}</Table.Td>
 								<Table.Td>{version.mcVersion}</Table.Td>
 								<Table.Td>{version.modpacks.map((m) => m.name)}</Table.Td>
