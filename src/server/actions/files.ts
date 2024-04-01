@@ -102,17 +102,14 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 			writeFileSync(filepath, buffer);
 
 			texture = await createTexture({
-				filepath,
+				filepath: join('files', 'textures', 'default', filename),
 				hash,
 				name: filename,
 			});
-
-			console.log(texture, filepath);
 		}
 
 		let resource = await getResource({ asset, modVersion });
 		if (!resource) resource = await createResource({ asset, modVersion });
-		console.log(resource);
 
 		await linkTextureToResource({ resource, texture, assetPath: textureAsset.path });
 	}
