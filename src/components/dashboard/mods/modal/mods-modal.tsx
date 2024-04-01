@@ -1,11 +1,13 @@
 import type { Mod } from '@prisma/client';
 
-import { Button, Group, Tabs } from '@mantine/core';
+import { Button, Code, Group, Tabs, Text } from '@mantine/core';
+import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
 import { useState, useTransition } from 'react';
 
 import { gradient, gradientDanger, notify } from '~/lib/utils';
-import { createMod, deleteMod, updateMod, updateModPicture } from '~/server/data/mods';
+import { createMod, deleteMod, getModsFromIds, updateMod, updateModPicture } from '~/server/data/mods';
+import { addModVersionsFromJAR } from '~/server/data/mods-version';
 
 import { ModVersions } from './mod-versions/mod-version';
 import { ModModalGeneral } from './mods-general';
@@ -21,6 +23,7 @@ export interface ModModalFormValues {
 }
 
 export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (editedMod: Mod | string) => void }) {
+	const [_mod, setMod] = useState<Mod | undefined>(mod);
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(mod?.image || '');
 	
@@ -28,7 +31,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 		initialValues: {
 			id: mod?.id || '',
 			name: mod?.name || '',
-			authors: mod?.authors.join(', ') || '',
+			authors: mod?.authors?.join(', ') || '',
 			description: mod?.description || '',
 			image: mod?.image || '',
 			url: mod?.url || '',
@@ -90,9 +93,30 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 		});
 	}
 	
+	const filesDrop = (files: File[]) => {
+		startTransition(async () => {
+			const data = new FormData();
+			files.forEach((file) => data.append('files', file));
+
+			const addedModVersions = await addModVersionsFromJAR(data)
+			const firstModId = addedModVersions[0].modId;
+			const mod = await getModsFromIds([firstModId]).then((mods) => mods[0]);
+			form.setValues({
+				id: firstModId,
+				name: mod.name,
+				authors: mod.authors.join(', '),
+				description: mod.description ?? '',
+				image: mod.image ?? '',
+				url: mod.url ?? '',
+				forgeId: mod.forgeId ?? '',
+			});
+			setMod(mod);
+		});
+	}
+
 	return (
 		<>
-			{mod
+			{_mod
 				? 
 				<Tabs defaultValue="first">
 					<Tabs.List>
@@ -100,31 +124,51 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 						<Tabs.Tab value="second">Versions</Tabs.Tab>
 					</Tabs.List>
 
-					<Tabs.Panel value="first"><ModModalGeneral form={form} previewImg={previewImg} mod={mod} /></Tabs.Panel>
-					<Tabs.Panel value="second"><ModVersions mod={mod} /></Tabs.Panel>
+					<Tabs.Panel value="first"><ModModalGeneral form={form} previewImg={previewImg} mod={_mod} /></Tabs.Panel>
+					<Tabs.Panel value="second"><ModVersions mod={_mod} /></Tabs.Panel>
 				</Tabs>
-				: 
-				'Hello World'
+				:
+				<Dropzone 
+					className="w-full"
+					onDrop={filesDrop}
+					accept={['application/java-archive']}
+					mt="0"
+				>
+					<div>
+						<Text size="l" inline>
+							Drag <Code>.JAR</Code> files here or click to select files
+						</Text>
+						<Text size="sm" c="dimmed" inline mt={7}>
+							Attach as many files as you like, each file will be added as a separate mod version.
+							If there is another mod in the JAR, it will be added as a new mod and its version added to it.
+						</Text>
+					</div>
+				</Dropzone>
 			}
 
 			<Group justify="end" mt="md">
-				{mod &&
-					<Button
-						variant="gradient"
-						gradient={gradientDanger}
-						onClick={() => onDelete(mod.id)}
-						disabled={isPending}
-						loading={isPending}
-					>Delete Mod</Button>
+				{_mod &&
+					<>
+						<Button
+							variant="gradient"
+							gradient={gradientDanger}
+							onClick={() => onDelete(_mod.id)}
+							disabled={isPending}
+							loading={isPending}
+						>
+							Delete Mod
+						</Button>
+						<Button
+							variant="gradient"
+							gradient={gradient}
+							onClick={() => onSubmit(form.values)}
+							disabled={isPending || !form.isValid()}
+							loading={isPending}
+						>
+							Update Mod
+						</Button>
+					</>
 				}
-				<Button
-					variant="gradient"
-					gradient={gradient}
-					onClick={() => onSubmit(form.values)}
-					disabled={isPending || !form.isValid()}
-					loading={isPending}>
-					{mod ? 'Update' : 'Create'} Mod
-				</Button>
 			</Group>
 		</>
 	)
