@@ -75,3 +75,12 @@ export async function deleteMod(id: string): Promise<Mod> {
 
 	return db.mod.delete({ where: { id } });
 }
+
+export async function voidMods(): Promise<void> {
+	await canAccess();
+
+	const mods = await db.mod.findMany();
+	for (const mod of mods) {
+		await deleteMod(mod.id);
+	}
+}

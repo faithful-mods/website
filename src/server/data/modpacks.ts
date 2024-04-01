@@ -43,3 +43,12 @@ export async function deleteModpack(id: string): Promise<Modpack> {
 
 	return db.modpack.delete({ where: { id }});
 }
+
+export async function voidModpacks(): Promise<void> {
+	await canAccess();
+
+	const modpacks = await db.modpack.findMany();
+	for (const modpack of modpacks) {
+		await deleteModpack(modpack.id);
+	}
+}

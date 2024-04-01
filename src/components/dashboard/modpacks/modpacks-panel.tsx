@@ -4,16 +4,17 @@ import { Image, Badge, Card, Group, Text, TextInput, Button, Stack, Modal } from
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack } from '@prisma/client';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { TbPlus, TbReload } from 'react-icons/tb';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient, notify, sortByName } from '~/lib/utils';
-import { getModpacks } from '~/server/data/modpacks';
+import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
+import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
 import { ModpackModal } from './modal/modpack-modal';
 
 export function ModpacksPanel() {
+	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
 	const [modalModpack, setModalModpack] = useState<Modpack | undefined>();
@@ -71,6 +72,13 @@ export function ModpacksPanel() {
 		const updated = [...base?.filter((modpack) => modpack.id !== editedModpack.id) ?? [], editedModpack].sort(sortByName);
 		setModpacks([updated, updated]);
 		closeModal();
+	};
+
+	const deleteAllModpacks = () => {
+		startTransition(() => {
+			voidModpacks();
+			setModpacks([[], []]);
+		});
 	};
 
 	return (
@@ -143,6 +151,20 @@ export function ModpacksPanel() {
 						))}
 					</Group>
 				)}
+
+				{modpacks && modpacks[0] && modpacks[0].length > 0 &&
+					<Group justify="flex-end" mt="md">
+						<Button
+							variant="gradient"
+							gradient={gradientDanger}
+							onClick={() => deleteAllModpacks()}
+							loading={isPending}
+							disabled={isPending}
+						>
+							Delete All Modpacks
+						</Button>
+					</Group>
+				}
 			</Card>
 		</>
 	);

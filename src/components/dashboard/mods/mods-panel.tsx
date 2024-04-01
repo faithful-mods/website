@@ -3,16 +3,17 @@ import type { Mod } from '@prisma/client';
 import { Badge, Button, Card, Group, Image, Modal, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { TbPlus, TbReload } from 'react-icons/tb';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient, notify, sortByName } from '~/lib/utils';
-import { getMods } from '~/server/data/mods';
+import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
+import { getMods, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
 
 export function ModsPanel() {
+	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	
 	const [modalMod, setModalMod] = useState<Mod | undefined>();
@@ -70,6 +71,13 @@ export function ModsPanel() {
 
 		const filtered = mods[0]?.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
 		setMods([mods[0], filtered]);
+	};
+
+	const deleteAllMods = () => {
+		startTransition(() => {
+			voidMods();
+			setMods([[], []]);
+		});
 	};
 	
 	return (
@@ -142,6 +150,20 @@ export function ModsPanel() {
 						))}
 					</Group>
 				)}
+
+				{mods && mods[0] && mods[0].length > 0 &&
+					<Group justify="flex-end" mt="md">
+						<Button
+							variant="gradient"
+							gradient={gradientDanger}
+							onClick={() => deleteAllMods()}
+							loading={isPending}
+							disabled={isPending}
+						>
+							Delete All Mods
+						</Button>
+					</Group>
+				}
 			</Card>
 		</>
 	)
