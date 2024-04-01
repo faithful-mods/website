@@ -34,13 +34,13 @@ export const Navbar = () => {
 	return (
 		<Group gap="sm" mb="sm" mt="sm" wrap="nowrap">
 			{windowWidth >= BREAKPOINT_TABLET && 
-				<Card padding="sm" withBorder style={{ minWidth: '62px' }}>
+				<Card padding="sm" radius="md" withBorder shadow="sm" style={{ minWidth: '62px' }}>
 					<Link href="/" className="navbar-icon-fix">
 						<Image src="/icon.png" alt="FM" className="navbar-icon-fix" />
 					</Link>
 				</Card>
 			}
-			<Card padding="sm" withBorder className="w-full">
+			<Card padding="sm" radius="md" withBorder className="w-full" shadow="sm">
 				<Group justify="space-between" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 						{windowWidth < BREAKPOINT_TABLET && 
