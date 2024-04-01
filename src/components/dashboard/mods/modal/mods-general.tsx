@@ -27,12 +27,12 @@ export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps)
 			</Stack>
 
 			<Stack w={`calc(100% - ${imageWidth}px - var(--mantine-spacing-md))`} gap="sm">
-				<TextInput label="Name" {...form.getInputProps('name')} required />
+				<TextInput label="Name" required {...form.getInputProps('name')} />
 				<TextInput label="Description" {...form.getInputProps('description')} />
-				<TextInput label="Author(s)" {...form.getInputProps('authors')} description="Use a comma to separate multiple authors" />
-				<FileInput label="Picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
+				<TextInput label="Author(s)" description="Use a comma to separate multiple authors" {...form.getInputProps('authors')} />
+				<FileInput label="Picture" required accept="image/*"{...form.getInputProps('image')} />
 				<TextInput label="Page URL" {...form.getInputProps('url')} />
-				<TextInput label="Forge Mod ID" {...form.getInputProps('forgeId')} required />
+				<TextInput label="Forge Mod ID" required {...form.getInputProps('forgeId')} />
 			</Stack>
 		</Group>
 	)

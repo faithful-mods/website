@@ -11,16 +11,16 @@ export async function getModpacks(): Promise<Modpack[]> {
 	return db.modpack.findMany();
 }
 
-export async function updateModpack({ id, name, description }: { id: string; name: string; description?: string; }): Promise<Modpack> {
+export async function updateModpack({ id, name, description, authors }: { id: string; name: string; description?: string; authors: string[]; }): Promise<Modpack> {
 	await canAccess();
 
 	const modpack = await db.modpack.findUnique({ where: { id } });
-	return db.modpack.update({ where: { id }, data: { ...modpack, name, description } });
+	return db.modpack.update({ where: { id }, data: { ...modpack, name, description, authors } });
 }
 
-export async function createModpack({ name, description }: { name: string; description?: string; }): Promise<Modpack> {
+export async function createModpack({ name, description, authors }: { name: string; description?: string; authors: string[] }): Promise<Modpack> {
 	await canAccess();
-	return db.modpack.create({ data: { name, description } });
+	return db.modpack.create({ data: { name, description, authors } });
 }
 
 export async function updateModpackPicture(id: string, data: FormData): Promise<Modpack> {

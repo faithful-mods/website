@@ -40,6 +40,15 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			},
 			url: (value) => {
 				if (value && !value.startsWith('https://')) return 'The URL must start with https://'
+			},
+			image: (value) => {
+				if (!value) return 'You must provide an image for the modpack';
+			},
+			forgeId: (value) => {
+				if (!value) return 'You must provide a Forge Mod ID for the mod';
+			},
+			authors: (value) => {
+				if (!value) return 'You must provide an author for the mod';
 			}
 		},
 		onValuesChange: (value) => {

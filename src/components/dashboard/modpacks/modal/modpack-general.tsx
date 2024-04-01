@@ -22,9 +22,10 @@ export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFo
 			</Stack>
 
 			<Stack w={`calc(100% - ${imageWidth}px - var(--mantine-spacing-md))`} gap="sm">
-				<TextInput label="Name" {...form.getInputProps('name')} required />
-				<TextInput label="Description" {...form.getInputProps('description')} placeholder="Give this modpack a nice description"/>
-				<FileInput label="Picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
+				<TextInput label="Name" required {...form.getInputProps('name')} />
+				<TextInput label="Description" placeholder="Give this modpack a nice description" {...form.getInputProps('description')} />
+				<TextInput label="Authors" description="Use a comma to separate multiple authors" required {...form.getInputProps('authors')} />
+				<FileInput label="Picture" placeholder={previewImg} accept="image/*" required {...form.getInputProps('image')} />
 			</Stack>
 		</Group>
 	)

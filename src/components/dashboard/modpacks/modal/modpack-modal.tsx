@@ -15,6 +15,7 @@ export interface ModpackModalFormValues {
 	name: string;
 	image: File | string;
 	description: string;
+	authors: string;
 }
 
 export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefined, onClose: (editedModpack: Modpack | string) => void }) {
@@ -26,6 +27,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 			id: modpack?.id || '',
 			name: modpack?.name || '',
 			description: modpack?.description || '',
+			authors: modpack?.authors.join(', ') || '',
 			image: modpack?.image || '',
 		},
 		validate: {
@@ -36,7 +38,10 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 			},
 			image: (value) => {
 				if (!value) return 'You must provide an image for the modpack';
-			}
+			},
+			authors: (value) => {
+				if (!value) return 'You must provide at least one author for the modpack';
+			},
 		},
 		onValuesChange: (value) => {
 			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : modpack?.image || '')
@@ -52,8 +57,8 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 				values.image = ''; // Avoid sending the image in the body (it's sent as a FormData instead)
 
 				editedModpack = values.id
-					? await updateModpack(values)
-					: await createModpack(values);
+					? await updateModpack({ ...values, authors: values.authors.split(',') })
+					: await createModpack({ ...values, authors: values.authors.split(',') });
 
 				// file upload
 				if (image instanceof File) {

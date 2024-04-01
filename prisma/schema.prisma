@@ -39,6 +39,7 @@ model Account {
 
 model Modpack {
   id          String           @id @default(cuid())
+  authors     String[]
   name        String
   image       String?
   description String?
