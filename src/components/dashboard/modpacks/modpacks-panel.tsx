@@ -5,7 +5,7 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack } from '@prisma/client';
 import { useState } from 'react';
-import { TbPlus } from 'react-icons/tb';
+import { TbPlus, TbReload } from 'react-icons/tb';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, notify, sortByName } from '~/lib/utils';
@@ -25,6 +25,19 @@ export function ModpacksPanel() {
 		},
 	});
 
+	useEffectOnce(() => reloadModpacks());
+
+	const reloadModpacks = () => {
+		getModpacks()
+			.then((modpacks) => {
+				setModpacks([modpacks.sort(sortByName), modpacks.sort(sortByName)]);
+			})
+			.catch((err) => {
+				console.error(err);
+				notify('Error', err.message, 'red');
+			});
+	}
+
 	const searchModpack = (search: string) => {
 		if (!modpacks) return;
 
@@ -35,7 +48,7 @@ export function ModpacksPanel() {
 
 		const filtered = modpacks[0]?.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
 		setModpacks([modpacks[0], filtered]);
-	}
+	};
 
 	const openModpackModal = (modpack?: Modpack | undefined) => {
 		setModalModpack(modpack);
@@ -58,18 +71,7 @@ export function ModpacksPanel() {
 		const updated = [...base?.filter((modpack) => modpack.id !== editedModpack.id) ?? [], editedModpack].sort(sortByName);
 		setModpacks([updated, updated]);
 		closeModal();
-	}
-
-	useEffectOnce(() => {
-		getModpacks()
-			.then((modpacks) => {
-				setModpacks([modpacks.sort(sortByName), modpacks.sort(sortByName)]);
-			})
-			.catch((err) => {
-				console.error(err);
-				notify('Error', err.message, 'red');
-			});
-	});
+	};
 
 	return (
 		<>
@@ -98,6 +100,14 @@ export function ModpacksPanel() {
 						onKeyUp={() => searchModpack(form.values.search)}
 						{...form.getInputProps('search')}
 					/>
+					<Button 
+						variant='gradient'
+						gradient={gradient}
+						className="navbar-icon-fix"
+						onClick={() => reloadModpacks()} 
+					>
+						<TbReload />
+					</Button>
 					<Button 
 						variant='gradient'
 						gradient={gradient}

@@ -4,7 +4,7 @@ import { Badge, Button, Card, Group, Image, Modal, Stack, Text, TextInput } from
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
-import { TbPlus } from 'react-icons/tb';
+import { TbPlus, TbReload } from 'react-icons/tb';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, notify, sortByName } from '~/lib/utils';
@@ -23,6 +23,19 @@ export function ModsPanel() {
 			search: '',
 		},
 	});
+
+	useEffectOnce(() => reloadMods());
+
+	const reloadMods = () => {
+		getMods()
+			.then((mods) => {
+				setMods([mods.sort(sortByName), mods.sort(sortByName)]);
+			})
+			.catch((err) => {
+				console.error(err);
+				notify('Error', err.message, 'red');
+			});
+	}
 
 	const openModModal = (mod?: Mod | undefined) => {
 		setModalMod(mod);
@@ -45,7 +58,7 @@ export function ModsPanel() {
 		const updated = [...base?.filter((modpack) => modpack.id !== editedMod.id) ?? [], editedMod].sort(sortByName);
 		setMods([updated, updated]);
 		closeModal();
-	}
+	};
 
 	const searchMods = (search: string) => {
 		if (!mods) return;
@@ -57,18 +70,7 @@ export function ModsPanel() {
 
 		const filtered = mods[0]?.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
 		setMods([mods[0], filtered]);
-	}
-
-	useEffectOnce(() => {
-		getMods()
-			.then((mods) => {
-				setMods([mods.sort(sortByName), mods.sort(sortByName)]);
-			})
-			.catch((err) => {
-				console.error(err);
-				notify('Error', err.message, 'red');
-			});
-	});
+	};
 	
 	return (
 		<>
@@ -97,6 +99,14 @@ export function ModsPanel() {
 						onKeyUp={() => searchMods(form.values.search)}
 						{...form.getInputProps('search')}
 					></TextInput>
+					<Button 
+						variant='gradient'
+						gradient={gradient}
+						className="navbar-icon-fix"
+						onClick={() => reloadMods()} 
+					>
+						<TbReload />
+					</Button>
 					<Button 
 						variant='gradient'
 						gradient={gradient}
