@@ -96,7 +96,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 
 	return (
 		<Stack gap="md">
-			<TextInput label="Version" placeholder="1.2.4" {...form.getInputProps('version')} />
+			<TextInput label="Version" placeholder="1.2.4" required {...form.getInputProps('version')} />
 			<Stack justify="start" gap="0">
 				<Text size="sm">Mods for this version</Text>
 				{form.values.version.length === 0 && <Text size="xs" c={gradientDanger.to}>Set a version first</Text>}

@@ -27,7 +27,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 			});
 	})
 
-	const openModpackVersionModal = (modpackVersion?: ModpackVersionWithMods| undefined) => {
+	const openModpackVersionModal = (modpackVersion?: ModpackVersionWithMods | undefined) => {
 		setModalModpackVersion(modpackVersion);
 		openModal();
 	}
