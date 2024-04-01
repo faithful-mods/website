@@ -1,10 +1,11 @@
 'use server';
 
-import type { ModVersion, Modpack } from '@prisma/client';
+import { Resolution, type ModVersion, type Modpack, $Enums } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import type { ModVersionWithModpacks } from '~/types';
+import { EMPTY_PROGRESSION, EMPTY_PROGRESSION_RES } from '~/lib/utils';
+import type { ModVersionWithModpacks, ModVersionWithProgression, Progression } from '~/types';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
@@ -22,6 +23,66 @@ export async function getModVersionsWithModpacks(modId: string): Promise<ModVers
 	}
 	
 	return res;
+}
+
+function randInt(min: number, max: number) {
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+export async function getModsVersionsProgression(): Promise<ModVersionWithProgression[]> {
+	const modVersions = (await db.modVersion.findMany({ include: { mod: true, resources: true } }))
+		.map((modVer) => ({ 
+			...modVer, 
+			...EMPTY_PROGRESSION, 
+			resources: modVer.resources.map((resource) => ({ 
+				...resource, 
+				...EMPTY_PROGRESSION,
+			}))
+		}))
+
+	for (const modVersion of modVersions) {
+		for (const resource of modVersion.resources) {
+			const linkedTextures = await db.linkedTexture.findMany({ where: { resourceId: resource.id }});
+
+			const textures = await db.texture.findMany({
+				where: { 
+					id: { in: linkedTextures.map((lt) => lt.textureId) } 
+				},
+			});
+
+			const contributions = await db.texture.findMany({
+				where: {
+					contributions: { some: {} }, // at least one contribution
+					id: { in: linkedTextures.map((lt) => lt.textureId) },
+				},
+				include: { contributions: true },
+			})
+				// keep contributions only
+				.then((textures) => textures.map((texture) => texture.contributions).flat())
+				// remove multiple contributions on the same resolution for the same texture
+				.then((contributions) => contributions.filter((c, i, arr) => arr.findIndex((c2) => c2.textureId === c.textureId && c2.resolution === c.resolution) === i))
+				// count contributions per resolution
+				.then((contributions) => {
+					const output = EMPTY_PROGRESSION_RES;
+
+					for (const contribution of contributions) {
+						output[contribution.resolution] += 1;
+					}
+
+					return output;
+				})
+
+			modVersion.linkedTextures += linkedTextures.length;
+			modVersion.textures.todo += textures.length;
+			(Object.keys(modVersion.textures.done) as Resolution[]).forEach((res) => modVersion.textures.done[res] += contributions[res]);
+
+			resource.linkedTextures = linkedTextures.length;
+			resource.textures.todo = textures.length;
+			resource.textures.done = contributions;
+		}
+	}
+
+	return modVersions.filter((modVer) => modVer.linkedTextures > 0); // only return mod versions with linked textures
 }
 
 export async function addModVersionsFromJAR(jar: FormData): Promise<ModVersion[]> {

@@ -1,7 +1,10 @@
 import { MantineColor, MantineGradient } from '@mantine/core'
 import { showNotification } from '@mantine/notifications'
+import { Resolution } from '@prisma/client'
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+
+import { Progression } from '~/types'
 
 import { NOTIFICATIONS_DURATION_MS } from './constants'
 
@@ -41,3 +44,9 @@ export function notify(title: string, message: React.ReactNode, color: MantineCo
 export function sortByName<T extends { name: string }>(a: T, b: T) {
 	return a.name.localeCompare(b.name) || 0;
 }
+
+export const EMPTY_PROGRESSION_RES = Object.keys(Resolution).reduce((acc, res) => ({ ...acc, [res]: 0 }), {}) as Progression['textures']['done'];
+export const EMPTY_PROGRESSION: Progression = {
+	linkedTextures: 0,
+	textures: { done: EMPTY_PROGRESSION_RES, todo: 0 },
+} as const;

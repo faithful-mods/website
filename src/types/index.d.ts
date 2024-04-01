@@ -1,12 +1,36 @@
-import type { Modpack, ModpackVersion, ModVersion } from '@prisma/client';
+import type {
+	LinkedTexture,
+	Mod,
+	Modpack,
+	ModpackVersion,
+	ModVersion,
+	Resolution,
+	Resource,
+	Texture,
+} from '@prisma/client';
 
 export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
 export type ModpackVersionWithMods = ModpackVersion & { mods: ModVersion[] };
-
 export type ModVersionWithModpacks = ModVersion & { modpacks: Modpack[] };
+
+export type Progression = {
+	linkedTextures: number;
+	textures: {
+		done: {
+			[key in Resolution]: number;
+		}
+		todo: number;
+	};
+}
+
+export type ResourceWithProgression = Prettify<Resource & Progression>;
+export type ModVersionWithProgression = Prettify<ModVersion & Progression & {
+	mod: Mod;
+	resources: ResourceWithProgression[];
+}>;
 
 export type MCModInfoData = MCModInfo[] | {
 	modListVersion: number;

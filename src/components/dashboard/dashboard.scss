@@ -1,3 +1,6 @@
+.dashboard-mod-progress {
+	width: calc((100% - ((var(--dashboard-mod-progress-count) - 1) * var(--mantine-spacing-md))) / var(--dashboard-mod-progress-count));
+}
 
 .dashboard-item {
 	width: calc((100% - ((var(--dashboard-item-count) - 1) * var(--mantine-spacing-md))) / var(--dashboard-item-count));

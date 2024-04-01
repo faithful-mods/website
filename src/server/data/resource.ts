@@ -1,3 +1,5 @@
+'use server';
+
 import type { Resource } from '@prisma/client';
 
 import { db } from '~/lib/db';
