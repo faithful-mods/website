@@ -37,6 +37,9 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			name: (value) => {
 				if (!value) return 'You must provide a name for the mod';
 			},
+			url: (value) => {
+				if (value && !value.startsWith('https://')) return 'The URL must start with https://'
+			}
 		},
 		onValuesChange: (value) => {
 			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : mod?.image || '')
@@ -54,8 +57,6 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				editedMod = values.id
 					? await updateMod({ ...values, authors: values.authors.split(', ') })
 					: await createMod({ ...values, authors: values.authors.split(', ') });
-
-				console.log(values.image);
 
 				// file upload
 				if (image instanceof File) {

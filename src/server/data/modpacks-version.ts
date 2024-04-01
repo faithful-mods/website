@@ -86,7 +86,7 @@ export async function addModsToModpackVersion(id: string, data: FormData): Promi
 					forgeId: modInfo.modid,
 					description: modInfo.description,
 					authors: modInfo.authorList,
-					url: modInfo.url,
+					url: modInfo.url?.replace('http://', 'https://'),
 				});
 
 			// Fetch corresponding mod version or create it
