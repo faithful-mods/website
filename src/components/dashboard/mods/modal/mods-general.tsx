@@ -11,25 +11,28 @@ export interface ModModalGeneralProps {
 }
 
 export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps) {
+	const imageWidth = 210;
+
 	return (
 		<Group gap="md" align="start" mt="md">
-			{previewImg !== '' && <Image radius="md" src={previewImg} alt="Mod image" width={200} height={200} fit="contain" className="image-background" style={{ maxWidth: '200px', maxHeight: '200px' }} />}
-			{previewImg === '' && <Skeleton width={200} height={200} radius="md" animate={false} />}
-
-			<Stack w="calc(100% - 200px - var(--mantine-spacing-md))" gap="sm">
-				{mod && 
-					<Group gap="sm">
-						<Badge mt="sm" color="teal" variant="filled">Created: {mod.createdAt.toLocaleString()}</Badge>
-						<Badge mt="sm" color="teal" variant="filled">Updated: {mod.updatedAt.toLocaleString()}</Badge>
-					</Group>
+			<Stack align="center" gap="sm">
+				{previewImg !== '' && <Image radius="md" src={previewImg} alt="Mod image" width={imageWidth} height={imageWidth} fit="contain" className="image-background" style={{ maxWidth: imageWidth + 'px', maxHeight: imageWidth + 'px' }} />}
+				{previewImg === '' && <Skeleton width={imageWidth} height={imageWidth} radius="md" animate={false} />}
+				{mod &&
+					<>
+						<Badge color="teal" variant="filled">Created: {mod.createdAt.toLocaleString()}</Badge>
+						<Badge color="teal" variant="filled">Updated: {mod.updatedAt.toLocaleString()}</Badge>
+					</>
 				}
+			</Stack>
 
-				<FileInput label="Mod picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
-				<TextInput label="Name" {...form.getInputProps('name')} />
-				<TextInput label="Authors" {...form.getInputProps('authors')} />
+			<Stack w={`calc(100% - ${imageWidth}px - var(--mantine-spacing-md))`} gap="sm">
+				<TextInput label="Name" {...form.getInputProps('name')} required />
 				<TextInput label="Description" {...form.getInputProps('description')} />
-				<TextInput label="URL" {...form.getInputProps('url')} />
-				<TextInput label="Forge ID" {...form.getInputProps('forgeId')} />
+				<TextInput label="Author(s)" {...form.getInputProps('authors')} description="Use a comma to separate multiple authors" />
+				<FileInput label="Picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
+				<TextInput label="Page URL" {...form.getInputProps('url')} />
+				<TextInput label="Forge Mod ID" {...form.getInputProps('forgeId')} required />
 			</Stack>
 		</Group>
 	)

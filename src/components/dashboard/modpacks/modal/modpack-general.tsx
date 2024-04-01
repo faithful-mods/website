@@ -6,22 +6,25 @@ import { UseFormReturnType } from '@mantine/form';
 import { ModpackModalFormValues } from './modpack-modal';
 
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<ModpackModalFormValues>, previewImg: string, modpack: Modpack | undefined }) {
+	const imageWidth = 210;
+
 	return (
 		<Group gap="md" align="start" mt="md">
-			{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={200} height={200} fit="contain" className="image-background" style={{ maxWidth: '200px', maxHeight: '200px' }} />}
-			{previewImg === '' && <Skeleton width={200} height={200} radius="md" animate={false} />}
-
-			<Stack w="calc(100% - 200px - var(--mantine-spacing-md))" gap="sm">
+			<Stack align="center" gap="sm">
+				{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={imageWidth} height={imageWidth} fit="contain" className="image-background" style={{ maxWidth: imageWidth + 'px', maxHeight: imageWidth + 'px' }} />}
+				{previewImg === '' && <Skeleton width={imageWidth} height={imageWidth} radius="md" animate={false} />}
 				{modpack && 
-					<Group gap="sm">
-						<Badge mt="sm" color="teal" variant="filled">Created: {modpack.createdAt.toLocaleString()}</Badge>
-						<Badge mt="sm" color="teal" variant="filled">Updated: {modpack.updatedAt.toLocaleString()}</Badge>
-					</Group>
+					<>
+						<Badge color="teal" variant="filled">Created: {modpack.createdAt.toLocaleString()}</Badge>
+						<Badge color="teal" variant="filled">Updated: {modpack.updatedAt.toLocaleString()}</Badge>
+					</>
 				}
+			</Stack>
 
-				<FileInput label="Modpack picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
-				<TextInput label="Name" {...form.getInputProps('name')} />
-				<TextInput label="Description" {...form.getInputProps('description')} />
+			<Stack w={`calc(100% - ${imageWidth}px - var(--mantine-spacing-md))`} gap="sm">
+				<TextInput label="Name" {...form.getInputProps('name')} required />
+				<TextInput label="Description" {...form.getInputProps('description')} placeholder="Give this modpack a nice description"/>
+				<FileInput label="Picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
 			</Stack>
 		</Group>
 	)
