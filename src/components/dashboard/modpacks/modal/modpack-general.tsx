@@ -3,7 +3,9 @@ import type { Modpack } from '@prisma/client';
 import { Group, Image, Skeleton, FileInput, TextInput, Badge, Stack } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 
-export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<{ id: string, name: string, image: File | string }>, previewImg: string, modpack: Modpack | undefined }) {
+import { ModpackModalFormValues } from './modpack-modal';
+
+export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<ModpackModalFormValues>, previewImg: string, modpack: Modpack | undefined }) {
 	return (
 		<Group gap="md" align="start" mt="md">
 			{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={200} height={200} fit="contain" className="image-background" style={{ maxWidth: '200px', maxHeight: '200px' }} />}
@@ -19,6 +21,7 @@ export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFo
 
 				<FileInput label="Modpack picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
 				<TextInput label="Name" {...form.getInputProps('name')} />
+				<TextInput label="Description" {...form.getInputProps('description')} />
 			</Stack>
 		</Group>
 	)

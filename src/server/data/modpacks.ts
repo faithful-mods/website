@@ -4,7 +4,6 @@ import type { Modpack } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import type { CreateObject, UpdateObject } from '~/types';
 
 import { remove, upload } from '../actions/files';
 
@@ -12,16 +11,16 @@ export async function getModpacks(): Promise<Modpack[]> {
 	return db.modpack.findMany();
 }
 
-export async function updateModpack(m: UpdateObject<Modpack>): Promise<Modpack> {
+export async function updateModpack({ id, name, description }: { id: string; name: string; description?: string; }): Promise<Modpack> {
 	await canAccess();
 
-	const modpack = await db.modpack.findUnique({ where: { id: m.id } });
-	return db.modpack.update({ where: { id: m.id }, data: { ...modpack, ...m } });
+	const modpack = await db.modpack.findUnique({ where: { id } });
+	return db.modpack.update({ where: { id }, data: { ...modpack, name, description } });
 }
 
-export async function createModpack(m: CreateObject<Modpack, 'image'>): Promise<Modpack> {
+export async function createModpack({ name, description }: { name: string; description?: string; }): Promise<Modpack> {
 	await canAccess();
-	return db.modpack.create({ data: m });
+	return db.modpack.create({ data: { name, description } });
 }
 
 export async function updateModpackPicture(id: string, data: FormData): Promise<Modpack> {

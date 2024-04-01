@@ -10,14 +10,22 @@ import { createModpack, deleteModpack, updateModpack, updateModpackPicture } fro
 import { ModpackModalGeneral } from './modpack-general';
 import { ModpackVersions } from './modpack-versions/modpack-version';
 
+export interface ModpackModalFormValues {
+	id: string;
+	name: string;
+	image: File | string;
+	description: string;
+}
+
 export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefined, onClose: (editedModpack: Modpack | string) => void }) {
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(modpack?.image ?? '');
 
-	const form = useForm<{ id: string, name: string, image: File | string }>({
+	const form = useForm<ModpackModalFormValues>({
 		initialValues: {
 			id: modpack?.id || '',
 			name: modpack?.name || '',
+			description: modpack?.description || '',
 			image: modpack?.image || '',
 		},
 		validate: {
@@ -40,14 +48,17 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 			let editedModpack: Modpack;
 
 			try {
+				const image = values.image;
+				values.image = ''; // Avoid sending the image in the body (it's sent as a FormData instead)
+
 				editedModpack = values.id
-					? await updateModpack({ id: values.id, name: values.name })
-					: await createModpack({ name: values.name });
+					? await updateModpack(values)
+					: await createModpack(values);
 
 				// file upload
-				if (values.image instanceof File) {
+				if (image instanceof File) {
 					const data = new FormData();
-					data.append('file', values.image);
+					data.append('file', image);
 
 					editedModpack = await updateModpackPicture(editedModpack.id, data);
 				}

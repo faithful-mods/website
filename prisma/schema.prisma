@@ -38,10 +38,11 @@ model Account {
 }
 
 model Modpack {
-  id       String           @id @default(cuid())
-  name     String
-  image    String?
-  versions ModpackVersion[]
+  id          String           @id @default(cuid())
+  name        String
+  image       String?
+  description String?
+  versions    ModpackVersion[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
