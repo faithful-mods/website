@@ -114,20 +114,20 @@ export function ModsPanel() {
 				
 				{mods && (mods[0]?.length ?? 0) > 0 && (
 					<Group mt="md" align="start">
-						{mods && mods[1]?.map((modpack, index) => (
+						{mods && mods[1]?.map((mod, index) => (
 							<Stack gap={5} key={index}>
 								<Image
 									radius="sm"
 									className="cursor-pointer image-background"
-									onClick={() => openModModal(modpack)}
-									src="./icon.png"
-									alt={modpack.name}
+									onClick={() => openModModal(mod)}
+									src={mod.image ?? './icon.png'}
+									alt={mod.name}
 									width={90}
 									height={90}
 									fit="contain"
 									style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }} 
 								/>
-								<Text size="sm" ta="center" maw={90} truncate="end">{modpack.name}</Text>
+								<Text size="sm" ta="center" maw={90} truncate="end">{mod.name}</Text>
 							</Stack>
 						))}
 					</Group>

@@ -10,12 +10,14 @@ export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFo
 			{previewImg === '' && <Skeleton width={200} height={200} radius="md" animate={false} />}
 
 			<Stack w="calc(100% - 200px - var(--mantine-spacing-md))" gap="sm">
-				{modpack && <Group gap="sm">
-					<Badge mt="sm" color="teal" variant="filled">Created: {modpack.createdAt.toLocaleString()}</Badge>
-					<Badge mt="sm" color="teal" variant="filled">Updated: {modpack.updatedAt.toLocaleString()}</Badge>
-				</Group>}
+				{modpack && 
+					<Group gap="sm">
+						<Badge mt="sm" color="teal" variant="filled">Created: {modpack.createdAt.toLocaleString()}</Badge>
+						<Badge mt="sm" color="teal" variant="filled">Updated: {modpack.updatedAt.toLocaleString()}</Badge>
+					</Group>
+				}
 
-				<FileInput label="Modpack picture" {...form.getInputProps('image')} placeholder={previewImg} />
+				<FileInput label="Modpack picture" {...form.getInputProps('image')} placeholder={previewImg} accept="image/*"/>
 				<TextInput label="Name" {...form.getInputProps('name')} />
 			</Stack>
 		</Group>
