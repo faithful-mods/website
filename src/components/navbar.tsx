@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionIcon, Button, Card, Combobox, Group, Image, useCombobox, } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Combobox, Group, Image, useCombobox, } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -77,6 +77,9 @@ export const Navbar = () => {
 								</Combobox.Dropdown>
 							</Combobox>
 						}
+						{user && user.role === UserRole.BANNED && windowWidth < BREAKPOINT_TABLET &&
+							<Badge color="red" variant="light">banned</Badge>
+						}
 						{windowWidth >= BREAKPOINT_TABLET && links.map((link, index) => (
 							<Link href={link.href} key={index}>
 								<Button
@@ -93,6 +96,10 @@ export const Navbar = () => {
 						))}
 					</Group>
 					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+						{user && user.role === UserRole.BANNED && windowWidth >= BREAKPOINT_TABLET &&
+							<Badge color="red" variant="light">banned</Badge>
+						}
+						
 						<ThemeSwitch />
 						
 						{!user && <GitHubLogin />}
@@ -107,7 +114,7 @@ export const Navbar = () => {
 							</Link>
 						}
 						
-						{user && 
+						{user && (user.role !== UserRole.BANNED || windowWidth !== BREAKPOINT_TABLET) &&
 							<Link href='/settings/me'>
 								<ActionIcon 
 									size="lg" 
