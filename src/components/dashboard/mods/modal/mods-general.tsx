@@ -11,7 +11,7 @@ export interface ModModalGeneralProps {
 }
 
 export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps) {
-	const imageWidth = 210;
+	const imageWidth = 220;
 
 	return (
 		<Group gap="md" align="start" mt="md">

@@ -6,7 +6,7 @@ import { UseFormReturnType } from '@mantine/form';
 import { ModpackModalFormValues } from './modpack-modal';
 
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<ModpackModalFormValues>, previewImg: string, modpack: Modpack | undefined }) {
-	const imageWidth = 210;
+	const imageWidth = 220;
 
 	return (
 		<Group gap="md" align="start" mt="md">
