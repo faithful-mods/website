@@ -1,6 +1,7 @@
 'use client';
 
-import { ActionIcon, Button, Card, Combobox, Group, Image, useCombobox, } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Combobox, Group, Image, useCombobox, } from '@mantine/core';
+import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { HiOutlineMenu } from 'react-icons/hi';
@@ -24,12 +25,12 @@ export const Navbar = () => {
 	const [windowWidth, _] = useDeviceSize();
 
 	const links = [
-		{ href: '/modpacks', label: 'Modpacks' },
-		{ href: '/mods', label: 'Mods' },
-		{ href: '/gallery', label: 'Gallery' },
+		{ href: '/modpacks', label: 'Modpacks', disabled: false },
+		{ href: '/mods', label: 'Mods', disabled: false },
+		{ href: '/gallery', label: 'Gallery', disabled: false },
 	]
 
-	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home' });
+	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home', disabled: false });
 
 	return (
 		<Group gap="sm" mb="sm" mt="sm" wrap="nowrap">
@@ -67,7 +68,7 @@ export const Navbar = () => {
 
 								<Combobox.Dropdown>
 									<Combobox.Options>
-										{links.map(link => link.label).sort().map((item) => (
+										{links.filter((l) => !l.disabled).map(link => link.label).sort().map((item) => (
 											<Combobox.Option value={item} key={item}>
 												{item}
 											</Combobox.Option>
@@ -76,6 +77,9 @@ export const Navbar = () => {
 								</Combobox.Dropdown>
 							</Combobox>
 						}
+						{user && user.role === UserRole.BANNED && windowWidth < BREAKPOINT_TABLET &&
+							<Badge color="red" variant="light">banned</Badge>
+						}
 						{windowWidth >= BREAKPOINT_TABLET && links.map((link, index) => (
 							<Link href={link.href} key={index}>
 								<Button
@@ -83,6 +87,8 @@ export const Navbar = () => {
 									variant={pathname === link.href ? 'gradient' : 'transparent'}
 									gradient={gradient}
 									color={gradient.to}
+									disabled={link.disabled}
+									className={link.disabled ? 'button-disabled' : ''}
 								>
 									{link.label}
 								</Button>
@@ -90,6 +96,10 @@ export const Navbar = () => {
 						))}
 					</Group>
 					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+						{user && user.role === UserRole.BANNED && windowWidth >= BREAKPOINT_TABLET &&
+							<Badge color="red" variant="light">banned</Badge>
+						}
+						
 						<ThemeSwitch />
 						
 						{!user && <GitHubLogin />}
@@ -102,15 +112,15 @@ export const Navbar = () => {
 									className="navbar-icon-fix"
 								><MdDashboard className="w-5 h-5"/></ActionIcon>
 							</Link>
-						
 						}
 						
-						{user && 
+						{user && (user.role !== UserRole.BANNED || windowWidth !== BREAKPOINT_TABLET) &&
 							<Link href='/settings/me'>
 								<ActionIcon 
 									size="lg" 
 									variant="transparent"
-									className="navbar-icon-fix"
+									disabled={user.role === UserRole.BANNED}
+									className={user.role === UserRole.BANNED ? 'navbar-icon-fix button-disabled' : 'navbar-icon-fix'}
 								><IoMdSettings className="w-5 h-5"/></ActionIcon>
 							</Link>
 						}

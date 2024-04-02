@@ -1,5 +1,6 @@
 'use client';
 
+import { Stack, Title, Text } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 
 import { useCurrentRole } from '~/hooks/use-current-role';
@@ -16,14 +17,24 @@ export const RoleGate = ({
 }: RoleGateProps) => {
 	const role = useCurrentRole();
 
-	if (role !== allowedRole) {
-		notify('Unauthorized', 'You are not authorized to view this page', 'red');
-		return <></>
+	if (role !== allowedRole && role !== UserRole.ADMIN) {
+		return (
+			<Stack 
+				align="center" 
+				justify="center" 
+				gap="md"
+				style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+			>
+				<Title>{allowedRole === UserRole.USER && role !== UserRole.BANNED ? '401' : '403'}</Title>
+				<Text size="lg">
+					{allowedRole === UserRole.USER && role !== UserRole.BANNED 
+						? 'Unauthorized, please log in'
+						: 'Forbidden, you are not allowed to access this page'
+					}
+				</Text>
+			</Stack>
+		)
 	}
 
-	return (
-		<>
-			{children}
-		</>
-	);
+	return children;
 };
