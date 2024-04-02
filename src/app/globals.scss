@@ -26,6 +26,10 @@ main {
 	background-color: var(--mantine-color-dark-7);
 }
 
+.image-pixelated {
+	image-rendering: pixelated;
+}
+
 :where([data-mantine-color-scheme='light']) .image-background {
 	background-color: var(--mantine-primary-color-1);
 }
@@ -56,5 +60,12 @@ main {
 	&:disabled,
 	&[data-disabled] {
 		background-color: transparent;
+	}
+}
+
+:where([data-mantine-color-scheme='dark']) .button-disabled-with-bg {
+	&:disabled,
+	&[data-disabled] {
+		background-color: rgba(0, 0, 0, 0.075);
 	}
 }

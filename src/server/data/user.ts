@@ -4,6 +4,7 @@ import { User, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
+import type { PublicUser } from '~/types';
 
 /**
  * Get all users from the database
@@ -12,6 +13,18 @@ import { db } from '~/lib/db';
 export async function getUsers(): Promise<User[]> {
 	await canAccess();
 	return db.user.findMany();
+}
+
+export async function getPublicUsers(): Promise<PublicUser[]> {
+	const users = await db.user.findMany({ where: { role: { not: UserRole.BANNED }}, orderBy: { name: 'asc' }});
+
+	return users
+		.filter((user) => user.name !== null)
+		.map((user) => ({
+			id: user.id,
+			name: user.name ?? 'Unknown', // This should never happen (filtered above)
+			image: user.image ?? '/icon.png',
+		}));
 }
 
 /**

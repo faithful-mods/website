@@ -7,6 +7,10 @@ import type{ Progression } from '~/types';
 
 import { remove } from '../actions/files';
 
+export async function getTextures(): Promise<Texture[]> {
+	return db.texture.findMany();
+}
+
 export async function createTexture({ name, filepath, hash }: { name: string, filepath: string, hash: string }): Promise<Texture> {
 	return db.texture.create({
 		data: {

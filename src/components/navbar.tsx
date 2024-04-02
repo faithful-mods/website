@@ -30,6 +30,7 @@ export const Navbar = () => {
 		{ href: '/gallery', label: 'Gallery', disabled: false },
 	]
 
+	if (user) links.push({ href: '/contribute', label: 'Contribute', disabled: user.role === 'BANNED' });
 	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home', disabled: false });
 
 	return (

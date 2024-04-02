@@ -1,4 +1,5 @@
 import type {
+	Contribution,
 	LinkedTexture,
 	Mod,
 	Modpack,
@@ -15,6 +16,14 @@ export type Prettify<T> = {
 
 export type ModpackVersionWithMods = ModpackVersion & { mods: ModVersion[] };
 export type ModVersionWithModpacks = ModVersion & { modpacks: Modpack[] };
+
+export type PublicUser = {
+	id: string;
+	name: string | null;
+	image: string | null;
+};
+
+export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[] };
 
 export type Progression = {
 	linkedTextures: number;

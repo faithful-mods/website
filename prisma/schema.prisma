@@ -20,6 +20,7 @@ enum Resolution {
 }
 
 enum Status {
+  DRAFT
   PENDING
   ACCEPTED
   REJECTED
@@ -183,14 +184,19 @@ model LinkedTexture {
 // }
 
 model Contribution {
-  id         String     @id @default(cuid())
-  file       String
-  date       DateTime   @default(now())
-  users      User[]
-  resolution Resolution
-  status     Status
+  id       String   @id @default(cuid())
+  file     String
+  filename String
+  date     DateTime @default(now())
 
-  pollId String
+  ownerId   String
+  owner     User   @relation(fields: [ownerId], references: [id])
+  coAuthors User[] @relation("users")
+
+  resolution Resolution
+  status     Status     @default(DRAFT)
+
+  pollId String @unique
   poll   Poll   @relation(fields: [pollId], references: [id])
 
   Texture   Texture? @relation(fields: [textureId], references: [id])
@@ -209,14 +215,16 @@ model Contribution {
 }
 
 model User {
-  id            String         @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?        @unique
-  emailVerified DateTime?      @map("email_verified")
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
   image         String?
-  role          UserRole       @default(USER)
+  role          UserRole  @default(USER)
   accounts      Account[]
-  contributions Contribution[]
+
+  ownedContributions Contribution[]
+  contributions      Contribution[] @relation("users")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -232,9 +240,9 @@ model Poll {
   upvotes   User[] @relation("Upvotes")
   downvotes User[] @relation("Downvotes")
 
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
-  Contribution Contribution[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  Contribution Contribution?
 
   @@map("users_polls")
 }

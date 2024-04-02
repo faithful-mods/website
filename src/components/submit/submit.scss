@@ -1,0 +1,3 @@
+.contribution-item {
+	width: calc((100% - ((var(--contribution-item-count) - 1) * var(--mantine-spacing-md))) / var(--contribution-item-count));
+}
