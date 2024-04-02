@@ -62,7 +62,7 @@ export async function removeModFromModpackVersion(
 export async function addModsToModpackVersion(id: string, data: FormData): Promise<ModpackVersionWithMods> {
 	await canAccess();
 
-	const files = data.getAll('file') as unknown as File[];
+	const files = data.getAll('file') as File[];
 	for (const file of files) {
 		// Create all mod versions from the JAR file, can be multiple mods in one file
 		const modVersions = await extractModVersionsFromJAR(file);
