@@ -10,6 +10,7 @@ import { notify } from '~/lib/utils';
 import { getTextures } from '~/server/data/texture';
 import { ContributionWithCoAuthors } from '~/types';
 
+import { ContributionDraftModal } from './drafts-modal';
 import { ContributionDraftItem } from '../contribution-draft-item';
 
 export function ContributionDraftPanel({ draftContributions }: { draftContributions: ContributionWithCoAuthors[] }) {
@@ -17,8 +18,6 @@ export function ContributionDraftPanel({ draftContributions }: { draftContributi
 	const [modalContribution, setModalContribution] = useState<ContributionWithCoAuthors | null>(null);
 	const [contributions, setContributions] = useState<ContributionWithCoAuthors[]>(draftContributions);
 	const [textures, setTextures] = useState<Texture[]>([]);
-
-	const modalImageWidth = 360;
 
 	useEffectOnce(() => {
 		getTextures()
@@ -42,43 +41,7 @@ export function ContributionDraftPanel({ draftContributions }: { draftContributi
 				onClose={closeModal} 
 				title="Texture Contribution Edition"
 			>
-				<Group gap="md" className="w-full h-full" wrap="nowrap" justify="space-evenly" align="start">
-					<Stack gap="md" className="w-full h-full" align="center" justify="space-between">
-						<Stack gap="0" style={{ width: `${modalImageWidth}px` }}>
-							<Text size="md" fw={700}>Your Contribution</Text>
-							<Text size="sm" c="dimmed">This is the contribution you are currently editing.</Text>
-						</Stack>
-						<Image 
-							src={modalContribution?.file}
-							className="image-background image-pixelated"
-							width={modalImageWidth}
-							height={modalImageWidth}
-							fit="contain"
-							style={{ maxWidth: `${modalImageWidth}px`, maxHeight: `${modalImageWidth}px`, minWidth: `${modalImageWidth}px`, minHeight: `${modalImageWidth}px` }} 
-							alt=""
-						/>
-						<TextInput value={modalContribution?.filename} disabled />
-					</Stack>
-					<Stack gap="md" className="w-full h-full" align="center" justify="space-between">
-						<Stack gap="0" style={{ width: `${modalImageWidth}px` }}>
-							<Text size="md" fw={700}>Default Texture</Text>
-							<Text size="sm" c="dimmed">This is the texture that will be contributed to.</Text>
-						</Stack>
-						<Skeleton width={modalImageWidth} height={modalImageWidth} radius="0" animate={false} />
-						<Select />
-					</Stack>
-					<Stack gap="md" className="w-full h-full" align="center" justify="space-between">
-						<Stack gap="0" style={{ width: `${modalImageWidth}px` }}>
-							<Text size="md" fw={700}>Others Contributions</Text>
-							<Text size="sm" c="dimmed">Existing contribution for the selected texture.</Text>
-						</Stack>
-						<Skeleton width={modalImageWidth} height={modalImageWidth} radius="0" animate={false} />
-						<Group gap="md">
-							<Button variant="light"><FaChevronLeft/></Button>
-							<Button variant="light"><FaChevronRight/></Button>
-						</Group>
-					</Stack>
-				</Group>
+				{modalContribution && <ContributionDraftModal contribution={modalContribution} textures={textures} />}
 			</Modal>
 			<Card withBorder shadow="sm" radius="md" padding="md">
 				<Stack gap="sm">
