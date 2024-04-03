@@ -15,6 +15,7 @@ import { ContributionDraftItem } from '../contribution-draft-item';
 export function ContributionDraftPanel({ draftContributions }: { draftContributions: ContributionWithCoAuthors[] }) {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [modalContribution, setModalContribution] = useState<ContributionWithCoAuthors | null>(null);
+	const [contributions, setContributions] = useState<ContributionWithCoAuthors[]>(draftContributions);
 	const [textures, setTextures] = useState<Texture[]>([]);
 
 	const modalImageWidth = 360;
@@ -83,12 +84,19 @@ export function ContributionDraftPanel({ draftContributions }: { draftContributi
 				<Stack gap="sm">
 					<Group justify="space-between">
 						<Text size="md" fw={700}>Draft contribution(s)</Text>
-						<Badge color="teal" variant="filled">{draftContributions.length}</Badge>
+						<Badge color="teal" variant="filled">{contributions.length}</Badge>
 					</Group>
 					<Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>
 					<Group>
-						{draftContributions.map((contribution, index) => 
-							<ContributionDraftItem key={index} contribution={contribution} openModal={openModalWithContribution} />
+						{contributions.map((contribution, index) => 
+							<ContributionDraftItem 
+								key={index} 
+								contribution={contribution} 
+								onDelete={() => {
+									setContributions(contributions.filter((c) => c.id !== contribution.id));
+								}} 
+								openModal={openModalWithContribution} 
+							/>
 						)}
 					</Group>
 				</Stack>

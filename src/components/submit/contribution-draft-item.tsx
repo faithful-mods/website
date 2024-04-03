@@ -1,19 +1,35 @@
 
 import { Button, Card, Group, Image, Stack, Text } from '@mantine/core';
 import { Texture } from '@prisma/client';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { FaEdit, FaFileAlt } from 'react-icons/fa';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger } from '~/lib/utils';
-import { ContributionWithCoAuthors } from '~/types';
+import { deleteContribution } from '~/server/data/contributions';
+import type { ContributionWithCoAuthors } from '~/types';
 
 import './submit.scss';
 
-export function ContributionDraftItem({ contribution, openModal }: { contribution: ContributionWithCoAuthors, openModal: (c: ContributionWithCoAuthors) => void }) {
-	const [_contribution, setContribution] = useState<ContributionWithCoAuthors>(contribution);
+export interface ContributionDraftItemProps {
+	contribution: ContributionWithCoAuthors;
+	openModal: (c: ContributionWithCoAuthors) => void;
+	onDelete: () => void;
+}
+
+export function ContributionDraftItem({ contribution, openModal, onDelete }: ContributionDraftItemProps) {
+	const [isPending, startTransition] = useTransition();
 	const [windowWidth, _] = useDeviceSize();
+
+	const deleteFn = () => {
+		if (contribution === undefined) return;
+
+		startTransition(() => {
+			deleteContribution(contribution.id);
+			onDelete();
+		})
+	}
 
 	return (
 		<Card 
@@ -34,18 +50,18 @@ export function ContributionDraftItem({ contribution, openModal }: { contributio
 			<Button
 				variant="light"
 				className="navbar-icon-fix"
-				onClick={() => openModal(_contribution)}
+				onClick={() => openModal(contribution)}
 				color={gradient.to}
 				style={{ position: 'absolute', top: 'var(--mantine-spacing-md)', right: 'var(--mantine-spacing-md)' }}
 			>
 				<FaEdit />
 			</Button>
 			<Group gap="sm">
-				{_contribution.filename.endsWith('.png') && 
+				{contribution.filename.endsWith('.png') && 
 					<Image
 						radius="sm"
 						className="image-background image-pixelated"
-						src={_contribution.file}
+						src={contribution.file}
 						alt=""
 						width={90}
 						height={90}
@@ -54,31 +70,34 @@ export function ContributionDraftItem({ contribution, openModal }: { contributio
 					/>
 				}
 				{
-					(_contribution.filename.endsWith('.json') || _contribution.filename.endsWith('.mcmeta')) &&
+					(contribution.filename.endsWith('.json') || contribution.filename.endsWith('.mcmeta')) &&
 					<FaFileAlt 
 						style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }} 
 					/>
 				}
 				<Stack gap="0" align="flex-start" pr="sm">
-					<Text size="sm" fw={700}>{_contribution.filename}</Text>
-					<Text size="xs">Resolution : {_contribution.resolution}</Text>
-					<Text size="xs">Creation : {_contribution.createdAt.toLocaleString()}</Text>
-					<Text size="xs">Co-authors : {_contribution.coAuthors.length === 0 ? 'None' : _contribution.coAuthors.map((ca) => ca.name).join(', ')}</Text>
+					<Text size="sm" fw={700}>{contribution.filename}</Text>
+					<Text size="xs">Resolution : {contribution.resolution}</Text>
+					<Text size="xs">Creation : {contribution.createdAt.toLocaleString()}</Text>
+					<Text size="xs">Co-authors : {contribution.coAuthors.length === 0 ? 'None' : contribution.coAuthors.map((ca) => ca.name).join(', ')}</Text>
 				</Stack>
 			</Group>
 			<Group justify="flex-end" mt="sm">
 				<Button
 					variant="gradient"
 					gradient={gradientDanger}
+					loading={isPending}
+					onClick={() => deleteFn()}
 				>
 					Delete
 				</Button>
 				<Button
-					variant={_contribution.textureId === null ? 'gradient' : 'filled'}
-					className={_contribution.textureId === null ? 'button-disabled-with-bg' : ''}
+					variant={contribution.textureId === null ? 'gradient' : 'filled'}
+					className={contribution.textureId === null ? 'button-disabled-with-bg' : ''}
 					color={gradient.to}
 					gradient={gradient}
-					disabled={_contribution.textureId === null}
+					loading={isPending}
+					disabled={contribution.textureId === null}
 				>
 					Submit
 				</Button>

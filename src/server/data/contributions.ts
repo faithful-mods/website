@@ -45,3 +45,7 @@ export async function getDraftContributions(ownerId: string): Promise<Contributi
 		include: { coAuthors: { select: { id: true, name: true, image: true } } },
 	});
 }
+
+export async function deleteContribution(id: string): Promise<Contribution> {
+	return await db.contribution.delete({ where: { id } });
+}
