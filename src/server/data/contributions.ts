@@ -5,7 +5,7 @@ import { Status, type Contribution, type Resolution } from '@prisma/client';
 import { db } from '~/lib/db';
 import { ContributionWithCoAuthors } from '~/types';
 
-import { upload } from '../actions/files';
+import { remove, upload } from '../actions/files';
 
 export async function getSubmittedContributions(ownerId: string): Promise<ContributionWithCoAuthors[]> {
 	return await db.contribution.findMany({
@@ -47,5 +47,8 @@ export async function getDraftContributions(ownerId: string): Promise<Contributi
 }
 
 export async function deleteContribution(id: string): Promise<Contribution> {
+	const contributionFile = await db.contribution.findUnique({ where: { id } }).then((c) => c?.file);
+	if (contributionFile) await remove(contributionFile as `files/${string}`);
+
 	return await db.contribution.delete({ where: { id } });
 }
