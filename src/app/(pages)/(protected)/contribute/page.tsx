@@ -1,10 +1,11 @@
 'use client';
 
-import { Avatar, Badge, Card, Code, Group, MultiSelect, MultiSelectProps, Select, Stack, Text } from '@mantine/core';
+import { Badge, Card, Code, Group, Select, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { Resolution } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
+import { CoAuthorsSelector } from '~/components/submit/co-authors-select';
 import { ContributionDraftPanel } from '~/components/submit/drafts/drafts-panel';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -12,7 +13,6 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { notify } from '~/lib/utils';
 import { createRawContributions, getSubmittedContributions, getDraftContributions } from '~/server/data/contributions';
-import { getPublicUsers } from '~/server/data/user';
 import type { ContributionWithCoAuthors, PublicUser } from '~/types';
 
 const ContributePage = () => {
@@ -20,8 +20,7 @@ const ContributePage = () => {
 	const [windowWidth, _] = useDeviceSize();
 	
 	const [resolution, setResolution] = useState<Resolution>(Resolution.x32);
-	const [users, setUsers] = useState<PublicUser[]>([]);
-	const [selectedCoAuthors, setSelectedCoAuthors] = useState<string[]>([]);
+	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>([]);
 
 	const [contributions, setContributions] = useState<ContributionWithCoAuthors[] | undefined>();
 	const [draftContributions, setDraftContributions] = useState<ContributionWithCoAuthors[] | undefined>();
@@ -42,35 +41,14 @@ const ContributePage = () => {
 				console.error(err);
 				notify('Error', 'Failed to fetch draft contributions', 'red');
 			});
-
-		getPublicUsers()
-			.then(setUsers)
-			.catch((err) => {
-				console.error(err);
-				notify('Error', 'Failed to fetch users', 'red');
-			});
-	})
-
-	const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({ option }) => {
-		const user = users.find((u) => u.id === option.value)!;
-
-		return (
-			<Group gap="sm" wrap="nowrap">
-				<Avatar src={user.image} size={30} radius="xl" />
-				<div>
-					<Text size="sm">{option.label}</Text>
-					{option.disabled && <Text size="xs" c="dimmed">That&apos;s you!</Text>}
-				</div>
-			</Group>
-		);
-	};
+	});
 
 	const filesDrop = (files: File[]) => {
 		startTransition(async () => {
 			const data = new FormData();
 			files.forEach((file) => data.append('files', file));
 	
-			await createRawContributions(user.id!, selectedCoAuthors, resolution, data);
+			await createRawContributions(user.id!, selectedCoAuthors.map((u) => u.id), resolution, data);
 			getDraftContributions(user.id!).then(setDraftContributions);
 		});
 	};
@@ -93,17 +71,13 @@ const ContributePage = () => {
 							style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
 							required
 						/>
-						<MultiSelect 
-							limit={10}
-							label="Co-authors"
-							data={users.map((u) => ({ value: u.id, label: u.name ?? 'Unknown', disabled: u.id === user.id }))}
-							renderOption={renderMultiSelectOption}
-							defaultValue={[]}
-							onChange={setSelectedCoAuthors}
-							style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }}
-							hidePickedOptions
-							searchable
-							clearable
+						<CoAuthorsSelector 
+							author={user} 
+							onCoAuthorsSelect={setSelectedCoAuthors}
+							style={windowWidth <= BREAKPOINT_MOBILE_LARGE 
+								? { width: '100%' } 
+								: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
+							}
 						/>
 					</Group>
 					<Stack gap="2">

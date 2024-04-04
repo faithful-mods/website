@@ -22,14 +22,20 @@ main {
 	@apply h-full;
 }
 
-.image-background {
-	background-color: var(--mantine-color-dark-7);
-}
-
 .image-pixelated {
 	image-rendering: pixelated;
 }
 
+.texture-background {
+	background-color: var(--mantine-color-dark-6);
+}
+:where([data-mantine-color-scheme='light']) .texture-background {
+	background-color: var(--mantine-color-gray-1);
+}
+
+.image-background {
+	background-color: var(--mantine-color-dark-7);
+}
 :where([data-mantine-color-scheme='light']) .image-background {
 	background-color: var(--mantine-primary-color-1);
 }

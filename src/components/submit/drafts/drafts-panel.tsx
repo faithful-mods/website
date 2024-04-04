@@ -1,16 +1,15 @@
 import type { Texture } from '@prisma/client';
 
-import { Card, Stack, Group, Image, Badge, Text, Modal, Skeleton, Select, Button, TextInput } from '@mantine/core';
+import { Card, Stack, Group, Badge, Text, Modal, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { notify } from '~/lib/utils';
 import { getTextures } from '~/server/data/texture';
 import { ContributionWithCoAuthors } from '~/types';
 
-import { ContributionDraftModal } from './drafts-modal';
+import { ContributionDraftModal, MODAL_WIDTH } from './drafts-modal';
 import { ContributionDraftItem } from '../contribution-draft-item';
 
 export function ContributionDraftPanel({ draftContributions }: { draftContributions: ContributionWithCoAuthors[] }) {
@@ -36,12 +35,26 @@ export function ContributionDraftPanel({ draftContributions }: { draftContributi
 	return (
 		<>
 			<Modal
-				size="100%"
+				size={MODAL_WIDTH + 40}
 				opened={modalOpened} 
-				onClose={closeModal} 
-				title="Texture Contribution Edition"
+				onClose={closeModal}
+				title={
+					<Title order={4}>Texture Attribution</Title>
+				}
 			>
-				{modalContribution && <ContributionDraftModal contribution={modalContribution} textures={textures} />}
+				{modalContribution && 
+					<ContributionDraftModal 
+						contribution={modalContribution} 
+						textures={textures}
+						onClose={(editedDraft) => {
+							setContributions([
+								...contributions.filter((c) => c.id !== editedDraft.id), 
+								editedDraft
+							].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()))
+							closeModal();
+						}}
+					/>
+				}
 			</Modal>
 			<Card withBorder shadow="sm" radius="md" padding="md">
 				<Stack gap="sm">

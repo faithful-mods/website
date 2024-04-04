@@ -5,6 +5,7 @@ import type {
 	Modpack,
 	ModpackVersion,
 	ModVersion,
+	Poll,
 	Resolution,
 	Resource,
 	Texture,
@@ -24,6 +25,7 @@ export type PublicUser = {
 };
 
 export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[] };
+export type ContributionWithCoAuthorsAndPoll = ContributionWithCoAuthors & { poll: Poll };
 
 export type Progression = {
 	linkedTextures: number;
