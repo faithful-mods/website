@@ -16,8 +16,7 @@ export interface CoAuthorsSelectorProps extends MultiSelectProps {
 	onCoAuthorsSelect: (coAuthors: PublicUser[]) => void;
 }
 
-export function CoAuthorsSelector(props: CoAuthorsSelectorProps) {
-	const { author, onCoAuthorsSelect } = props;
+export function CoAuthorsSelector({ author, onCoAuthorsSelect, ...props}: CoAuthorsSelectorProps) {
 	const [users, setUsers] = useState<PublicUser[]>([]);
 	
 	useEffectOnce(() => {

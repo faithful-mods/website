@@ -1,22 +1,30 @@
 import type { Texture } from '@prisma/client';
 
-import { Card, Stack, Group, Badge, Text, Modal, Title } from '@mantine/core';
+import { Card, Stack, Group, Badge, Text, Modal, Title, Accordion } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 
+import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { notify } from '~/lib/utils';
 import { getTextures } from '~/server/data/texture';
 import { ContributionWithCoAuthors } from '~/types';
 
-import { ContributionDraftModal, MODAL_WIDTH } from './drafts-modal';
-import { ContributionDraftItem } from '../contribution-draft-item';
+import { ContributionDraftItem } from './drafts-item';
+import { ContributionDraftModal } from './drafts-modal';
 
-export function ContributionDraftPanel({ draftContributions }: { draftContributions: ContributionWithCoAuthors[] }) {
+export interface ContributionDraftPanelProps {
+	draftContributions: ContributionWithCoAuthors[];
+	onUpdate: () => void;
+}
+
+export function ContributionDraftPanel({ draftContributions, onUpdate }: ContributionDraftPanelProps) {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [modalContribution, setModalContribution] = useState<ContributionWithCoAuthors | null>(null);
 	const [contributions, setContributions] = useState<ContributionWithCoAuthors[]>(draftContributions);
 	const [textures, setTextures] = useState<Texture[]>([]);
+	const [windowWidth, _] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getTextures()
@@ -33,13 +41,14 @@ export function ContributionDraftPanel({ draftContributions }: { draftContributi
 	}
 
 	return (
-		<>
+		<Card withBorder shadow="sm" radius="md" p={0}>
 			<Modal
-				size={MODAL_WIDTH + 40}
-				opened={modalOpened} 
+				opened={modalOpened}
+				fullScreen={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+				size="100%"
 				onClose={closeModal}
 				title={
-					<Title order={4}>Texture Attribution</Title>
+					<Title order={4} component="span">Texture Attribution</Title>
 				}
 			>
 				{modalContribution && 
@@ -56,27 +65,35 @@ export function ContributionDraftPanel({ draftContributions }: { draftContributi
 					/>
 				}
 			</Modal>
-			<Card withBorder shadow="sm" radius="md" padding="md">
-				<Stack gap="sm">
-					<Group justify="space-between">
-						<Text size="md" fw={700}>Draft contribution(s)</Text>
+
+			<Accordion>
+				<Accordion.Item value="drafts">
+					<Accordion.Control icon={
 						<Badge color="teal" variant="filled">{contributions.length}</Badge>
-					</Group>
-					<Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>
-					<Group>
-						{contributions.map((contribution, index) => 
-							<ContributionDraftItem 
-								key={index} 
-								contribution={contribution} 
-								onDelete={() => {
-									setContributions(contributions.filter((c) => c.id !== contribution.id));
-								}} 
-								openModal={openModalWithContribution} 
-							/>
-						)}
-					</Group>
-				</Stack>
-			</Card>
-		</>
+					}>
+						<Text size="md" fw={700}>Drafts</Text>
+					</Accordion.Control>
+					<Accordion.Panel>
+						<Stack gap="sm">
+							{contributions.length === 0 && <Text size="sm" c="dimmed">No drafts!</Text>}
+							{contributions.length > 0 && <Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>}
+							<Group>
+								{contributions.map((contribution, index) => 
+									<ContributionDraftItem 
+										key={index} 
+										contribution={contribution} 
+										onDelete={() => {
+											setContributions(contributions.filter((c) => c.id !== contribution.id));
+											onUpdate();
+										}}
+										openModal={openModalWithContribution} 
+									/>
+								)}
+							</Group>
+						</Stack>
+					</Accordion.Panel>
+				</Accordion.Item>
+			</Accordion>
+		</Card>
 	)
 }

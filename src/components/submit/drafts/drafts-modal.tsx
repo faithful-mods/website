@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, Divider, Group, Image, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
+import { Avatar, Button, Card, Container, Group, Image, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
 import { Resolution, type Texture } from '@prisma/client';
 import { useState, useTransition } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -7,7 +7,7 @@ import { PiMagicWandBold } from 'react-icons/pi';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
+import { BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { gradient, gradientDanger } from '~/lib/utils';
 import { getContributionsOfTexture, updateDraftContribution } from '~/server/data/contributions';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
@@ -20,16 +20,19 @@ export interface ContributionDraftModalProps {
 	onClose: (editedContribution: ContributionWithCoAuthors) => void;
 }
 
-export const IMAGE_WIDTH = 320;
-export const MODAL_WIDTH = 3.1 * IMAGE_WIDTH;
-export const ROW_HEIGHT = 36;
-
 export function ContributionDraftModal({ contribution, textures, onClose }: ContributionDraftModalProps) {
 	const [isPending, startTransition] = useTransition();
 	const [selectedTexture, setSelectedTexture] = useState<Texture | null>(null);
 	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>(contribution.coAuthors);
 	const [selectedResolution, setSelectedResolution] = useState<Resolution>(contribution.resolution);
 	const [windowWidth, _] = useDeviceSize();
+
+	const rowHeight = 36;
+	const colWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'calc((100% - (2 * var(--mantine-spacing-md))) / 3)' as const;
+
+	const columnStyle = {
+		width: colWidth,
+	};
 
 	const [selectedTextureContributions, setSelectedTextureContributions] = useState<ContributionWithCoAuthorsAndPoll[]>([]);
 	const [selectedTextureContributionsIndex, setSelectedTextureContributionsIndex] = useState<number>(0);
@@ -118,50 +121,45 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	}
 
 	return (
-		<Stack gap="md" w={MODAL_WIDTH} style={{ margin: '0 auto' }}>
-			<Group gap="md" wrap="nowrap" justify="center" align="center">
+		<Stack gap="md" className="w-full">
+			<Group gap="md" align="start">
 				{/* User contribution */}
-				<Stack gap="md" align="center" justify="space-between">
-					<Stack gap="0" style={{ width: `${IMAGE_WIDTH}px` }}>
+				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
+					<Stack gap="0">
 						<Title order={5}>Your Contribution</Title>
-						<Text size="sm" c="dimmed">This is the contribution you are currently editing.</Text>
+						<Text size="sm" c="dimmed">The file you&apos;re submitting.</Text>
 					</Stack>
-					<Card h={ROW_HEIGHT} w={IMAGE_WIDTH} shadow="0" withBorder p="0">
-						<Group h={IMAGE_WIDTH} justify="center">
+					<Card h={rowHeight} shadow="0" withBorder p="0">
+						<Group justify="center">
 							<Text size="sm">{contribution.filename}</Text>
 						</Group>
 					</Card>
 					<Image 
 						src={contribution.file}
 						className="texture-background image-pixelated"
-						width={IMAGE_WIDTH}
-						height={IMAGE_WIDTH}
+						width={colWidth}
+						height={colWidth}
 						fit="contain"
-						style={{ maxWidth: `${IMAGE_WIDTH}px`, maxHeight: `${IMAGE_WIDTH}px`, minWidth: `${IMAGE_WIDTH}px`, minHeight: `${IMAGE_WIDTH}px` }} 
 						alt=""
 					/>
 				</Stack>
 				{/* Default texture */}
-				<Stack gap="md" align="center" justify="space-between">
-					<Stack gap="0" style={{ width: `${IMAGE_WIDTH}px` }}>
+				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
+					<Stack gap="0">
 						<Title order={5}>Default Texture</Title>
-						<Text size="sm" c="dimmed">This is the texture that will be contributed to.</Text>
+						<Text size="sm" c="dimmed">The targeted texture.</Text>
 					</Stack>
-					<Group 
-						style={{ width: `${IMAGE_WIDTH}px` }}
-						wrap="nowrap"
-					>
+					<Group wrap="nowrap">
 						<Button 
 							variant="light"
 							color={gradient.to}
 							className="navbar-icon-fix"
 							onClick={() => {
+								// TODO #18 look for aliases
 								const texture = textures.find((t) => sanitizeTextureName(t.name) === contribution.filename.replace('.png', ''));
 								if (texture) {
 									selectedTextureUpdated(texture.id);
-									
 								}
-								// else // TODO #18 look for aliases
 							}}
 						>
 							<PiMagicWandBold />
@@ -185,22 +183,21 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						<Image 
 							src={selectedTexture.filepath}
 							className="texture-background image-pixelated"
-							width={IMAGE_WIDTH}
-							height={IMAGE_WIDTH}
+							width={colWidth}
+							height={colWidth}
 							fit="contain"
-							style={{ maxWidth: `${IMAGE_WIDTH}px`, maxHeight: `${IMAGE_WIDTH}px`, minWidth: `${IMAGE_WIDTH}px`, minHeight: `${IMAGE_WIDTH}px` }} 
 							alt=""
 						/>
 					}
-					{!selectedTexture && <Card h={IMAGE_WIDTH} w={IMAGE_WIDTH} shadow="0" radius={0} className="texture-background" />}
+					{!selectedTexture && <Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" />}
 				</Stack>
 				{/* Existing contribution */}
-				<Stack gap="md" align="center" justify="space-between">
-					<Stack gap="0" style={{ width: `${IMAGE_WIDTH}px` }}>
+				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
+					<Stack gap="0">
 						<Title order={5}>Existing Contributions</Title>
-						<Text size="sm" c="dimmed">Contributions of the selected texture.</Text>
+						<Text size="sm" c="dimmed">For the selected texture.</Text>
 					</Stack>
-					<Group gap="md">
+					<Group gap="md" justify="center">
 						<Button
 							variant="light"
 							disabled={selectedTextureContributions.length === 0 || selectedTextureContributionsIndex === 0}
@@ -227,27 +224,40 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						</Button>
 					</Group>
 					{!selectedTexture && selectedTextureContributions.length === 0 &&
-						<Card h={IMAGE_WIDTH} w={IMAGE_WIDTH} className="texture-background" shadow="0" radius={0}>
-							<Group h={IMAGE_WIDTH} justify="center">
-								<Text size="sm">Select a texture first!</Text>
-							</Group>
-						</Card>
+						<Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" pos="relative">
+							<Text 
+								size="sm" 
+								pos="absolute" 
+								left="0"
+								right="0"
+								top="calc(50% - (20.3px /2))" // text height / 2
+								style={{ textAlign: 'center' }}
+							>
+								Select a texture first!
+							</Text>
+						</Container>
 					}
 					{selectedTexture && selectedTextureContributions.length === 0 &&
-						<Card h={IMAGE_WIDTH} w={IMAGE_WIDTH} className="texture-background" shadow="0" radius={0}>
-							<Group h={IMAGE_WIDTH} justify="center">
-								<Text size="sm">No contributions for this texture.</Text>
-							</Group>
-						</Card>
+						<Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" pos="relative">
+							<Text 
+								size="sm" 
+								pos="absolute" 
+								left="0"
+								right="0"
+								top="calc(50% - (20.3px /2))" // text height / 2
+								style={{ textAlign: 'center' }}
+							>
+								No contributions for this texture.
+							</Text>
+						</Container>
 					}
 					{selectedTexture && selectedTextureContributions.length > 0 && displayedSelectedTextureContributions &&
 						<Image 
 							src={displayedSelectedTextureContributions.file}
 							className="texture-background image-pixelated"
-							width={IMAGE_WIDTH}
-							height={IMAGE_WIDTH}
+							width={colWidth}
+							height={colWidth}
 							fit="contain"
-							style={{ maxWidth: `${IMAGE_WIDTH}px`, maxHeight: `${IMAGE_WIDTH}px`, minWidth: `${IMAGE_WIDTH}px`, minHeight: `${IMAGE_WIDTH}px` }} 
 							alt=""
 						/>
 					}

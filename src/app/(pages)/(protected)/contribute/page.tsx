@@ -1,19 +1,20 @@
 'use client';
 
-import { Badge, Card, Code, Group, Select, Stack, Text } from '@mantine/core';
+import { Card, Code, Group, Select, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { Resolution } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
 import { CoAuthorsSelector } from '~/components/submit/co-authors-select';
 import { ContributionDraftPanel } from '~/components/submit/drafts/drafts-panel';
+import { ContributionSubmittedPanel } from '~/components/submit/submitted/submitted-panel';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { notify } from '~/lib/utils';
 import { createRawContributions, getSubmittedContributions, getDraftContributions } from '~/server/data/contributions';
-import type { ContributionWithCoAuthors, PublicUser } from '~/types';
+import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
 const ContributePage = () => {
 	const [isPending, startTransition] = useTransition();
@@ -22,26 +23,32 @@ const ContributePage = () => {
 	const [resolution, setResolution] = useState<Resolution>(Resolution.x32);
 	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>([]);
 
-	const [contributions, setContributions] = useState<ContributionWithCoAuthors[] | undefined>();
+	const [contributions, setContributions] = useState<ContributionWithCoAuthorsAndPoll[] | undefined>();
 	const [draftContributions, setDraftContributions] = useState<ContributionWithCoAuthors[] | undefined>();
 
 	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
 
 	useEffectOnce(() => {
-		getSubmittedContributions(user.id!)
-			.then(setContributions)
-			.catch((err) => {
-				console.error(err);
-				notify('Error', 'Failed to fetch contributions', 'red');
-			});
-
 		getDraftContributions(user.id!)
 			.then(setDraftContributions)
 			.catch((err) => {
 				console.error(err);
 				notify('Error', 'Failed to fetch draft contributions', 'red');
 			});
+
+		reloadSubmitted();
 	});
+
+	const reloadSubmitted = () => {
+		startTransition(() => {
+			getSubmittedContributions(user.id!)
+				.then(setContributions)
+				.catch((err) => {
+					console.error(err);
+					notify('Error', 'Failed to fetch contributions', 'red');
+				});
+		})
+	}
 
 	const filesDrop = (files: File[]) => {
 		startTransition(async () => {
@@ -54,13 +61,13 @@ const ContributePage = () => {
 	};
 
 	return (
-		<Stack gap="sm">
+		<Stack gap="sm" pb="sm">
 			<Card withBorder shadow="sm" radius="md" padding="md">
 				<Stack gap="sm">
 					<Group justify="space-between">
 						<Text size="md" fw={700}>New contribution(s)</Text>
 					</Group>
-					<Text size="sm" c="red">Please do not submit textures for unsupported mod. Ask the admins to add the mod first.</Text>
+					<Text size="sm" c="red">Please do not submit textures for unsupported mod/modpack. Ask the admins to add it first.</Text>
 					<Group gap="md">
 						<Select 
 							label="Resolution" 
@@ -104,19 +111,19 @@ const ContributePage = () => {
 					</Stack>
 				</Stack>
 			</Card>
-			{draftContributions && draftContributions.length > 0 && <ContributionDraftPanel draftContributions={draftContributions} />}
-			<Card withBorder shadow="sm" radius="md" padding="md" mb="sm">
-				<Stack gap="sm">
-					<Group justify="space-between">
-						<Text size="md" fw={700}>Submitted contribution(s)</Text>
-						<Badge color="teal" variant="filled">{contributions?.length ?? '?'}</Badge>
-					</Group>
-
-					{!contributions && <Text size="sm" c="dimmed">Loading...</Text>}
-					{contributions && contributions.length === 0 && <Text size="sm" c="dimmed">Nothing yet</Text>}
-					{contributions && contributions.length > 0 && <p>TODO</p>}
-				</Stack>
-			</Card>
+			{draftContributions && 
+				<ContributionDraftPanel
+					draftContributions={draftContributions} 
+					key={draftContributions.map((c) => c.id).join('')}
+					onUpdate={reloadSubmitted}
+				/>
+			}
+			{contributions && 
+				<ContributionSubmittedPanel 
+					contributions={contributions} 
+					key={contributions.map((c) => c.id).join('')}
+				/>
+			}
 		</Stack>
 	)
 }

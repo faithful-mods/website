@@ -8,12 +8,12 @@ import { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll } from '~/t
 
 import { remove, upload } from '../actions/files';
 
-export async function getSubmittedContributions(ownerId: string): Promise<ContributionWithCoAuthors[]> {
+export async function getSubmittedContributions(ownerId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
 	return await db.contribution.findMany({
 		where: { ownerId, status: { not: Status.DRAFT } },
-		include: { coAuthors: { select: { id: true, name: true, image: true } } },
+		include: { coAuthors: { select: { id: true, name: true, image: true } }, poll: true },
 	});
 }
 
@@ -87,9 +87,21 @@ export async function updateDraftContribution({
 	});
 }
 
-export async function deleteContribution(id: string): Promise<Contribution> {
-	const contributionFile = await db.contribution.findUnique({ where: { id } }).then((c) => c?.file);
-	if (contributionFile) await remove(contributionFile as `files/${string}`);
+export async function submitContribution(ownerId: string, id: string) {
+	await canAccess(UserRole.ADMIN, ownerId);
+	
+	return await db.contribution.update({
+		where: { id },
+		data: { status: Status.PENDING },
+	});
+}
 
-	return await db.contribution.delete({ where: { id } });
+export async function deleteContributions(ownerId: string, ...ids: string[]): Promise<void> {
+	await canAccess(UserRole.ADMIN, ownerId);
+	
+	const contributions = await db.contribution.findMany({ where: { id: { in: ids } } });
+	const contributionFiles = contributions.map((c) => c.file);
+
+	await Promise.all(contributionFiles.map((file) => remove(file as `files/${string}`)));
+	await db.contribution.deleteMany({ where: { id: { in: ids } } });
 }
