@@ -84,17 +84,16 @@ export function ContributionSubmittedPanel({ contributions }: ContributionDraftP
 			<Modal
 				opened={modalOpened}
 				onClose={closeModal}
+				centered
 				title={'Delete ' + (deletionList.length > 1 ? 'contributions' : 'contribution')}
 			>
-				<Stack>
-					<Text>
-						<Text fw={700} inherit>Are you sure you want to delete {deletionList.length > 1 ? 'those contributions' : 'this contribution'}?</Text>
-						<Text c="red" inherit>{deletionList.length > 1 ? 'Those' : 'It'} will be permanently removed from the database.</Text>
-					</Text>
+				<Stack gap="sm">
+					<Text fw={700} inherit>Are you sure you want to delete {deletionList.length > 1 ? 'those contributions' : 'this contribution'}?</Text>
+					<Text c="red" inherit>{deletionList.length > 1 ? 'Those' : 'It'} will be permanently removed from the database.</Text>
 					
 					<TextInput
 						description={
-							<Text>
+							<Text component="span">
 								To confirm, type &quot;DELETE&quot; in the box below
 							</Text>
 						}
@@ -145,10 +144,10 @@ export function ContributionSubmittedPanel({ contributions }: ContributionDraftP
 										className="contribution-item"
 										style={{
 											'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
-												? .9
+												? .89
 												: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
-													? 1.9
-													: 2.9
+													? 1.89
+													: 2.89
 										}}
 									/>
 									<Checkbox
