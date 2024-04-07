@@ -1,9 +1,9 @@
 'use client';
 
-import { Button, Code, Group, Stack, Text, TextInput, rem } from '@mantine/core';
+import { Button, Code, Group, Stack, Text, TextInput } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
-import { Mod, ModVersion, Modpack, ModpackVersion } from '@prisma/client';
+import { Mod, ModVersion, Modpack } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';

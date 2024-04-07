@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, Badge, Card, Group, Stack, Text, Title } from '@mantine/core';
+import { Accordion, Badge, Card, Stack, Text } from '@mantine/core';
 import { Texture } from '@prisma/client';
 import { useState } from 'react';
 

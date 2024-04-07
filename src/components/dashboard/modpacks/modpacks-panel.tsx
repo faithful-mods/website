@@ -1,6 +1,6 @@
 'use client';
 
-import { Image, Badge, Card, Group, Text, TextInput, Button, Stack, Modal } from '@mantine/core';
+import { Badge, Card, Group, Text, TextInput, Button, Modal } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack } from '@prisma/client';

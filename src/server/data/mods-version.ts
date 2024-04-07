@@ -1,11 +1,11 @@
 'use server';
 
-import { Resolution, type ModVersion, type Modpack, $Enums } from '@prisma/client';
+import { Resolution, type ModVersion, type Modpack } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import { EMPTY_PROGRESSION, EMPTY_PROGRESSION_RES } from '~/lib/utils';
-import type { ModVersionWithModpacks, ModVersionWithProgression, Progression } from '~/types';
+import type { ModVersionWithModpacks, ModVersionWithProgression } from '~/types';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';

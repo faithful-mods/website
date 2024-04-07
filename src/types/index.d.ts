@@ -1,6 +1,5 @@
 import type {
 	Contribution,
-	LinkedTexture,
 	Mod,
 	Modpack,
 	ModpackVersion,
@@ -8,7 +7,6 @@ import type {
 	Poll,
 	Resolution,
 	Resource,
-	Texture,
 } from '@prisma/client';
 
 export type Prettify<T> = {

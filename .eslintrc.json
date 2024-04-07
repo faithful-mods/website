@@ -1,10 +1,12 @@
 {
 	"extends": "next/core-web-vitals",
+	"plugins": ["unused-imports"],
 	"rules": {
 		"indent": ["error", "tab"],
 		"quotes": ["error", "single"],
 		"semi": ["error", "always"],
 		"comma-dangle": ["error", "always-multiline"],
+		"unused-imports/no-unused-imports": "error",
 		"import/order": [
 			"error",
 			{
