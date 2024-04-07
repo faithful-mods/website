@@ -61,6 +61,17 @@ export async function getContributionsOfTexture(
 	});
 }
 
+export async function getCoSubmittedContributions(coAuthorId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
+	return await db.contribution.findMany({
+		where: { coAuthors: { some: { id: coAuthorId } }, status: { not: Status.DRAFT } },
+		include: {
+			coAuthors: { select: { id: true, name: true, image: true } },
+			owner: { select: { id: true, name: true, image: true } },
+			poll: true,
+		},
+	});
+}
+
 export async function getDraftContributions(ownerId: string): Promise<ContributionWithCoAuthors[]> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
@@ -113,12 +124,27 @@ export async function submitContribution(ownerId: string, id: string) {
 
 export async function deleteContributions(ownerId: string, ...ids: string[]): Promise<void> {
 	await canAccess(UserRole.ADMIN, ownerId);
-	
-	const contributions = await db.contribution.findMany({ where: { id: { in: ids } } });
-	const contributionFiles = contributions.map((c) => c.file);
 
-	await Promise.all(contributionFiles.map((file) => remove(file as `files/${string}`)));
-	await db.contribution.deleteMany({ where: { id: { in: ids } } });
+	const contributions = await db.contribution.findMany({ 
+		where: { id: { in: ids } }, 
+		include: { coAuthors: { select: { id: true } } },
+	});
+
+	for (const contribution of contributions) {
+		// Case co-author wants to be removed from the contribution
+		if (contribution.ownerId !== ownerId && contribution.coAuthors.map((c) => c.id).includes(ownerId)) {
+			await db.contribution.update({
+				where: { id: contribution.id },
+				data: { coAuthors: { disconnect: { id: ownerId } } },
+			});
+		}
+
+		// Base case: owner wants to delete the contribution
+		if (contribution.ownerId === ownerId) {
+			await remove(contribution.file as `files/${string}`);
+			await db.contribution.delete({ where: { id: contribution.id } });
+		}
+	}
 }
 
 export async function getPendingContributions(): Promise<ContributionWithCoAuthorsAndFullPoll[]> {

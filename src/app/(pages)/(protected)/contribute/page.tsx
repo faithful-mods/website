@@ -14,7 +14,7 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
-import { createRawContributions, getSubmittedContributions, getDraftContributions } from '~/server/data/contributions';
+import { createRawContributions, getSubmittedContributions, getDraftContributions, getCoSubmittedContributions } from '~/server/data/contributions';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
 const ContributePage = () => {
@@ -26,6 +26,7 @@ const ContributePage = () => {
 
 	const [contributions, setContributions] = useState<ContributionWithCoAuthorsAndPoll[] | undefined>();
 	const [draftContributions, setDraftContributions] = useState<ContributionWithCoAuthors[] | undefined>();
+	const [coContributions, setCoContributions] = useState<ContributionWithCoAuthorsAndPoll[] | undefined>();
 
 	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
 
@@ -35,6 +36,13 @@ const ContributePage = () => {
 			.catch((err) => {
 				console.error(err);
 				notify('Error', 'Failed to fetch draft contributions', 'red');
+			});
+
+		getCoSubmittedContributions(user.id!)
+			.then(setCoContributions)
+			.catch((err) => {
+				console.error(err);
+				notify('Error', 'Failed to fetch submitted contributions', 'red');
 			});
 
 		reloadSubmitted();
@@ -160,9 +168,28 @@ const ContributePage = () => {
 							<Text size="md" fw={700}>Submitted</Text>
 						</Accordion.Control>
 						<Accordion.Panel>
+							<Text mb="sm">Contributions you own and have submitted.</Text>
 							<ContributionSubmittedPanel 
 								contributions={contributions} 
 								key={contributions.map((c) => c.id).join('')}
+							/>
+						</Accordion.Panel>
+					</Accordion.Item>
+				}
+
+				{coContributions && 
+					<Accordion.Item value="coSubmitted">
+						<Accordion.Control icon={
+							<Badge color="teal" variant="filled">{coContributions.length}</Badge>
+						}>
+							<Text size="md" fw={700}>Co-Submitted</Text>
+						</Accordion.Control>
+						<Accordion.Panel>
+							<Text mb="sm">Contributions where you appear as a co-author.</Text>
+							<ContributionSubmittedPanel
+								coSubmitted 
+								contributions={coContributions} 
+								key={coContributions.map((c) => c.id).join('')}
 							/>
 						</Accordion.Panel>
 					</Accordion.Item>

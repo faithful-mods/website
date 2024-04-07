@@ -18,9 +18,10 @@ import '../submit.scss';
 
 export interface ContributionDraftPanelProps {
 	contributions: ContributionWithCoAuthorsAndPoll[];
+	coSubmitted?: boolean;
 }
 
-export function ContributionSubmittedPanel({ contributions }: ContributionDraftPanelProps) {
+export function ContributionSubmittedPanel({ contributions, coSubmitted }: ContributionDraftPanelProps) {
 	const [windowWidth, _] = useDeviceSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [isPending, startTransition] = useTransition();
@@ -83,8 +84,14 @@ export function ContributionSubmittedPanel({ contributions }: ContributionDraftP
 				title={'Delete ' + (deletionList.length > 1 ? 'contributions' : 'contribution')}
 			>
 				<Stack gap="sm">
-					<Text fw={700} inherit>Are you sure you want to delete {deletionList.length > 1 ? 'those contributions' : 'this contribution'}?</Text>
-					<Text c="red" inherit>{deletionList.length > 1 ? 'Those' : 'It'} will be permanently removed from the database.</Text>
+					<Text fw={700} inherit>Are you sure you want {coSubmitted ? 'to be removed from' : 'to delete'} {deletionList.length > 1 ? 'those contributions' : 'this contribution'}?</Text>
+					<Text c="red" inherit>
+						{
+							coSubmitted 
+								? 'You will be removed from the list of co-authors.'
+								: (deletionList.length > 1 ? 'Those' : 'It') + ' will be permanently removed from the database.' 
+						}
+					</Text>
 					
 					<TextInput
 						description={
