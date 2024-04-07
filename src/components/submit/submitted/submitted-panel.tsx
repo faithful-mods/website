@@ -58,6 +58,7 @@ export function ContributionSubmittedPanel({ contributions }: ContributionDraftP
 			closeModal();
 			setDisplayedContributions(displayedContributions.filter((c) => !deletionList.includes(c.id)));
 			setDeletionList([]);
+			searchContribution(form.values.search); // update displayed contributions
 		});
 	};
 
