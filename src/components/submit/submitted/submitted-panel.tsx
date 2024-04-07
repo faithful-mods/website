@@ -19,13 +19,13 @@ import '../submit.scss';
 export interface ContributionDraftPanelProps {
 	contributions: ContributionWithCoAuthorsAndPoll[];
 	coSubmitted?: boolean;
+	onUpdate: () => void;
 }
 
-export function ContributionSubmittedPanel({ contributions, coSubmitted }: ContributionDraftPanelProps) {
+export function ContributionSubmittedPanel({ contributions, coSubmitted, onUpdate }: ContributionDraftPanelProps) {
 	const [windowWidth, _] = useDeviceSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [isPending, startTransition] = useTransition();
-	const [displayedContributions, setDisplayedContributions] = useState<ContributionWithCoAuthorsAndPoll[]>(contributions);
 	const [searchedContributions, setSearchedContributions] = useState<ContributionWithCoAuthorsAndPoll[]>(contributions);
 
 	const [deletionMode, setDeletionMode] = useState(false);
@@ -54,24 +54,23 @@ export function ContributionSubmittedPanel({ contributions, coSubmitted }: Contr
 
 	const deleteDeletionList = () => {
 		if (deletionList.length === 0) return;
+
 		startTransition(() => {
 			deleteContributions(author.id!, ...deletionList);
 			closeModal();
-			setDisplayedContributions(displayedContributions.filter((c) => !deletionList.includes(c.id)));
-			setDeletionList([]);
-			searchContribution(form.values.search); // update displayed contributions
+			onUpdate();
 		});
 	};
 
 	const searchContribution = (search: string) => {
-		if (!displayedContributions) return;
+		if (!contributions) return;
 
 		if (!search || search.length === 0) {
-			setSearchedContributions(displayedContributions);
+			setSearchedContributions(contributions);
 			return;
 		}
 
-		const filtered = displayedContributions?.filter((c) => c.filename.toLowerCase().includes(search.toLowerCase()));
+		const filtered = contributions.filter((c) => c.filename.toLowerCase().includes(search.toLowerCase()));
 		setSearchedContributions(filtered);
 	};
 
@@ -166,8 +165,8 @@ export function ContributionSubmittedPanel({ contributions, coSubmitted }: Contr
 					</Button>
 				</Group>
 				<Stack gap="sm">
-					{displayedContributions && displayedContributions.length === 0 && <Text size="sm" c="dimmed">Nothing yet</Text>}
-					{displayedContributions && displayedContributions.length > 0 &&
+					{contributions.length === 0 && <Text size="sm" c="dimmed">Nothing yet</Text>}
+					{contributions.length > 0 &&
 						<>
 							<Group>
 								{searchedContributions.length > 0 && searchedContributions.map((contribution, index) => 

@@ -31,25 +31,24 @@ const ContributePage = () => {
 	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
 
 	useEffectOnce(() => {
-		getDraftContributions(user.id!)
-			.then(setDraftContributions)
-			.catch((err) => {
-				console.error(err);
-				notify('Error', 'Failed to fetch draft contributions', 'red');
-			});
-
-		getCoSubmittedContributions(user.id!)
-			.then(setCoContributions)
-			.catch((err) => {
-				console.error(err);
-				notify('Error', 'Failed to fetch submitted contributions', 'red');
-			});
-
-		reloadSubmitted();
+		reload();
 	});
-
-	const reloadSubmitted = () => {
+	
+	const reload = () => {
 		startTransition(() => {
+			getDraftContributions(user.id!)
+				.then(setDraftContributions)
+				.catch((err) => {
+					console.error(err);
+					notify('Error', 'Failed to fetch draft contributions', 'red');
+				});
+		
+			getCoSubmittedContributions(user.id!)
+				.then(setCoContributions)
+				.catch((err) => {
+					console.error(err);
+					notify('Error', 'Failed to fetch submitted contributions', 'red');
+				});
 			getSubmittedContributions(user.id!)
 				.then(setContributions)
 				.catch((err) => {
@@ -154,7 +153,7 @@ const ContributePage = () => {
 							<ContributionDraftPanel
 								draftContributions={draftContributions} 
 								key={draftContributions.map((c) => c.id).join('')}
-								onUpdate={reloadSubmitted}
+								onUpdate={reload}
 							/>
 						</Accordion.Panel>
 					</Accordion.Item>
@@ -172,6 +171,7 @@ const ContributePage = () => {
 							<ContributionSubmittedPanel 
 								contributions={contributions} 
 								key={contributions.map((c) => c.id).join('')}
+								onUpdate={reload}
 							/>
 						</Accordion.Panel>
 					</Accordion.Item>
@@ -190,6 +190,7 @@ const ContributePage = () => {
 								coSubmitted 
 								contributions={coContributions} 
 								key={coContributions.map((c) => c.id).join('')}
+								onUpdate={reload}
 							/>
 						</Accordion.Panel>
 					</Accordion.Item>
