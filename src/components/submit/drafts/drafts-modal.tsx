@@ -154,12 +154,15 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 							variant="light"
 							color={gradient.to}
 							className="navbar-icon-fix"
+							loading={isPending}
 							onClick={() => {
-								// TODO #18 look for aliases
-								const texture = textures.find((t) => sanitizeTextureName(t.name) === contribution.filename.replace('.png', ''));
-								if (texture) {
-									selectedTextureUpdated(texture.id);
-								}
+								startTransition(() => {
+									// TODO #18 look for aliases
+									const texture = textures.find((t) => sanitizeTextureName(t.name) === contribution.filename.replace('.png', ''));
+									if (texture) {
+										selectedTextureUpdated(texture.id);
+									}
+								});
 							}}
 						>
 							<PiMagicWandBold />
