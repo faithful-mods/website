@@ -4,20 +4,27 @@ import { Stack, Title, Text } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 
 import { useCurrentRole } from '~/hooks/use-current-role';
-import { notify } from '~/lib/utils';
 
 interface RoleGateProps {
   children: React.ReactNode;
-  allowedRole: UserRole;
+  allowedRoles: UserRole[];
 };
 
 export const RoleGate = ({
 	children,
-	allowedRole,
+	allowedRoles,
 }: RoleGateProps) => {
 	const role = useCurrentRole();
 
-	if (role !== allowedRole && role !== UserRole.ADMIN) {
+	if (!allowedRoles.length) return children;
+
+	if (allowedRoles.includes(UserRole.USER) && allowedRoles.length === 1) {
+		allowedRoles = Object.values(UserRole).filter(role => role !== UserRole.BANNED);
+	}
+
+	if (!process.env.PRODUCTION && !allowedRoles.includes(UserRole.ADMIN)) allowedRoles.push(UserRole.ADMIN);
+
+	if ((!role || !allowedRoles.includes(role))) {
 		return (
 			<Stack 
 				align="center" 
@@ -25,11 +32,14 @@ export const RoleGate = ({
 				gap="md"
 				style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 			>
-				<Title>{allowedRole === UserRole.USER && role !== UserRole.BANNED ? '401' : '403'}</Title>
+				{!role 
+					? <Title>401&nbsp;<Text component="span" fw={300} inherit>Unauthorized</Text></Title>
+					: <Title>403&nbsp;<Text component="span" fw={300} inherit>Forbidden</Text></Title>
+				}
 				<Text size="lg">
-					{allowedRole === UserRole.USER && role !== UserRole.BANNED 
-						? 'Unauthorized, please log in'
-						: 'Forbidden, you are not allowed to access this page'
+					{!role
+						? 'Please log in to access this page'
+						: 'You are not allowed to access this page'
 					}
 				</Text>
 			</Stack>

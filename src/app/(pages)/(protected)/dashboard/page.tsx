@@ -12,7 +12,7 @@ import { gradient } from '~/lib/utils';
 
 const DashboardPage = () => {
 	return (
-		<RoleGate allowedRole={UserRole.ADMIN}>
+		<RoleGate allowedRoles={[UserRole.ADMIN]}>
 			<Tabs defaultValue="1" variant="pills" color={gradient.to} >
 				<Card
 					shadow="sm" 
