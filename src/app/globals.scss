@@ -1,3 +1,4 @@
+@import './mantine';
 @tailwind components;
 @tailwind utilities;
 
@@ -29,6 +30,7 @@ main {
 .texture-background {
 	background-color: var(--mantine-color-dark-6);
 }
+
 :where([data-mantine-color-scheme='light']) .texture-background {
 	background-color: var(--mantine-color-gray-1);
 }
@@ -36,6 +38,7 @@ main {
 .image-background {
 	background-color: var(--mantine-color-dark-7);
 }
+
 :where([data-mantine-color-scheme='light']) .image-background {
 	background-color: var(--mantine-primary-color-1);
 }
@@ -72,23 +75,6 @@ main {
 :where([data-mantine-color-scheme='dark']) .button-disabled-with-bg {
 	&:disabled,
 	&[data-disabled] {
-		background-color: rgba(0, 0, 0, 0.075);
+		background-color: rgb(0 0 0 / 7.5%);
 	}
-}
-
-.mantine-Modal-inner {
-	left: 0;
-}
-
-:where([data-mantine-color-scheme='dark']) .mantine-Accordion-item,
-.mantine-Accordion-item {
-	background-color: var(--item-filled-color) !important;
-	box-shadow: var(--mantine-shadow-sm);
-	border: calc(0.0625rem * var(--mantine-scale)) solid;
-	border-radius: var(--accordion-radius);
-	border-color: var(--item-border-color);
-}
-
-:where([data-mantine-color-scheme='light']) .mantine-Accordion-item {
-	background-color: var(--mantine-color-white) !important;
 }

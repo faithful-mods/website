@@ -1,0 +1,18 @@
+/* stylelint-disable selector-class-pattern -- mantine class naming convention is against */
+
+.mantine-Modal-inner {
+	left: 0;
+}
+
+:where([data-mantine-color-scheme='dark']) .mantine-Accordion-item,
+.mantine-Accordion-item {
+	background-color: var(--item-filled-color) !important;
+	box-shadow: var(--mantine-shadow-sm);
+	border: calc(0.0625rem * var(--mantine-scale)) solid;
+	border-radius: var(--accordion-radius);
+	border-color: var(--item-border-color);
+}
+
+:where([data-mantine-color-scheme='light']) .mantine-Accordion-item {
+	background-color: var(--mantine-color-white) !important;
+}

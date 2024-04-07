@@ -13,6 +13,7 @@
 
 .danger-border {
 	--border-size: 5px;
+
 	position: relative;
 
 	&::before {
@@ -26,11 +27,11 @@
 		background: linear-gradient(
 			60deg,
 			#ffa500,
-			#ff0000,
+			#f00,
 		);
 		background-size: 300% 300%;
 		background-position: 0 50%;
-		animation: moveGradient 4s alternate infinite;
+		animation: move-gradient 4s alternate infinite;
 		border-radius: var(--mantine-radius-sm);
 	}
 
@@ -56,7 +57,7 @@
 	background-color: var(--mantine-color-dark-6);
 }
 
-@keyframes moveGradient {
+@keyframes move-gradient {
 	50% {
 		background-position: 100% 50%;
 	}
