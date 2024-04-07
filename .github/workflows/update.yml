@@ -8,5 +8,10 @@ on:
     branches: [main, develop]
 
 jobs:
-  execute-lint:
+  linting:
     uses: ./.github/workflows/linting.yml
+
+  codeql:
+    needs: linting
+    if: ${{ needs.linting.result == 'success' }}
+    uses: ./.github/workflows/codeql.yml
