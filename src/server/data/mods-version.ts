@@ -14,28 +14,24 @@ import { extractModVersionsFromJAR } from '../actions/files';
 export async function getModVersionsWithModpacks(modId: string): Promise<ModVersionWithModpacks[]> {
 	const res: ModVersionWithModpacks[] = [];
 	const modVersions = await db.modVersion.findMany({ where: { modId } });
-	
+
 	for (const modVer of modVersions) {
 		const modpacks = await db.modpackVersion.findMany({ where: { mods: { some: { id: modVer.id }}}, include: { modpack: true }})
 			.then((mvs) => mvs.map((mv) => mv.modpack));
 
 		res.push({ ...modVer, modpacks });
 	}
-	
-	return res;
-}
 
-function randInt(min: number, max: number) {
-	return Math.floor(Math.random() * (max - min + 1) + min);
+	return res;
 }
 
 export async function getModsVersionsProgression(): Promise<ModVersionWithProgression[]> {
 	const modVersions = (await db.modVersion.findMany({ include: { mod: true, resources: true } }))
-		.map((modVer) => ({ 
-			...modVer, 
-			...EMPTY_PROGRESSION, 
-			resources: modVer.resources.map((resource) => ({ 
-				...resource, 
+		.map((modVer) => ({
+			...modVer,
+			...EMPTY_PROGRESSION,
+			resources: modVer.resources.map((resource) => ({
+				...resource,
 				...EMPTY_PROGRESSION,
 			})),
 		}));
@@ -45,8 +41,8 @@ export async function getModsVersionsProgression(): Promise<ModVersionWithProgre
 			const linkedTextures = await db.linkedTexture.findMany({ where: { resourceId: resource.id }});
 
 			const textures = await db.texture.findMany({
-				where: { 
-					id: { in: linkedTextures.map((lt) => lt.textureId) }, 
+				where: {
+					id: { in: linkedTextures.map((lt) => lt.textureId) },
 				},
 			});
 
@@ -101,7 +97,7 @@ export async function addModVersionsFromJAR(jar: FormData): Promise<ModVersion[]
 
 export async function createModVersion({ mod, version, mcVersion }: { mod: { id: string }, version: string, mcVersion: string }): Promise<ModVersion> {
 	await canAccess();
-	
+
 	return db.modVersion.create({ data: { modId: mod.id, version, mcVersion } });
 }
 

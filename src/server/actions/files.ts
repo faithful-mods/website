@@ -38,9 +38,9 @@ export async function remove(publicPath: `files/${string}`): Promise<void> {
 
 /**
  * Extracts mcmod.info from a jar file
- * 
+ *
  * TODO: find behavior for Fabric mods
- * 
+ *
  * @param jar the jar file to extract the mcmod.info from
  * @returns The mcmod.info data
  */
@@ -96,7 +96,7 @@ function sanitizeMCModInfo(mcmodInfo: MCModInfoData): MCModInfo[] {
  * Extract mod(s) versions from given JAR file
  * - If mod(s) does not exist, create it
  * - If mod(s) version(s) does not exist, create it and extract the default resource pack
- * 
+ *
  * @param jar the jar file to extract the mod versions from
  * @returns The extracted mod versions
  */
@@ -138,9 +138,9 @@ export async function extractModVersionsFromJAR(
 
 /**
  * Extract blocks and items models, textures to the /public dir
- * 
+ *
  * TODO add support for models
- * 
+ *
  * @param jar The jar file to extract the resources from
  * @param modVersion The mod version to extract the resources from and to be linked to the extracted resources
  */
@@ -171,9 +171,12 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 		const buffer = await textureAsset.buffer();
 		const hash = calculateHash(buffer);
 
+		const fileExtension = textureAsset.path.split('.').pop()!;
+		const textureName = textureAsset.path.split('/').pop()!.split('.')[0];
+
 		let texture = await findTexture({ hash });
 		if (!texture) {
-			const filename = `${uuid}_${textureAsset.path.split('/').pop()}`;
+			const filename = `${uuid}_${textureName}.${fileExtension}`;
 			const filepath = join(fileDir, filename);
 
 			writeFileSync(filepath, buffer);
@@ -181,8 +184,16 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 			texture = await createTexture({
 				filepath: join('files', 'textures', 'default', filename),
 				hash,
-				name: filename,
+				name: textureName,
 			});
+		}
+		else {
+			if (texture.name !== textureName && !texture.aliases.includes(textureName)) {
+				await db.texture.update({
+					where: { id: texture.id },
+					data: { aliases: { set: [...texture.aliases, textureName] } },
+				})
+			}
 		}
 
 		let resource = await getResource({ asset, modVersion });
