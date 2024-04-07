@@ -131,10 +131,10 @@ export function ContributionSubmittedPanel({ contributions }: ContributionDraftP
 							className="contribution-item"
 							style={{
 								'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
-									? .89
+									? 1
 									: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
-										? 1.89
-										: 2.89,
+										? 1.85
+										: 2.885,
 							}}
 						/>
 						<Checkbox

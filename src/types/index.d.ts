@@ -24,8 +24,14 @@ export type PublicUser = {
 	image: string | null;
 };
 
-export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[] };
+export type FullPoll = Poll & {
+	downvotes: PublicUser[];
+	upvotes: PublicUser[];
+}
+
+export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[], owner: PublicUser };
 export type ContributionWithCoAuthorsAndPoll = ContributionWithCoAuthors & { poll: Poll };
+export type ContributionWithCoAuthorsAndFullPoll = ContributionWithCoAuthors & { poll: FullPoll };
 
 export type Progression = {
 	linkedTextures: number;

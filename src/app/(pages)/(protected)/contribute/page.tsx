@@ -1,8 +1,9 @@
 'use client';
 
-import { Accordion, Badge, Card, Code, Group, Select, Stack, Text } from '@mantine/core';
+import { Accordion, Badge, Card, Code, Group, Select, Stack, Text, Title } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { Resolution } from '@prisma/client';
+import Link from 'next/link';
 import { useState, useTransition } from 'react';
 
 import { CoAuthorsSelector } from '~/components/submit/co-authors-select';
@@ -12,7 +13,7 @@ import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { notify } from '~/lib/utils';
+import { gradient, notify } from '~/lib/utils';
 import { createRawContributions, getSubmittedContributions, getDraftContributions } from '~/server/data/contributions';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
@@ -62,6 +63,27 @@ const ContributePage = () => {
 
 	return (
 		<Stack gap="sm" pb="sm">
+			<Card withBorder shadow="sm" radius="md" padding="md">
+				<Text size="md" fw={700}>Submission Process</Text>
+				<Text size="sm">
+					Once submitted, your submissions are subject to a voting process by the council and their decision is final.<br/>
+					When all counselors have voted, the following will happen:
+				</Text>
+				<ul>
+					<Text size="sm" component="li">
+						If the contribution has more upvotes than downvotes, it will be <Badge component="span" color="teal">accepted</Badge>
+					</Text>
+					<Text size="sm" component="li">
+						If there is more downvotes or the same amount of upvotes and downvotes, it will be <Badge component="span" color="red">rejected</Badge>
+					</Text>
+				</ul>
+				<Text size="sm">
+					When your submissions are in <Badge component="span" color={gradient.to}>draft</Badge> status, 
+					you can edit them as many times as you like. But if you want to switch the texture file, please reupload it and delete your draft.<br/>
+				</Text>
+				<Text size="sm" fs="italic" c="dimmed" mt="sm">You want to join the council ? Apply here (soon).</Text>
+			</Card>
+
 			<Card withBorder shadow="sm" radius="md" padding="md">
 				<Stack gap="sm">
 					<Group justify="space-between">

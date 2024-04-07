@@ -4,6 +4,7 @@ import { ActionIcon, Badge, Button, Card, Combobox, Group, Image, useCombobox, }
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { GoLaw } from 'react-icons/go';
 import { HiOutlineMenu } from 'react-icons/hi';
 import { IoMdSettings } from 'react-icons/io';
 import { MdDashboard } from 'react-icons/md';
@@ -112,6 +113,16 @@ export const Navbar = () => {
 									variant="transparent"
 									className="navbar-icon-fix"
 								><MdDashboard className="w-5 h-5"/></ActionIcon>
+							</Link>
+						}
+
+						{user && user.role === UserRole.COUNCIL &&
+							<Link href='/council'>
+								<ActionIcon 
+									size="lg" 
+									variant="transparent"
+									className="navbar-icon-fix"
+								><GoLaw className="w-5 h-5"/></ActionIcon>
 							</Link>
 						}
 						

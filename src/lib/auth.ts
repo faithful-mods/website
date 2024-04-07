@@ -31,7 +31,7 @@ export async function canAccess(role: UserRole = UserRole.ADMIN, self?: User['id
 	if (!session || !session.user) throw new Error('Unauthorized');
 
 	if (self && session?.user.id === self) return;
-	if (session?.user.role === role) return;
+	if (session?.user.role === role || session?.user.role === UserRole.ADMIN) return;
 
 	throw new Error('Forbidden, no permission');
 }

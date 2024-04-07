@@ -10,3 +10,37 @@ export async function getPollResult(id: string): Promise<PollResults> {
 		downvotes: res.downvotes.length,
 	};
 }
+
+export async function editPollChoice(pollId: string, userId: string, kind: 'up' | 'down' | 'none') {
+	switch(kind) {
+	case 'up':
+		await db.poll.update({
+			where: { id: pollId },
+			data: {
+				upvotes: { connect: { id: userId } },
+				downvotes: { disconnect: { id: userId } },
+			},
+		});
+		break;
+
+	case 'down':
+		await db.poll.update({
+			where: { id: pollId },
+			data: {
+				upvotes: { disconnect: { id: userId } },
+				downvotes: { connect: { id: userId } },
+			},
+		});
+		break;
+	
+	case 'none':
+		await db.poll.update({
+			where: { id: pollId },
+			data: {
+				upvotes: { disconnect: { id: userId } },
+				downvotes: { disconnect: { id: userId } },
+			},
+		});
+		break;
+	}
+}

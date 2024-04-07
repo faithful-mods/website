@@ -61,8 +61,8 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 				setSelectedTextureContributionsIndex(0);
 				setDisplayedSelectedTextureContributions(res[0]);
 			})
-			.catch(console.error)
-	}
+			.catch(console.error);
+	};
 
 	const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({ option }) => {
 		const texture = textures.find((u) => u.id === option.value)!;
@@ -84,21 +84,21 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	*/
 	const sanitizeTextureName = (name: string): string => {
 		return name.split('_')[1]?.split('.')[0];
-	}
+	};
 
 	const previousContribution = () => {
 		if (selectedTextureContributionsIndex === 0) return;
 		let index = selectedTextureContributionsIndex - 1;
 		setSelectedTextureContributionsIndex(index);
 		setDisplayedSelectedTextureContributions(selectedTextureContributions[index]);
-	}
+	};
 
 	const nextContribution = () => {
 		if (selectedTextureContributionsIndex === selectedTextureContributions.length - 1) return;
 		let index = selectedTextureContributionsIndex + 1;
 		setSelectedTextureContributionsIndex(index);
 		setDisplayedSelectedTextureContributions(selectedTextureContributions[index]);
-	}
+	};
 
 	const updateDraft = () => {
 		if (!selectedTexture) return;
@@ -112,13 +112,13 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 				textureId: selectedTexture.id,
 			})
 				.then(onClose)
-				.catch(console.error)
-		})
-	}
+				.catch(console.error);
+		});
+	};
 
 	const cancelAndClose = () => {
 		onClose(contribution);
-	}
+	};
 
 	return (
 		<Stack gap="md" className="w-full">
@@ -292,5 +292,5 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 				<Button loading={isPending} disabled={!selectedTexture} variant="gradient" gradient={gradient} onClick={updateDraft}>Save</Button>
 			</Group>
 		</Stack>
-	)
+	);
 }

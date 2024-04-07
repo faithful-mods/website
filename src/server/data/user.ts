@@ -16,15 +16,11 @@ export async function getUsers(): Promise<User[]> {
 }
 
 export async function getPublicUsers(): Promise<PublicUser[]> {
-	const users = await db.user.findMany({ where: { role: { not: UserRole.BANNED }}, orderBy: { name: 'asc' }});
-
-	return users
-		.filter((user) => user.name !== null)
-		.map((user) => ({
-			id: user.id,
-			name: user.name ?? 'Unknown', // This should never happen (filtered above)
-			image: user.image ?? '/icon.png',
-		}));
+	return await db.user.findMany({
+		where: { role: { not: UserRole.BANNED } },
+		select: { id: true, name: true, image: true },
+		orderBy: { name: 'asc' },
+	});
 }
 
 /**
@@ -75,3 +71,13 @@ export async function getUserById(id: string): Promise<User> {
 
 	return res;
 };
+
+export async function getCounselors(): Promise<PublicUser[]> {
+	await canAccess(UserRole.COUNCIL);
+
+	return await db.user.findMany({
+		where: { role: UserRole.COUNCIL },
+		select: { id: true, name: true, image: true },
+		orderBy: { name: 'asc' },
+	});
+}

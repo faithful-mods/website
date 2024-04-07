@@ -1,8 +1,9 @@
 import { Badge, Card, Group, Image, Stack, Text } from '@mantine/core';
-import { Poll, Status } from '@prisma/client';
+import { Status } from '@prisma/client';
 import { ClassValue } from 'clsx';
 import { useState } from 'react';
-import { FaArrowUp, FaArrowDown, FaFileAlt } from 'react-icons/fa';
+import { FaFileAlt } from 'react-icons/fa';
+import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -24,7 +25,7 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 
 	useEffectOnce(() => {
 		getPollResult(contribution.pollId).then((res) => setPoll(res));
-	})
+	});
 	
 	return (
 		<Card 
@@ -38,7 +39,7 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 					? 1 
 					: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
 						? 2
-						: 3
+						: 3,
 			}}
 		>
 			<Group gap="sm" wrap="nowrap" justify="space-between" align="start">
@@ -81,20 +82,20 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 					>
 						{windowWidth <= BREAKPOINT_TABLET ? contribution.status.slice(0, 1) : contribution.status}
 					</Badge>
-					{poll && contribution.status === Status.ACCEPTED &&
+					{poll && contribution.status !== Status.PENDING &&
 						<Stack gap="0">
 							<Group gap="xs" justify="right" align="center">
 								<Text component="span" c="dimmed" size="xs">{poll.upvotes}</Text>
-								<Text c="dimmed" size="xs" style={{ display: 'flex' }}><FaArrowUp /></Text>
+								<Text c="dimmed" size="xs" style={{ display: 'flex' }}><LuArrowUp /></Text>
 							</Group>
 							<Group gap="xs" justify="right" align="center">
 								<Text component="span" c="dimmed" size="xs">{poll.downvotes}</Text>
-								<Text c="dimmed" size="xs" style={{ display: 'flex' }}><FaArrowDown /></Text>
+								<Text c="dimmed" size="xs" style={{ display: 'flex' }}><LuArrowDown /></Text>
 							</Group>
 						</Stack>
 					}
 				</Stack>
 			</Group>
 		</Card>
-	)
+	);
 }
