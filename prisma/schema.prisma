@@ -10,6 +10,7 @@ generator client {
 
 enum UserRole {
   ADMIN
+  COUNCIL
   USER
   BANNED
 }
@@ -20,6 +21,7 @@ enum Resolution {
 }
 
 enum Status {
+  DRAFT
   PENDING
   ACCEPTED
   REJECTED
@@ -67,7 +69,7 @@ model ModpackVersion {
   version   String
   modpack   Modpack      @relation(fields: [modpackId], references: [id])
   modpackId String       @map("modpack_id")
-  mods      ModVersion[]
+  mods      ModVersion[] @relation("mods_versions_to_modpacks_versions")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -99,7 +101,7 @@ model ModVersion {
   modId     String     @map("mod_id")
   resources Resource[]
 
-  ModpackVersion ModpackVersion[]
+  ModpackVersion ModpackVersion[] @relation("mods_versions_to_modpacks_versions")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -183,14 +185,19 @@ model LinkedTexture {
 // }
 
 model Contribution {
-  id         String     @id @default(cuid())
-  file       String
-  date       DateTime   @default(now())
-  users      User[]
-  resolution Resolution
-  status     Status
+  id       String   @id @default(cuid())
+  file     String
+  filename String
+  date     DateTime @default(now())
 
-  pollId String
+  ownerId   String
+  owner     User   @relation(fields: [ownerId], references: [id])
+  coAuthors User[] @relation("contributions_to_coauthors")
+
+  resolution Resolution
+  status     Status     @default(DRAFT)
+
+  pollId String @unique
   poll   Poll   @relation(fields: [pollId], references: [id])
 
   Texture   Texture? @relation(fields: [textureId], references: [id])
@@ -205,36 +212,38 @@ model Contribution {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("users_contributions")
+  @@map("contributions")
 }
 
 model User {
-  id            String         @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?        @unique
-  emailVerified DateTime?      @map("email_verified")
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
   image         String?
-  role          UserRole       @default(USER)
+  role          UserRole  @default(USER)
   accounts      Account[]
-  contributions Contribution[]
+
+  contributions   Contribution[]
+  coContributions Contribution[] @relation("contributions_to_coauthors")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  pollsUpvoted   Poll[] @relation("Upvotes")
-  pollsDownvoted Poll[] @relation("Downvotes")
+  pollsUpvoted   Poll[] @relation("polls_upvotes_to_users")
+  pollsDownvoted Poll[] @relation("polls_downvotes_to_users")
 
   @@map("users")
 }
 
 model Poll {
   id        String @id @default(cuid())
-  upvotes   User[] @relation("Upvotes")
-  downvotes User[] @relation("Downvotes")
+  upvotes   User[] @relation("polls_upvotes_to_users")
+  downvotes User[] @relation("polls_downvotes_to_users")
 
-  createdAt    DateTime       @default(now()) @map("created_at")
-  updatedAt    DateTime       @updatedAt @map("updated_at")
-  Contribution Contribution[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  Contribution Contribution?
 
-  @@map("users_polls")
+  @@map("polls")
 }

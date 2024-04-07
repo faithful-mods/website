@@ -22,17 +22,17 @@ export const ThemeSwitch = () => {
 			setIcon(<TbSunMoon className="w-5 h-5"/>);
 			break;
 		}
-	}
+	};
 
 	const toggleColorScheme = () => {
 		const newColorScheme = colorSchemes[(colorSchemes.indexOf(colorScheme) + 1) % colorSchemes.length];
 		setColorScheme(newColorScheme);
 		setIconFromStr(newColorScheme);
-	}
+	};
 
 	useEffect(() => {
 		setIconFromStr(colorScheme);
-	}, [colorScheme])
+	}, [colorScheme]);
 
 	return (
 		<ActionIcon 
@@ -44,4 +44,4 @@ export const ThemeSwitch = () => {
 			{icon}
 		</ActionIcon>
 	);
-}
+};

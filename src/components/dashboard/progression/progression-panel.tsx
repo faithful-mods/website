@@ -28,8 +28,8 @@ export function ProgressionPanel() {
 				setResources(res.sort((a, b) => a.mod.name.localeCompare(b.mod.name)));
 			});
 		getGlobalProgression()
-			.then(setGlobalProgress)
-	}
+			.then(setGlobalProgress);
+	};
 
 	return (
 		<Card
@@ -74,5 +74,5 @@ export function ProgressionPanel() {
 				{resources.map((modVersion, index) => <ProgressionItem key={index} modVersion={modVersion} />)}
 			</Group>
 		</Card>
-	)
+	);
 }

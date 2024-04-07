@@ -89,7 +89,7 @@ function sanitizeMCModInfo(mcmodInfo: MCModInfoData): MCModInfo[] {
 			if (!modInfo.version) modInfo.name = 'unknown';
 
 			return modInfo;
-		})
+		});
 }
 
 /**
@@ -157,7 +157,7 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 			file.path.includes('textures') &&
 			(file.path.endsWith('.png') || file.path.endsWith('.mcmeta')) &&
 			!file.path.endsWith('/')
-	)
+	);
 
 	// TODO: Get models assets
 

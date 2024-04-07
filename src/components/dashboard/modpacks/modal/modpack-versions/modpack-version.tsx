@@ -25,17 +25,17 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 				console.error(error);
 				notify('Error', error.message, 'red');
 			});
-	})
+	});
 
 	const openModpackVersionModal = (modpackVersion?: ModpackVersionWithMods | undefined) => {
 		setModalModpackVersion(modpackVersion);
 		openModal();
-	}
+	};
 
 	const closeModpackVersionModal = async () => {
 		setModpackVersions(await getModpackVersions(modpack.id));
 		closeModal();
-	}
+	};
 
 	return (
 		<>
@@ -83,5 +83,5 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 				</Button>
 			</Group>
 		</>
-	)
+	);
 }

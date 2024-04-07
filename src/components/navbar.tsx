@@ -1,9 +1,10 @@
 'use client';
 
-import { ActionIcon, Badge, Button, Card, Combobox, Group, Image, useCombobox, } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Combobox, Group, Image, useCombobox } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { GoLaw } from 'react-icons/go';
 import { HiOutlineMenu } from 'react-icons/hi';
 import { IoMdSettings } from 'react-icons/io';
 import { MdDashboard } from 'react-icons/md';
@@ -28,8 +29,9 @@ export const Navbar = () => {
 		{ href: '/modpacks', label: 'Modpacks', disabled: false },
 		{ href: '/mods', label: 'Mods', disabled: false },
 		{ href: '/gallery', label: 'Gallery', disabled: false },
-	]
+	];
 
+	if (user) links.push({ href: '/contribute', label: 'Contribute', disabled: user.role === 'BANNED' });
 	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home', disabled: false });
 
 	return (
@@ -111,6 +113,16 @@ export const Navbar = () => {
 									variant="transparent"
 									className="navbar-icon-fix"
 								><MdDashboard className="w-5 h-5"/></ActionIcon>
+							</Link>
+						}
+
+						{user && user.role === UserRole.COUNCIL &&
+							<Link href='/council'>
+								<ActionIcon 
+									size="lg" 
+									variant="transparent"
+									className="navbar-icon-fix"
+								><GoLaw className="w-5 h-5"/></ActionIcon>
 							</Link>
 						}
 						

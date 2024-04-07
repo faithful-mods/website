@@ -1,15 +1,15 @@
-import { MantineColor, MantineGradient } from '@mantine/core'
-import { showNotification } from '@mantine/notifications'
-import { Resolution } from '@prisma/client'
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { MantineColor, MantineGradient } from '@mantine/core';
+import { showNotification } from '@mantine/notifications';
+import { Resolution } from '@prisma/client';
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
-import { Progression } from '~/types'
+import { Progression } from '~/types';
 
-import { NOTIFICATIONS_DURATION_MS } from './constants'
+import { NOTIFICATIONS_DURATION_MS } from './constants';
 
 export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs))
+	return twMerge(clsx(inputs));
 }
 
 export const gradient: MantineGradient = {
@@ -25,10 +25,10 @@ export const gradientDanger: MantineGradient = {
 };
 
 export function capitalize(str: string) {
-	if (str.length === 0) return str
+	if (str.length === 0) return str;
 
-	const words = str.split(' ')
-	return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLocaleLowerCase()).join(' ')
+	const words = str.split(' ');
+	return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLocaleLowerCase()).join(' ');
 }
 
 export function notify(title: string, message: React.ReactNode, color: MantineColor) {

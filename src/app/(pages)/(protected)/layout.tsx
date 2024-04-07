@@ -8,10 +8,10 @@ interface ProtectedLayoutProps {
 
 const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
 	return (
-		<RoleGate allowedRole={UserRole.USER}>
+		<RoleGate allowedRoles={[UserRole.USER]}>
 			{children}
 		</RoleGate>
 	);
-}
+};
  
 export default ProtectedLayout;

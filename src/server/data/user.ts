@@ -4,6 +4,7 @@ import { User, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
+import type { PublicUser } from '~/types';
 
 /**
  * Get all users from the database
@@ -12,6 +13,14 @@ import { db } from '~/lib/db';
 export async function getUsers(): Promise<User[]> {
 	await canAccess();
 	return db.user.findMany();
+}
+
+export async function getPublicUsers(): Promise<PublicUser[]> {
+	return await db.user.findMany({
+		where: { role: { not: UserRole.BANNED } },
+		select: { id: true, name: true, image: true },
+		orderBy: { name: 'asc' },
+	});
 }
 
 /**
@@ -62,3 +71,13 @@ export async function getUserById(id: string): Promise<User> {
 
 	return res;
 };
+
+export async function getCounselors(): Promise<PublicUser[]> {
+	await canAccess(UserRole.COUNCIL);
+
+	return await db.user.findMany({
+		where: { role: UserRole.COUNCIL },
+		select: { id: true, name: true, image: true },
+		orderBy: { name: 'asc' },
+	});
+}

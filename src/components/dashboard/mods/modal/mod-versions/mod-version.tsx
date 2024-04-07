@@ -23,8 +23,8 @@ export function ModVersions({ mod }: { mod: Mod }) {
 			.catch((err) => {
 				console.error(err);
 				notify('Error', err.message, 'red');
-			})
-	})
+			});
+	});
 
 	const filesDrop = (files: File[]) => {
 		startTransition(() => {
@@ -39,17 +39,17 @@ export function ModVersions({ mod }: { mod: Mod }) {
 					);
 				});
 		});
-	}
+	};
 	
 	const openModVersionModal = (modVersion?: ModVersionWithModpacks | undefined) => {
 		setModalModVersion(modVersion);
 		openModal();
-	}
+	};
 
 	const closeModVersionModal = async () => {
 		setModVersions(await getModVersionsWithModpacks(mod.id));
 		closeModal();
-	}
+	};
 
 	return (
 		<>
@@ -107,5 +107,5 @@ export function ModVersions({ mod }: { mod: Mod }) {
 				</Dropzone>
 			</Group>
 		</>
-	)
+	);
 }

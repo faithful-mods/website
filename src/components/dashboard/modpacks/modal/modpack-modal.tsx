@@ -44,7 +44,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 			},
 		},
 		onValuesChange: (value) => {
-			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : modpack?.image || '')
+			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : modpack?.image || '');
 		},
 	});
 
@@ -72,15 +72,15 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 			} catch (e) {
 				notify('Error', (e as Error).message, 'red');
 			}
-		})
-	}
+		});
+	};
 
 	const onDelete = (id: string) => {
 		startTransition(async () => {
 			deleteModpack(id);
 			onClose(id);
-		})
-	}
+		});
+	};
 
 	return (
 		<>
@@ -122,5 +122,5 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 				</Button>
 			</Group>	
 		</>
-	)
+	);
 }

@@ -1,9 +1,9 @@
-import { Group, Image, Stack, Text } from '@mantine/core'
+import { Group, Image, Stack, Text } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
-import './dashboard.scss'
+import './dashboard.scss';
 
 export interface ItemDisplayProps {
 	image?: string | null, 
@@ -28,7 +28,7 @@ export function DashboardItem({ image, title, description, onClick }: ItemDispla
 					? 2
 					: windowWidth <= BREAKPOINT_DESKTOP_LARGE
 						? 3
-						: 4
+						: 4,
 			}}
 		>
 			<Image
@@ -46,5 +46,5 @@ export function DashboardItem({ image, title, description, onClick }: ItemDispla
 				<Text size="xs" lineClamp={2}>{description?.trim() ?? 'No description'}</Text>
 			</Stack>
 		</Group>
-	)
+	);
 }

@@ -1,6 +1,9 @@
 {
 	"cSpell.words": [
 		"dependants",
+		"downvoted",
+		"Downvoted",
+		"downvotes",
 		"dropzone",
 		"hookform",
 		"mantine",
@@ -11,7 +14,12 @@
 		"prisma",
 		"stylelint",
 		"tailwindcss",
-		"unzipper"
+		"unvoted",
+		"Unvoted",
+		"unzipper",
+		"upvoted",
+		"Upvoted",
+		"upvotes"
 	],
 	"files.exclude": {
 		"**/.git": true,

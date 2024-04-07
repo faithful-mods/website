@@ -1,12 +1,12 @@
 import type {
-	LinkedTexture,
+	Contribution,
 	Mod,
 	Modpack,
 	ModpackVersion,
 	ModVersion,
+	Poll,
 	Resolution,
 	Resource,
-	Texture,
 } from '@prisma/client';
 
 export type Prettify<T> = {
@@ -16,6 +16,21 @@ export type Prettify<T> = {
 export type ModpackVersionWithMods = ModpackVersion & { mods: ModVersion[] };
 export type ModVersionWithModpacks = ModVersion & { modpacks: Modpack[] };
 
+export type PublicUser = {
+	id: string;
+	name: string | null;
+	image: string | null;
+};
+
+export type FullPoll = Poll & {
+	downvotes: PublicUser[];
+	upvotes: PublicUser[];
+}
+
+export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[], owner: PublicUser };
+export type ContributionWithCoAuthorsAndPoll = ContributionWithCoAuthors & { poll: Poll };
+export type ContributionWithCoAuthorsAndFullPoll = ContributionWithCoAuthors & { poll: FullPoll };
+
 export type Progression = {
 	linkedTextures: number;
 	textures: {
@@ -24,6 +39,11 @@ export type Progression = {
 		}
 		todo: number;
 	};
+}
+
+export interface PollResults {
+	upvotes: number;
+	downvotes: number;
 }
 
 export type ResourceWithProgression = Prettify<Resource & Progression>;

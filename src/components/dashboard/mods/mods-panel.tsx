@@ -1,6 +1,6 @@
 import type { Mod } from '@prisma/client';
 
-import { Badge, Button, Card, Group, Image, Modal, Stack, Text, TextInput } from '@mantine/core';
+import { Badge, Button, Card, Group, Modal, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { useState, useTransition } from 'react';
@@ -37,7 +37,7 @@ export function ModsPanel() {
 				console.error(err);
 				notify('Error', err.message, 'red');
 			});
-	}
+	};
 
 	const openModModal = (mod?: Mod | undefined) => {
 		setModalMod(mod);
@@ -160,5 +160,5 @@ export function ModsPanel() {
 				}
 			</Card>
 		</>
-	)
+	);
 }

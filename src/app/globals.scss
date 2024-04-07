@@ -1,3 +1,4 @@
+@import './mantine';
 @tailwind components;
 @tailwind utilities;
 
@@ -20,6 +21,18 @@ div#__next {
 
 main {
 	@apply h-full;
+}
+
+.image-pixelated {
+	image-rendering: pixelated;
+}
+
+.texture-background {
+	background-color: var(--mantine-color-dark-6);
+}
+
+:where([data-mantine-color-scheme='light']) .texture-background {
+	background-color: var(--mantine-color-gray-1);
 }
 
 .image-background {
@@ -56,5 +69,12 @@ main {
 	&:disabled,
 	&[data-disabled] {
 		background-color: transparent;
+	}
+}
+
+:where([data-mantine-color-scheme='dark']) .button-disabled-with-bg {
+	&:disabled,
+	&[data-disabled] {
+		background-color: rgb(0 0 0 / 7.5%);
 	}
 }

@@ -42,7 +42,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				if (!value) return 'You must provide a name for the mod';
 			},
 			url: (value) => {
-				if (value && !value.startsWith('https://')) return 'The URL must start with https://'
+				if (value && !value.startsWith('https://')) return 'The URL must start with https://';
 			},
 			image: (value) => {
 				if (!value) return 'You must provide an image for the modpack';
@@ -52,10 +52,10 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			},
 			authors: (value) => {
 				if (!value) return 'You must provide an author for the mod';
-			}
+			},
 		},
 		onValuesChange: (value) => {
-			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : mod?.image || '')
+			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : mod?.image || '');
 		},
 	});
 
@@ -84,21 +84,21 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				notify('Error', (e as Error).message, 'red');
 			}
 		});
-	}
+	};
 
 	const onDelete = (id: string) => {
 		startTransition(async () => {
 			await deleteMod(id);
 			onClose(id);
 		});
-	}
+	};
 	
 	const filesDrop = (files: File[]) => {
 		startTransition(async () => {
 			const data = new FormData();
 			files.forEach((file) => data.append('files', file));
 
-			const addedModVersions = await addModVersionsFromJAR(data)
+			const addedModVersions = await addModVersionsFromJAR(data);
 			const firstModId = addedModVersions[0].modId;
 			const mod = await getModsFromIds([firstModId]).then((mods) => mods[0]);
 			form.setValues({
@@ -112,7 +112,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			});
 			setMod(mod);
 		});
-	}
+	};
 
 	return (
 		<>
@@ -171,5 +171,5 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				}
 			</Group>
 		</>
-	)
+	);
 }
