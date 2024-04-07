@@ -69,7 +69,7 @@ model ModpackVersion {
   version   String
   modpack   Modpack      @relation(fields: [modpackId], references: [id])
   modpackId String       @map("modpack_id")
-  mods      ModVersion[]
+  mods      ModVersion[] @relation("mods_versions_to_modpacks_versions")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -101,7 +101,7 @@ model ModVersion {
   modId     String     @map("mod_id")
   resources Resource[]
 
-  ModpackVersion ModpackVersion[]
+  ModpackVersion ModpackVersion[] @relation("mods_versions_to_modpacks_versions")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -192,7 +192,7 @@ model Contribution {
 
   ownerId   String
   owner     User   @relation(fields: [ownerId], references: [id])
-  coAuthors User[] @relation("users")
+  coAuthors User[] @relation("contributions_to_coauthors")
 
   resolution Resolution
   status     Status     @default(DRAFT)
@@ -212,7 +212,7 @@ model Contribution {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("users_contributions")
+  @@map("contributions")
 }
 
 model User {
@@ -224,26 +224,26 @@ model User {
   role          UserRole  @default(USER)
   accounts      Account[]
 
-  ownedContributions Contribution[]
-  contributions      Contribution[] @relation("users")
+  contributions   Contribution[]
+  coContributions Contribution[] @relation("contributions_to_coauthors")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  pollsUpvoted   Poll[] @relation("Upvotes")
-  pollsDownvoted Poll[] @relation("Downvotes")
+  pollsUpvoted   Poll[] @relation("polls_upvotes_to_users")
+  pollsDownvoted Poll[] @relation("polls_downvotes_to_users")
 
   @@map("users")
 }
 
 model Poll {
   id        String @id @default(cuid())
-  upvotes   User[] @relation("Upvotes")
-  downvotes User[] @relation("Downvotes")
+  upvotes   User[] @relation("polls_upvotes_to_users")
+  downvotes User[] @relation("polls_downvotes_to_users")
 
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   Contribution Contribution?
 
-  @@map("users_polls")
+  @@map("polls")
 }
