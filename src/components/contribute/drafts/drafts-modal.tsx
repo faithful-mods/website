@@ -71,19 +71,12 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 			<Group gap="sm" wrap="nowrap">
 				<Avatar src={texture.filepath} size={40} radius="0" className="texture-background image-pixelated"/>
 				<div>
-					<Text size="sm">{sanitizeTextureName(texture.name)}</Text>
+					<Text size="sm">{texture.name}</Text>
 					{option.disabled && <Text size="xs" c="dimmed">Already selected!</Text>}
-					{/* TODO for #18 {!option.disabled && <Text size="xs" c="dimmed">{texture.aliases.join(', ')}</Text>} */}
+					{!option.disabled && <Text size="xs" c="dimmed">{texture.aliases.join(', ')}</Text>}
 				</div>
 			</Group>
 		);
-	};
-
-	/** 
-	 * @deprecated To be removed when #18 is implemented.
-	*/
-	const sanitizeTextureName = (name: string): string => {
-		return name.split('_')[1]?.split('.')[0];
 	};
 
 	const previousContribution = () => {
@@ -134,7 +127,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 							<Text size="sm">{contribution.filename}</Text>
 						</Group>
 					</Card>
-					<Image 
+					<Image
 						src={contribution.file}
 						className="texture-background image-pixelated"
 						width={colWidth}
@@ -150,15 +143,14 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						<Text size="sm" c="dimmed">The targeted texture.</Text>
 					</Stack>
 					<Group wrap="nowrap">
-						<Button 
+						<Button
 							variant="light"
 							color={gradient.to}
 							className="navbar-icon-fix"
 							loading={isPending}
 							onClick={() => {
 								startTransition(() => {
-									// TODO #18 look for aliases
-									const texture = textures.find((t) => sanitizeTextureName(t.name) === contribution.filename.replace('.png', ''));
+									const texture = textures.find((t) => t.name === contribution.filename.replace('.png', '') || t.aliases.includes(contribution.filename.replace('.png', '')));
 									if (texture) {
 										selectedTextureUpdated(texture.id);
 									}
@@ -167,23 +159,21 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						>
 							<PiMagicWandBold />
 						</Button>
-						<Select 
+						<Select
 							limit={256}
-							// TODO for #18 label = texture name AND aliases
-							data={textures.map((t) => ({ value: t.id, label: sanitizeTextureName(t.name), disabled: t.id === selectedTexture?.id }))}
+							data={textures.map((t) => ({ value: t.id, label: `${t.name} ${t.aliases.join(' ')}`, disabled: t.id === selectedTexture?.id }))}
 							defaultValue={contribution.textureId}
 							renderOption={renderMultiSelectOption}
 							className="w-full"
 							onChange={selectedTextureUpdated}
 							onClear={() => setSelectedTexture(null)}
-							searchValue={sanitizeTextureName(selectedTexture?.name ?? '')}
 							placeholder="Search a texture..."
 							searchable
 							clearable
 						/>
 					</Group>
-					{selectedTexture && 
-						<Image 
+					{selectedTexture &&
+						<Image
 							src={selectedTexture.filepath}
 							className="texture-background image-pixelated"
 							width={colWidth}
@@ -208,12 +198,12 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						>
 							<FaChevronLeft/>
 						</Button>
-						{selectedTextureContributions.length > 0 && 
+						{selectedTextureContributions.length > 0 &&
 							<Group w={50} align="center">
 								<Text w={50} style={{ textAlign: 'center' }}>{selectedTextureContributionsIndex + 1} / {selectedTextureContributions.length}</Text>
 							</Group>
 						}
-						{selectedTextureContributions.length === 0 && 
+						{selectedTextureContributions.length === 0 &&
 							<Group w={50} align="center">
 								<Text w={50} style={{ textAlign: 'center' }}>- / -</Text>
 							</Group>
@@ -228,9 +218,9 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 					</Group>
 					{!selectedTexture && selectedTextureContributions.length === 0 &&
 						<Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" pos="relative">
-							<Text 
-								size="sm" 
-								pos="absolute" 
+							<Text
+								size="sm"
+								pos="absolute"
 								left="0"
 								right="0"
 								top="calc(50% - (20.3px /2))" // text height / 2
@@ -242,9 +232,9 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 					}
 					{selectedTexture && selectedTextureContributions.length === 0 &&
 						<Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" pos="relative">
-							<Text 
-								size="sm" 
-								pos="absolute" 
+							<Text
+								size="sm"
+								pos="absolute"
 								left="0"
 								right="0"
 								top="calc(50% - (20.3px /2))" // text height / 2
@@ -255,7 +245,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						</Container>
 					}
 					{selectedTexture && selectedTextureContributions.length > 0 && displayedSelectedTextureContributions &&
-						<Image 
+						<Image
 							src={displayedSelectedTextureContributions.file}
 							className="texture-background image-pixelated"
 							width={colWidth}
@@ -271,8 +261,8 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 				<Title order={4}>Contribution Info</Title>
 			</Group>
 			<Group gap="md" justify="center">
-				<Select 
-					label="Resolution" 
+				<Select
+					label="Resolution"
 					data={Object.keys(Resolution)}
 					allowDeselect={false}
 					defaultValue={contribution.resolution}
@@ -280,12 +270,12 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 					style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
 					required
 				/>
-				<CoAuthorsSelector 
-					author={author} 
+				<CoAuthorsSelector
+					author={author}
 					onCoAuthorsSelect={setSelectedCoAuthors}
 					defaultValue={selectedCoAuthors.map((c) => c.id)}
-					style={windowWidth <= BREAKPOINT_MOBILE_LARGE 
-						? { width: '100%' } 
+					style={windowWidth <= BREAKPOINT_MOBILE_LARGE
+						? { width: '100%' }
 						: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
 					}
 				/>

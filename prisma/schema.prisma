@@ -129,6 +129,7 @@ model Resource {
 model Texture {
   id             String          @id @default(cuid())
   name           String
+  aliases        String[]
   contributions  Contribution[]
   filepath       String
   hash           String          @unique
