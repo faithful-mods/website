@@ -37,6 +37,11 @@ export type Progression = {
 	};
 }
 
+export interface PollResults {
+	upvotes: number;
+	downvotes: number;
+}
+
 export type ResourceWithProgression = Prettify<Resource & Progression>;
 export type ModVersionWithProgression = Prettify<ModVersion & Progression & {
 	mod: Mod;

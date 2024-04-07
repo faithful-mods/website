@@ -1,12 +1,15 @@
 import { Badge, Card, Group, Image, Stack, Text } from '@mantine/core';
-import { Status } from '@prisma/client';
+import { Poll, Status } from '@prisma/client';
 import { ClassValue } from 'clsx';
-import { FaFileAlt } from 'react-icons/fa';
+import { useState } from 'react';
+import { FaArrowUp, FaArrowDown, FaFileAlt } from 'react-icons/fa';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
+import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { cn } from '~/lib/utils';
-import { ContributionWithCoAuthorsAndPoll } from '~/types';
+import { getPollResult } from '~/server/data/polls';
+import { ContributionWithCoAuthorsAndPoll, PollResults } from '~/types';
 
 export interface ContributionSubmittedItemProps {
 	contribution: ContributionWithCoAuthorsAndPoll;
@@ -17,6 +20,11 @@ export interface ContributionSubmittedItemProps {
 export function ContributionSubmittedItem({ contribution, className, onClick }: ContributionSubmittedItemProps) {
 	const [windowWidth, _] = useDeviceSize();
 	const imgWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 90; 
+	const [poll, setPoll] = useState<PollResults>();
+
+	useEffectOnce(() => {
+		getPollResult(contribution.pollId).then((res) => setPoll(res));
+	})
 	
 	return (
 		<Card 
@@ -60,18 +68,32 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 						<Text size="xs">Co-authors : {contribution.coAuthors.length === 0 ? 'None' : contribution.coAuthors.map((ca) => ca.name).join(', ')}</Text>
 					</Stack>
 				</Group>
-				<Badge 
-					color={
-						contribution.status === Status.ACCEPTED 
-							? 'teal' 
-							: contribution.status === Status.REJECTED 
-								? 'red' 
-								: 'orange'
+				<Stack align="right" gap="xs">
+					<Badge 
+						color={
+							contribution.status === Status.ACCEPTED 
+								? 'teal' 
+								: contribution.status === Status.REJECTED 
+									? 'red' 
+									: 'orange'
+						}
+						variant="filled"
+					>
+						{windowWidth <= BREAKPOINT_TABLET ? contribution.status.slice(0, 1) : contribution.status}
+					</Badge>
+					{poll && contribution.status === Status.ACCEPTED &&
+						<Stack gap="0">
+							<Group gap="xs" justify="right" align="center">
+								<Text component="span" c="dimmed" size="xs">{poll.upvotes}</Text>
+								<Text c="dimmed" size="xs" style={{ display: 'flex' }}><FaArrowUp /></Text>
+							</Group>
+							<Group gap="xs" justify="right" align="center">
+								<Text component="span" c="dimmed" size="xs">{poll.downvotes}</Text>
+								<Text c="dimmed" size="xs" style={{ display: 'flex' }}><FaArrowDown /></Text>
+							</Group>
+						</Stack>
 					}
-					variant="filled"
-				>
-					{windowWidth <= BREAKPOINT_TABLET ? contribution.status.slice(0, 1) : contribution.status}
-				</Badge>
+				</Stack>
 			</Group>
 		</Card>
 	)
