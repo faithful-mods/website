@@ -1,4 +1,4 @@
-import { Card, Stack, Group, Badge, Text, Accordion, Checkbox, CheckboxProps, TextInput, Button, Modal } from '@mantine/core'
+import { Stack, Group, Text, Checkbox, CheckboxProps, TextInput, Button, Modal } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { useState, useTransition } from 'react';
@@ -75,12 +75,7 @@ export function ContributionSubmittedPanel({ contributions }: ContributionDraftP
 	};
 
 	return (
-		<Card
-			withBorder
-			shadow="sm"
-			radius="md"
-			p={0}
-		>
+		<>
 			<Modal
 				opened={modalOpened}
 				onClose={closeModal}
@@ -126,78 +121,67 @@ export function ContributionSubmittedPanel({ contributions }: ContributionDraftP
 				</Stack>
 			</Modal>
 
-			<Accordion>
-				<Accordion.Item value="submitted">
-					<Accordion.Control icon={
-						<Badge color="teal" variant="filled">{displayedContributions.length}</Badge>
-					}>
-						<Text size="md" fw={700}>Submitted</Text>
-					</Accordion.Control>
-					<Accordion.Panel>
-						<Stack>
-							<Group justify="space-between" align="start" wrap="nowrap">
-								<Group className="w-full">
-									<TextInput 
-										placeholder="Search contribution..." 
-										onKeyUp={() => searchContribution(form.values.search)}
-										{...form.getInputProps('search')}
-										className="contribution-item"
-										style={{
-											'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
-												? .89
-												: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
-													? 1.89
-													: 2.89
-										}}
+			<Stack>
+				<Group justify="space-between" align="start" wrap="nowrap">
+					<Group className="w-full">
+						<TextInput 
+							placeholder="Search contribution..." 
+							onKeyUp={() => searchContribution(form.values.search)}
+							{...form.getInputProps('search')}
+							className="contribution-item"
+							style={{
+								'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
+									? .89
+									: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
+										? 1.89
+										: 2.89,
+							}}
+						/>
+						<Checkbox
+							icon={CheckboxIcon}
+							checked={deletionMode}
+							label="Deletion mode"
+							color="orange"
+							onChange={(event) => {
+								setDeletionMode(event.currentTarget.checked);
+								if (!event.currentTarget.checked) setDeletionList([]);
+							}}
+						/>
+					</Group>
+					<Button
+						variant="gradient"
+						gradient={gradientDanger}
+						onClick={openModal}
+						disabled={deletionList.length === 0 || !deletionMode}
+						className={deletionList.length === 0 || !deletionMode ? 'button-disabled-with-bg navbar-icon-fix' : 'navbar-icon-fix'}
+					>
+						<MdDelete />
+					</Button>
+				</Group>
+				<Stack gap="sm">
+					{displayedContributions && displayedContributions.length === 0 && <Text size="sm" c="dimmed">Nothing yet</Text>}
+					{displayedContributions && displayedContributions.length > 0 &&
+						<>
+							<Group>
+								{searchedContributions.length > 0 && searchedContributions.map((contribution, index) => 
+									<ContributionSubmittedItem
+										contribution={contribution}
+										key={index}
+										className={[
+											deletionMode ? 'contribution-item-hover' : '', 
+											deletionList.includes(contribution.id) ? 'danger-border' : '',
+										]}
+										onClick={() => checkDeletionListFor(contribution.id)}
 									/>
-									<Checkbox
-										icon={CheckboxIcon}
-										checked={deletionMode}
-										label="Deletion mode"
-										color="orange"
-										onChange={(event) => {
-											setDeletionMode(event.currentTarget.checked);
-											if (!event.currentTarget.checked) setDeletionList([]);
-										}}
-									/>
-								</Group>
-								<Button
-									variant="gradient"
-									gradient={gradientDanger}
-									onClick={openModal}
-									disabled={deletionList.length === 0 || !deletionMode}
-									className={deletionList.length === 0 || !deletionMode ? 'button-disabled-with-bg navbar-icon-fix' : 'navbar-icon-fix'}
-								>
-									<MdDelete />
-								</Button>
-							</Group>
-							<Stack gap="sm">
-								{displayedContributions && displayedContributions.length === 0 && <Text size="sm" c="dimmed">Nothing yet</Text>}
-								{displayedContributions && displayedContributions.length > 0 &&
-									<>
-										<Group>
-											{searchedContributions.length > 0 && searchedContributions.map((contribution, index) => 
-												<ContributionSubmittedItem
-													contribution={contribution}
-													key={index}
-													className={[
-														deletionMode ? 'contribution-item-hover' : '', 
-														deletionList.includes(contribution.id) ? 'danger-border' : ''
-													]}
-													onClick={() => checkDeletionListFor(contribution.id)}
-												/>
-											)}
-											{searchedContributions.length === 0 && 
-												<Text size="sm" c="dimmed">No results found</Text>
-											}
-										</Group>
-									</>
+								)}
+								{searchedContributions.length === 0 && 
+									<Text size="sm" c="dimmed">No results found</Text>
 								}
-							</Stack>
-						</Stack>
-					</Accordion.Panel>
-				</Accordion.Item>
-			</Accordion>
-		</Card>
-	)
+							</Group>
+						</>
+					}
+				</Stack>
+			</Stack>
+		</>
+	);
 }

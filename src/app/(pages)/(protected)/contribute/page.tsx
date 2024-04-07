@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Code, Group, Select, Stack, Text } from '@mantine/core';
+import { Accordion, Badge, Card, Code, Group, Select, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { Resolution } from '@prisma/client';
 import { useState, useTransition } from 'react';
@@ -47,8 +47,8 @@ const ContributePage = () => {
 					console.error(err);
 					notify('Error', 'Failed to fetch contributions', 'red');
 				});
-		})
-	}
+		});
+	};
 
 	const filesDrop = (files: File[]) => {
 		startTransition(async () => {
@@ -111,21 +111,43 @@ const ContributePage = () => {
 					</Stack>
 				</Stack>
 			</Card>
-			{draftContributions && 
-				<ContributionDraftPanel
-					draftContributions={draftContributions} 
-					key={draftContributions.map((c) => c.id).join('')}
-					onUpdate={reloadSubmitted}
-				/>
-			}
-			{contributions && 
-				<ContributionSubmittedPanel 
-					contributions={contributions} 
-					key={contributions.map((c) => c.id).join('')}
-				/>
-			}
+
+			<Accordion variant="separated" defaultValue={draftContributions?.length ? 'drafts' : 'submitted'} radius="md">
+				{draftContributions && 
+					<Accordion.Item value="drafts">
+						<Accordion.Control icon={
+							<Badge color="teal" variant="filled">{draftContributions.length}</Badge>
+						}>
+							<Text size="md" fw={700}>Drafts</Text>
+						</Accordion.Control>
+						<Accordion.Panel>
+							<ContributionDraftPanel
+								draftContributions={draftContributions} 
+								key={draftContributions.map((c) => c.id).join('')}
+								onUpdate={reloadSubmitted}
+							/>
+						</Accordion.Panel>
+					</Accordion.Item>
+				}
+
+				{contributions && 
+					<Accordion.Item value="submitted">
+						<Accordion.Control icon={
+							<Badge color="teal" variant="filled">{contributions.length}</Badge>
+						}>
+							<Text size="md" fw={700}>Submitted</Text>
+						</Accordion.Control>
+						<Accordion.Panel>
+							<ContributionSubmittedPanel 
+								contributions={contributions} 
+								key={contributions.map((c) => c.id).join('')}
+							/>
+						</Accordion.Panel>
+					</Accordion.Item>
+				}
+			</Accordion>
 		</Stack>
-	)
-}
+	);
+};
 
 export default ContributePage;

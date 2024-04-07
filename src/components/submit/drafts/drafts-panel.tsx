@@ -1,6 +1,6 @@
 import type { Texture } from '@prisma/client';
 
-import { Card, Stack, Group, Badge, Text, Modal, Title, Accordion } from '@mantine/core';
+import { Stack, Group, Text, Modal, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 
@@ -33,15 +33,15 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 				console.error(err);
 				notify('Error', 'Failed to fetch textures', 'red');
 			});
-	})
+	});
 
 	const openModalWithContribution = (contribution: ContributionWithCoAuthors) => {
 		setModalContribution(contribution);
 		openModal();
-	}
+	};
 
 	return (
-		<Card withBorder shadow="sm" radius="md" p={0}>
+		<>
 			<Modal
 				opened={modalOpened}
 				fullScreen={windowWidth <= BREAKPOINT_MOBILE_LARGE}
@@ -58,42 +58,31 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 						onClose={(editedDraft) => {
 							setContributions([
 								...contributions.filter((c) => c.id !== editedDraft.id), 
-								editedDraft
-							].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()))
+								editedDraft,
+							].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()));
 							closeModal();
 						}}
 					/>
 				}
 			</Modal>
 
-			<Accordion>
-				<Accordion.Item value="drafts">
-					<Accordion.Control icon={
-						<Badge color="teal" variant="filled">{contributions.length}</Badge>
-					}>
-						<Text size="md" fw={700}>Drafts</Text>
-					</Accordion.Control>
-					<Accordion.Panel>
-						<Stack gap="sm">
-							{contributions.length === 0 && <Text size="sm" c="dimmed">No drafts!</Text>}
-							{contributions.length > 0 && <Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>}
-							<Group>
-								{contributions.map((contribution, index) => 
-									<ContributionDraftItem 
-										key={index} 
-										contribution={contribution} 
-										onDelete={() => {
-											setContributions(contributions.filter((c) => c.id !== contribution.id));
-											onUpdate();
-										}}
-										openModal={openModalWithContribution} 
-									/>
-								)}
-							</Group>
-						</Stack>
-					</Accordion.Panel>
-				</Accordion.Item>
-			</Accordion>
-		</Card>
-	)
+			<Stack gap="sm">
+				{contributions.length === 0 && <Text size="sm" c="dimmed">No drafts!</Text>}
+				{contributions.length > 0 && <Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>}
+				<Group>
+					{contributions.map((contribution, index) => 
+						<ContributionDraftItem 
+							key={index} 
+							contribution={contribution} 
+							onDelete={() => {
+								setContributions(contributions.filter((c) => c.id !== contribution.id));
+								onUpdate();
+							}}
+							openModal={openModalWithContribution} 
+						/>
+					)}
+				</Group>
+			</Stack>
+		</>
+	);
 }
