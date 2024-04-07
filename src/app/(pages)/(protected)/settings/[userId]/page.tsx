@@ -18,6 +18,6 @@ const SettingsPage = () => {
 			</Grid.Col>
 		</Grid>
 	);
-}
+};
  
 export default SettingsPage;

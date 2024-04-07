@@ -18,7 +18,7 @@ export const LoggedUser = () => {
 
 	useEffectOnce(() => {
 		if (user) setUserPicture(user.image ?? undefined);
-	})
+	});
 
 	return (
 		<Tooltip 

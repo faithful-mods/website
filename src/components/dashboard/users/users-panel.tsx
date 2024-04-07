@@ -33,7 +33,7 @@ export function UsersPanel() {
 
 		const filtered = users.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
 		setFilteredUsers(filtered.sort(sortUsers));
-	}
+	};
 
 	useEffectOnce(() => {
 		getUsers()

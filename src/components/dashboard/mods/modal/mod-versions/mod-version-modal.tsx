@@ -33,8 +33,8 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 				if (!value) return 'MC Version is required';
 				if (value === 'unknown') return 'MC Version cannot be unknown';
 				return null;
-			}
-		}
+			},
+		},
 	});
 
 	const saveMV = () => {
@@ -43,7 +43,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 
 			await updateModVersion({ id: modVersion.id, version: form.values.version, mcVersion: form.values.mcVersion });
 			onClose();
-		})
+		});
 	};
 
 	const deleteMV = () => {
@@ -52,7 +52,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 
 			await deleteModVersion(modVersion.id);
 			onClose();
-		})
+		});
 	};
 
 	const deleteModpackFromMV = (modpackVersionId: string) => {
@@ -62,7 +62,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 			const updated = await removeModpackFromModVersion(modVersion.id, modpackVersionId);
 			setModVersionModpacks(updated);
 		});
-	}
+	};
 	
 	return (
 		<Stack gap="md">

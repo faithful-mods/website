@@ -37,7 +37,7 @@ export function ModsPanel() {
 				console.error(err);
 				notify('Error', err.message, 'red');
 			});
-	}
+	};
 
 	const openModModal = (mod?: Mod | undefined) => {
 		setModalMod(mod);
@@ -160,5 +160,5 @@ export function ModsPanel() {
 				}
 			</Card>
 		</>
-	)
+	);
 }

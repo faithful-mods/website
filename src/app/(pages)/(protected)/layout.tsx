@@ -12,6 +12,6 @@ const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
 			{children}
 		</RoleGate>
 	);
-}
+};
  
 export default ProtectedLayout;

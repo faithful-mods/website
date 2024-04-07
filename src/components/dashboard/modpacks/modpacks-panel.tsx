@@ -38,7 +38,7 @@ export function ModpacksPanel() {
 				console.error(err);
 				notify('Error', err.message, 'red');
 			});
-	}
+	};
 
 	const searchModpack = (search: string) => {
 		if (!modpacks) return;

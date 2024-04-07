@@ -37,8 +37,8 @@ export async function getModsVersionsProgression(): Promise<ModVersionWithProgre
 			resources: modVer.resources.map((resource) => ({ 
 				...resource, 
 				...EMPTY_PROGRESSION,
-			}))
-		}))
+			})),
+		}));
 
 	for (const modVersion of modVersions) {
 		for (const resource of modVersion.resources) {
@@ -46,7 +46,7 @@ export async function getModsVersionsProgression(): Promise<ModVersionWithProgre
 
 			const textures = await db.texture.findMany({
 				where: { 
-					id: { in: linkedTextures.map((lt) => lt.textureId) } 
+					id: { in: linkedTextures.map((lt) => lt.textureId) }, 
 				},
 			});
 
@@ -70,7 +70,7 @@ export async function getModsVersionsProgression(): Promise<ModVersionWithProgre
 					}
 
 					return output;
-				})
+				});
 
 			modVersion.linkedTextures += linkedTextures.length;
 			modVersion.textures.todo += textures.length;
@@ -91,7 +91,7 @@ export async function addModVersionsFromJAR(jar: FormData): Promise<ModVersion[]
 
 	const files = jar.getAll('files') as File[];
 	for (const file of files) {
-		res.push(...await extractModVersionsFromJAR(file))
+		res.push(...await extractModVersionsFromJAR(file));
 	}
 
 	// remove duplicates
@@ -111,7 +111,7 @@ export async function updateModVersion({ id, version, mcVersion }: { id: string,
 }
 
 export async function removeModpackFromModVersion(modVersionId: string, modpackId: string): Promise<Modpack[]> {
-	const modpackVersionId = await db.modpackVersion.findFirst({ where: { modpackId, mods: { some: { id: modVersionId } }}})
+	const modpackVersionId = await db.modpackVersion.findFirst({ where: { modpackId, mods: { some: { id: modVersionId } }}});
 	if (!modpackVersionId) throw new Error(`Modpack with id '${modpackId}' not found`);
 
 	await removeModFromModpackVersion(modpackVersionId.id, modVersionId);

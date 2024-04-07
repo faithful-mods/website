@@ -17,8 +17,8 @@ export async function createTexture({ name, filepath, hash }: { name: string, fi
 			name,
 			filepath,
 			hash,
-		}
-	})
+		},
+	});
 }
 
 export async function getGlobalProgression() {
@@ -41,12 +41,12 @@ export async function getGlobalProgression() {
 			}
 
 			return output;
-		})
+		});
 
 	return {
 		linkedTextures,
 		textures: { done: contributedTextures, todo },
-	}
+	};
 }
 
 export async function findTexture({

@@ -1,10 +1,10 @@
-import { Popover, Card, Stack, Group, Progress, Text } from '@mantine/core'
+import { Popover, Card, Stack, Group, Progress, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants'
-import { gradient } from '~/lib/utils'
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
+import { gradient } from '~/lib/utils';
 import type { ModVersionWithProgression } from '~/types';
 
 export function ProgressionItem({ modVersion }: { modVersion: ModVersionWithProgression }) {
@@ -81,10 +81,10 @@ export function ProgressionItem({ modVersion }: { modVersion: ModVersionWithProg
 
 								</Stack>
 							</div>
-						)
+						);
 					})}
 				</Stack>
 			</Popover.Dropdown>
 		</Popover>
-	)
+	);
 }

@@ -35,5 +35,5 @@ export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps)
 				<TextInput label="Forge Mod ID" required {...form.getInputProps('forgeId')} />
 			</Stack>
 		</Group>
-	)
+	);
 }

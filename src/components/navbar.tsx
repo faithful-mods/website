@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionIcon, Badge, Button, Card, Combobox, Group, Image, useCombobox, } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Combobox, Group, Image, useCombobox } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -29,7 +29,7 @@ export const Navbar = () => {
 		{ href: '/modpacks', label: 'Modpacks', disabled: false },
 		{ href: '/mods', label: 'Mods', disabled: false },
 		{ href: '/gallery', label: 'Gallery', disabled: false },
-	]
+	];
 
 	if (user) links.push({ href: '/contribute', label: 'Contribute', disabled: user.role === 'BANNED' });
 	if (windowWidth < BREAKPOINT_TABLET) links.push({ href: '/', label: 'Home', disabled: false });

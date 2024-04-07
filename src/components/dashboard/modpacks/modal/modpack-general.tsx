@@ -28,5 +28,5 @@ export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFo
 				<FileInput label="Picture" placeholder={previewImg} accept="image/*" required {...form.getInputProps('image')} />
 			</Stack>
 		</Group>
-	)
+	);
 }

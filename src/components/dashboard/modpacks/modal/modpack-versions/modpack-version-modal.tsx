@@ -34,8 +34,8 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			version: (value) => {
 				if (!value) return 'Version is required';
 				return null;
-			}
-		}
+			},
+		},
 	});
 
 	const saveMV = () => {
@@ -43,13 +43,13 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			if (!_modpackVersion) return;
 
 			// New modpack version
-			if (!modpackVersion) await updateModpackVersion({ id: _modpackVersion.id, version: form.values.version })
+			if (!modpackVersion) await updateModpackVersion({ id: _modpackVersion.id, version: form.values.version });
 			// Edit of an existing modpack version
 			else await updateModpackVersion({ id: modpackVersion.id, version: form.values.version });
 
 			onClose();
-		})
-	}
+		});
+	};
 
 	const deleteMV = () => {
 		startTransition(async () => {
@@ -57,7 +57,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			await deleteModpackVersion(modpackVersion.id);
 			onClose();
 		});
-	}
+	};
 
 	const deleteModFromMV = (modVersionId: string) => {
 		startTransition(async () => {
@@ -67,10 +67,10 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			setModpackVersion(updated);
 			setModVersions(updated.mods);
 
-			const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId))
+			const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId));
 			setMods(mods);
 		});
-	}
+	};
 
 	const filesDrop = (files: File[]) => {
 		startTransition(async () => {
@@ -82,11 +82,11 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				const data = new FormData();
 				files.forEach((file) => data.append('file', file));
 
-				const updated = await addModsToModpackVersion(editedModpackVersion.id, data)
+				const updated = await addModsToModpackVersion(editedModpackVersion.id, data);
 				setModpackVersion(updated);
 				setModVersions(updated.mods);
 
-				const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId))
+				const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId));
 				setMods(mods);
 			} catch (e) {
 				notify('Error', (e as Error).message, 'red');
@@ -163,5 +163,5 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				</Button>
 			</Group>
 		</Stack>
-	)
+	);
 }

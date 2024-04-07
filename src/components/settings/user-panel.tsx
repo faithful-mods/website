@@ -29,7 +29,7 @@ export function UserSettingsPanel() {
 				if (value.length < MIN_NAME_LENGTH) return `Your name should be at least ${MIN_NAME_LENGTH} characters long`;
 				if (value.length > MAX_NAME_LENGTH) return `Your name should be less than ${MAX_NAME_LENGTH} characters long`;
 			},
-		}
+		},
 	});
 
 	useEffectOnce(() => {
@@ -43,8 +43,8 @@ export function UserSettingsPanel() {
 			})
 			.catch((err: Error) => {
 				notify('Error', err.message, 'red');
-			})
-	})
+			});
+	});
 
 	const onSubmit = (values: typeof form.values) => {
 		if (!displayedUser) return;
@@ -57,10 +57,10 @@ export function UserSettingsPanel() {
 				})
 				.catch((err) => {
 					console.error(err);
-					notify('Error', err.message, 'red')
+					notify('Error', err.message, 'red');
 				});
 		});
-	}
+	};
 
 	return (
 		<Card 
@@ -107,5 +107,5 @@ export function UserSettingsPanel() {
         Save
 			</Button>
 		</Card>
-	)
+	);
 }

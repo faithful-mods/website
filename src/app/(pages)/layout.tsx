@@ -1,10 +1,10 @@
-import type { Metadata } from 'next'
+import type { Metadata } from 'next';
 
 import { ColorSchemeScript, createTheme, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { SessionProvider } from 'next-auth/react'
+import { SessionProvider } from 'next-auth/react';
 
-import { auth } from '~/auth'
+import { auth } from '~/auth';
 import { Navbar } from '~/components/navbar';
 import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 
@@ -12,11 +12,11 @@ import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 // All packages except `@mantine/hooks` require styles imports
 import '@mantine/core/styles.css';
 import '@mantine/dropzone/styles.css';
-import '../globals.scss'
+import '../globals.scss';
 
 export const metadata: Metadata = {
 	title: 'Faithful Mods',
-}
+};
 
 const theme = createTheme({
 	cursorType: 'pointer',

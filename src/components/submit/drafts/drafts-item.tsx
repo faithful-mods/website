@@ -31,15 +31,15 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 		startTransition(() => {
 			deleteContributions(author.id!, contribution.id);
 			onDelete();
-		})
-	}
+		});
+	};
 
 	const submit = () => {
 		startTransition(() => {
 			submitContribution(author.id!, contribution.id);
 			onDelete();
-		})
-	}
+		});
+	};
 
 	return (
 		<Card 
@@ -52,7 +52,7 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 					? 1 
 					: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
 						? 2
-						: 3
+						: 3,
 			}}
 		>
 			{windowWidth > BREAKPOINT_TABLET && 

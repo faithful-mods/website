@@ -43,7 +43,7 @@ export const RoleGate = ({
 					}
 				</Text>
 			</Stack>
-		)
+		);
 	}
 
 	return children;
