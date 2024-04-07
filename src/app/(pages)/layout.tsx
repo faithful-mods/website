@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 }
 
 const theme = createTheme({
-	/** Put your mantine theme override here */
+	cursorType: 'pointer',
 });
 
 export default async function RootLayout({children}: { children: React.ReactNode }) {
