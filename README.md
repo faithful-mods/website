@@ -14,9 +14,7 @@ git clone "https://github.com/Juknum/faithful-mods"
 cd ./faithful-mods
 
 # install dependencies
-npm ci
-# to setup conventional commits
-npm run prepare
+npm install
 ```
 
 ### Setup .env file
@@ -38,7 +36,7 @@ GITHUB_CLIENT_SECRET=
 
 ### Setup the database
 
-Download docker and run the following command to start a postgres database
+Download docker and run the following command to start a Postgres container:
 
 ```shell
 docker compose up -d --force-recreate
@@ -46,10 +44,12 @@ docker compose up -d --force-recreate
 
 ### Setup Prisma
 ```shell
-# generate prisma client types
+# generate prisma client types (this is done when doing "npm install")
 npx prisma generate
-# update the database (create tables, columns, etc)
-npx prisma db push
+# apply migrations
+npm run db:apply
+# create a new migration file
+npm run db:migrate
 ```
 
 ### Start the app
