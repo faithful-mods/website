@@ -192,7 +192,7 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 				await db.texture.update({
 					where: { id: texture.id },
 					data: { aliases: { set: [...texture.aliases, textureName] } },
-				})
+				});
 			}
 		}
 
