@@ -16,7 +16,7 @@ export const gradient: MantineGradient = {
 	from: 'cyan',
 	to: 'blue',
 	deg: 69,
-}; 
+};
 
 export const gradientDanger: MantineGradient = {
 	from: 'red',
@@ -50,3 +50,12 @@ export const EMPTY_PROGRESSION: Progression = {
 	linkedTextures: 0,
 	textures: { done: EMPTY_PROGRESSION_RES, todo: 0 },
 } as const;
+
+export function bufferToFile(
+	buffer: Buffer,
+	filename: string,
+	mimeType: string
+): File {
+	const blob = new Blob([buffer], { type: mimeType });
+	return new File([blob], filename);
+}

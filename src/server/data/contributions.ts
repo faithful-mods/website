@@ -115,7 +115,7 @@ export async function updateDraftContribution({
 
 export async function submitContribution(ownerId: string, id: string) {
 	await canAccess(UserRole.ADMIN, ownerId);
-	
+
 	return await db.contribution.update({
 		where: { id },
 		data: { status: Status.PENDING },
@@ -125,8 +125,8 @@ export async function submitContribution(ownerId: string, id: string) {
 export async function deleteContributions(ownerId: string, ...ids: string[]): Promise<void> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
-	const contributions = await db.contribution.findMany({ 
-		where: { id: { in: ids } }, 
+	const contributions = await db.contribution.findMany({
+		where: { id: { in: ids } },
 		include: { coAuthors: { select: { id: true } } },
 	});
 
@@ -154,7 +154,7 @@ export async function getPendingContributions(): Promise<ContributionWithCoAutho
 		where: { status: Status.PENDING },
 		include: {
 			coAuthors: { select: { id: true, name: true, image: true } },
-			owner: { select: { id: true, name: true, image: true } },	
+			owner: { select: { id: true, name: true, image: true } },
 			poll: {
 				select: {
 					id: true,
