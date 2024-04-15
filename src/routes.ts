@@ -6,13 +6,6 @@
 export const PUBLIC_ROUTES = ['/', '/modpacks', '/mods', '/not-found'] as const;
 
 /**
- * An array of routes that are used for authentication
- * These routes will redirect logged in users to /settings
- * @type {string[]}
- */
-// export const AUTH_ROUTES = [] as const;
-
-/**
  * The prefix for API authentication routes
  * Routes that start with this prefix are used for API authentication purposes
  * @type {string}
