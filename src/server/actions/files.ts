@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 import { randomUUID, createHash } from 'crypto';
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
@@ -8,6 +9,7 @@ import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
 import { db } from '~/lib/db';
+import { bufferToFile } from '~/lib/utils';
 import type { MCModInfo, MCModInfoData } from '~/types';
 
 import { createMod } from '../data/mods';
@@ -15,24 +17,37 @@ import { createModVersion } from '../data/mods-version';
 import { linkTextureToResource, createResource, getResource } from '../data/resource';
 import { createTexture, findTexture } from '../data/texture';
 
+const FILE_DIR = process.env.NODE_ENV === 'production'
+	? 'https://data.faithfulmods.net'
+	: 'files';
+
+const FILE_PATH = process.env.NODE_ENV === 'production'
+	? '/var/www/html/data.faithfulmods.net'
+	: join(process.cwd(), './public/files');
+
+/**
+ * Uploads a file to the server
+ * @param file File to upload
+ * @param path The path to upload the file to, defaults to the root
+ * @returns The "public" path to the uploaded file
+ */
 export async function upload(file: File, path: `${string}/` = '/'): Promise<string> {
 	const bytes = await file.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 
 	const uuid = randomUUID();
+	const fileDirPub = join(FILE_DIR, path);
+	const fileDirPrv = join(FILE_PATH, path);
+	const filePath   = join(fileDirPrv, `${uuid}_${file.name}`);
 
-	const publicPath = join('files', path);
-	const fileDir    = join(process.cwd(), 'public', publicPath);
-	const filePath   = join(fileDir, `${uuid}_${file.name}`);
-
-	if (!existsSync(fileDir)) mkdirSync(fileDir, { recursive: true });
+	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
 	writeFileSync(filePath, buffer);
 
-	return encodeURI(join(publicPath, `${uuid}_${file.name}`));
+	return encodeURI(join(fileDirPub, `${uuid}_${file.name}`).replace('https:/', 'https://'));
 }
 
-export async function remove(publicPath: `files/${string}`): Promise<void> {
-	const filePath = join(process.cwd(), 'public', decodeURI(publicPath));
+export async function remove(publicPath: `${typeof FILE_DIR}/${string}`): Promise<void> {
+	const filePath = join(FILE_PATH, decodeURI(publicPath).replace(FILE_DIR, ''));
 	if (existsSync(filePath)) unlinkSync(filePath);
 }
 
@@ -153,36 +168,31 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 	// Get textures assets
 	const texturesAssets = archive.files.filter(
 		(file) =>
+			file.type === 'File' &&
 			file.path.startsWith('assets') &&
 			file.path.includes('textures') &&
-			(file.path.endsWith('.png') || file.path.endsWith('.mcmeta')) &&
-			!file.path.endsWith('/')
+			file.path.endsWith('.png') // TODO: Add support for mcmeta files
 	);
 
 	// TODO: Get models assets
 
-	const fileDir = join(process.cwd(), 'public', 'files', 'textures', 'default');
-	if (!existsSync(fileDir)) mkdirSync(fileDir, { recursive: true });
+	const fileDirPrv = join(FILE_PATH, 'textures', 'default');
+	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
 
 	// Check if the extracted file already exists in the public dir
 	for (const textureAsset of texturesAssets) {
+		const textureName = textureAsset.path.split('/').pop()!.split('.')[0];
 		const asset = textureAsset.path.split('/')[1];
-		const uuid = randomUUID();
+
 		const buffer = await textureAsset.buffer();
 		const hash = calculateHash(buffer);
 
-		const fileExtension = textureAsset.path.split('.').pop()!;
-		const textureName = textureAsset.path.split('/').pop()!.split('.')[0];
-
 		let texture = await findTexture({ hash });
+
 		if (!texture) {
-			const filename = `${uuid}_${textureName}.${fileExtension}`;
-			const filepath = join(fileDir, filename);
-
-			writeFileSync(filepath, buffer);
-
+			const filepath = await upload(bufferToFile(buffer, textureName, 'image/png'), 'textures/default/');
 			texture = await createTexture({
-				filepath: join('files', 'textures', 'default', filename),
+				filepath,
 				hash,
 				name: textureName,
 			});
