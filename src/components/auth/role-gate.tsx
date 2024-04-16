@@ -22,17 +22,17 @@ export const RoleGate = ({
 		allowedRoles = Object.values(UserRole).filter(role => role !== UserRole.BANNED);
 	}
 
-	if (!process.env.PRODUCTION && !allowedRoles.includes(UserRole.ADMIN)) allowedRoles.push(UserRole.ADMIN);
+	if (process.env.NODE_ENV !== 'production' && !allowedRoles.includes(UserRole.ADMIN)) allowedRoles.push(UserRole.ADMIN);
 
 	if ((!role || !allowedRoles.includes(role))) {
 		return (
-			<Stack 
-				align="center" 
-				justify="center" 
+			<Stack
+				align="center"
+				justify="center"
 				gap="md"
 				style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 			>
-				{!role 
+				{!role
 					? <Title>401&nbsp;<Text component="span" fw={300} inherit>Unauthorized</Text></Title>
 					: <Title>403&nbsp;<Text component="span" fw={300} inherit>Forbidden</Text></Title>
 				}
