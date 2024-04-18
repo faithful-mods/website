@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 import type { Modpack } from '@prisma/client';
 
@@ -11,14 +12,32 @@ export async function getModpacks(): Promise<Modpack[]> {
 	return db.modpack.findMany();
 }
 
-export async function updateModpack({ id, name, description, authors }: { id: string; name: string; description?: string; authors: string[]; }): Promise<Modpack> {
+export async function updateModpack({
+	id,
+	name,
+	description,
+	authors,
+}: {
+	id: string;
+	name: string;
+	description?: string;
+	authors: string[];
+}): Promise<Modpack> {
 	await canAccess();
 
 	const modpack = await db.modpack.findUnique({ where: { id } });
 	return db.modpack.update({ where: { id }, data: { ...modpack, name, description, authors } });
 }
 
-export async function createModpack({ name, description, authors }: { name: string; description?: string; authors: string[] }): Promise<Modpack> {
+export async function createModpack({
+	name,
+	description,
+	authors,
+}: {
+	name: string;
+	description?: string;
+	authors: string[];
+}): Promise<Modpack> {
 	await canAccess();
 	return db.modpack.create({ data: { name, description, authors } });
 }
@@ -41,7 +60,7 @@ export async function deleteModpack(id: string): Promise<Modpack> {
 		await db.modpackVersion.delete({ where: { id: modpackVersion.id } });
 	}
 
-	return db.modpack.delete({ where: { id }});
+	return db.modpack.delete({ where: { id } });
 }
 
 export async function voidModpacks(): Promise<void> {

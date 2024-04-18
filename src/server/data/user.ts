@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 import { User, UserRole } from '@prisma/client';
 
@@ -8,7 +9,7 @@ import type { PublicUser } from '~/types';
 
 /**
  * Get all users from the database
- * @returns {Promise<User[]>} - A promise that resolves to an array of users 
+ * @returns {Promise<User[]>} - A promise that resolves to an array of users
  */
 export async function getUsers(): Promise<User[]> {
 	await canAccess();
@@ -58,7 +59,7 @@ export async function getUserByEmail(email: string): Promise<User> {
 	if (res === null) throw new Error(`User with id "${email}" not found`);
 
 	return res;
-};
+}
 
 /**
  * Find a user by their id
@@ -70,7 +71,7 @@ export async function getUserById(id: string): Promise<User> {
 	if (res === null) throw new Error(`User with id "${id}" not found`);
 
 	return res;
-};
+}
 
 export async function getCounselors(): Promise<PublicUser[]> {
 	await canAccess(UserRole.COUNCIL);
