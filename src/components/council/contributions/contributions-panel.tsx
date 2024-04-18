@@ -41,7 +41,7 @@ export function CouncilContributionsPanel() {
 				const voted: ContributionWithCoAuthorsAndFullPoll[] = [];
 
 				res.forEach((c) => {
-					if (c.poll.downvotes.find((dv) => dv.id === counselor.id) || c.poll.upvotes.find((uv) => uv.id === counselor.id)) 
+					if (c.poll.downvotes.find((dv) => dv.id === counselor.id) || c.poll.upvotes.find((uv) => uv.id === counselor.id))
 						voted.push(c);
 					else
 						unvoted.push(c);
@@ -72,12 +72,12 @@ export function CouncilContributionsPanel() {
 					</Text>
 				</ul>
 				<Text size="sm">
-					There is actually {counselorUnvoted.length + counselorVoted.length} contribution(s) in the voting process 
+					There is actually {counselorUnvoted.length + counselorVoted.length} contribution(s) in the voting process
 					and {counselors.length} counselor(s) in the council.
 				</Text>
 			</Card>
 
-			<Accordion variant="separated">
+			<Accordion variant="separated" radius="md">
 				<Accordion.Item value="unvoted">
 					<Accordion.Control
 						icon={<Badge color="orange" variant="filled">{counselorUnvoted.length}</Badge>}
@@ -86,17 +86,17 @@ export function CouncilContributionsPanel() {
 						<Stack>
 							<Text size="sm" c="dimmed">
 								{
-									counselorUnvoted.length === 0 
-										? 'No more contributions waiting for you, nice!' 
+									counselorUnvoted.length === 0
+										? 'No more contributions waiting for you, nice!'
 										: 'Please vote for the following contributions:'
 								}
 							</Text>
-							{counselorUnvoted.map((c, i) => 
+							{counselorUnvoted.map((c, i) =>
 								<CouncilContributionItem
 									key={i}
 									counselors={counselors}
 									contribution={c}
-									texture={textures.find(t => t.id === c.textureId)!} 
+									texture={textures.find(t => t.id === c.textureId)!}
 									onVote={loadContributions}
 								/>
 							)}
@@ -104,7 +104,7 @@ export function CouncilContributionsPanel() {
 					</Accordion.Panel>
 				</Accordion.Item>
 
-				<Accordion.Item value="voted" mb="sm">
+				<Accordion.Item value="voted" mb="sm" mt="sm">
 					<Accordion.Control
 						icon={<Badge color="teal" variant="filled">{counselorVoted.length}</Badge>}
 					>Voted!</Accordion.Control>
@@ -112,17 +112,17 @@ export function CouncilContributionsPanel() {
 						<Stack>
 							<Text size="sm" c="dimmed">
 								{
-									counselorVoted.length === 0 
-										? 'No more contributions waiting in the voting process, nice!' 
+									counselorVoted.length === 0
+										? 'No more contributions waiting in the voting process, nice!'
 										: 'Here you can edit your votes:'
 								}
 							</Text>
-							{counselorVoted.map((c, i) => 
+							{counselorVoted.map((c, i) =>
 								<CouncilContributionItem
 									key={i}
 									counselors={counselors}
 									contribution={c}
-									texture={textures.find(t => t.id === c.textureId)!} 
+									texture={textures.find(t => t.id === c.textureId)!}
 									onVote={loadContributions}
 								/>
 							)}

@@ -19,7 +19,7 @@ import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, Publi
 const ContributePage = () => {
 	const [isPending, startTransition] = useTransition();
 	const [windowWidth, _] = useDeviceSize();
-	
+
 	const [resolution, setResolution] = useState<Resolution>(Resolution.x32);
 	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>([]);
 
@@ -32,7 +32,7 @@ const ContributePage = () => {
 	useEffectOnce(() => {
 		reload();
 	});
-	
+
 	const reload = () => {
 		startTransition(() => {
 			getDraftContributions(user.id!)
@@ -41,7 +41,7 @@ const ContributePage = () => {
 					console.error(err);
 					notify('Error', 'Failed to fetch draft contributions', 'red');
 				});
-		
+
 			getCoSubmittedContributions(user.id!)
 				.then(setCoContributions)
 				.catch((err) => {
@@ -61,7 +61,7 @@ const ContributePage = () => {
 		startTransition(async () => {
 			const data = new FormData();
 			files.forEach((file) => data.append('files', file));
-	
+
 			await createRawContributions(user.id!, selectedCoAuthors.map((u) => u.id), resolution, data);
 			getDraftContributions(user.id!).then(setDraftContributions);
 		});
@@ -84,7 +84,7 @@ const ContributePage = () => {
 					</Text>
 				</ul>
 				<Text size="sm">
-					When your submissions are in <Badge component="span" color={gradient.to}>draft</Badge> status, 
+					When your submissions are in <Badge component="span" color={gradient.to}>draft</Badge> status,
 					you can edit them as many times as you like. But if you want to switch the texture file, please reupload it and delete your draft.<br/>
 				</Text>
 				<Text size="sm" fs="italic" c="dimmed" mt="sm">You want to join the council ? Apply here (soon).</Text>
@@ -97,8 +97,8 @@ const ContributePage = () => {
 					</Group>
 					<Text size="sm" c="red">Please do not submit textures for unsupported mod/modpack. Ask the admins to add it first.</Text>
 					<Group gap="md">
-						<Select 
-							label="Resolution" 
+						<Select
+							label="Resolution"
 							data={Object.keys(Resolution)}
 							allowDeselect={false}
 							defaultValue={Resolution.x32}
@@ -106,11 +106,11 @@ const ContributePage = () => {
 							style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
 							required
 						/>
-						<CoAuthorsSelector 
-							author={user} 
+						<CoAuthorsSelector
+							author={user}
 							onCoAuthorsSelect={setSelectedCoAuthors}
-							style={windowWidth <= BREAKPOINT_MOBILE_LARGE 
-								? { width: '100%' } 
+							style={windowWidth <= BREAKPOINT_MOBILE_LARGE
+								? { width: '100%' }
 								: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
 							}
 						/>
@@ -118,7 +118,7 @@ const ContributePage = () => {
 					<Stack gap="2">
 						<Text size="sm" fw={500}>Files</Text>
 						<Dropzone
-							onDrop={filesDrop} 
+							onDrop={filesDrop}
 							accept={['image/png']}
 							loading={isPending}
 							mt="0"
@@ -141,7 +141,7 @@ const ContributePage = () => {
 			</Card>
 
 			<Accordion variant="separated" defaultValue={draftContributions?.length ? 'drafts' : 'submitted'} radius="md">
-				{draftContributions && 
+				{draftContributions &&
 					<Accordion.Item value="drafts">
 						<Accordion.Control icon={
 							<Badge color="teal" variant="filled">{draftContributions.length}</Badge>
@@ -150,7 +150,7 @@ const ContributePage = () => {
 						</Accordion.Control>
 						<Accordion.Panel>
 							<ContributionDraftPanel
-								draftContributions={draftContributions} 
+								draftContributions={draftContributions}
 								key={draftContributions.map((c) => c.id).join('')}
 								onUpdate={reload}
 							/>
@@ -158,8 +158,8 @@ const ContributePage = () => {
 					</Accordion.Item>
 				}
 
-				{contributions && 
-					<Accordion.Item value="submitted">
+				{contributions &&
+					<Accordion.Item value="submitted" mt="sm">
 						<Accordion.Control icon={
 							<Badge color="teal" variant="filled">{contributions.length}</Badge>
 						}>
@@ -167,8 +167,8 @@ const ContributePage = () => {
 						</Accordion.Control>
 						<Accordion.Panel>
 							<Text mb="sm">Contributions you own and have submitted.</Text>
-							<ContributionSubmittedPanel 
-								contributions={contributions} 
+							<ContributionSubmittedPanel
+								contributions={contributions}
 								key={contributions.map((c) => c.id).join('')}
 								onUpdate={reload}
 							/>
@@ -176,8 +176,8 @@ const ContributePage = () => {
 					</Accordion.Item>
 				}
 
-				{coContributions && 
-					<Accordion.Item value="coSubmitted">
+				{coContributions &&
+					<Accordion.Item value="coSubmitted" mt="sm">
 						<Accordion.Control icon={
 							<Badge color="teal" variant="filled">{coContributions.length}</Badge>
 						}>
@@ -186,8 +186,8 @@ const ContributePage = () => {
 						<Accordion.Panel>
 							<Text mb="sm">Contributions where you appear as a co-author.</Text>
 							<ContributionSubmittedPanel
-								coSubmitted 
-								contributions={coContributions} 
+								coSubmitted
+								contributions={coContributions}
 								key={coContributions.map((c) => c.id).join('')}
 								onUpdate={reload}
 							/>
