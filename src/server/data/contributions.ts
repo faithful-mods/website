@@ -1,15 +1,27 @@
 'use server';
+import 'server-only';
 
-import { Status, type Contribution, type Resolution, UserRole } from '@prisma/client';
+import {
+	Status,
+	type Contribution,
+	type Resolution,
+	UserRole,
+} from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import { ContributionWithCoAuthors, ContributionWithCoAuthorsAndFullPoll, ContributionWithCoAuthorsAndPoll } from '~/types';
+import {
+	ContributionWithCoAuthors,
+	ContributionWithCoAuthorsAndFullPoll,
+	ContributionWithCoAuthorsAndPoll,
+} from '~/types';
 
 import { getCounselors } from './user';
 import { remove, upload } from '../actions/files';
 
-export async function getSubmittedContributions(ownerId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
+export async function getSubmittedContributions(
+	ownerId: string
+): Promise<ContributionWithCoAuthorsAndPoll[]> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
 	return await db.contribution.findMany({
@@ -22,7 +34,12 @@ export async function getSubmittedContributions(ownerId: string): Promise<Contri
 	});
 }
 
-export async function createRawContributions(ownerId: string, coAuthors: string[], resolution: Resolution, data: FormData): Promise<Contribution[]> {
+export async function createRawContributions(
+	ownerId: string,
+	coAuthors: string[],
+	resolution: Resolution,
+	data: FormData
+): Promise<Contribution[]> {
 	await canAccess(UserRole.ADMIN, ownerId);
 	const files = data.getAll('files') as File[];
 
@@ -45,7 +62,9 @@ export async function createRawContributions(ownerId: string, coAuthors: string[
 		contributions.push(contribution);
 	}
 
-	return contributions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+	return contributions.sort(
+		(a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+	);
 }
 
 export async function getContributionsOfTexture(
@@ -61,9 +80,14 @@ export async function getContributionsOfTexture(
 	});
 }
 
-export async function getCoSubmittedContributions(coAuthorId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
+export async function getCoSubmittedContributions(
+	coAuthorId: string
+): Promise<ContributionWithCoAuthorsAndPoll[]> {
 	return await db.contribution.findMany({
-		where: { coAuthors: { some: { id: coAuthorId } }, status: { not: Status.DRAFT } },
+		where: {
+			coAuthors: { some: { id: coAuthorId } },
+			status: { not: Status.DRAFT },
+		},
 		include: {
 			coAuthors: { select: { id: true, name: true, image: true } },
 			owner: { select: { id: true, name: true, image: true } },
@@ -72,7 +96,9 @@ export async function getCoSubmittedContributions(coAuthorId: string): Promise<C
 	});
 }
 
-export async function getDraftContributions(ownerId: string): Promise<ContributionWithCoAuthors[]> {
+export async function getDraftContributions(
+	ownerId: string
+): Promise<ContributionWithCoAuthors[]> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
 	return await db.contribution.findMany({
@@ -122,7 +148,10 @@ export async function submitContribution(ownerId: string, id: string) {
 	});
 }
 
-export async function deleteContributions(ownerId: string, ...ids: string[]): Promise<void> {
+export async function deleteContributions(
+	ownerId: string,
+	...ids: string[]
+): Promise<void> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
 	const contributions = await db.contribution.findMany({
@@ -132,7 +161,10 @@ export async function deleteContributions(ownerId: string, ...ids: string[]): Pr
 
 	for (const contribution of contributions) {
 		// Case co-author wants to be removed from the contribution
-		if (contribution.ownerId !== ownerId && contribution.coAuthors.map((c) => c.id).includes(ownerId)) {
+		if (
+			contribution.ownerId !== ownerId &&
+			contribution.coAuthors.map((c) => c.id).includes(ownerId)
+		) {
 			await db.contribution.update({
 				where: { id: contribution.id },
 				data: { coAuthors: { disconnect: { id: ownerId } } },
@@ -185,14 +217,16 @@ export async function checkContributionStatus(contributionId: string) {
 	});
 
 	// voting period ended
-	if (contribution.poll.upvotes.length + contribution.poll.downvotes.length === counselors.length) {
+	if (
+		contribution.poll.upvotes.length + contribution.poll.downvotes.length ===
+		counselors.length
+	) {
 		if (contribution.poll.upvotes.length > contribution.poll.downvotes.length) {
 			await db.contribution.update({
 				where: { id: contributionId },
 				data: { status: Status.ACCEPTED },
 			});
-		}
-		else {
+		} else {
 			await db.contribution.update({
 				where: { id: contributionId },
 				data: { status: Status.REJECTED },

@@ -5,8 +5,10 @@ import type {
 	ModpackVersion,
 	ModVersion,
 	Poll,
+	Report,
 	Resolution,
 	Resource,
+	User,
 } from '@prisma/client';
 
 export type Prettify<T> = {
@@ -40,6 +42,9 @@ export type Progression = {
 		todo: number;
 	};
 }
+
+export type ReportWithReporter = Report & { reporter: PublicUser };
+export type UserWithReports = Prettify<User & { reports: Report[] }>;
 
 export interface PollResults {
 	upvotes: number;

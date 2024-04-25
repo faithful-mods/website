@@ -1,19 +1,21 @@
 'use client';
 
-import { ActionIcon, Badge, Button, Card, Group, Image, Menu } from '@mantine/core';
+import { ActionIcon, Avatar, Badge, Button, Card, Group, Image, Menu } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
+import { useState } from 'react';
 import { FaHome } from 'react-icons/fa';
 import { GoLaw } from 'react-icons/go';
 import { GrGallery } from 'react-icons/gr';
 import { HiOutlineMenu } from 'react-icons/hi';
-import { IoMdCloudUpload, IoMdSettings } from 'react-icons/io';
+import { IoMdCloudUpload } from 'react-icons/io';
+import { IoLogOut } from 'react-icons/io5';
 import { MdDashboard } from 'react-icons/md';
 import { TbPackage, TbPackages } from 'react-icons/tb';
 
 import { GitHubLogin } from '~/components/auth/github-login';
-import { LoggedUser } from '~/components/auth/logged-user';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_TABLET } from '~/lib/constants';
@@ -21,10 +23,12 @@ import { gradient } from '~/lib/utils';
 
 import { ThemeSwitch } from './theme-switch';
 
+
 export const Navbar = () => {
 	const pathname = usePathname();
 	const user = useCurrentUser();
 	const [windowWidth, _] = useDeviceSize();
+	const [userPicture, setUserPicture] = useState<string | undefined>(user?.image ?? undefined);
 
 	const links = [
 		{
@@ -158,18 +162,34 @@ export const Navbar = () => {
 							</Link>
 						}
 
-						{user && (user.role !== UserRole.BANNED || windowWidth !== BREAKPOINT_TABLET) &&
-							<Link href='/settings/me'>
+						{user && user.role !== UserRole.BANNED &&
+							<Link href='/user/me'>
 								<ActionIcon
 									size="lg"
 									variant="transparent"
-									disabled={user.role === UserRole.BANNED}
-									className={user.role === UserRole.BANNED ? 'navbar-icon-fix button-disabled' : 'navbar-icon-fix'}
-								><IoMdSettings className="w-5 h-5"/></ActionIcon>
+									className="navbar-icon-fix"
+								>
+									<Avatar
+										className="cursor-pointer image-background"
+										radius={4}
+										src={userPicture}
+										onError={() => setUserPicture(undefined)}
+									>
+										{ (user?.name ?? '?')[0] }
+									</Avatar>
+								</ActionIcon>
 							</Link>
 						}
-
-						{user && <LoggedUser />}
+						{user && user.role === UserRole.BANNED &&
+							<Button
+								variant="transparent"
+								color={gradient.to}
+								onClick={() => signOut({ callbackUrl: '/' })}
+								className="navbar-icon-fix"
+							>
+								<IoLogOut className="w-5 h-5" />
+							</Button>
+						}
 					</Group>
 				</Group>
 			</Card>

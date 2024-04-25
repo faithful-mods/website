@@ -1,4 +1,5 @@
 'use server';
+import 'server-only';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -10,14 +11,14 @@ export async function getModpackVersions(modpackId: string) {
 	return await db.modpackVersion.findMany({ where: { modpackId }, include: { mods: true } });
 }
 
-export async function createModpackVersion({ modpack, version }: { modpack: { id: string }, version: string }) {
+export async function createModpackVersion({ modpack, version }: { modpack: { id: string }; version: string }) {
 	await canAccess();
-	return await db.modpackVersion.create({ data: { version, modpackId: modpack.id }, include: { mods: true }});
+	return await db.modpackVersion.create({ data: { version, modpackId: modpack.id }, include: { mods: true } });
 }
 
-export async function updateModpackVersion({ id, version }: { id: string, version: string }) {
+export async function updateModpackVersion({ id, version }: { id: string; version: string }) {
 	await canAccess();
-	return await db.modpackVersion.update({ where: { id }, data: { version }, include: { mods: true }});
+	return await db.modpackVersion.update({ where: { id }, data: { version }, include: { mods: true } });
 }
 
 /**
@@ -51,10 +52,10 @@ export async function removeModFromModpackVersion(
 
 /**
  * Add mods to a modpack version
- * 
+ *
  * Create mod if first time
  * Create mod version if first time
- * 
+ *
  * @param id Modpack version id
  * @param data FormData with JAR files
  * @returns Updated modpack version

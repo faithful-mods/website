@@ -234,7 +234,43 @@ model User {
   pollsUpvoted   Poll[] @relation("polls_upvotes_to_users")
   pollsDownvoted Poll[] @relation("polls_downvotes_to_users")
 
+  // Reported by others against him
+  reports  Report[] @relation("user_reports")
+  // Reported by him against others
+  reported Report[] @relation("user_reported")
+
   @@map("users")
+}
+
+model Report {
+  id String @id @default(cuid())
+
+  reporterId String @map("user_reporter_id")
+  reporter   User   @relation("user_reported", fields: [reporterId], references: [id])
+
+  reportedId String @map("user_reported_id")
+  reported   User   @relation("user_reports", fields: [reportedId], references: [id])
+
+  reason  ReportReason @relation(fields: [reportReasonId], references: [id])
+  context String
+
+  status Status @default(PENDING)
+
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  reportReasonId String
+
+  @@map("reports")
+}
+
+model ReportReason {
+  id String @id @default(cuid())
+
+  value       String   @unique
+  description String
+  Report      Report[]
+
+  @@map("report_reasons")
 }
 
 model Poll {

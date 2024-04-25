@@ -2,7 +2,7 @@
 	"extends": "next/core-web-vitals",
 	"plugins": ["unused-imports"],
 	"rules": {
-		"indent": ["error", "tab"],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"quotes": ["error", "single"],
 		"semi": ["error", "always"],
 		"comma-dangle": ["error", "always-multiline"],

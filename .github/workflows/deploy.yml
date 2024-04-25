@@ -23,7 +23,7 @@ jobs:
             cd "/var/www/html/faithfulmods.net"
             git stash
             git pull -v
-            nvm use
+            nvm install
             npm install
             npm run build
             npm run db:apply
