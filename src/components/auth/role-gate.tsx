@@ -3,7 +3,7 @@
 import { Stack, Title, Text } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 
-import { useCurrentRole } from '~/hooks/use-current-role';
+import { useCurrentUser } from '~/hooks/use-current-user';
 
 interface RoleGateProps {
   children: React.ReactNode;
@@ -14,7 +14,8 @@ export const RoleGate = ({
 	children,
 	allowedRoles,
 }: RoleGateProps) => {
-	const role = useCurrentRole();
+	const user = useCurrentUser();
+	const role = user?.role;
 
 	if (!allowedRoles.length) return children;
 

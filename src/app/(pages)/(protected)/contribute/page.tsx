@@ -95,7 +95,10 @@ const ContributePage = () => {
 					<Group justify="space-between">
 						<Text size="md" fw={700}>New contribution(s)</Text>
 					</Group>
-					<Text size="sm" c="red">Please do not submit textures for unsupported mod/modpack. Ask the admins to add it first.</Text>
+					<Text size="sm">
+						By contributing to the platform, you agree to the <Text component="a" href="/docs/tos" c="blue" target="_blank">Terms of Service</Text>.<br />
+						<Text component="span" size="sm" c="dimmed" fs="italic">Please do not submit textures for unsupported mod/modpack. Ask the admins to add it first.</Text>
+					</Text>
 					<Group gap="md">
 						<Select
 							label="Resolution"

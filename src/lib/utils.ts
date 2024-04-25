@@ -24,6 +24,12 @@ export const gradientDanger: MantineGradient = {
 	deg: 69,
 };
 
+export const gradientWarning: MantineGradient = {
+	from: 'orange',
+	to: 'red',
+	deg: 69,
+};
+
 export function capitalize(str: string) {
 	if (str.length === 0) return str;
 

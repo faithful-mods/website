@@ -2,19 +2,22 @@
 
 import { Avatar, Badge, Button, Card, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { User, UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { TbExternalLink } from 'react-icons/tb';
+import { FaArrowRight } from 'react-icons/fa';
 
+import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { MINIMUM_CARD_WIDTH } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
 import { getUsers, updateUserRole } from '~/server/data/user';
+import { UserWithReports } from '~/types';
 
 export function UsersPanel() {
-	const [users, setUsers] = useState<User[] | undefined>();
-	const [filteredUsers, setFilteredUsers] = useState<User[] | undefined>();
+	const [users, setUsers] = useState<UserWithReports[] | undefined>();
+	const [filteredUsers, setFilteredUsers] = useState<UserWithReports[] | undefined>();
+	const loggedUser = useCurrentUser()!;
 
 	const form = useForm({
 		initialValues: {
@@ -22,7 +25,7 @@ export function UsersPanel() {
 		},
 	});
 
-	const sortUsers = (a: User, b: User) => a.name?.localeCompare(b.name ?? '') || 0;
+	const sortUsers = (a: UserWithReports, b: UserWithReports) => a.name?.localeCompare(b.name ?? '') || 0;
 
 	const filterUsers = () => {
 		const search = form.values['search'];
@@ -48,19 +51,19 @@ export function UsersPanel() {
 	});
 
 	return (
-		<Card 
-			shadow="sm" 
-			padding="md" 
+		<Card
+			shadow="sm"
+			padding="md"
 			radius="md"
-			style={{ minWidth: MINIMUM_CARD_WIDTH }} 
+			style={{ minWidth: MINIMUM_CARD_WIDTH }}
 			withBorder
 		>
 			<Group justify="space-between">
 				<Text size="md" fw={700}>Users</Text>
 				<Badge color="teal" variant="filled">{users?.length ?? '?'}</Badge>
 			</Group>
-			<TextInput 
-				placeholder="Search users..." 
+			<TextInput
+				placeholder="Search users..."
 				onKeyUp={filterUsers}
 				{...form.getInputProps('search')}
 				mt="md"
@@ -73,7 +76,7 @@ export function UsersPanel() {
 					{filteredUsers.map((user, index) => (
 						<Group key={index} justify="space-between" align="center">
 							<Group gap="sm">
-								<Avatar 
+								<Avatar
 									className="navbar-icon-fix image-background"
 									variant="outline"
 									radius={4}
@@ -82,29 +85,33 @@ export function UsersPanel() {
 								>
 									{ (user?.name ?? '?')[0] }
 								</Avatar>
-								<Text>{user.name ?? 'Unknown User'}</Text>
+								<Stack gap="0">
+									<Text>{user.name ?? 'Unknown User'}</Text>
+									{user.reports.length > 0 && <Text c="orange" size="xs">Report(s): {user.reports.length}</Text>}
+								</Stack>
 							</Group>
 							<Group gap="sm">
-								<Select 
-									className="w-[120px]" 
-									value={user.role} 
-									data={Object.keys(UserRole)}
-									allowDeselect={false}
-									checkIconPosition="right"
-									onChange={(role) => {
-										setFilteredUsers(filteredUsers.map((u) => u.id === user.id ? { ...u, role: role as UserRole } : u));
-										setUsers(users?.map((u) => u.id === user.id ? { ...u, role: role as UserRole } : u));
-										updateUserRole(user.id, role as UserRole ?? 'USER');
-										// TODO: refresh logged in user if it's the same user
-									}}
-								/>
-								<Link href={'/settings/' + user.id}>
-									<Button 
+								{user.id !== loggedUser.id && (
+									<Select
+										className="w-[120px]"
+										value={user.role}
+										data={Object.keys(UserRole)}
+										allowDeselect={false}
+										checkIconPosition="right"
+										onChange={(role) => {
+											setFilteredUsers(filteredUsers.map((u) => u.id === user.id ? { ...u, role: role as UserRole } : u));
+											setUsers(users?.map((u) => u.id === user.id ? { ...u, role: role as UserRole } : u));
+											updateUserRole(user.id, role as UserRole ?? 'USER');
+										}}
+									/>
+								)}
+								<Link href={'/user/' + user.id}>
+									<Button
 										variant='gradient'
 										gradient={gradient}
 										className="navbar-icon-fix"
 									>
-										<TbExternalLink />	
+										<FaArrowRight />
 									</Button>
 								</Link>
 							</Group>
