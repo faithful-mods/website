@@ -62,7 +62,7 @@ export function ModpacksPanel() {
 
 		// deleted
 		if (typeof editedModpack === 'string') {
-			
+
 			const cleared = (base?.filter((modpack) => modpack.id !== editedModpack) ?? []).sort(sortByName);
 			setModpacks([cleared, cleared]);
 			closeModal();
@@ -84,18 +84,21 @@ export function ModpacksPanel() {
 
 	return (
 		<>
-			<Modal 
+			<Modal
+				trapFocus
+				closeOnClickOutside={false}
+				closeOnEscape={false}
 				size="100%"
-				opened={modalOpened} 
-				onClose={closeModal} 
+				opened={modalOpened}
+				onClose={closeModal}
 				title="Modpack Edition"
 			>
 				<ModpackModal modpack={modalModpack} onClose={closeModpackModal} />
 			</Modal>
-			<Card 
-				shadow="sm" 
-				padding="md" 
-				radius="md" 
+			<Card
+				shadow="sm"
+				padding="md"
+				radius="md"
 				withBorder
 			>
 				<Group justify="space-between">
@@ -103,39 +106,39 @@ export function ModpacksPanel() {
 					<Badge color="teal" variant="filled">{(modpacks && modpacks[0]?.length) ?? '?'}</Badge>
 				</Group>
 				<Group align="center" mt="md" gap="sm" wrap="nowrap">
-					<TextInput 
+					<TextInput
 						className="w-full"
-						placeholder="Search modpacks..." 
+						placeholder="Search modpacks..."
 						onKeyUp={() => searchModpack(form.values.search)}
 						{...form.getInputProps('search')}
 					/>
-					<Button 
+					<Button
 						variant='gradient'
 						gradient={gradient}
 						className="navbar-icon-fix"
-						onClick={() => reloadModpacks()} 
+						onClick={() => reloadModpacks()}
 					>
 						<TbReload />
 					</Button>
-					<Button 
+					<Button
 						variant='gradient'
 						gradient={gradient}
 						className="navbar-icon-fix"
-						onClick={() => openModpackModal()} 
+						onClick={() => openModpackModal()}
 					>
 						<TbPlus />
 					</Button>
 				</Group>
 
 				{!modpacks && (<Text mt="sm">Loading...</Text>)}
-				
+
 				{modpacks && modpacks[0]?.length === 0 && (<Text mt="sm">No modpacks created yet!</Text>)}
 				{modpacks && modpacks[0]?.length !== 0 && modpacks[1]?.length === 0 && (<Text mt="sm">No results found!</Text>)}
-				
+
 				{modpacks && (modpacks[0]?.length ?? 0) > 0 && (
 					<Group mt="md" align="start">
 						{modpacks && modpacks[1]?.map((modpack, index) => (
-							<DashboardItem 
+							<DashboardItem
 								key={index}
 								image={modpack.image}
 								title={modpack.name}

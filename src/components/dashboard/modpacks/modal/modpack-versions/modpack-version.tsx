@@ -40,8 +40,11 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 	return (
 		<>
 			<Modal
-				opened={modalOpened} 
-				onClose={closeModal} 
+				trapFocus
+				closeOnClickOutside={false}
+				closeOnEscape={false}
+				opened={modalOpened}
+				onClose={closeModal}
 				title="Modpack Version Edition"
 			>
 				<ModpackVersionModal modpack={modpack} modpackVersion={modalModpackVersion} onClose={closeModpackVersionModal} />
@@ -49,7 +52,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 			<Group gap="md" align="start" mt="md">
 				{!modpackVersions && <Text mt="sm">Loading...</Text>}
 				{modpackVersions.length === 0 && <Text mt="sm">This Modpack has no versions yet</Text>}
-				
+
 				{modpackVersions.length > 0 && <>
 					<Table striped highlightOnHover withColumnBorders withTableBorder>
 						<Table.Thead>
