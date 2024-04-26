@@ -13,8 +13,12 @@ export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 	return db.mod.findMany({ where: { id: { in: ids } } });
 }
 
-export async function getMods(): Promise<Mod[]> {
-	return db.mod.findMany();
+export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> {
+	return db.mod
+		.findMany({ include: { versions: { select: { mcVersion: true } } } })
+		.then((mods) =>
+			mods.map((mod) => ({ ...mod, unknownVersion: mod.versions.map((v) => v.mcVersion).includes('unknown') }))
+		);
 }
 
 export async function updateMod({
