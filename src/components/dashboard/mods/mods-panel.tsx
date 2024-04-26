@@ -16,10 +16,10 @@ import { DashboardItem } from '../dashboard-item';
 export function ModsPanel() {
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
-	
+
 	const [modalMod, setModalMod] = useState<Mod | undefined>();
-	const [mods, setMods] = useState<[Mod[] | undefined, Mod[] | undefined]>();
-	
+	const [mods, setMods] = useState<[(Mod & { unknownVersion: boolean })[] | undefined, (Mod & { unknownVersion: boolean })[] | undefined]>();
+
 	const form = useForm<{ search: string }>({
 		initialValues: {
 			search: '',
@@ -49,7 +49,7 @@ export function ModsPanel() {
 
 		// deleted
 		if (typeof editedMod === 'string') {
-			
+
 			const cleared = (base?.filter((modpack) => modpack.id !== editedMod) ?? []).sort(sortByName);
 			setMods([cleared, cleared]);
 			closeModal();
@@ -80,7 +80,7 @@ export function ModsPanel() {
 			setMods([[], []]);
 		});
 	};
-	
+
 	return (
 		<>
 			<Modal
@@ -108,38 +108,39 @@ export function ModsPanel() {
 						onKeyUp={() => searchMods(form.values.search)}
 						{...form.getInputProps('search')}
 					></TextInput>
-					<Button 
+					<Button
 						variant='gradient'
 						gradient={gradient}
 						className="navbar-icon-fix"
-						onClick={() => reloadMods()} 
+						onClick={() => reloadMods()}
 					>
 						<TbReload />
 					</Button>
-					<Button 
+					<Button
 						variant='gradient'
 						gradient={gradient}
 						className="navbar-icon-fix"
-						onClick={() => openModModal()} 
+						onClick={() => openModModal()}
 					>
 						<TbPlus />
 					</Button>
 				</Group>
 
 				{!mods && (<Text mt="sm">Loading...</Text>)}
-				
+
 				{mods && mods[0]?.length === 0 && (<Text mt="sm">No mods created yet!</Text>)}
 				{mods && mods[0]?.length !== 0 && mods[1]?.length === 0 && (<Text mt="sm">No results found!</Text>)}
-				
+
 				{mods && (mods[0]?.length ?? 0) > 0 && (
 					<Group mt="md" align="start">
 						{mods && mods[1]?.map((mod, index) => (
-							<DashboardItem 
+							<DashboardItem
 								key={index}
 								image={mod.image}
 								title={mod.name}
 								description={mod.description}
 								onClick={() => openModModal(mod)}
+								warning={mod.unknownVersion ? 'Unknown version' : undefined}
 							/>
 						))}
 					</Group>
