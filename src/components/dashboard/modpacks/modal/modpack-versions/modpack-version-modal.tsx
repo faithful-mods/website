@@ -18,6 +18,9 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 	const [modVersions, setModVersions] = useState<ModVersion[]>(modpackVersion?.mods ?? []);
 	const [mods, setMods] = useState<Mod[]>([]);
 
+	const [progression, setProgression] = useState<number>(0);
+	const [progressionMax, setProgressionMax] = useState<number>(0);
+
 	useEffectOnce(() => {
 		getModsFromIds(modVersions.map((modVersion) => modVersion.modId))
 			.then(setMods)
@@ -25,7 +28,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				console.error(error);
 			});
 	});
-	
+
 	const form = useForm<{ version: string }>({
 		initialValues: {
 			version: modpackVersion?.version ?? '',
@@ -72,26 +75,30 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 		});
 	};
 
-	const filesDrop = (files: File[]) => {
-		startTransition(async () => {
-			let editedModpackVersion = !modpackVersion 
-				? await createModpackVersion({ modpack, version: form.values.version })
-				: modpackVersion;
+	const filesDrop = async (files: File[]) => {
+		let editedModpackVersion = !_modpackVersion
+			? await createModpackVersion({ modpack, version: form.values.version })
+			: _modpackVersion;
 
+		for (const file of files) {
 			try {
 				const data = new FormData();
-				files.forEach((file) => data.append('file', file));
-
-				const updated = await addModsToModpackVersion(editedModpackVersion.id, data);
-				setModpackVersion(updated);
-				setModVersions(updated.mods);
-
-				const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId));
-				setMods(mods);
+				data.append('file', file);
+				editedModpackVersion = await addModsToModpackVersion(editedModpackVersion.id, data);
 			} catch (e) {
 				notify('Error', (e as Error).message, 'red');
+			} finally {
+				setProgression((prev) => prev + 1);
 			}
-		});
+		}
+
+		setModpackVersion(editedModpackVersion);
+		setModVersions(editedModpackVersion.mods);
+		setProgression(0);
+		setProgressionMax(0);
+
+		const mods = await getModsFromIds(editedModpackVersion.mods.map((modVersion) => modVersion.modId));
+		setMods(mods);
 	};
 
 	return (
@@ -100,10 +107,14 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			<Stack justify="start" gap="0">
 				<Text size="sm">Mods for this version</Text>
 				{form.values.version.length === 0 && <Text size="xs" c={gradientDanger.to}>Set a version first</Text>}
-				<Dropzone 
+				<Dropzone
 					disabled={form.values.version.length === 0}
 					className={form.values.version.length === 0 ? 'dropzone-disabled' : ''}
-					onDrop={filesDrop} 
+					onDrop={async (files) => {
+						setProgression(0);
+						setProgressionMax(files.length);
+						await filesDrop(files);
+					}}
 					accept={['application/java-archive']}
 					mt="0"
 				>
@@ -118,7 +129,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				</Dropzone>
 			</Stack>
 
-			{mods.length > 0 && 
+			{mods.length > 0 &&
 				<Stack gap="sm" style={{ maxHeight: '400px', overflowY: modVersions.length > 5 ? 'auto' : 'hidden' }}>
 					{modVersions.map((modVersion, index) =>
 						<Group key={index} justify="space-between">
@@ -138,8 +149,13 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 					)}
 				</Stack>
 			}
-			<Group gap="sm" mt="md">
-				{(modpackVersion || mods.length > 0) && 
+			{progressionMax > 0 && (
+				<Text c="dimmed" ta="center" size="xs" mt="md">
+					uploading: { progression } / { progressionMax }
+				</Text>
+			)}
+			<Group gap="sm">
+				{(modpackVersion || mods.length > 0) &&
 					<Button
 						variant="gradient"
 						gradient={gradientDanger}
