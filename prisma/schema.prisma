@@ -74,6 +74,7 @@ model ModpackVersion {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([version, modpackId])
   @@map("modpacks_versions")
 }
 
@@ -106,6 +107,7 @@ model ModVersion {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([version, modId])
   @@map("mods_versions")
 }
 
