@@ -40,7 +40,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 				});
 		});
 	};
-	
+
 	const openModVersionModal = (modVersion?: ModVersionWithModpacks | undefined) => {
 		setModalModVersion(modVersion);
 		openModal();
@@ -79,7 +79,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 							{modVersions.map((version) => (
 								<Table.Tr key={version.id} onClick={() => openModVersionModal(version)} className="cursor-pointer">
 									<Table.Td>{version.version}</Table.Td>
-									<Table.Td>{version.mcVersion}</Table.Td>
+									<Table.Td className={version.mcVersion === 'unknown' ? 'blink' : ''}>{version.mcVersion}</Table.Td>
 									<Table.Td>{version.modpacks.map((m) => m.name)}</Table.Td>
 									<Table.Td>{version.createdAt.toLocaleString()}</Table.Td>
 									<Table.Td>{version.updatedAt.toLocaleString()}</Table.Td>
@@ -89,7 +89,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 					</Table>
 				</>}
 
-				<Dropzone 
+				<Dropzone
 					className="w-full"
 					onDrop={filesDrop}
 					accept={['application/java-archive']}
