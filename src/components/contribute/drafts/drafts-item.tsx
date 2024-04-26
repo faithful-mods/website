@@ -42,20 +42,20 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 	};
 
 	return (
-		<Card 
-			withBorder 
+		<Card
+			withBorder
 			shadow="0"
 			className="contribution-item"
-			style={{ 
-				'position': 'relative', 
-				'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE 
-					? 1 
+			style={{
+				'position': 'relative',
+				'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
+					? 1
 					: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
 						? 2
 						: 3,
 			}}
 		>
-			{windowWidth > BREAKPOINT_TABLET && 
+			{windowWidth > BREAKPOINT_TABLET &&
 				<Button
 					variant="light"
 					className="navbar-icon-fix"
@@ -67,7 +67,7 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 				</Button>
 			}
 			<Group gap="sm" wrap="nowrap">
-				{contribution.filename.endsWith('.png') && 
+				{contribution.filename.endsWith('.png') &&
 					<Image
 						radius="sm"
 						className="image-background image-pixelated"
@@ -76,13 +76,13 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 						width={imgWidth}
 						height={imgWidth}
 						fit="contain"
-						style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }} 
+						style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }}
 					/>
 				}
 				{
 					(contribution.filename.endsWith('.json') || contribution.filename.endsWith('.mcmeta')) &&
-					<FaFileAlt 
-						style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }} 
+					<FaFileAlt
+						style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }}
 					/>
 				}
 				<Stack gap="0" align="flex-start" mt="0">
@@ -102,7 +102,7 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 				>
 					Delete
 				</Button>
-				{windowWidth <= BREAKPOINT_TABLET && 
+				{windowWidth <= BREAKPOINT_TABLET &&
 					<Button
 						onClick={() => openModal(contribution)}
 						variant="gradient"
