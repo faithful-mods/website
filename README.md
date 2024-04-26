@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node **18**
+- Node **20**
 - Docker
 
 ## Project installation
