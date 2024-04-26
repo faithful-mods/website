@@ -45,7 +45,7 @@ export async function createModpack({
 export async function updateModpackPicture(id: string, data: FormData): Promise<Modpack> {
 	await canAccess();
 
-	const filepath = await upload(data.get('file') as unknown as File, 'modpacks/');
+	const filepath = await upload(data.get('file') as File, 'modpacks/');
 	return await db.modpack.update({ where: { id }, data: { image: filepath } });
 }
 

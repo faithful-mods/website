@@ -31,14 +31,14 @@ const FILE_PATH = process.env.NODE_ENV === 'production'
  * @param path The path to upload the file to, defaults to the root
  * @returns The "public" path to the uploaded file
  */
-export async function upload(file: File, path: `${string}/` = '/', extension = '.png'): Promise<string> {
+export async function upload(file: File, path: `${string}/` = '/'): Promise<string> {
 	const bytes = await file.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 
 	const uuid = randomUUID();
 	const fileDirPub = join(FILE_DIR, path);
 	const fileDirPrv = join(FILE_PATH, path);
-	const filePath   = join(fileDirPrv, `${uuid}_${file.name}${extension}`);
+	const filePath   = join(fileDirPrv, `${uuid}_${file.name}`);
 
 	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
 	writeFileSync(filePath, buffer);
@@ -190,7 +190,7 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 		let texture = await findTexture({ hash });
 
 		if (!texture) {
-			const filepath = await upload(bufferToFile(buffer, textureName, 'image/png'), 'textures/default/');
+			const filepath = await upload(bufferToFile(buffer, `${textureName}.png`, 'image/png'), 'textures/default/');
 			texture = await createTexture({
 				filepath,
 				hash,

@@ -45,7 +45,7 @@ export async function updateMod({
 export async function updateModPicture(id: string, data: FormData): Promise<Mod> {
 	await canAccess();
 
-	const filepath = await upload(data.get('file') as unknown as File, 'mods/');
+	const filepath = await upload(data.get('file') as File, 'mods/');
 	return await db.mod.update({ where: { id }, data: { image: filepath } });
 }
 
