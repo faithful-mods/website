@@ -6,7 +6,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useState, startTransition } from 'react';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { notify } from '~/lib/utils';
+import { extractSemver, notify } from '~/lib/utils';
 import { addModVersionsFromJAR, getModVersionsWithModpacks } from '~/server/data/mods-version';
 import { ModVersionWithModpacks } from '~/types';
 
@@ -79,7 +79,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 							{modVersions.map((version) => (
 								<Table.Tr key={version.id} onClick={() => openModVersionModal(version)} className="cursor-pointer">
 									<Table.Td>{version.version}</Table.Td>
-									<Table.Td className={version.mcVersion === 'unknown' ? 'blink' : ''}>{version.mcVersion}</Table.Td>
+									<Table.Td className={extractSemver(version.mcVersion) === null ? 'blink' : ''}>{version.mcVersion}</Table.Td>
 									<Table.Td>{version.modpacks.map((m) => m.name)}</Table.Td>
 									<Table.Td>{version.createdAt.toLocaleString()}</Table.Td>
 									<Table.Td>{version.updatedAt.toLocaleString()}</Table.Td>

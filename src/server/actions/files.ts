@@ -70,7 +70,7 @@ export async function fetchMCModInfoFromJAR(jar: File): Promise<MCModInfo[]> {
 				return entry.buffer();
 			} else {
 				const textures = archive.files.filter((file) => file.path.endsWith('.png'));
-				if (textures.length === 0) return Buffer.from('[]', 'utf-8');
+				if (textures.length === 0) return Buffer.from('[]', 'utf-8'); // No textures found, return empty array
 
 				const modid = jar.name.split('.').shift();
 				const name = jar.name.split('.').slice(0, -1).join('.');
@@ -111,7 +111,7 @@ export async function fetchMCModInfoFromJAR(jar: File): Promise<MCModInfo[]> {
  */
 function sanitizeMCModInfo(mcmodInfo: MCModInfoData): MCModInfo[] {
 	return (Array.isArray(mcmodInfo) ? mcmodInfo : mcmodInfo.modList).map((modInfo) => {
-		if (modInfo.mcversion === 'extension "minecraft" property "mcVersion"') modInfo.mcversion = 'unknown';
+		if (modInfo.mcversion === 'extension \'minecraft\' property \'mcVersion\'') modInfo.mcversion = 'unknown';
 
 		if (modInfo.url && modInfo.url.startsWith('http://')) modInfo.url = modInfo.url.replace('http://', 'https://');
 		if (modInfo.url && modInfo.url.startsWith('!https://')) modInfo.url = undefined;

@@ -26,7 +26,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 	const [_mod, setMod] = useState<Mod | undefined>(mod);
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(mod?.image || '');
-	
+
 	const form = useForm<ModModalFormValues>({
 		initialValues: {
 			id: mod?.id || '',
@@ -92,7 +92,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			onClose(id);
 		});
 	};
-	
+
 	const filesDrop = (files: File[]) => {
 		startTransition(async () => {
 			const data = new FormData();
@@ -117,7 +117,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 	return (
 		<>
 			{_mod
-				? 
+				?
 				<Tabs defaultValue="first">
 					<Tabs.List>
 						<Tabs.Tab value="first">General</Tabs.Tab>
@@ -128,7 +128,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 					<Tabs.Panel value="second"><ModVersions mod={_mod} /></Tabs.Panel>
 				</Tabs>
 				:
-				<Dropzone 
+				<Dropzone
 					className="w-full"
 					onDrop={filesDrop}
 					accept={['application/java-archive']}

@@ -11,7 +11,7 @@ import { TbPlus, TbReload } from 'react-icons/tb';
 import { DashboardItem } from '~/components/dashboard/dashboard-item';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
-import { getMods, voidMods } from '~/server/data/mods';
+import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
 
@@ -20,7 +20,7 @@ const ModsPanel = () => {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
 	const [modalMod, setModalMod] = useState<Mod | undefined>();
-	const [mods, setMods] = useState<[(Mod & { unknownVersion: boolean })[] | undefined, (Mod & { unknownVersion: boolean })[] | undefined]>();
+	const [mods, setMods] = useState<[(Mod & { unknownVersion: boolean })[], (Mod & { unknownVersion: boolean })[]]>([[], []]);
 
 	const form = useForm<{ search: string }>({
 		initialValues: {
@@ -46,12 +46,11 @@ const ModsPanel = () => {
 		openModal();
 	};
 
-	const closeModModal = (editedMod: Mod | string) => {
+	const closeModModal = async (editedMod: Mod | string) => {
 		const [base, _] = mods ?? [];
 
 		// deleted
 		if (typeof editedMod === 'string') {
-
 			const cleared = (base?.filter((modpack) => modpack.id !== editedMod) ?? []).sort(sortByName);
 			setMods([cleared, cleared]);
 			closeModal();
@@ -59,7 +58,14 @@ const ModsPanel = () => {
 		}
 
 		// edited
-		const updated = [...base?.filter((modpack) => modpack.id !== editedMod.id) ?? [], editedMod].sort(sortByName);
+		const updated = [
+			{
+				...editedMod,
+				unknownVersion: await modHasUnknownVersion(editedMod.id),
+			},
+			...base?.filter((mod) => mod.id !== editedMod.id) ?? [],
+		].sort(sortByName);
+
 		setMods([updated, updated]);
 		closeModal();
 	};
