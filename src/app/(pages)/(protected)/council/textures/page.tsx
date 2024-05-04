@@ -1,10 +1,9 @@
 'use client';
 
-import { Badge, Card, Code, Group, Image, Modal, Stack, Text, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { Badge, Card, Code, Group, Image, Modal, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Texture } from '@prisma/client';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -19,24 +18,8 @@ const CouncilTexturesPage = () => {
 	const [windowWidth, _] = useDeviceSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
-	const [textures, setTextures] = useState<[Texture[], Texture[]]>([[], []]);
-	const [textureModal, setTextureModal] = useState<Texture>();
-
-	useEffectOnce(() => {
-		getTextures()
-			.then((res) => {
-				const sorted = res.sort((a, b) => a.name.localeCompare(b.name));
-				setTextures([sorted, sorted]);
-			});
-	});
-
-	const form = useForm<{ search: string }>({
-		initialValues: {
-			search: '',
-		},
-	});
-
-	const itemPerRow =  windowWidth <= BREAKPOINT_MOBILE_LARGE
+	const itemsPerPage = useMemo(() => ['25', '50', '100', '250'], []);
+	const itemsPerRow =  windowWidth <= BREAKPOINT_MOBILE_LARGE
 		? 1
 		: windowWidth <= BREAKPOINT_TABLET
 			? 2
@@ -44,15 +27,46 @@ const CouncilTexturesPage = () => {
 				? 3
 				: 4;
 
-	const handleSearch = (search: string) => {
-		if (!search || search.length === 0) {
-			setTextures([textures[0], textures[0]]);
+	const [search, setSearch] = useState('');
+
+	const [textures, setTextures] = useState<Texture[]>([]);
+	const [searchedTextures, setSearchedTextures] = useState<Texture[]>([]);
+	const [textureModal, setTextureModal] = useState<Texture>();
+
+	const [texturesShown, setTexturesShown] = useState<Texture[][]>([[]]);
+	const [activePage, setActivePage] = useState(1);
+	const [texturesShownPerPage, setTexturesShowPerPage] = useState<string | null>(itemsPerPage[0]);
+
+	useEffectOnce(() => {
+		getTextures()
+			.then((res) => {
+				const sorted = res.sort((a, b) => a.name.localeCompare(b.name));
+				setTextures(sorted);
+				setSearchedTextures(sorted);
+			});
+	});
+
+	useEffect(() => {
+		const chunks: Texture[][] = [];
+		const int = parseInt(texturesShownPerPage ?? itemsPerPage[0]);
+
+		for (let i = 0; i < searchedTextures.length; i += int) {
+			chunks.push(searchedTextures.slice(i, i + int));
+		}
+
+		setActivePage(1);
+		setTexturesShown(chunks);
+
+	}, [searchedTextures, texturesShownPerPage, itemsPerPage]);
+
+	useEffect(() => {
+		if (!search) {
+			setSearchedTextures(textures);
 			return;
 		}
 
-		const filtered = textures[0].filter((t) => t.name.toLowerCase().includes(search.toLowerCase()) || t.aliases.some((a) => a.toLowerCase().includes(search.toLowerCase())));
-		setTextures([textures[0], filtered]);
-	};
+		setSearchedTextures(textures.filter((t) => t.name.toLowerCase().includes(search.toLowerCase()) || t.aliases.some((a) => a.toLowerCase().includes(search.toLowerCase()))));
+	}, [search, textures]);
 
 	const openTextureModal = (t: Texture) => {
 		if (!t) return;
@@ -63,20 +77,15 @@ const CouncilTexturesPage = () => {
 
 	const closeTextureModal = async (currTexture: Texture) => {
 		const newTexture = await getTexture(currTexture.id);
-
-		const editedRaw = textures[0].filter((t) => t.id !== currTexture.id);
-		const editedSearch = textures[1].filter((t) => t.id !== currTexture.id);
+		const newTextures = textures.filter((t) => t.id !== currTexture.id);
 
 		// null if deleted
 		if (newTexture) {
-			editedRaw.push(newTexture);
-			editedSearch.push(newTexture);
+			newTextures.push(newTexture);
 		}
 
-		setTextures([
-			editedRaw.sort((a, b) => a.name.localeCompare(b.name)),
-			editedSearch.sort((a, b) => a.name.localeCompare(b.name)),
-		]);
+		setTextures(newTextures);
+		setSearch(search); // re-search
 
 		closeModal();
 	};
@@ -95,18 +104,22 @@ const CouncilTexturesPage = () => {
 			<Card withBorder shadow="sm" radius="md" padding="md">
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Textures</Text>
-					<Badge color="teal" variant="filled">{textures[1].length ?? '?'} / {textures[0].length ?? '?'}</Badge>
+					<Badge color="teal" variant="filled">{searchedTextures.length ?? '?'} / {textures.length ?? '?'}</Badge>
 				</Group>
 				<Group align="center" mt="md" mb="md" gap="sm" wrap="nowrap">
 					<TextInput
 						className="w-full"
 						placeholder="Search textures..."
-						onKeyUp={() => handleSearch(form.values.search)}
-						{...form.getInputProps('search')}
+						onChange={(e) => setSearch(e.currentTarget.value)}
+					/>
+					<Select
+						data={itemsPerPage}
+						value={texturesShownPerPage}
+						onChange={setTexturesShowPerPage}
 					/>
 				</Group>
 				<Group wrap="wrap">
-					{textures[1].map((t) => (
+					{texturesShown[activePage - 1] && texturesShown[activePage - 1].map((t) => (
 						<Group
 							key={t.id}
 							align="start"
@@ -116,7 +129,7 @@ const CouncilTexturesPage = () => {
 							onClick={() => openTextureModal(t)}
 							style={{
 								position: 'relative',
-								'--item-per-row': itemPerRow,
+								'--item-per-row': itemsPerRow,
 							}}
 						>
 							<Image
@@ -135,6 +148,10 @@ const CouncilTexturesPage = () => {
 							</Stack>
 						</Group>
 					))}
+				</Group>
+
+				<Group mt="md" justify="center">
+					<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
 				</Group>
 			</Card>
 		</>
