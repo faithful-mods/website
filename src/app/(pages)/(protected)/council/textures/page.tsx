@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
-import { getTextures } from '~/server/data/texture';
+import { getTexture, getTextures } from '~/server/data/texture';
 
 import { TextureModal } from './modal/texture-modal';
 
@@ -61,14 +61,32 @@ const CouncilTexturesPage = () => {
 		openModal();
 	};
 
-	const closeTextureModal = (t: Texture) => {};
+	const closeTextureModal = async (currTexture: Texture) => {
+		const newTexture = await getTexture(currTexture.id);
+
+		const editedRaw = textures[0].filter((t) => t.id !== currTexture.id);
+		const editedSearch = textures[1].filter((t) => t.id !== currTexture.id);
+
+		// null if deleted
+		if (newTexture) {
+			editedRaw.push(newTexture);
+			editedSearch.push(newTexture);
+		}
+
+		setTextures([
+			editedRaw.sort((a, b) => a.name.localeCompare(b.name)),
+			editedSearch.sort((a, b) => a.name.localeCompare(b.name)),
+		]);
+
+		closeModal();
+	};
 
 	return (
 		<>
 			<Modal
 				size="100%"
 				opened={modalOpened}
-				onClose={closeModal}
+				onClose={() => closeTextureModal(textureModal!)}
 				title={<Code>{textureModal?.name}</Code>}
 			>
 				<TextureModal texture={textureModal!} onClose={closeTextureModal} />

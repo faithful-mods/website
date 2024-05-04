@@ -13,6 +13,10 @@ export async function getTextures(): Promise<Texture[]> {
 	return db.texture.findMany();
 }
 
+export async function getTexture(id: string): Promise<Texture | null> {
+	return db.texture.findUnique({ where: { id } });
+}
+
 export async function createTexture({
 	name,
 	filepath,
