@@ -27,6 +27,15 @@ export async function getModVersionsWithModpacks(modId: string): Promise<ModVers
 	return res;
 }
 
+export async function getModsVersionsFromResources(resourceIds: string[]): Promise<(ModVersion & { resources: string[] })[]> {
+	return db.modVersion
+		.findMany({
+			where: { resources: { some: { id: { in: resourceIds } } } },
+			include: { resources: { select: { id: true } } },
+		})
+		.then((res) => res.map((modVer) => ({ ...modVer, resources: modVer.resources.map((r) => r.id) })));
+}
+
 export async function getModsVersionsProgression(): Promise<ModVersionWithProgression[]> {
 	const modVersions = (await db.modVersion.findMany({ include: { mod: true, resources: true } })).map((modVer) => ({
 		...modVer,

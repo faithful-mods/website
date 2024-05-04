@@ -33,6 +33,12 @@ export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[]
 export type ContributionWithCoAuthorsAndPoll = ContributionWithCoAuthors & { poll: Poll };
 export type ContributionWithCoAuthorsAndFullPoll = ContributionWithCoAuthors & { poll: FullPoll };
 
+export type ContributionActivationStatus = {
+	/** null means any resolution */
+	resolution: Resolution | null;
+	status: boolean;
+}
+
 export type Progression = {
 	linkedTextures: number;
 	textures: {

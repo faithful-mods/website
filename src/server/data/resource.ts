@@ -37,6 +37,10 @@ export async function getResource({
 	});
 }
 
+export async function getResourceByIds(ids: string[]): Promise<Resource[]> {
+	return db.resource.findMany({ where: { id: { in: ids } } });
+}
+
 export async function linkTextureToResource({
 	resource,
 	texture,

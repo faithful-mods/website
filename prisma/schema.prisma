@@ -140,7 +140,22 @@ model Texture {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  disabledContributions ContributionDeactivation[]
+
   @@map("textures")
+}
+
+model ContributionDeactivation {
+  id String @id @default(cuid())
+
+  textureId  String @map("texture_id")
+  texture    Texture @relation(fields: [textureId], references: [id])
+  resolution Resolution? // No resolution means all resolutions
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("contributions_deactivation")
 }
 
 model LinkedTexture {
