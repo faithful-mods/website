@@ -34,6 +34,8 @@ const CouncilPage = ({ children }: ProtectedLayoutProps) => {
 				>
 					<Tabs.List>
 						<Tabs.Tab value="contributions">Contributions</Tabs.Tab>
+						<Tabs.Tab value="modpacks">Modpacks</Tabs.Tab>
+						<Tabs.Tab value="mods">Mods</Tabs.Tab>
 						<Tabs.Tab value="textures">Textures</Tabs.Tab>
 					</Tabs.List>
 				</Card>

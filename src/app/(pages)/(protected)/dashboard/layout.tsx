@@ -33,8 +33,6 @@ const DashboardPage = ({ children }: ProtectedLayoutProps) => {
 					withBorder
 				>
 					<Tabs.List>
-						<Tabs.Tab value="modpacks">Modpacks</Tabs.Tab>
-						<Tabs.Tab value="mods">Mods</Tabs.Tab>
 						<Tabs.Tab value="progression">Progression</Tabs.Tab>
 						<Tabs.Tab value="users">Users</Tabs.Tab>
 					</Tabs.List>
