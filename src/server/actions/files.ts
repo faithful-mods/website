@@ -9,7 +9,7 @@ import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
 import { db } from '~/lib/db';
-import { bufferToFile } from '~/lib/utils';
+import { bufferToFile, extractSemver } from '~/lib/utils';
 import type { MCModInfo, MCModInfoData } from '~/types';
 
 import { createMod } from '../data/mods';
@@ -17,7 +17,9 @@ import { createModVersion } from '../data/mods-version';
 import { linkTextureToResource, createResource, getResource } from '../data/resource';
 import { createTexture, findTexture } from '../data/texture';
 
-const FILE_DIR = process.env.NODE_ENV === 'production' ? 'https://data.faithfulmods.net' : '/files';
+const FILE_DIR = process.env.NODE_ENV === 'production'
+	? 'https://data.faithfulmods.net'
+	: '/files';
 
 const FILE_PATH = process.env.NODE_ENV === 'production'
 	? '/var/www/html/data.faithfulmods.net'
@@ -67,7 +69,25 @@ export async function fetchMCModInfoFromJAR(jar: File): Promise<MCModInfo[]> {
 			if (entry) {
 				return entry.buffer();
 			} else {
-				throw new Error(`mcmod.info not found in the jar file of ${jar.name}`);
+				const textures = archive.files.filter((file) => file.path.endsWith('.png'));
+				if (textures.length === 0) return Buffer.from('[]', 'utf-8');
+
+				const modid = jar.name.split('.').shift();
+				const name = jar.name.split('.').slice(0, -1).join('.');
+
+				// We can't determine if the mc version is written first or last in the jar name
+				// Or if the mc version is even in the jar name
+				const res = jar.name
+					.split(' ')
+					.map(extractSemver)
+					.filter((r) => r !== null)[0]
+					?.replace('.jar', '');
+
+				const version = res;
+				const mcversion = res;
+
+				const json = JSON.stringify([{ modid, name, version, mcversion }]);
+				return Buffer.from(json, 'utf-8');
 			}
 		})
 		.then((buffer) => buffer.toString('utf-8'))
@@ -90,19 +110,17 @@ export async function fetchMCModInfoFromJAR(jar: File): Promise<MCModInfo[]> {
  * @returns The sanitized mcmod.info data
  */
 function sanitizeMCModInfo(mcmodInfo: MCModInfoData): MCModInfo[] {
-	return (Array.isArray(mcmodInfo) ? mcmodInfo : mcmodInfo.modList)
-		.map((modInfo) => {
-			if (modInfo.mcversion === 'extension \'minecraft\' property \'mcVersion\'')
-				modInfo.mcversion = 'unknown';
+	return (Array.isArray(mcmodInfo) ? mcmodInfo : mcmodInfo.modList).map((modInfo) => {
+		if (modInfo.mcversion === 'extension "minecraft" property "mcVersion"') modInfo.mcversion = 'unknown';
 
-			if (modInfo.url && modInfo.url.startsWith('http://')) modInfo.url = modInfo.url.replace('http://', 'https://');
-			if (modInfo.url && modInfo.url.startsWith('!https://')) modInfo.url = undefined;
+		if (modInfo.url && modInfo.url.startsWith('http://')) modInfo.url = modInfo.url.replace('http://', 'https://');
+		if (modInfo.url && modInfo.url.startsWith('!https://')) modInfo.url = undefined;
 
-			if (!modInfo.mcversion) modInfo.mcversion = 'unknown';
-			if (!modInfo.version) modInfo.name = 'unknown';
+		if (!modInfo.mcversion) modInfo.mcversion = 'unknown';
+		if (!modInfo.version) modInfo.name = 'unknown';
 
-			return modInfo;
-		});
+		return modInfo;
+	});
 }
 
 /**
@@ -113,11 +131,8 @@ function sanitizeMCModInfo(mcmodInfo: MCModInfoData): MCModInfo[] {
  * @param jar the jar file to extract the mod versions from
  * @returns The extracted mod versions
  */
-export async function extractModVersionsFromJAR(
-	jar: File
-): Promise<ModVersion[]> {
+export async function extractModVersionsFromJAR(jar: File): Promise<ModVersion[]> {
 	const res: ModVersion[] = [];
-
 	const modInfos = await fetchMCModInfoFromJAR(jar);
 
 	// Check if all mods exists, if not create them

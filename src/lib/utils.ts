@@ -65,3 +65,12 @@ export function bufferToFile(
 	const blob = new Blob([buffer], { type: mimeType });
 	return new File([blob], filename);
 }
+
+export function extractSemver(version: string) {
+	const regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+
+	const match = version.match(regex);
+	if (!match) return null;
+
+	return match[0];
+}
