@@ -13,7 +13,7 @@ import { ContributionWithCoAuthorsAndFullPoll, PublicUser } from '~/types';
 
 import { CouncilContributionItem } from './contribution-item';
 
-export function CouncilContributionsPanel() {
+const CouncilContributionsPanel = () => {
 	const [textures, setTextures] = useState<Texture[]>([]);
 	const [counselors, setCounselors] = useState<PublicUser[]>([]);
 
@@ -132,4 +132,6 @@ export function CouncilContributionsPanel() {
 			</Accordion>
 		</Stack>
 	);
-}
+};
+
+export default CouncilContributionsPanel;
