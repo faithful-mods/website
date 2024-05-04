@@ -14,7 +14,7 @@ import { gradient, notify } from '~/lib/utils';
 import { getUsers, updateUserRole } from '~/server/data/user';
 import { UserWithReports } from '~/types';
 
-export function UsersPanel() {
+const UsersPanel = () => {
 	const [users, setUsers] = useState<UserWithReports[] | undefined>();
 	const [filteredUsers, setFilteredUsers] = useState<UserWithReports[] | undefined>();
 	const loggedUser = useCurrentUser()!;
@@ -121,4 +121,6 @@ export function UsersPanel() {
 			)}
 		</Card>
 	);
-}
+};
+
+export default UsersPanel;
