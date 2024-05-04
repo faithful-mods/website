@@ -38,7 +38,7 @@ export function DashboardItem({ image, title, description, onClick, warning }: I
 			<Image
 				radius="sm"
 				className="cursor-pointer image-background"
-				src={image ?? './icon.png'}
+				src={image ? (image.startsWith('files') ? `/${image}` : image) : '/icon.png'}
 				alt=""
 				width={90}
 				height={90}

@@ -1,3 +1,5 @@
+'use client';
+
 import type { Mod } from '@prisma/client';
 
 import { Badge, Button, Card, Group, Modal, Text, TextInput } from '@mantine/core';
@@ -6,14 +8,14 @@ import { useDisclosure } from '@mantine/hooks';
 import { useState, useTransition } from 'react';
 import { TbPlus, TbReload } from 'react-icons/tb';
 
+import { DashboardItem } from '~/components/dashboard/dashboard-item';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
 import { getMods, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
-import { DashboardItem } from '../dashboard-item';
 
-export function ModsPanel() {
+const ModsPanel = () => {
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
@@ -162,4 +164,6 @@ export function ModsPanel() {
 			</Card>
 		</>
 	);
-}
+};
+
+export default ModsPanel;

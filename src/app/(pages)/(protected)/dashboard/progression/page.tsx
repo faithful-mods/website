@@ -1,3 +1,5 @@
+'use client';
+
 import type { Resolution } from '@prisma/client';
 
 import { Button, Card, Group, Progress, Text, Stack } from '@mantine/core';
@@ -12,7 +14,7 @@ import type { ModVersionWithProgression, Progression } from '~/types';
 
 import { ProgressionItem } from './progression-item';
 
-export function ProgressionPanel() {
+const ProgressionPanel = () => {
 	const [resources, setResources] = useState<ModVersionWithProgression[]>([]);
 	const [globalProgress, setGlobalProgress] = useState<Progression>(EMPTY_PROGRESSION);
 
@@ -34,17 +36,17 @@ export function ProgressionPanel() {
 	return (
 		<Card
 			shadow="sm"
-			padding="md" 
-			radius="md" 
+			padding="md"
+			radius="md"
 			withBorder
 		>
 			<Group justify="space-between" align="flex-start">
 				<Text size="md" fw={700}>Pack Progression</Text>
-				<Button 
+				<Button
 					variant='gradient'
 					gradient={gradient}
 					className="navbar-icon-fix"
-					onClick={() => reload()} 
+					onClick={() => reload()}
 				>
 					<TbReload />
 				</Button>
@@ -54,10 +56,10 @@ export function ProgressionPanel() {
 				<Text size="sm" fw={700}>Global Progression</Text>
 				{(Object.keys(globalProgress.textures.done) as Resolution[])
 					.map((res, i) => (
-						<Stack key={i} gap="0">									
+						<Stack key={i} gap="0">
 							<Text size="xs" c="dimmed">
 								Textures {res}:&nbsp;{globalProgress.textures.done[res]}&nbsp;/&nbsp;{globalProgress.textures.todo}&nbsp;
-								{globalProgress.textures.todo === globalProgress.linkedTextures ? '' : `(linked: ${globalProgress.linkedTextures})`}	
+								{globalProgress.textures.todo === globalProgress.linkedTextures ? '' : `(linked: ${globalProgress.linkedTextures})`}
 							</Text>
 
 							<Progress.Root size="xl" color={gradient.to}>
@@ -75,4 +77,6 @@ export function ProgressionPanel() {
 			</Group>
 		</Card>
 	);
-}
+};
+
+export default ProgressionPanel;

@@ -7,14 +7,14 @@ import { Modpack } from '@prisma/client';
 import { useState, useTransition } from 'react';
 import { TbPlus, TbReload } from 'react-icons/tb';
 
+import { DashboardItem } from '~/components/dashboard/dashboard-item';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
 import { ModpackModal } from './modal/modpack-modal';
-import { DashboardItem } from '../dashboard-item';
 
-export function ModpacksPanel() {
+const ModpacksPanel = () => {
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
@@ -165,4 +165,6 @@ export function ModpacksPanel() {
 			</Card>
 		</>
 	);
-}
+};
+
+export default ModpacksPanel;
