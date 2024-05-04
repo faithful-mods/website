@@ -23,7 +23,7 @@ export const RoleGate = ({
 		allowedRoles = Object.values(UserRole).filter(role => role !== UserRole.BANNED);
 	}
 
-	if (process.env.NODE_ENV !== 'production' && !allowedRoles.includes(UserRole.ADMIN)) allowedRoles.push(UserRole.ADMIN);
+	if (!allowedRoles.includes(UserRole.ADMIN)) allowedRoles.push(UserRole.ADMIN);
 
 	if ((!role || !allowedRoles.includes(role))) {
 		return (
