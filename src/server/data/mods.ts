@@ -71,7 +71,7 @@ export async function deleteMod(id: string): Promise<Mod> {
 	await canAccess();
 
 	const modImg = await db.mod.findUnique({ where: { id } }).then((mod) => mod?.image);
-	if (modImg) await remove(modImg as `files/${string}`);
+	if (modImg) await remove(modImg as `/files/${string}`);
 
 	const modVersions = await db.modVersion.findMany({ where: { modId: id } });
 	for (const modVersion of modVersions) {

@@ -1,4 +1,4 @@
-import { Badge, Card, Group, Image, Skeleton, Stack, Text } from '@mantine/core';
+import { Badge, Card, Group, Image, Stack, Text } from '@mantine/core';
 import { Texture } from '@prisma/client';
 import { useTransition } from 'react';
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from 'react-icons/lu';
