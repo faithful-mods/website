@@ -17,9 +17,7 @@ import { createModVersion } from '../data/mods-version';
 import { linkTextureToResource, createResource, getResource } from '../data/resource';
 import { createTexture, findTexture } from '../data/texture';
 
-const FILE_DIR = process.env.NODE_ENV === 'production'
-	? 'https://data.faithfulmods.net'
-	: 'files';
+const FILE_DIR = process.env.NODE_ENV === 'production' ? 'https://data.faithfulmods.net' : '/files';
 
 const FILE_PATH = process.env.NODE_ENV === 'production'
 	? '/var/www/html/data.faithfulmods.net'
