@@ -5,9 +5,6 @@ import { Dropzone } from '@mantine/dropzone';
 import { Resolution } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
-import { CoAuthorsSelector } from '~/components/contribute/co-authors-select';
-import { ContributionDraftPanel } from '~/components/contribute/drafts/drafts-panel';
-import { ContributionSubmittedPanel } from '~/components/contribute/submitted/submitted-panel';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -15,6 +12,10 @@ import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
 import { createRawContributions, getCoSubmittedContributions, getDraftContributions, getSubmittedContributions } from '~/server/data/contributions';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
+
+import { CoAuthorsSelector } from './co-authors-select';
+import { ContributionDraftPanel } from './drafts/drafts-panel';
+import { ContributionSubmittedPanel } from './submitted/submitted-panel';
 
 const ContributePage = () => {
 	const [isPending, startTransition] = useTransition();

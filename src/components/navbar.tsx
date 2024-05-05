@@ -15,7 +15,7 @@ import { IoLogOut } from 'react-icons/io5';
 import { MdDashboard } from 'react-icons/md';
 import { TbPackage, TbPackages } from 'react-icons/tb';
 
-import { GitHubLogin } from '~/components/auth/github-login';
+import { GitHubLogin } from '~/components/github-login';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_TABLET } from '~/lib/constants';
