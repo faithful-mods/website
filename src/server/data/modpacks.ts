@@ -1,16 +1,20 @@
 'use server';
 import 'server-only';
 
-import type { Modpack } from '@prisma/client';
+import { UserRole, type Modpack } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 
 import { remove, upload } from '../actions/files';
 
+// GET
+
 export async function getModpacks(): Promise<Modpack[]> {
 	return db.modpack.findMany();
 }
+
+// POST
 
 export async function updateModpack({
 	id,
@@ -23,7 +27,7 @@ export async function updateModpack({
 	description?: string;
 	authors: string[];
 }): Promise<Modpack> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 
 	const modpack = await db.modpack.findUnique({ where: { id } });
 	return db.modpack.update({ where: { id }, data: { ...modpack, name, description, authors } });
@@ -38,22 +42,24 @@ export async function createModpack({
 	description?: string;
 	authors: string[];
 }): Promise<Modpack> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 	return db.modpack.create({ data: { name, description, authors } });
 }
 
 export async function updateModpackPicture(id: string, data: FormData): Promise<Modpack> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 
 	const filepath = await upload(data.get('file') as File, 'modpacks/');
 	return await db.modpack.update({ where: { id }, data: { image: filepath } });
 }
 
+// DELETE
+
 export async function deleteModpack(id: string): Promise<Modpack> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 
 	const modpackImg = await db.modpack.findUnique({ where: { id } }).then((modpack) => modpack?.image);
-	if (modpackImg) await remove(modpackImg as `files/${string}`);
+	if (modpackImg) await remove(modpackImg as `/files/${string}`);
 
 	const modpackVersions = await db.modpackVersion.findMany({ where: { modpackId: id } });
 	for (const modpackVersion of modpackVersions) {

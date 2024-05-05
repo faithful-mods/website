@@ -9,6 +9,8 @@ import type { ContributionActivationStatus, Progression } from '~/types';
 
 import { remove } from '../actions/files';
 
+// GET
+
 export async function getTextures(): Promise<Texture[]> {
 	return db.texture.findMany();
 }
@@ -17,22 +19,25 @@ export async function getTexture(id: string): Promise<Texture | null> {
 	return db.texture.findUnique({ where: { id } });
 }
 
-export async function createTexture({
-	name,
-	filepath,
-	hash,
-}: {
-	name: string;
-	filepath: string;
-	hash: string;
-}): Promise<Texture> {
-	return db.texture.create({
-		data: {
-			name,
-			filepath,
-			hash,
-		},
-	});
+export async function getTextureStatus(textureId: string): Promise<ContributionActivationStatus[]> {
+	return db.contributionDeactivation
+		.findMany({
+			where: {
+				textureId,
+			},
+		})
+		.then((response) => {
+			const general = response.find((r) => r.resolution === null);
+			const resolutions = response.filter((r) => r.resolution !== null);
+
+			return [
+				...(Object.keys(Resolution) as Resolution[]).map((res) => ({
+					resolution: res,
+					status: !resolutions.some((r) => r.resolution === res),
+				})),
+				{ resolution: null, status: !general },
+			];
+		});
 }
 
 export async function getGlobalProgression() {
@@ -79,35 +84,29 @@ export async function findTexture({ hash }: { hash: string }): Promise<Texture |
 	});
 }
 
-export async function deleteTexture(id: string): Promise<Texture> {
-	// Delete on disk
-	const textureFile = await db.texture.findUnique({ where: { id } }).then((texture) => texture?.filepath);
-	if (textureFile) await remove(textureFile as `/files/${string}`);
+// POST
 
-	// Contributions
-	await db.contributionDeactivation.deleteMany({ where: { textureId: id } });
+export async function createTexture({
+	name,
+	filepath,
+	hash,
+}: {
+	name: string;
+	filepath: string;
+	hash: string;
+}): Promise<Texture> {
+	await canAccess(UserRole.COUNCIL);
 
-	// Delete in database
-	return db.texture.delete({ where: { id } });
-}
-
-export async function getTextureStatus(textureId: string): Promise<ContributionActivationStatus[]> {
-	return db.contributionDeactivation.findMany({
-		where: {
-			textureId,
+	return db.texture.create({
+		data: {
+			name,
+			filepath,
+			hash,
 		},
-	}).then((response) => {
-		const general = response.find((r) => r.resolution === null);
-		const resolutions = response.filter((r) => r.resolution !== null);
-
-		return [
-			...(Object.keys(Resolution) as Resolution[]).map((res) => ({ resolution: res, status: !resolutions.some((r) => r.resolution === res) })),
-			{ resolution: null, status: !general },
-		];
 	});
 }
 
-export interface UpdateTextureParams {
+interface UpdateTextureParams {
 	id: string;
 	name: string;
 	aliases: string[];
@@ -134,3 +133,19 @@ export async function updateTexture({ id, name, aliases, contributions }: Update
 	// update name & aliases and return the updated texture
 	return db.texture.update({ where: { id }, data: { name, aliases } });
 };
+
+// DELETE
+
+export async function deleteTexture(id: string): Promise<Texture> {
+	await canAccess(UserRole.COUNCIL);
+
+	// Delete on disk
+	const textureFile = await db.texture.findUnique({ where: { id } }).then((texture) => texture?.filepath);
+	if (textureFile) await remove(textureFile as `/files/${string}`);
+
+	// Contributions
+	await db.contributionDeactivation.deleteMany({ where: { textureId: id } });
+
+	// Delete in database
+	return db.texture.delete({ where: { id } });
+}

@@ -1,14 +1,14 @@
 'use client';
 
-import type { Mod } from '@prisma/client';
-
 import { Badge, Button, Card, Group, Modal, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
+import { UserRole, Mod } from '@prisma/client';
 import { useState, useTransition } from 'react';
 import { TbPlus, TbReload } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard/dashboard-item';
+import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
@@ -16,6 +16,8 @@ import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 import { ModModal } from './modal/mods-modal';
 
 const ModsPanel = () => {
+	const user = useCurrentUser()!;
+
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
@@ -154,7 +156,7 @@ const ModsPanel = () => {
 					</Group>
 				)}
 
-				{mods && mods[0] && mods[0].length > 0 &&
+				{mods && mods[0] && mods[0].length > 0 && user.role === UserRole.ADMIN &&
 					<Group justify="flex-end" mt="md">
 						<Button
 							variant="gradient"

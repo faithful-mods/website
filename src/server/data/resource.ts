@@ -1,26 +1,14 @@
 'use server';
 import 'server-only';
 
-import type { Resource } from '@prisma/client';
+import { UserRole, type Resource } from '@prisma/client';
 
+import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 
 import { deleteTexture } from './texture';
 
-export async function createResource({
-	asset,
-	modVersion,
-}: {
-	asset: string;
-	modVersion: { id: string };
-}): Promise<Resource> {
-	return db.resource.create({
-		data: {
-			assetFolder: asset,
-			modVersionId: modVersion.id,
-		},
-	});
-}
+// GET
 
 export async function getResource({
 	asset,
@@ -41,6 +29,8 @@ export async function getResourceByIds(ids: string[]): Promise<Resource[]> {
 	return db.resource.findMany({ where: { id: { in: ids } } });
 }
 
+// POST
+
 export async function linkTextureToResource({
 	resource,
 	texture,
@@ -50,6 +40,8 @@ export async function linkTextureToResource({
 	texture: { id: string };
 	assetPath: string;
 }) {
+	await canAccess(UserRole.COUNCIL);
+
 	return await db.linkedTexture.create({
 		data: {
 			assetPath,
@@ -59,7 +51,26 @@ export async function linkTextureToResource({
 	});
 }
 
+export async function createResource({
+	asset,
+	modVersion,
+}: {
+	asset: string;
+	modVersion: { id: string };
+}): Promise<Resource> {
+	return db.resource.create({
+		data: {
+			assetFolder: asset,
+			modVersionId: modVersion.id,
+		},
+	});
+}
+
+// DELETE
+
 export async function deleteResource(id: string): Promise<Resource> {
+	await canAccess(UserRole.COUNCIL);
+
 	const linkedTextures = await db.linkedTexture.findMany({ where: { resourceId: id } });
 	for (const linkedTexture of linkedTextures) {
 		await db.linkedTexture.delete({ where: { id: linkedTexture.id } });

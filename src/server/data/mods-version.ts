@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { Resolution, type ModVersion, type Modpack } from '@prisma/client';
+import { Resolution, UserRole, type ModVersion, type Modpack } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -11,6 +11,8 @@ import type { ModVersionWithModpacks, ModVersionWithProgression } from '~/types'
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
 import { extractModVersionsFromJAR } from '../actions/files';
+
+// GET
 
 export async function getModVersionsWithModpacks(modId: string): Promise<ModVersionWithModpacks[]> {
 	const res: ModVersionWithModpacks[] = [];
@@ -98,8 +100,10 @@ export async function getModsVersionsProgression(): Promise<ModVersionWithProgre
 	return modVersions.filter((modVer) => modVer.linkedTextures > 0); // only return mod versions with linked textures
 }
 
+// POST
+
 export async function addModVersionsFromJAR(jar: FormData): Promise<ModVersion[]> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 	const res: ModVersion[] = [];
 
 	const files = jar.getAll('files') as File[];
@@ -121,17 +125,20 @@ export async function createModVersion({
 	version: string;
 	mcVersion: string;
 }): Promise<ModVersion> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 
 	return db.modVersion.create({ data: { modId: mod.id, version, mcVersion } });
 }
 
 export async function updateModVersion({ id, version, mcVersion }: { id: string; version: string; mcVersion: string }) {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 	return await db.modVersion.update({ where: { id }, data: { version, mcVersion } });
 }
 
+// DELETE
+
 export async function removeModpackFromModVersion(modVersionId: string, modpackId: string): Promise<Modpack[]> {
+	await canAccess(UserRole.COUNCIL);
 	const modpackVersionId = await db.modpackVersion.findFirst({
 		where: { modpackId, mods: { some: { id: modVersionId } } },
 	});
@@ -144,6 +151,7 @@ export async function removeModpackFromModVersion(modVersionId: string, modpackI
 }
 
 export async function deleteModVersion(id: string): Promise<ModVersion> {
+	await canAccess(UserRole.COUNCIL);
 	const resources = await db.resource.findMany({ where: { modVersionId: id } });
 
 	for (const resource of resources) {

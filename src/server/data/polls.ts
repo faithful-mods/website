@@ -1,8 +1,13 @@
 'use server';
 import 'server-only';
 
+import { UserRole } from '@prisma/client';
+
+import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import type { PollResults } from '~/types';
+
+// GET
 
 export async function getPollResult(id: string): Promise<PollResults> {
 	const res = await db.poll.findFirstOrThrow({ where: { id }, include: { upvotes: true, downvotes: true } });
@@ -12,7 +17,11 @@ export async function getPollResult(id: string): Promise<PollResults> {
 	};
 }
 
+// POST
+
 export async function editPollChoice(pollId: string, userId: string, kind: 'up' | 'down' | 'none') {
+	await canAccess(UserRole.COUNCIL);
+
 	switch (kind) {
 		case 'up':
 			await db.poll.update({

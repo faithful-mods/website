@@ -19,6 +19,8 @@ import {
 import { getCounselors } from './user';
 import { remove, upload } from '../actions/files';
 
+// GET
+
 export async function getSubmittedContributions(
 	ownerId: string
 ): Promise<ContributionWithCoAuthorsAndPoll[]> {
@@ -33,6 +35,66 @@ export async function getSubmittedContributions(
 		},
 	});
 }
+
+export async function getContributionsOfTexture(textureId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
+	return await db.contribution.findMany({
+		where: { textureId, status: Status.ACCEPTED },
+		include: {
+			coAuthors: { select: { id: true, name: true, image: true } },
+			owner: { select: { id: true, name: true, image: true } },
+			poll: true,
+		},
+	});
+}
+
+export async function getCoSubmittedContributions(coAuthorId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
+	return await db.contribution.findMany({
+		where: {
+			coAuthors: { some: { id: coAuthorId } },
+			status: { not: Status.DRAFT },
+		},
+		include: {
+			coAuthors: { select: { id: true, name: true, image: true } },
+			owner: { select: { id: true, name: true, image: true } },
+			poll: true,
+		},
+	});
+}
+
+export async function getDraftContributions(ownerId: string): Promise<ContributionWithCoAuthors[]> {
+	await canAccess(UserRole.ADMIN, ownerId);
+
+	return await db.contribution.findMany({
+		where: { ownerId, status: Status.DRAFT },
+		include: {
+			coAuthors: { select: { id: true, name: true, image: true } },
+			owner: { select: { id: true, name: true, image: true } },
+		},
+	});
+}
+
+export async function getPendingContributions(): Promise<ContributionWithCoAuthorsAndFullPoll[]> {
+	await canAccess(UserRole.COUNCIL);
+
+	return await db.contribution.findMany({
+		where: { status: Status.PENDING },
+		include: {
+			coAuthors: { select: { id: true, name: true, image: true } },
+			owner: { select: { id: true, name: true, image: true } },
+			poll: {
+				select: {
+					id: true,
+					downvotes: { select: { id: true, name: true, image: true } },
+					upvotes: { select: { id: true, name: true, image: true } },
+					createdAt: true,
+					updatedAt: true,
+				},
+			},
+		},
+	});
+}
+
+// POST
 
 export async function createRawContributions(
 	ownerId: string,
@@ -65,49 +127,6 @@ export async function createRawContributions(
 	return contributions.sort(
 		(a, b) => a.createdAt.getTime() - b.createdAt.getTime()
 	);
-}
-
-export async function getContributionsOfTexture(
-	textureId: string
-): Promise<ContributionWithCoAuthorsAndPoll[]> {
-	return await db.contribution.findMany({
-		where: { textureId, status: Status.ACCEPTED },
-		include: {
-			coAuthors: { select: { id: true, name: true, image: true } },
-			owner: { select: { id: true, name: true, image: true } },
-			poll: true,
-		},
-	});
-}
-
-export async function getCoSubmittedContributions(
-	coAuthorId: string
-): Promise<ContributionWithCoAuthorsAndPoll[]> {
-	return await db.contribution.findMany({
-		where: {
-			coAuthors: { some: { id: coAuthorId } },
-			status: { not: Status.DRAFT },
-		},
-		include: {
-			coAuthors: { select: { id: true, name: true, image: true } },
-			owner: { select: { id: true, name: true, image: true } },
-			poll: true,
-		},
-	});
-}
-
-export async function getDraftContributions(
-	ownerId: string
-): Promise<ContributionWithCoAuthors[]> {
-	await canAccess(UserRole.ADMIN, ownerId);
-
-	return await db.contribution.findMany({
-		where: { ownerId, status: Status.DRAFT },
-		include: {
-			coAuthors: { select: { id: true, name: true, image: true } },
-			owner: { select: { id: true, name: true, image: true } },
-		},
-	});
 }
 
 export async function updateDraftContribution({
@@ -148,6 +167,41 @@ export async function submitContribution(ownerId: string, id: string) {
 	});
 }
 
+
+export async function checkContributionStatus(contributionId: string) {
+	await canAccess(UserRole.COUNCIL);
+
+	const counselors = await getCounselors();
+	const contribution = await db.contribution.findFirstOrThrow({
+		where: { id: contributionId },
+		include: {
+			poll: {
+				select: {
+					upvotes: { select: { id: true } },
+					downvotes: { select: { id: true } },
+				},
+			},
+		},
+	});
+
+	// voting period ended
+	if (contribution.poll.upvotes.length + contribution.poll.downvotes.length === counselors.length) {
+		if (contribution.poll.upvotes.length > contribution.poll.downvotes.length) {
+			await db.contribution.update({
+				where: { id: contributionId },
+				data: { status: Status.ACCEPTED },
+			});
+		} else {
+			await db.contribution.update({
+				where: { id: contributionId },
+				data: { status: Status.REJECTED },
+			});
+		}
+	}
+}
+
+// DELETE
+
 export async function deleteContributions(
 	ownerId: string,
 	...ids: string[]
@@ -173,64 +227,8 @@ export async function deleteContributions(
 
 		// Base case: owner wants to delete the contribution
 		if (contribution.ownerId === ownerId) {
-			await remove(contribution.file as `files/${string}`);
+			await remove(contribution.file as `/files/${string}`);
 			await db.contribution.delete({ where: { id: contribution.id } });
-		}
-	}
-}
-
-export async function getPendingContributions(): Promise<ContributionWithCoAuthorsAndFullPoll[]> {
-	await canAccess(UserRole.COUNCIL);
-
-	return await db.contribution.findMany({
-		where: { status: Status.PENDING },
-		include: {
-			coAuthors: { select: { id: true, name: true, image: true } },
-			owner: { select: { id: true, name: true, image: true } },
-			poll: {
-				select: {
-					id: true,
-					downvotes: { select: { id: true, name: true, image: true } },
-					upvotes: { select: { id: true, name: true, image: true } },
-					createdAt: true,
-					updatedAt: true,
-				},
-			},
-		},
-	});
-}
-
-export async function checkContributionStatus(contributionId: string) {
-	await canAccess(UserRole.COUNCIL);
-
-	const counselors = await getCounselors();
-	const contribution = await db.contribution.findFirstOrThrow({
-		where: { id: contributionId },
-		include: {
-			poll: {
-				select: {
-					upvotes: { select: { id: true } },
-					downvotes: { select: { id: true } },
-				},
-			},
-		},
-	});
-
-	// voting period ended
-	if (
-		contribution.poll.upvotes.length + contribution.poll.downvotes.length ===
-		counselors.length
-	) {
-		if (contribution.poll.upvotes.length > contribution.poll.downvotes.length) {
-			await db.contribution.update({
-				where: { id: contributionId },
-				data: { status: Status.ACCEPTED },
-			});
-		} else {
-			await db.contribution.update({
-				where: { id: contributionId },
-				data: { status: Status.REJECTED },
-			});
 		}
 	}
 }

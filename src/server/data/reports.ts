@@ -9,6 +9,8 @@ import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import type { ReportWithReporter } from '~/types';
 
+// GET
+
 export async function getReportsOfUser(userId: string): Promise<ReportWithReporter[]> {
 	await canAccess(UserRole.ADMIN, userId);
 
@@ -32,6 +34,8 @@ export async function getReportsOfUser(userId: string): Promise<ReportWithReport
 export async function getReportsReasons() {
 	return db.reportReason.findMany({ include: { Report: { select: { reason: true  } } } });
 }
+
+// POST
 
 export async function reportSomeone({
 	reporterId,
