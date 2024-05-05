@@ -48,7 +48,17 @@ export function notify(title: string, message: React.ReactNode, color: MantineCo
 }
 
 export function sortByName<T extends { name: string }>(a: T, b: T) {
-	return a.name.localeCompare(b.name) || 0;
+	return a.name.toLowerCase().localeCompare(b.name.toLowerCase()) || 0;
+}
+
+export function searchFilter<T extends { name: string, aliases?: string[] }>(search: string) {
+	return (item: T) => {
+		const searchLower = search.toLowerCase();
+		const name = item.name.toLowerCase();
+		const aliases = item.aliases?.map((alias) => alias.toLowerCase()) ?? [];
+
+		return name.includes(searchLower) || aliases.some((alias) => alias.includes(searchLower));
+	};
 }
 
 export const EMPTY_PROGRESSION_RES = Object.keys(Resolution).reduce((acc, res) => ({ ...acc, [res]: 0 }), {}) as Progression['textures']['done'];

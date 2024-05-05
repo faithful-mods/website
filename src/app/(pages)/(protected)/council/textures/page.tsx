@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
+import { searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
 
 import { TextureModal } from './modal/texture-modal';
@@ -40,7 +41,7 @@ const CouncilTexturesPage = () => {
 	useEffectOnce(() => {
 		getTextures()
 			.then((res) => {
-				const sorted = res.sort((a, b) => a.name.localeCompare(b.name));
+				const sorted = res.sort(sortByName);
 				setTextures(sorted);
 				setSearchedTextures(sorted);
 			});
@@ -61,11 +62,15 @@ const CouncilTexturesPage = () => {
 
 	useEffect(() => {
 		if (!search) {
-			setSearchedTextures(textures);
+			setSearchedTextures(textures.sort(sortByName));
 			return;
 		}
 
-		setSearchedTextures(textures.filter((t) => t.name.toLowerCase().includes(search.toLowerCase()) || t.aliases.some((a) => a.toLowerCase().includes(search.toLowerCase()))));
+		setSearchedTextures(
+			textures
+				.filter(searchFilter(search))
+				.sort(sortByName)
+		);
 	}, [search, textures]);
 
 	const openTextureModal = (t: Texture) => {
@@ -84,7 +89,7 @@ const CouncilTexturesPage = () => {
 			newTextures.push(newTexture);
 		}
 
-		setTextures(newTextures);
+		setTextures(newTextures.sort(sortByName));
 		setSearch(search); // re-search
 
 		closeModal();
