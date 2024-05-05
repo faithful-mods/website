@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import type { Mod } from '@prisma/client';
+import { UserRole, type Mod } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -9,6 +9,8 @@ import { extractSemver } from '~/lib/utils';
 
 import { deleteModVersion } from './mods-version';
 import { remove, upload } from '../actions/files';
+
+// GET
 
 export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 	return db.mod.findMany({ where: { id: { in: ids } } });
@@ -29,6 +31,8 @@ export async function modHasUnknownVersion(id: string): Promise<boolean> {
 	return mod ? mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 : false;
 }
 
+// POST
+
 export async function updateMod({
 	id,
 	name,
@@ -44,14 +48,14 @@ export async function updateMod({
 	url?: string;
 	forgeId?: string;
 }): Promise<Mod> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 
 	const mod = await db.mod.findUnique({ where: { id } });
 	return db.mod.update({ where: { id }, data: { ...mod, ...{ name, description, authors, url, forgeId } } });
 }
 
 export async function updateModPicture(id: string, data: FormData): Promise<Mod> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 
 	const filepath = await upload(data.get('file') as File, 'mods/');
 	return await db.mod.update({ where: { id }, data: { image: filepath } });
@@ -70,13 +74,17 @@ export async function createMod({
 	url?: string;
 	forgeId?: string;
 }): Promise<Mod> {
+	await canAccess(UserRole.COUNCIL);
+
 	return db.mod.create({
 		data: { name, description, authors: authors ?? [], url, forgeId },
 	});
 }
 
+// DELETE
+
 export async function deleteMod(id: string): Promise<Mod> {
-	await canAccess();
+	await canAccess(UserRole.COUNCIL);
 
 	const modImg = await db.mod.findUnique({ where: { id } }).then((mod) => mod?.image);
 	if (modImg) await remove(modImg as `/files/${string}`);

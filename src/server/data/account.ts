@@ -5,6 +5,8 @@ import { Account } from '@prisma/client';
 
 import { db } from '~/lib/db';
 
+// GET
+
 export async function getAccountByUserId(userId: string): Promise<Account> {
 	const account = await db.account.findFirst({ where: { userId } });
 
