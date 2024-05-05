@@ -14,6 +14,8 @@ import '@mantine/core/styles.css';
 import '@mantine/dropzone/styles.css';
 import '../globals.scss';
 
+import '~/lib/polyfills';
+
 export const metadata: Metadata = {
 	title: 'Faithful Mods',
 };

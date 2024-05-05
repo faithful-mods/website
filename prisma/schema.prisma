@@ -142,6 +142,9 @@ model Texture {
 
   disabledContributions ContributionDeactivation[]
 
+  relations  Texture[] @relation("relations")
+  relationOf Texture[] @relation("relations")
+
   @@map("textures")
 }
 
