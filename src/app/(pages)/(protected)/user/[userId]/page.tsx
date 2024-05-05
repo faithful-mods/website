@@ -2,21 +2,21 @@
 
 import type { User } from '@prisma/client';
 
-
 import { Badge, Button, Card, Group, Tabs } from '@mantine/core';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 
-import { UserReportsPanel } from '~/components/user/reports-panel';
-import { UserSettingsPanel } from '~/components/user/settings-panel';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { getReportsOfUser } from '~/server/data/reports';
 import { getUserById } from '~/server/data/user';
 import type { ReportWithReporter } from '~/types';
+
+import { UserReportsPanel } from './reports-panel';
+import { UserSettingsPanel } from './settings-panel';
 
 const UserPage = () => {
 	const params = useParams();

@@ -4,7 +4,7 @@ import { Card, Tabs } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { RoleGate } from '~/components/auth/role-gate';
+import { RoleGate } from '~/components/role-gate';
 import { gradient } from '~/lib/utils';
 
 interface ProtectedLayoutProps {
