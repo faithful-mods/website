@@ -47,8 +47,9 @@ export function notify(title: string, message: React.ReactNode, color: MantineCo
 	});
 }
 
-export function sortByName<T extends { name: string }>(a: T, b: T) {
-	return a.name.toLowerCase().localeCompare(b.name.toLowerCase()) || 0;
+export function sortByName<T extends { name: string, id?: string }>(a: T, b: T) {
+	// If same name, sort by id to keep consistent order between reloads (since id is unique)
+	return a.name.localeCompare(b.name) || a.id?.localeCompare(b?.id ?? '') || 0;
 }
 
 export function searchFilter<T extends { name: string, aliases?: string[] }>(search: string) {
