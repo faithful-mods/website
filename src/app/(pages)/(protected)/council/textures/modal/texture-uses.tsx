@@ -44,7 +44,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 	return (
 		<Stack ml={0} gap="md" mt="md">
 			{mods.map((mod) => (
-				<Card key={mod.id} p={0}>
+				<Card key={mod.id} p={0} withBorder>
 					<Group gap="xs" m="xs">
 						<Image src={mod.image ?? '/icon.png'} alt="" width={16} height={16} />
 						<Text fw={500}>{mod.name}</Text>

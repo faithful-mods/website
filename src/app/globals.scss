@@ -28,7 +28,7 @@ main {
 }
 
 .texture-background {
-	background-color: var(--mantine-color-dark-6);
+	background-color: rgb(0 0 0 / 20%);
 }
 
 :where([data-mantine-color-scheme='light']) .texture-background {

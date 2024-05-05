@@ -1,10 +1,11 @@
 'use client';
 
-import { Badge, Card, Code, Group, Image, Modal, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Badge, Card, Code, Group, Modal, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Texture } from '@prisma/client';
 import { useEffect, useMemo, useState } from 'react';
 
+import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
@@ -107,7 +108,7 @@ const CouncilTexturesPage = () => {
 				onClose={() => handleModalClose(textureModal!)}
 				title={<Code>{textureModal?.name}</Code>}
 			>
-				<TextureModal texture={textureModal!} onClose={handleModalClose} />
+				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>
 
 			<Card withBorder shadow="sm" radius="md" padding="md">
@@ -145,15 +146,11 @@ const CouncilTexturesPage = () => {
 								'--item-per-row': itemsPerRow,
 							}}
 						>
-							<Image
-								radius="sm"
-								className="cursor-pointer image-background image-pixelated"
+							<TextureImage
+								className="cursor-pointer"
 								src={t.filepath ?? '/icon.png'}
-								alt=""
-								width={90}
-								height={90}
-								fit="contain"
-								style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }}
+								alt={t.name}
+								size={90}
 							/>
 							<Stack gap="0" align="flex-start" mt="sm" pr="sm">
 								<Text size="sm" fw={700}>{t.name}</Text>

@@ -1,27 +1,25 @@
-import { Image, Stack, Tabs } from '@mantine/core';
+import { Stack, Tabs } from '@mantine/core';
 import { Texture } from '@prisma/client';
 
+import { TextureImage } from '~/components/texture-img';
+
 import { TextureGeneral } from './texture-general';
+import { TextureRelations } from './texture-relations';
 import { TextureUses } from './texture-uses';
 
 export interface TextureModalProps {
 	texture: Texture;
-	onClose: (t: Texture) => void;
+	textures: Texture[];
 }
 
-export function TextureModal({ texture, onClose }: TextureModalProps) {
+export function TextureModal({ texture, textures }: TextureModalProps) {
 	return (
 		<Stack>
-			<Image
-				className="image-pixelated"
+			<TextureImage
 				src={texture.filepath}
-				fit='contain'
-				alt=""
-				style={{
-					maxWidth: '256px',
-					maxHeight: '256px',
-					margin: '0 auto',
-				}}
+				alt={texture.name}
+				size={256}
+				style={{ margin: 'auto' }}
 			/>
 			<Tabs defaultValue="general">
 				<Tabs.List>
@@ -31,6 +29,9 @@ export function TextureModal({ texture, onClose }: TextureModalProps) {
 					<Tabs.Tab value="uses">
 						Uses
 					</Tabs.Tab>
+					<Tabs.Tab value="relations">
+						Relations
+					</Tabs.Tab>
 					<Tabs.Tab value="mcmeta" disabled>
 						MCMETA
 					</Tabs.Tab>
@@ -38,6 +39,9 @@ export function TextureModal({ texture, onClose }: TextureModalProps) {
 
 				<Tabs.Panel value="general">
 					<TextureGeneral texture={texture} />
+				</Tabs.Panel>
+				<Tabs.Panel value="relations">
+					<TextureRelations texture={texture} textures={textures} />
 				</Tabs.Panel>
 				<Tabs.Panel value="uses">
 					<TextureUses texture={texture} />

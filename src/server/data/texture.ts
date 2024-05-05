@@ -19,6 +19,14 @@ export async function getTexture(id: string): Promise<Texture | null> {
 	return db.texture.findUnique({ where: { id } });
 }
 
+export async function getRelatedTextures(id: string): Promise<Texture[]> {
+	return db.texture.findFirst({ where: { id }, include: { relations: true, relationOf: true }})
+		.then((res) => [...(res?.relations ?? []), ...(res?.relationOf ?? [])])
+		.then((res) => {
+			return res.unique((t1, t2) => t1.id === t2.id);
+		});
+}
+
 export async function getTextureStatus(textureId: string): Promise<ContributionActivationStatus[]> {
 	return db.contributionDeactivation
 		.findMany({
@@ -134,6 +142,25 @@ export async function updateTexture({ id, name, aliases, contributions }: Update
 	return db.texture.update({ where: { id }, data: { name, aliases } });
 };
 
+export async function addRelationsToTexture(textureId: string, relatedTextures: string[]): Promise<Texture[]> {
+	await canAccess(UserRole.COUNCIL);
+
+	// get current relations
+	const currentRelations = await db.texture.findFirst({ where: { id: textureId }, include: { relations: true } }).then((res) => res?.relations ?? []);
+
+	// add new relations
+	const newRelations = relatedTextures.filter((rt) => !currentRelations.map((cr) => cr.id).includes(rt));
+	return await db.texture
+		.update({
+			where: { id: textureId },
+			data: {
+				relations: { connect: newRelations.map((id) => ({ id })) },
+			},
+			include: { relations: true, relationOf: true },
+		})
+		.then((res) => [...res.relations, ...res.relationOf].unique((a, b) => a.id === b.id));
+}
+
 // DELETE
 
 export async function deleteTexture(id: string): Promise<Texture> {
@@ -148,4 +175,19 @@ export async function deleteTexture(id: string): Promise<Texture> {
 
 	// Delete in database
 	return db.texture.delete({ where: { id } });
+}
+
+export async function removeRelationFromTexture(textureId: string, relatedTextureId: string) {
+	await canAccess(UserRole.COUNCIL);
+
+	return db.texture
+		.update({
+			where: { id: textureId },
+			data: {
+				relations: { disconnect: { id: relatedTextureId } },
+				relationOf: { disconnect: { id: relatedTextureId } },
+			},
+			include: { relations: true, relationOf: true },
+		})
+		.then((res) => [...res.relations, ...res.relationOf].unique((a, b) => a.id === b.id));
 }
