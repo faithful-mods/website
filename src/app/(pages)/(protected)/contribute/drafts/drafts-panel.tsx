@@ -1,4 +1,4 @@
-import type { Texture } from '@prisma/client';
+import type { ContributionDeactivation, Texture } from '@prisma/client';
 
 import { Stack, Group, Text, Modal, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { notify } from '~/lib/utils';
+import { notify, sortByName } from '~/lib/utils';
 import { getTextures } from '~/server/data/texture';
 import { ContributionWithCoAuthors } from '~/types';
 
@@ -23,12 +23,15 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [modalContribution, setModalContribution] = useState<ContributionWithCoAuthors | null>(null);
 	const [contributions, setContributions] = useState<ContributionWithCoAuthors[]>(draftContributions);
-	const [textures, setTextures] = useState<Texture[]>([]);
+	const [textures, setTextures] = useState<(Texture & { disabledContributions: ContributionDeactivation[] })[]>([]);
 	const [windowWidth, _] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getTextures()
-			.then(setTextures)
+			.then((res)=> {
+				const sorted = res.sort(sortByName);
+				setTextures(sorted);
+			})
 			.catch((err) => {
 				console.error(err);
 				notify('Error', 'Failed to fetch textures', 'red');
@@ -51,13 +54,13 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 					<Title order={4} component="span">Texture Attribution</Title>
 				}
 			>
-				{modalContribution && 
-					<ContributionDraftModal 
-						contribution={modalContribution} 
+				{modalContribution &&
+					<ContributionDraftModal
+						contribution={modalContribution}
 						textures={textures}
 						onClose={(editedDraft) => {
 							setContributions([
-								...contributions.filter((c) => c.id !== editedDraft.id), 
+								...contributions.filter((c) => c.id !== editedDraft.id),
 								editedDraft,
 							].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()));
 							closeModal();
@@ -70,15 +73,15 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 				{contributions.length === 0 && <Text size="sm" c="dimmed">No drafts!</Text>}
 				{contributions.length > 0 && <Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>}
 				<Group>
-					{contributions.map((contribution, index) => 
-						<ContributionDraftItem 
-							key={index} 
-							contribution={contribution} 
+					{contributions.map((contribution, index) =>
+						<ContributionDraftItem
+							key={index}
+							contribution={contribution}
 							onDelete={() => {
 								setContributions(contributions.filter((c) => c.id !== contribution.id));
 								onUpdate();
 							}}
-							openModal={openModalWithContribution} 
+							openModal={openModalWithContribution}
 						/>
 					)}
 				</Group>

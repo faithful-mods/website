@@ -1,5 +1,5 @@
 import { Avatar, Button, Card, Container, Group, Image, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
-import { Resolution, type Texture } from '@prisma/client';
+import { ContributionDeactivation, Resolution, type Texture } from '@prisma/client';
 import { useState, useTransition } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { PiMagicWandBold } from 'react-icons/pi';
@@ -16,7 +16,7 @@ import { CoAuthorsSelector } from '../co-authors-select';
 
 export interface ContributionDraftModalProps {
 	contribution: ContributionWithCoAuthors;
-	textures: Texture[];
+	textures: (Texture & { disabledContributions: ContributionDeactivation[] })[];
 	onClose: (editedContribution: ContributionWithCoAuthors) => void;
 }
 
@@ -38,22 +38,29 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	const [selectedTextureContributionsIndex, setSelectedTextureContributionsIndex] = useState<number>(0);
 	const [displayedSelectedTextureContributions, setDisplayedSelectedTextureContributions] = useState<ContributionWithCoAuthorsAndPoll | undefined>();
 
+	const [disabledResolution, setDisabledResolution] = useState<(Resolution | null)[]>([]);
+
 	const author = useCurrentUser()!;
 
 	useEffectOnce(() => {
-		if (contribution.textureId) selectedTextureUpdated(contribution.textureId);
+		if (contribution.textureId) handleTextureSelected(contribution.textureId);
 	});
 
-	const selectedTextureUpdated = (textureId: string | null) => {
+	const handleTextureSelected = (textureId: string | null) => {
 		if (textureId === null) {
 			setSelectedTexture(null);
 			setSelectedTextureContributions([]);
 			setSelectedTextureContributionsIndex(0);
 			setDisplayedSelectedTextureContributions(undefined);
+			setDisabledResolution([]);
 			return;
 		}
 
 		const texture = textures.find((t) => t.id === textureId)!;
+		const disabled = texture.disabledContributions.map((d) => d.resolution);
+		console.log(disabled);
+		setDisabledResolution(disabled);
+
 		getContributionsOfTexture(textureId)
 			.then((res) => {
 				setSelectedTexture(texture);
@@ -79,21 +86,21 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 		);
 	};
 
-	const previousContribution = () => {
+	const handlePrevContribution = () => {
 		if (selectedTextureContributionsIndex === 0) return;
 		let index = selectedTextureContributionsIndex - 1;
 		setSelectedTextureContributionsIndex(index);
 		setDisplayedSelectedTextureContributions(selectedTextureContributions[index]);
 	};
 
-	const nextContribution = () => {
+	const handleNextContribution = () => {
 		if (selectedTextureContributionsIndex === selectedTextureContributions.length - 1) return;
 		let index = selectedTextureContributionsIndex + 1;
 		setSelectedTextureContributionsIndex(index);
 		setDisplayedSelectedTextureContributions(selectedTextureContributions[index]);
 	};
 
-	const updateDraft = () => {
+	const handleDraftUpdate = () => {
 		if (!selectedTexture) return;
 
 		startTransition(() => {
@@ -109,7 +116,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 		});
 	};
 
-	const cancelAndClose = () => {
+	const handleCancel = () => {
 		onClose(contribution);
 	};
 
@@ -123,7 +130,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						<Text size="sm" c="dimmed">The file you&apos;re submitting.</Text>
 					</Stack>
 					<Card h={rowHeight} shadow="0" withBorder p="0">
-						<Group justify="center">
+						<Group justify="center" h={rowHeight}>
 							<Text size="sm">{contribution.filename}</Text>
 						</Group>
 					</Card>
@@ -152,7 +159,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 								startTransition(() => {
 									const texture = textures.find((t) => t.name === contribution.filename.replace('.png', '') || t.aliases.includes(contribution.filename.replace('.png', '')));
 									if (texture) {
-										selectedTextureUpdated(texture.id);
+										handleTextureSelected(texture.id);
 									}
 								});
 							}}
@@ -160,12 +167,12 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 							<PiMagicWandBold />
 						</Button>
 						<Select
-							limit={256}
+							limit={100}
 							data={textures.map((t) => ({ value: t.id, label: `${t.name} ${t.aliases.join(' ')}`, disabled: t.id === selectedTexture?.id }))}
 							defaultValue={contribution.textureId}
 							renderOption={renderMultiSelectOption}
 							className="w-full"
-							onChange={selectedTextureUpdated}
+							onChange={handleTextureSelected}
 							onClear={() => setSelectedTexture(null)}
 							placeholder="Search a texture..."
 							searchable
@@ -194,7 +201,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						<Button
 							variant="light"
 							disabled={selectedTextureContributions.length === 0 || selectedTextureContributionsIndex === 0}
-							onClick={previousContribution}
+							onClick={handlePrevContribution}
 						>
 							<FaChevronLeft/>
 						</Button>
@@ -211,7 +218,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						<Button
 							variant="light"
 							disabled={selectedTextureContributions.length === 0 || selectedTextureContributionsIndex === selectedTextureContributions.length - 1}
-							onClick={nextContribution}
+							onClick={handleNextContribution}
 						>
 							<FaChevronRight/>
 						</Button>
@@ -263,7 +270,8 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 			<Group gap="md" justify="center">
 				<Select
 					label="Resolution"
-					data={Object.keys(Resolution)}
+					data={(Object.keys(Resolution) as Resolution[]).filter((r) => !disabledResolution.includes(r))}
+					disabled={disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
 					allowDeselect={false}
 					defaultValue={contribution.resolution}
 					onChange={(value) => setSelectedResolution(value as Resolution)}
@@ -280,9 +288,29 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 					}
 				/>
 			</Group>
+			{(disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)) && (
+				<Text size="xs" c="red" mt={-10}>
+					Contributions for all resolutions are deactivated for this texture.
+				</Text>
+			)}
 			<Group gap="md" justify="center" className="w-full" mt="xl">
-				<Button loading={isPending} variant="gradient" gradient={gradientDanger} onClick={cancelAndClose}>Cancel</Button>
-				<Button loading={isPending} disabled={!selectedTexture} variant="gradient" gradient={gradient} onClick={updateDraft}>Save</Button>
+				<Button
+					loading={isPending}
+					variant="gradient"
+					gradient={gradientDanger}
+					onClick={handleCancel}
+				>
+					Cancel
+				</Button>
+				<Button
+					loading={isPending}
+					disabled={!selectedTexture || disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
+					variant="gradient"
+					gradient={gradient}
+					onClick={handleDraftUpdate}
+				>
+					Save
+				</Button>
 			</Group>
 		</Stack>
 	);

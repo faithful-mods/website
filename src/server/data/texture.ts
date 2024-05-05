@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { Resolution, Texture, UserRole } from '@prisma/client';
+import { ContributionDeactivation, Resolution, Texture, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -11,8 +11,8 @@ import { remove } from '../actions/files';
 
 // GET
 
-export async function getTextures(): Promise<Texture[]> {
-	return db.texture.findMany();
+export async function getTextures(): Promise<(Texture & { disabledContributions: ContributionDeactivation[] })[]> {
+	return db.texture.findMany({ include: { disabledContributions: true } });
 }
 
 export async function getTexture(id: string): Promise<Texture | null> {
