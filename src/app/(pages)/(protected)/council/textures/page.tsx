@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
-import { searchFilter, sortByName } from '~/lib/utils';
+import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
 
 import { TextureModal } from './modal/texture-modal';
@@ -44,6 +44,10 @@ const CouncilTexturesPage = () => {
 				const sorted = res.sort(sortByName);
 				setTextures(sorted);
 				setSearchedTextures(sorted);
+			})
+			.catch((err) => {
+				console.error(err);
+				notify('Error', err.message, 'red');
 			});
 	});
 
@@ -62,7 +66,7 @@ const CouncilTexturesPage = () => {
 
 	useEffect(() => {
 		if (!search) {
-			setSearchedTextures(textures.sort(sortByName));
+			setSearchedTextures(textures);
 			return;
 		}
 
@@ -109,7 +113,9 @@ const CouncilTexturesPage = () => {
 			<Card withBorder shadow="sm" radius="md" padding="md">
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Textures</Text>
-					<Badge color="teal" variant="filled">{searchedTextures.length ?? '?'} / {textures.length ?? '?'}</Badge>
+					<Badge color="teal" variant="filled">
+						{search === '' ? textures.length : `${searchedTextures.length} / ${textures.length}`}
+					</Badge>
 				</Group>
 				<Group align="center" mt="md" mb="md" gap="sm" wrap="nowrap">
 					<TextInput
@@ -121,6 +127,8 @@ const CouncilTexturesPage = () => {
 						data={itemsPerPage}
 						value={texturesShownPerPage}
 						onChange={setTexturesShowPerPage}
+						withCheckIcon={false}
+						w={90}
 					/>
 				</Group>
 				<Group wrap="wrap">

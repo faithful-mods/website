@@ -1,19 +1,20 @@
 'use client';
 
-import { Badge, Button, Card, Group, Modal, Text, TextInput } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { Badge, Button, Card, Code, Group, Modal, Pagination, Select, Switch, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { UserRole, Mod } from '@prisma/client';
-import { useState, useTransition } from 'react';
-import { TbPlus, TbReload } from 'react-icons/tb';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard/dashboard-item';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
+import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
+
+type ModWVer = Mod & { unknownVersion: boolean };
 
 const ModsPanel = () => {
 	const user = useCurrentUser()!;
@@ -21,73 +22,81 @@ const ModsPanel = () => {
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
+	const itemsPerPage = useMemo(() => ['25', '50', '100', '250'], []);
+	const [activePage, setActivePage] = useState(1);
+	const [modsShownPerPage, setModsShownPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [search, setSearch] = useState('');
+
+	const [mods, setMods] = useState<ModWVer[]>([]);
+	const [modsShown, setModsShown] = useState<ModWVer[][]>([[]]);
+	const [searchedMods, setSearchedMods] = useState<ModWVer[]>([]);
 	const [modalMod, setModalMod] = useState<Mod | undefined>();
-	const [mods, setMods] = useState<[(Mod & { unknownVersion: boolean })[], (Mod & { unknownVersion: boolean })[]]>([[], []]);
 
-	const form = useForm<{ search: string }>({
-		initialValues: {
-			search: '',
-		},
-	});
+	const [showUnknown, setShowUnknown] = useState(false);
 
-	useEffectOnce(() => reloadMods());
-
-	const reloadMods = () => {
+	useEffectOnce(() => {
 		getMods()
 			.then((mods) => {
-				setMods([mods.sort(sortByName), mods.sort(sortByName)]);
+				const sorted = mods.sort(sortByName);
+				setMods(sorted);
+				setSearchedMods(sorted);
 			})
 			.catch((err) => {
 				console.error(err);
 				notify('Error', err.message, 'red');
 			});
-	};
+	});
 
-	const openModModal = (mod?: Mod | undefined) => {
+	useEffect(() => {
+		const chunks: ModWVer[][] = [];
+		const int = parseInt(modsShownPerPage ?? itemsPerPage[0]);
+
+		for (let i = 0; i < searchedMods.length; i += int) {
+			chunks.push(searchedMods.slice(i, i + int));
+		}
+
+		setActivePage(1);
+		setModsShown(chunks);
+	}, [searchedMods, modsShownPerPage, itemsPerPage]);
+
+	useEffect(() => {
+		if (!search) {
+			setSearchedMods(mods.filter((m) => showUnknown ? m.unknownVersion === true : true));
+			return;
+		}
+
+		setSearchedMods(
+			mods
+				.filter((m) => showUnknown ? m.unknownVersion === true : true)
+				.filter(searchFilter(search))
+				.sort(sortByName)
+		);
+
+	}, [search, mods, showUnknown]);
+
+	const handleModalOpen = (mod?: Mod | undefined) => {
 		setModalMod(mod);
 		openModal();
 	};
 
-	const closeModModal = async (editedMod: Mod | string) => {
-		const [base, _] = mods ?? [];
+	const handleModalClose = async (editedMod: Mod | string) => {
+		const newMod = (typeof editedMod === 'string') ? null : {...editedMod, unknownVersion: await modHasUnknownVersion(editedMod.id) };
+		const newMods = mods.filter((mod) => mod.id !== newMod?.id);
 
-		// deleted
-		if (typeof editedMod === 'string') {
-			const cleared = (base?.filter((modpack) => modpack.id !== editedMod) ?? []).sort(sortByName);
-			setMods([cleared, cleared]);
-			closeModal();
-			return;
-		}
+		if (newMod) newMods.push(newMod);
 
-		// edited
-		const updated = [
-			{
-				...editedMod,
-				unknownVersion: await modHasUnknownVersion(editedMod.id),
-			},
-			...base?.filter((mod) => mod.id !== editedMod.id) ?? [],
-		].sort(sortByName);
+		setMods(newMods.sort(sortByName));
+		setSearch(search); // re-search
 
-		setMods([updated, updated]);
 		closeModal();
 	};
 
-	const searchMods = (search: string) => {
-		if (!mods) return;
-
-		if (!search || search.length === 0) {
-			setMods([mods[0], mods[0]]);
-			return;
-		}
-
-		const filtered = mods[0]?.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
-		setMods([mods[0], filtered]);
-	};
-
-	const deleteAllMods = () => {
+	const handleVoid = () => {
 		startTransition(() => {
 			voidMods();
-			setMods([[], []]);
+			setMods([]);
+			setModsShown([]);
+			setSearchedMods([]);
 		});
 	};
 
@@ -97,9 +106,9 @@ const ModsPanel = () => {
 				size="100%"
 				opened={modalOpened}
 				onClose={closeModal}
-				title="Mod Edition"
+				title={modalMod ? <Code>{modalMod.name}</Code> : 'Add new mods'}
 			>
-				<ModModal mod={modalMod} onClose={closeModModal} />
+				<ModModal mod={modalMod} onClose={handleModalClose} />
 			</Modal>
 			<Card
 				shadow="sm"
@@ -109,59 +118,82 @@ const ModsPanel = () => {
 			>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Mods</Text>
-					<Badge color="teal" variant="filled">{(mods && mods[0]?.length) ?? '?'}</Badge>
+					<Badge color="teal" variant="filled">
+						{search === '' ? mods.length : `${searchedMods.length} / ${mods.length}`}
+					</Badge>
 				</Group>
+				<Text c="dimmed" size="sm">
+					Here you can manage mods and their versions. Click on a mod to view or edit it.
+				</Text>
 				<Group align="center" mt="md" gap="sm" wrap="nowrap">
-					<TextInput
-						className="w-full"
-						placeholder="Search mods..."
-						onKeyUp={() => searchMods(form.values.search)}
-						{...form.getInputProps('search')}
-					></TextInput>
 					<Button
 						variant='gradient'
 						gradient={gradient}
 						className="navbar-icon-fix"
-						onClick={() => reloadMods()}
-					>
-						<TbReload />
-					</Button>
-					<Button
-						variant='gradient'
-						gradient={gradient}
-						className="navbar-icon-fix"
-						onClick={() => openModModal()}
+						onClick={() => handleModalOpen()}
 					>
 						<TbPlus />
 					</Button>
+					<TextInput
+						className="w-full"
+						placeholder="Search mods..."
+						onChange={(e) => setSearch(e.currentTarget.value)}
+					/>
+					<Select
+						data={itemsPerPage}
+						value={modsShownPerPage}
+						onChange={setModsShownPerPage}
+						withCheckIcon={false}
+						w={90}
+					/>
 				</Group>
 
-				{!mods && (<Text mt="sm">Loading...</Text>)}
+				<Switch
+					mt="md"
+					label="Only show mods with unknown MC version"
+					checked={showUnknown}
+					onChange={(e) =>{
+						setShowUnknown(e.currentTarget.checked);
+					}}
+				/>
 
-				{mods && mods[0]?.length === 0 && (<Text mt="sm">No mods created yet!</Text>)}
-				{mods && mods[0]?.length !== 0 && mods[1]?.length === 0 && (<Text mt="sm">No results found!</Text>)}
+				{mods.length === 0 && (
+					<Group justify="center">
+						<Text mt="md" size="sm" c="dimmed">No mods created yet!</Text>
+					</Group>
+				)}
 
-				{mods && (mods[0]?.length ?? 0) > 0 && (
+				{mods.length !== 0 && searchedMods.length === 0 && (
+					<Group justify="center">
+						<Text mt="md" size="sm" c="dimmed">No results found!</Text>
+					</Group>
+				)}
+
+				{searchedMods.length > 0 && (
 					<Group mt="md" align="start">
-						{mods && mods[1]?.map((mod, index) => (
+						{modsShown[activePage - 1] && modsShown[activePage - 1].map((mod, index) => (
 							<DashboardItem
 								key={index}
 								image={mod.image}
 								title={mod.name}
 								description={mod.description}
-								onClick={() => openModModal(mod)}
+								onClick={() => handleModalOpen(mod)}
 								warning={mod.unknownVersion ? 'Unknown version' : undefined}
 							/>
 						))}
 					</Group>
 				)}
 
-				{mods && mods[0] && mods[0].length > 0 && user.role === UserRole.ADMIN &&
+				<Group mt="md" justify="center">
+					<Pagination total={modsShown.length} value={activePage} onChange={setActivePage} />
+				</Group>
+
+				{mods.length > 0 && user.role === UserRole.ADMIN &&
 					<Group justify="flex-end" mt="md">
 						<Button
 							variant="gradient"
 							gradient={gradientDanger}
-							onClick={() => deleteAllMods()}
+							onClick={() => handleVoid()}
 							loading={isPending}
 							disabled={isPending}
 						>
