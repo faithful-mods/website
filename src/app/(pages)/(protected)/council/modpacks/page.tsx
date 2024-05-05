@@ -1,87 +1,97 @@
 'use client';
 
-import { Badge, Card, Group, Text, TextInput, Button, Modal } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { Badge, Card, Group, Text, TextInput, Button, Modal, Select, Pagination } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack, UserRole } from '@prisma/client';
-import { useState, useTransition } from 'react';
-import { TbPlus, TbReload } from 'react-icons/tb';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard/dashboard-item';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
+import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
 import { ModpackModal } from './modal/modpack-modal';
 
 const ModpacksPanel = () => {
 	const user = useCurrentUser()!;
+	const itemsPerPage = useMemo(() => ['25', '50', '100', '250'], []);
 
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
+	const [search, setSearch] = useState('');
+	const [modpacks, setModpacks] = useState<Modpack[]>([]);
+	const [searchedModpacks, setSearchedModpacks] = useState<Modpack[]>([]);
 	const [modalModpack, setModalModpack] = useState<Modpack | undefined>();
-	const [modpacks, setModpacks] = useState<[Modpack[] | undefined, Modpack[] | undefined]>();
 
-	const form = useForm<{ search: string }>({
-		initialValues: {
-			search: '',
-		},
-	});
+	const [modpacksShown, setModpacksShown] = useState<Modpack[][]>([[]]);
+	const [activePage, setActivePage] = useState(1);
+	const [modpacksShownPerPage, setModpacksShownPerPage] = useState<string | null>(itemsPerPage[0]);
 
-	useEffectOnce(() => reloadModpacks());
-
-	const reloadModpacks = () => {
+	useEffectOnce(() => {
 		getModpacks()
 			.then((modpacks) => {
-				setModpacks([modpacks.sort(sortByName), modpacks.sort(sortByName)]);
+				const sorted = modpacks.sort(sortByName);
+				setModpacks(sorted);
+				setSearchedModpacks(sorted);
 			})
 			.catch((err) => {
 				console.error(err);
 				notify('Error', err.message, 'red');
 			});
-	};
+	});
 
-	const searchModpack = (search: string) => {
-		if (!modpacks) return;
+	useEffect(() => {
+		const chunks: Modpack[][] = [];
+		const int = parseInt(modpacksShownPerPage ?? itemsPerPage[0]);
 
-		if (!search || search.length === 0) {
-			setModpacks([modpacks[0], modpacks[0]]);
+		for (let i = 0; i < searchedModpacks.length; i += int) {
+			chunks.push(searchedModpacks.slice(i, i + int));
+		}
+
+		setActivePage(1);
+		setModpacksShown(chunks);
+	}, [searchedModpacks, modpacksShownPerPage, itemsPerPage]);
+
+	useEffect(() => {
+		if (!search) {
+			setSearchedModpacks(modpacks);
 			return;
 		}
 
-		const filtered = modpacks[0]?.filter((user) => user.name?.toLowerCase().includes(search.toLowerCase()));
-		setModpacks([modpacks[0], filtered]);
-	};
+		setSearchedModpacks(
+			modpacks
+				.filter(searchFilter(search))
+				.sort(sortByName)
+		);
+	}, [search, modpacks]);
 
-	const openModpackModal = (modpack?: Modpack | undefined) => {
+
+	const handleModalOpen = (modpack?: Modpack | undefined) => {
 		setModalModpack(modpack);
 		openModal();
 	};
 
-	const closeModpackModal = (editedModpack: Modpack | string) => {
-		const [base, _] = modpacks ?? [];
+	const handleModalClose = (editedModpack: Modpack | string) => {
+		const newModpack = typeof editedModpack === 'string' ? null : editedModpack;
+		const newModpacks = modpacks.filter((modpack) => modpack.id !== (typeof editedModpack === 'string' ? editedModpack : editedModpack?.id));
 
-		// deleted
-		if (typeof editedModpack === 'string') {
+		if (newModpack) newModpacks.push(newModpack);
 
-			const cleared = (base?.filter((modpack) => modpack.id !== editedModpack) ?? []).sort(sortByName);
-			setModpacks([cleared, cleared]);
-			closeModal();
-			return;
-		}
+		setModpacks(newModpacks.sort(sortByName));
+		setSearch(search); // re-search
 
-		// edited
-		const updated = [...base?.filter((modpack) => modpack.id !== editedModpack.id) ?? [], editedModpack].sort(sortByName);
-		setModpacks([updated, updated]);
 		closeModal();
 	};
 
-	const deleteAllModpacks = () => {
+	const handleVoid = () => {
 		startTransition(() => {
 			voidModpacks();
-			setModpacks([[], []]);
+			setModpacks([]);
+			setModpacksShown([]);
+			setSearchedModpacks([]);
 		});
 	};
 
@@ -96,7 +106,7 @@ const ModpacksPanel = () => {
 				onClose={closeModal}
 				title="Modpack Edition"
 			>
-				<ModpackModal modpack={modalModpack} onClose={closeModpackModal} />
+				<ModpackModal modpack={modalModpack} onClose={handleModalClose} />
 			</Modal>
 			<Card
 				shadow="sm"
@@ -106,58 +116,69 @@ const ModpacksPanel = () => {
 			>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Modpacks</Text>
-					<Badge color="teal" variant="filled">{(modpacks && modpacks[0]?.length) ?? '?'}</Badge>
+					<Badge color="teal" variant="filled">
+						{search === '' ? modpacks.length : `${searchedModpacks.length} / ${modpacks.length}`}
+					</Badge>
 				</Group>
 				<Group align="center" mt="md" gap="sm" wrap="nowrap">
-					<TextInput
-						className="w-full"
-						placeholder="Search modpacks..."
-						onKeyUp={() => searchModpack(form.values.search)}
-						{...form.getInputProps('search')}
-					/>
 					<Button
 						variant='gradient'
 						gradient={gradient}
 						className="navbar-icon-fix"
-						onClick={() => reloadModpacks()}
-					>
-						<TbReload />
-					</Button>
-					<Button
-						variant='gradient'
-						gradient={gradient}
-						className="navbar-icon-fix"
-						onClick={() => openModpackModal()}
+						onClick={() => handleModalOpen()}
 					>
 						<TbPlus />
 					</Button>
+					<TextInput
+						className="w-full"
+						placeholder="Search modpacks..."
+						onChange={(e) => setSearch(e.currentTarget.value)}
+					/>
+					<Select
+						data={itemsPerPage}
+						value={modpacksShownPerPage}
+						onChange={setModpacksShownPerPage}
+						withCheckIcon={false}
+						w={90}
+					/>
 				</Group>
 
-				{!modpacks && (<Text mt="sm">Loading...</Text>)}
+				{modpacks.length === 0 && (
+					<Group justify="center">
+						<Text mt="md" size="sm" c="dimmed">No modpacks created yet!</Text>
+					</Group>
+				)}
 
-				{modpacks && modpacks[0]?.length === 0 && (<Text mt="sm">No modpacks created yet!</Text>)}
-				{modpacks && modpacks[0]?.length !== 0 && modpacks[1]?.length === 0 && (<Text mt="sm">No results found!</Text>)}
+				{modpacks.length !== 0 && searchedModpacks.length === 0 && (
+					<Group justify="center">
+						<Text mt="md" size="sm" c="dimmed">No results found!</Text>
+					</Group>
+				)}
 
-				{modpacks && (modpacks[0]?.length ?? 0) > 0 && (
+				{searchedModpacks.length > 0 && (
 					<Group mt="md" align="start">
-						{modpacks && modpacks[1]?.map((modpack, index) => (
+						{modpacksShown[activePage - 1] && modpacksShown[activePage - 1].map((modpack, index) => (
 							<DashboardItem
 								key={index}
 								image={modpack.image}
 								title={modpack.name}
 								description={modpack.description}
-								onClick={() => openModpackModal(modpack)}
+								onClick={() => handleModalOpen(modpack)}
 							/>
 						))}
 					</Group>
 				)}
 
-				{modpacks && modpacks[0] && modpacks[0].length > 0 && user.role === UserRole.ADMIN &&
+				<Group mt="md" justify="center">
+					<Pagination total={modpacksShown.length} value={activePage} onChange={setActivePage} />
+				</Group>
+
+				{modpacks.length > 0 && user.role === UserRole.ADMIN &&
 					<Group justify="flex-end" mt="md">
 						<Button
 							variant="gradient"
 							gradient={gradientDanger}
-							onClick={() => deleteAllModpacks()}
+							onClick={() => handleVoid()}
 							loading={isPending}
 							disabled={isPending}
 						>

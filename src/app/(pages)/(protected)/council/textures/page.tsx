@@ -77,14 +77,14 @@ const CouncilTexturesPage = () => {
 		);
 	}, [search, textures]);
 
-	const openTextureModal = (t: Texture) => {
+	const handleModalOpen = (t: Texture) => {
 		if (!t) return;
 
 		setTextureModal(t);
 		openModal();
 	};
 
-	const closeTextureModal = async (currTexture: Texture) => {
+	const handleModalClose = async (currTexture: Texture) => {
 		const newTexture = await getTexture(currTexture.id);
 		const newTextures = textures.filter((t) => t.id !== currTexture.id);
 
@@ -104,10 +104,10 @@ const CouncilTexturesPage = () => {
 			<Modal
 				size="100%"
 				opened={modalOpened}
-				onClose={() => closeTextureModal(textureModal!)}
+				onClose={() => handleModalClose(textureModal!)}
 				title={<Code>{textureModal?.name}</Code>}
 			>
-				<TextureModal texture={textureModal!} onClose={closeTextureModal} />
+				<TextureModal texture={textureModal!} onClose={handleModalClose} />
 			</Modal>
 
 			<Card withBorder shadow="sm" radius="md" padding="md">
@@ -139,7 +139,7 @@ const CouncilTexturesPage = () => {
 							gap="sm"
 							wrap="nowrap"
 							className="texture-item cursor-pointer"
-							onClick={() => openTextureModal(t)}
+							onClick={() => handleModalOpen(t)}
 							style={{
 								position: 'relative',
 								'--item-per-row': itemsPerRow,

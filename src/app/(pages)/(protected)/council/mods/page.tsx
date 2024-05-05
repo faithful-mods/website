@@ -81,7 +81,7 @@ const ModsPanel = () => {
 
 	const handleModalClose = async (editedMod: Mod | string) => {
 		const newMod = (typeof editedMod === 'string') ? null : {...editedMod, unknownVersion: await modHasUnknownVersion(editedMod.id) };
-		const newMods = mods.filter((mod) => mod.id !== newMod?.id);
+		const newMods = mods.filter((mod) => mod.id !== (typeof editedMod === 'string' ? editedMod : editedMod?.id));
 
 		if (newMod) newMods.push(newMod);
 
