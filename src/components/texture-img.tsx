@@ -6,11 +6,12 @@ interface TextureImageProps {
 	className?: string;
 	size?: number | string;
 	style?: React.CSSProperties;
+	notPixelated?: boolean;
 
 	children?: React.ReactNode;
 }
 
-export function TextureImage({ src, alt, className, size, style, children }: TextureImageProps) {
+export function TextureImage({ src, alt, className, size, style, notPixelated, children }: TextureImageProps) {
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
 
 	const imageStyle = {
@@ -39,7 +40,7 @@ export function TextureImage({ src, alt, className, size, style, children }: Tex
 							alt={alt}
 							fit="contain"
 							style={imageStyle}
-							className={`image-pixelated ${className}`}
+							className={`${!notPixelated && 'image-pixelated'} ${className}`}
 						/>
 					</div>
 				</HoverCard.Target>
@@ -56,7 +57,7 @@ export function TextureImage({ src, alt, className, size, style, children }: Tex
 				alt={alt}
 				fit="contain"
 				style={imageStyle}
-				className={`image-pixelated ${className}`}
+				className={`${!notPixelated && 'image-pixelated'} ${className}`}
 			/>
 		</div>
 	);

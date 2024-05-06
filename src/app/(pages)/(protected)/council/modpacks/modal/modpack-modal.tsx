@@ -3,7 +3,8 @@ import { useForm } from '@mantine/form';
 import { Modpack } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
-import { MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
+import { useDeviceSize } from '~/hooks/use-device-size';
+import { BREAKPOINT_MOBILE_LARGE, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createModpack, deleteModpack, updateModpack, updateModpackPicture } from '~/server/data/modpacks';
 
@@ -21,6 +22,7 @@ export interface ModpackModalFormValues {
 export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefined, onClose: (editedModpack: Modpack | string) => void }) {
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(modpack?.image ?? '');
+	const [windowWidth, _] = useDeviceSize();
 
 	const form = useForm<ModpackModalFormValues>({
 		initialValues: {
@@ -84,8 +86,8 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 
 	return (
 		<>
-			{modpack 
-				? 
+			{modpack
+				?
 				<Tabs defaultValue="first">
 					<Tabs.List>
 						<Tabs.Tab value="first">General</Tabs.Tab>
@@ -98,29 +100,31 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 				:
 				<ModpackModalGeneral form={form} previewImg={previewImg} modpack={modpack} />
 			}
-			
-			<Group justify="end" mt="md">
-				{modpack && 
+
+			<Group justify="end" mt="lg">
+				{modpack &&
 					<Button
 						variant="gradient"
 						gradient={gradientDanger}
 						onClick={() => onDelete(modpack.id)}
 						disabled={isPending}
 						loading={isPending}
+						fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
 					>
 						Delete Modpack
 					</Button>
 				}
-				<Button 
+				<Button
 					variant="gradient"
 					gradient={gradient}
 					onClick={() => onSubmit(form.values)}
 					disabled={isPending || !form.isValid()}
 					loading={isPending}
+					fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
 				>
 					{modpack ? 'Update' : 'Create'} Modpack
 				</Button>
-			</Group>	
+			</Group>
 		</>
 	);
 }

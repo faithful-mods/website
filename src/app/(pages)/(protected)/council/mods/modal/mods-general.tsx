@@ -1,8 +1,12 @@
 import type { ModModalFormValues } from './mods-modal';
 import type { Mod } from '@prisma/client';
 
-import { Badge, FileInput, Group, Image, Skeleton, Stack, TextInput } from '@mantine/core';
+import { Badge, FileInput, Group, Stack, TextInput } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
+
+import { TextureImage } from '~/components/texture-img';
+import { useDeviceSize } from '~/hooks/use-device-size';
+import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 export interface ModModalGeneralProps {
 	form: UseFormReturnType<ModModalFormValues>;
@@ -11,13 +15,18 @@ export interface ModModalGeneralProps {
 }
 
 export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps) {
-	const imageWidth = 220;
+	const [windowWidth, _] = useDeviceSize();
+	const imageWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? windowWidth * 0.7 : 220;
 
 	return (
 		<Group gap="md" align="start" mt="md">
-			<Stack align="center" gap="sm">
-				{previewImg !== '' && <Image radius="md" src={previewImg} alt="Mod image" width={imageWidth} height={imageWidth} fit="contain" className="image-background" style={{ maxWidth: imageWidth + 'px', maxHeight: imageWidth + 'px' }} />}
-				{previewImg === '' && <Skeleton width={imageWidth} height={imageWidth} radius="md" animate={false} />}
+			<Stack align="center" gap="sm" ml="auto" mr="auto">
+				<TextureImage
+					notPixelated
+					size={imageWidth}
+					src={previewImg}
+					alt={mod?.name + ' image'}
+				/>
 				{mod &&
 					<>
 						<Badge color="teal" variant="filled">Created: {mod.createdAt.toLocaleString()}</Badge>
@@ -26,7 +35,7 @@ export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps)
 				}
 			</Stack>
 
-			<Stack w={`calc(100% - ${imageWidth}px - var(--mantine-spacing-md))`} gap="sm">
+			<Stack w={windowWidth > BREAKPOINT_MOBILE_LARGE ? `calc(100% - ${imageWidth}px - var(--mantine-spacing-md))` : '100%'} gap="sm">
 				<TextInput label="Name" required {...form.getInputProps('name')} />
 				<TextInput label="Description" {...form.getInputProps('description')} />
 				<TextInput label="Author(s)" required description="Use a comma to separate multiple authors" {...form.getInputProps('authors')} />

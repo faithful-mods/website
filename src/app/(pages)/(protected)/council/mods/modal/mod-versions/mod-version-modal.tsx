@@ -71,6 +71,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 
 			{modVersionModpacks.length > 0 &&
 				<Stack gap="sm" style={{ maxHeight: '400px', overflowY: modVersionModpacks.length > 5 ? 'auto' : 'hidden' }}>
+					<Text fw={500} size="var(--input-label-size, var(--mantine-font-size-sm))">Modpacks attached</Text>
 					{modVersionModpacks.map((modpack, index) =>
 						<Group key={index} justify="space-between">
 							<Stack gap="0">

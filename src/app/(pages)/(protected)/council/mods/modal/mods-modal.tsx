@@ -5,6 +5,8 @@ import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
 import { useState, useTransition } from 'react';
 
+import { useDeviceSize } from '~/hooks/use-device-size';
+import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createMod, deleteMod, getModsFromIds, updateMod, updateModPicture } from '~/server/data/mods';
 import { addModVersionsFromJAR } from '~/server/data/mods-version';
@@ -26,6 +28,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 	const [_mod, setMod] = useState<Mod | undefined>(mod);
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(mod?.image || '');
+	const [windowWidth, _] = useDeviceSize();
 
 	const form = useForm<ModModalFormValues>({
 		initialValues: {
@@ -146,7 +149,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				</Dropzone>
 			}
 
-			<Group justify="end" mt="md">
+			<Group justify="end" mt="lg">
 				{_mod &&
 					<>
 						<Button
@@ -155,6 +158,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 							onClick={() => onDelete(_mod.id)}
 							disabled={isPending}
 							loading={isPending}
+							fullWidth={windowWidth <= BREAKPOINT_DESKTOP_LARGE}
 						>
 							Delete Mod
 						</Button>
@@ -164,6 +168,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 							onClick={() => onSubmit(form.values)}
 							disabled={isPending || !form.isValid()}
 							loading={isPending}
+							fullWidth={windowWidth <= BREAKPOINT_DESKTOP_LARGE}
 						>
 							Update Mod
 						</Button>
