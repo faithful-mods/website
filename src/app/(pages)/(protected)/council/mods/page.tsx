@@ -144,7 +144,7 @@ const ModsPanel = () => {
 						value={modsShownPerPage}
 						onChange={setModsShownPerPage}
 						withCheckIcon={false}
-						w={90}
+						w={120}
 					/>
 				</Group>
 
