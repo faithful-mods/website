@@ -1,10 +1,11 @@
 'use client';
 
-import { Badge, Card, Code, Group, Modal, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Badge, Card, Group, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Texture } from '@prisma/client';
 import { useEffect, useMemo, useState } from 'react';
 
+import { Modal } from '~/components/modal';
 import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -103,10 +104,9 @@ const CouncilTexturesPage = () => {
 	return (
 		<>
 			<Modal
-				size="100%"
 				opened={modalOpened}
 				onClose={() => handleModalClose(textureModal!)}
-				title={<Code>{textureModal?.name}</Code>}
+				title={textureModal?.name}
 			>
 				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>

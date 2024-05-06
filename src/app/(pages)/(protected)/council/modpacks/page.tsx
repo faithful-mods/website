@@ -1,12 +1,13 @@
 'use client';
 
-import { Badge, Card, Group, Text, TextInput, Button, Modal, Select, Pagination } from '@mantine/core';
+import { Badge, Card, Group, Text, TextInput, Button, Select, Pagination } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack, UserRole } from '@prisma/client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
+import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
@@ -98,10 +99,6 @@ const ModpacksPanel = () => {
 	return (
 		<>
 			<Modal
-				trapFocus
-				closeOnClickOutside={false}
-				closeOnEscape={false}
-				size="100%"
 				opened={modalOpened}
 				onClose={closeModal}
 				title="Modpack Edition"

@@ -1,10 +1,11 @@
 import type { Mod } from '@prisma/client';
 
-import { Code, Group, Modal, Table, Text } from '@mantine/core';
+import { Code, Group, Table, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { useDisclosure } from '@mantine/hooks';
 import { useState, startTransition } from 'react';
 
+import { Modal } from '~/components/modal';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { extractSemver, notify } from '~/lib/utils';
 import { addModVersionsFromJAR, getModVersionsWithModpacks } from '~/server/data/mods-version';

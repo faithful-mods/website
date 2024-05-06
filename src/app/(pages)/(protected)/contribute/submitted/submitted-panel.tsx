@@ -1,10 +1,11 @@
-import { Stack, Group, Text, Checkbox, CheckboxProps, TextInput, Button, Modal } from '@mantine/core';
+import { Stack, Group, Text, Checkbox, CheckboxProps, TextInput, Button } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { useState, useTransition } from 'react';
 import { MdDelete } from 'react-icons/md';
 import { TiWarning } from 'react-icons/ti';
 
+import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
@@ -45,7 +46,7 @@ export function ContributionSubmittedPanel({ contributions, coSubmitted, onUpdat
 		if (!deletionMode) return;
 
 		if (deletionList.includes(id)) {
-			setDeletionList(deletionList.filter((i) => i !== id)); 
+			setDeletionList(deletionList.filter((i) => i !== id));
 			return;
 		}
 
@@ -77,33 +78,33 @@ export function ContributionSubmittedPanel({ contributions, coSubmitted, onUpdat
 	return (
 		<>
 			<Modal
+				popup
 				opened={modalOpened}
 				onClose={closeModal}
-				centered
-				title={'Delete ' + (deletionList.length > 1 ? 'contributions' : 'contribution')}
+				title={'Delete' + (deletionList.length > 1 ? 'contributions' : 'contribution')}
 			>
 				<Stack gap="sm">
 					<Text fw={700} inherit>Are you sure you want {coSubmitted ? 'to be removed from' : 'to delete'} {deletionList.length > 1 ? 'those contributions' : 'this contribution'}?</Text>
 					<Text c="red" inherit>
 						{
-							coSubmitted 
+							coSubmitted
 								? 'You will be removed from the list of co-authors.'
-								: (deletionList.length > 1 ? 'Those' : 'It') + ' will be permanently removed from the database.' 
+								: (deletionList.length > 1 ? 'Those' : 'It') + ' will be permanently removed from the database.'
 						}
 					</Text>
-					
+
 					<TextInput
 						description={
 							<Text component="span">
 								To confirm, type &quot;DELETE&quot; in the box below
 							</Text>
 						}
-						placeholder="DELETE" 
+						placeholder="DELETE"
 						{...form.getInputProps('delete')}
 					/>
 					<Group justify="flex-end">
-						<Button 
-							variant="gradient" 
+						<Button
+							variant="gradient"
 							gradient={gradient}
 							loading={isPending}
 							disabled={isPending}
@@ -114,8 +115,8 @@ export function ContributionSubmittedPanel({ contributions, coSubmitted, onUpdat
 						>
 							Cancel
 						</Button>
-						<Button 
-							variant="gradient" 
+						<Button
+							variant="gradient"
 							gradient={gradientDanger}
 							disabled={form.values.delete !== 'DELETE' || isPending}
 							loading={isPending}
@@ -130,8 +131,8 @@ export function ContributionSubmittedPanel({ contributions, coSubmitted, onUpdat
 			<Stack>
 				<Group justify="space-between" align="start" wrap="nowrap">
 					<Group className="w-full">
-						<TextInput 
-							placeholder="Search contribution..." 
+						<TextInput
+							placeholder="Search contribution..."
 							onKeyUp={() => searchContribution(form.values.search)}
 							{...form.getInputProps('search')}
 							className="contribution-item"
@@ -169,18 +170,18 @@ export function ContributionSubmittedPanel({ contributions, coSubmitted, onUpdat
 					{contributions.length > 0 &&
 						<>
 							<Group>
-								{searchedContributions.length > 0 && searchedContributions.map((contribution, index) => 
+								{searchedContributions.length > 0 && searchedContributions.map((contribution, index) =>
 									<ContributionSubmittedItem
 										contribution={contribution}
 										key={index}
 										className={[
-											deletionMode ? 'contribution-item-hover' : '', 
+											deletionMode ? 'contribution-item-hover' : '',
 											deletionList.includes(contribution.id) ? 'danger-border' : '',
 										]}
 										onClick={() => checkDeletionListFor(contribution.id)}
 									/>
 								)}
-								{searchedContributions.length === 0 && 
+								{searchedContributions.length === 0 &&
 									<Text size="sm" c="dimmed">No results found</Text>
 								}
 							</Group>
