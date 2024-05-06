@@ -1,19 +1,28 @@
 import type { Modpack } from '@prisma/client';
 
-import { Group, Image, Skeleton, FileInput, TextInput, Badge, Stack } from '@mantine/core';
+import { Group, FileInput, TextInput, Badge, Stack } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
+
+import { TextureImage } from '~/components/texture-img';
+import { useDeviceSize } from '~/hooks/use-device-size';
+import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 import { ModpackModalFormValues } from './modpack-modal';
 
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<ModpackModalFormValues>, previewImg: string, modpack: Modpack | undefined }) {
-	const imageWidth = 220;
+	const [windowWidth, _] = useDeviceSize();
+	const imageWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? windowWidth * 0.7 : 220;
 
 	return (
 		<Group gap="md" align="start" mt="md">
-			<Stack align="center" gap="sm">
-				{previewImg !== '' && <Image radius="md" src={previewImg} alt="Modpack image" width={imageWidth} height={imageWidth} fit="contain" className="image-background" style={{ maxWidth: imageWidth + 'px', maxHeight: imageWidth + 'px' }} />}
-				{previewImg === '' && <Skeleton width={imageWidth} height={imageWidth} radius="md" animate={false} />}
-				{modpack && 
+			<Stack align="center" gap="sm" ml="auto" mr="auto">
+				<TextureImage
+					notPixelated
+					size={imageWidth}
+					src={previewImg}
+					alt={modpack?.name + ' image'}
+				/>
+				{modpack &&
 					<>
 						<Badge color="teal" variant="filled">Created: {modpack.createdAt.toLocaleString()}</Badge>
 						<Badge color="teal" variant="filled">Updated: {modpack.updatedAt.toLocaleString()}</Badge>
@@ -21,7 +30,7 @@ export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFo
 				}
 			</Stack>
 
-			<Stack w={`calc(100% - ${imageWidth}px - var(--mantine-spacing-md))`} gap="sm">
+			<Stack w={windowWidth > BREAKPOINT_MOBILE_LARGE ? `calc(100% - ${imageWidth}px - var(--mantine-spacing-md))` : '100%'} gap="sm">
 				<TextInput label="Name" required {...form.getInputProps('name')} />
 				<TextInput label="Description" placeholder="Give this modpack a nice description" {...form.getInputProps('description')} />
 				<TextInput label="Authors" description="Use a comma to separate multiple authors" required {...form.getInputProps('authors')} />

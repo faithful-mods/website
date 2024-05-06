@@ -6,7 +6,9 @@ import { useDisclosure } from '@mantine/hooks';
 import { useState, startTransition } from 'react';
 
 import { Modal } from '~/components/modal';
+import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { extractSemver, notify } from '~/lib/utils';
 import { addModVersionsFromJAR, getModVersionsWithModpacks } from '~/server/data/mods-version';
 import { ModVersionWithModpacks } from '~/types';
@@ -17,6 +19,8 @@ export function ModVersions({ mod }: { mod: Mod }) {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [modVersions, setModVersions] = useState<ModVersionWithModpacks[]>([]);
 	const [modalModVersion, setModalModVersion] = useState<ModVersionWithModpacks | undefined>();
+
+	const [windowWidth, _] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getModVersionsWithModpacks(mod.id)
@@ -71,7 +75,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 							<Table.Tr>
 								<Table.Th>Version</Table.Th>
 								<Table.Th>MC Version</Table.Th>
-								<Table.Th>Modpacks</Table.Th>
+								{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Th>Modpacks</Table.Th>}
 								<Table.Th>Created</Table.Th>
 								<Table.Th>Updated</Table.Th>
 							</Table.Tr>
@@ -81,7 +85,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 								<Table.Tr key={version.id} onClick={() => openModVersionModal(version)} className="cursor-pointer">
 									<Table.Td>{version.version}</Table.Td>
 									<Table.Td className={extractSemver(version.mcVersion) === null ? 'blink' : ''}>{version.mcVersion}</Table.Td>
-									<Table.Td>{version.modpacks.map((m) => m.name)}</Table.Td>
+									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.modpacks.map((m) => m.name)}</Table.Td>}
 									<Table.Td>{version.createdAt.toLocaleString()}</Table.Td>
 									<Table.Td>{version.updatedAt.toLocaleString()}</Table.Td>
 								</Table.Tr>
