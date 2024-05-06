@@ -129,7 +129,7 @@ const CouncilTexturesPage = () => {
 						value={texturesShownPerPage}
 						onChange={setTexturesShowPerPage}
 						withCheckIcon={false}
-						w={90}
+						w={120}
 					/>
 				</Group>
 				<Group wrap="wrap">

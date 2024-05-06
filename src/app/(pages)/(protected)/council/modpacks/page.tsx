@@ -136,7 +136,7 @@ const ModpacksPanel = () => {
 						value={modpacksShownPerPage}
 						onChange={setModpacksShownPerPage}
 						withCheckIcon={false}
-						w={90}
+						w={120}
 					/>
 				</Group>
 
