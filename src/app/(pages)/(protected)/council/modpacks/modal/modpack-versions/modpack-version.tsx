@@ -2,10 +2,11 @@
 
 import type { Modpack } from '@prisma/client';
 
-import { Button, Group, Modal, Table, Text } from '@mantine/core';
+import { Button, Group, Table, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 
+import { Modal } from '~/components/modal';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, notify } from '~/lib/utils';
 import { getModpackVersions } from '~/server/data/modpacks-version';
@@ -40,9 +41,6 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 	return (
 		<>
 			<Modal
-				trapFocus
-				closeOnClickOutside={false}
-				closeOnEscape={false}
 				opened={modalOpened}
 				onClose={closeModal}
 				title="Modpack Version Edition"

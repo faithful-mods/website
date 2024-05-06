@@ -1,12 +1,11 @@
 import type { ContributionDeactivation, Texture } from '@prisma/client';
 
-import { Stack, Group, Text, Modal, Title } from '@mantine/core';
+import { Stack, Group, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Modal } from '~/components/modal';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { notify, sortByName } from '~/lib/utils';
 import { getTextures } from '~/server/data/texture';
 import { ContributionWithCoAuthors } from '~/types';
@@ -24,7 +23,6 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 	const [modalContribution, setModalContribution] = useState<ContributionWithCoAuthors | null>(null);
 	const [contributions, setContributions] = useState<ContributionWithCoAuthors[]>(draftContributions);
 	const [textures, setTextures] = useState<(Texture & { disabledContributions: ContributionDeactivation[] })[]>([]);
-	const [windowWidth, _] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getTextures()
@@ -47,12 +45,8 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 		<>
 			<Modal
 				opened={modalOpened}
-				fullScreen={windowWidth <= BREAKPOINT_MOBILE_LARGE}
-				size="100%"
 				onClose={closeModal}
-				title={
-					<Title order={4} component="span">Texture Attribution</Title>
-				}
+				title="Draft Edition"
 			>
 				{modalContribution &&
 					<ContributionDraftModal

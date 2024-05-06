@@ -1,12 +1,13 @@
 'use client';
 
-import { Badge, Button, Card, Code, Group, Modal, Pagination, Select, Switch, Text, TextInput } from '@mantine/core';
+import { Badge, Button, Card, Group, Pagination, Select, Switch, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { UserRole, Mod } from '@prisma/client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
+import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
@@ -103,10 +104,9 @@ const ModsPanel = () => {
 	return (
 		<>
 			<Modal
-				size="100%"
 				opened={modalOpened}
 				onClose={closeModal}
-				title={modalMod ? <Code>{modalMod.name}</Code> : 'Add new mods'}
+				title={modalMod ? modalMod.name : 'Add new mods'}
 			>
 				<ModModal mod={modalMod} onClose={handleModalClose} />
 			</Modal>
