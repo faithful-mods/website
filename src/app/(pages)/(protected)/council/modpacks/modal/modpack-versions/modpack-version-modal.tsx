@@ -6,8 +6,10 @@ import { useForm } from '@mantine/form';
 import { Mod, ModVersion, Modpack } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
+import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient, gradientDanger, notify } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
+import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
 import { createModpackVersion, deleteModpackVersion, updateModpackVersion, addModsToModpackVersion, removeModFromModpackVersion } from '~/server/data/modpacks-version';
 import { getModsFromIds } from '~/server/data/mods';
 import type { ModpackVersionWithMods } from '~/types';
@@ -20,6 +22,8 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 
 	const [progression, setProgression] = useState<number>(0);
 	const [progressionMax, setProgressionMax] = useState<number>(0);
+
+	const [windowWidth, windowHeight] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getModsFromIds(modVersions.map((modVersion) => modVersion.modId))
@@ -102,7 +106,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 	};
 
 	return (
-		<Stack gap="md">
+		<Stack gap="md" style={{ maxHeight: `calc(${windowHeight - 60}px - var(--mantine-spacing-md))` }}>
 			<TextInput label="Version" placeholder="1.2.4" required {...form.getInputProps('version')} />
 			<Stack justify="start" gap="0">
 				<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Mods for this version</Text>
@@ -134,8 +138,8 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 					{modVersions.map((modVersion, index) =>
 						<Group key={index} justify="space-between">
 							<Stack gap="0">
-								<Text size="sm" maw={280} truncate="end">{mods.find((mod) => mod.id === modVersion.modId)?.name}</Text>
-								<Text size="xs" maw={280} truncate="end" c="dimmed">{modVersion.version}</Text>
+								<Text size="sm">{mods.find((mod) => mod.id === modVersion.modId)?.name}</Text>
+								<Text size="xs" c="dimmed">{modVersion.version}</Text>
 							</Stack>
 							<Button
 								variant="light"
