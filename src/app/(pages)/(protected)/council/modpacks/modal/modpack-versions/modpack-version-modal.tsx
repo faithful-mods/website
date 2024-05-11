@@ -4,8 +4,9 @@ import { Button, Code, Group, Stack, Text, TextInput } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
 import { Mod, ModVersion, Modpack } from '@prisma/client';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
+import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
@@ -17,8 +18,12 @@ import type { ModpackVersionWithMods } from '~/types';
 export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modpack: Modpack, modpackVersion?: ModpackVersionWithMods, onClose: () => void }) {
 	const [isPending, startTransition] = useTransition();
 	const [_modpackVersion, setModpackVersion] = useState<ModpackVersionWithMods | undefined>(modpackVersion);
-	const [modVersions, setModVersions] = useState<ModVersion[]>(modpackVersion?.mods ?? []);
+
 	const [mods, setMods] = useState<Mod[]>([]);
+	const [modVersions, setModVersions] = useState<ModVersion[]>(modpackVersion?.mods ?? []);
+
+	const [search, setSearch] = useState<string>('');
+	const [displayedMods, setDisplayedMods] = useState<Mod[]>([]);
 
 	const [progression, setProgression] = useState<number>(0);
 	const [progressionMax, setProgressionMax] = useState<number>(0);
@@ -34,6 +39,10 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				console.error(error);
 			});
 	});
+
+	useEffect(() => {
+		setDisplayedMods(mods.filter((mod) => mod.name.toLowerCase().includes(search.toLowerCase())));
+	}, [search, mods]);
 
 	const form = useForm<{ version: string }>({
 		initialValues: {
@@ -111,7 +120,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 		<Stack gap="md" style={{ maxHeight: `calc(${windowHeight - 60}px - var(--mantine-spacing-md))` }}>
 			<TextInput label="Version" placeholder="1.2.4" required {...form.getInputProps('version')} />
 			<Stack justify="start" gap="0">
-				<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Mods for this version</Text>
+				<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Add mods</Text>
 				{form.values.version.length === 0 && <Text size="xs" c={gradientDanger.to}>Set a version first</Text>}
 				<Dropzone
 					disabled={form.values.version.length === 0}
@@ -135,31 +144,41 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				</Dropzone>
 			</Stack>
 
-			{mods.length > 0 &&
-				<Stack gap="sm" style={{ maxHeight: windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : '400px', overflowY: modVersions.length > 5 ? 'auto' : 'hidden' }}>
-					{mods.map((mod, index) =>
-						<Group key={index} justify="space-between">
-							<Stack gap="0">
-								<Text size="sm" maw={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 270 : ''} truncate="end">{mod.name}</Text>
-								<Text size="xs" c="dimmed">{modVersions.find((v) => v.modId === mod.id)?.version}</Text>
-							</Stack>
-							<Button
-								variant="light"
-								color={gradientDanger.to}
-								onClick={() => deleteModFromMV(modVersions.find((v) => v.modId === mod.id)!.id)}
-								mr={modVersions.length > 5 ? 'sm' : 0}
-							>
-								Remove
-							</Button>
-						</Group>
-					)}
-				</Stack>
-			}
+			{mods.length > 0 && (
+				<>
+					<Stack gap="0">
+						<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Current mods</Text>
+						<TextInput placeholder="Search mods" onChange={(e) => setSearch(e.currentTarget.value)} />
+					</Stack>
+					<Stack gap="sm" style={{ maxHeight: windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : '400px', overflowY: modVersions.length > 5 ? 'auto' : 'hidden' }}>
+						{displayedMods.map((mod, index) =>
+							<Group key={index} justify="space-between">
+								<Group gap="xs">
+									<TextureImage src={mod.image ?? './icon.png'} alt={mod.name} size={36} />
+									<Stack gap="0">
+										<Text size="sm" maw={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 230 : ''} truncate="end">{mod.name}</Text>
+										<Text size="xs" c="dimmed">{modVersions.find((v) => v.modId === mod.id)?.version}</Text>
+									</Stack>
+								</Group>
+								<Button
+									variant="light"
+									color={gradientDanger.to}
+									onClick={() => deleteModFromMV(modVersions.find((v) => v.modId === mod.id)!.id)}
+								>
+									Remove
+								</Button>
+							</Group>
+						)}
+						{displayedMods.length === 0 && <Text ta="center" size="xs" c="dimmed">No mods found</Text>}
+					</Stack>
+				</>
+			)}
 			{progressionMax > 0 && (
 				<Text c="dimmed" ta="center" size="xs" mt="md">
 					uploading: { progression } / { progressionMax }
 				</Text>
 			)}
+
 			<Group gap="sm">
 				{(modpackVersion || mods.length > 0) &&
 					<Button

@@ -1,4 +1,5 @@
 import { HoverCard, Image } from '@mantine/core';
+import { useState } from 'react';
 
 interface TextureImageProps {
 	src: string;
@@ -7,11 +8,13 @@ interface TextureImageProps {
 	size?: number | string;
 	style?: React.CSSProperties;
 	notPixelated?: boolean;
+	fallback?: string;
 
 	children?: React.ReactNode;
 }
 
-export function TextureImage({ src, alt, className, size, style, notPixelated, children }: TextureImageProps) {
+export function TextureImage({ src, alt, className, size, style, notPixelated, children, fallback }: TextureImageProps) {
+	const [_src, setSource] = useState(src);
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
 
 	const imageStyle = {
@@ -36,11 +39,12 @@ export function TextureImage({ src, alt, className, size, style, notPixelated, c
 				<HoverCard.Target>
 					<div className="texture-background" style={containerStyle}>
 						<Image
-							src={src}
+							src={_src}
 							alt={alt}
 							fit="contain"
 							style={imageStyle}
 							className={`${!notPixelated && 'image-pixelated'} ${className}`}
+							onError={() => setSource(fallback ?? '/transparent.png')}
 						/>
 					</div>
 				</HoverCard.Target>
@@ -53,11 +57,12 @@ export function TextureImage({ src, alt, className, size, style, notPixelated, c
 	return (
 		<div className="texture-background" style={containerStyle}>
 			<Image
-				src={src}
+				src={_src}
 				alt={alt}
 				fit="contain"
 				style={imageStyle}
 				className={`${!notPixelated && 'image-pixelated'} ${className}`}
+				onError={() => setSource(fallback ?? '/transparent.png')}
 			/>
 		</div>
 	);
