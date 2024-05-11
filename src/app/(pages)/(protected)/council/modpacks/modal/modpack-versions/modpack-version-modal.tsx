@@ -27,7 +27,9 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 
 	useEffectOnce(() => {
 		getModsFromIds(modVersions.map((modVersion) => modVersion.modId))
-			.then(setMods)
+			.then((mods) => {
+				setMods(mods.sort(sortByName));
+			})
 			.catch((error) => {
 				console.error(error);
 			});
@@ -75,7 +77,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			setModVersions(updated.mods);
 
 			const mods = await getModsFromIds(updated.mods.map((modVersion) => modVersion.modId));
-			setMods(mods);
+			setMods(mods.sort(sortByName));
 		});
 	};
 
@@ -102,7 +104,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 		setProgressionMax(0);
 
 		const mods = await getModsFromIds(editedModpackVersion.mods.map((modVersion) => modVersion.modId));
-		setMods(mods);
+		setMods(mods.sort(sortByName));
 	};
 
 	return (
@@ -134,17 +136,17 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			</Stack>
 
 			{mods.length > 0 &&
-				<Stack gap="sm" style={{ maxHeight: '400px', overflowY: modVersions.length > 5 ? 'auto' : 'hidden' }}>
-					{modVersions.map((modVersion, index) =>
+				<Stack gap="sm" style={{ maxHeight: windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : '400px', overflowY: modVersions.length > 5 ? 'auto' : 'hidden' }}>
+					{mods.map((mod, index) =>
 						<Group key={index} justify="space-between">
 							<Stack gap="0">
-								<Text size="sm">{mods.find((mod) => mod.id === modVersion.modId)?.name}</Text>
-								<Text size="xs" c="dimmed">{modVersion.version}</Text>
+								<Text size="sm" maw={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 270 : ''} truncate="end">{mod.name}</Text>
+								<Text size="xs" c="dimmed">{modVersions.find((v) => v.modId === mod.id)?.version}</Text>
 							</Stack>
 							<Button
 								variant="light"
 								color={gradientDanger.to}
-								onClick={() => deleteModFromMV(modVersion.id)}
+								onClick={() => deleteModFromMV(modVersions.find((v) => v.modId === mod.id)!.id)}
 								mr={modVersions.length > 5 ? 'sm' : 0}
 							>
 								Remove
