@@ -9,7 +9,7 @@ import { Modal } from '~/components/modal';
 import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET, ITEMS_PER_PAGE } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
 
@@ -21,7 +21,7 @@ const CouncilTexturesPage = () => {
 	const [windowWidth, _] = useDeviceSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
-	const itemsPerPage = useMemo(() => ['25', '50', '100', '250'], []);
+	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 	const itemsPerRow =  windowWidth <= BREAKPOINT_MOBILE_LARGE
 		? 1
 		: windowWidth <= BREAKPOINT_TABLET

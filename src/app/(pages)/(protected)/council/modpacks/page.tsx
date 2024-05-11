@@ -10,6 +10,7 @@ import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { ITEMS_PER_PAGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
@@ -17,7 +18,7 @@ import { ModpackModal } from './modal/modpack-modal';
 
 const ModpacksPanel = () => {
 	const user = useCurrentUser()!;
-	const itemsPerPage = useMemo(() => ['25', '50', '100', '250'], []);
+	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);

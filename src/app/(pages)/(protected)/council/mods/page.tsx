@@ -10,6 +10,7 @@ import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { ITEMS_PER_PAGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
@@ -23,7 +24,7 @@ const ModsPanel = () => {
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
-	const itemsPerPage = useMemo(() => ['25', '50', '100', '250'], []);
+	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 	const [activePage, setActivePage] = useState(1);
 	const [modsShownPerPage, setModsShownPerPage] = useState<string | null>(itemsPerPage[0]);
 	const [search, setSearch] = useState('');
