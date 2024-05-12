@@ -58,7 +58,9 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			},
 		},
 		onValuesChange: (value) => {
-			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : mod?.image || '');
+			if (value.image && value.image instanceof File) {
+				setPreviewImg(URL.createObjectURL(value.image));
+			}
 		},
 	});
 
