@@ -27,6 +27,9 @@ export function UserSettingsPanel({ user, self }: { user: User, self: boolean })
 				if (value.length > MAX_NAME_LENGTH) return `Your name should be less than ${MAX_NAME_LENGTH} characters long`;
 			},
 		},
+		onValuesChange: () => {
+			form.validate();
+		},
 	});
 
 	const onSubmit = (values: typeof form.values) => {

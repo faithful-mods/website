@@ -53,6 +53,9 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 			reportedId: (value) => !value && 'You must select a user to report',
 			reasonId: (value) => !value && 'You must select a reason to report',
 		},
+		onValuesChange: () => {
+			form.validate();
+		},
 	});
 
 	const renderUserSelectOption: SelectProps['renderOption'] = ({ option }) => {

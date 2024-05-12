@@ -4,6 +4,7 @@ import { Modpack } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
+import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createModpack, deleteModpack, updateModpack, updateModpackPicture } from '~/server/data/modpacks';
@@ -46,8 +47,16 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 			},
 		},
 		onValuesChange: (value) => {
-			if (value.image && value.image instanceof File) setPreviewImg(value.image ? URL.createObjectURL(value.image) : modpack?.image || '');
+			form.validate();
+
+			if (value.image && value.image instanceof File) {
+				setPreviewImg(URL.createObjectURL(value.image));
+			}
 		},
+	});
+
+	useEffectOnce(() => {
+		form.validate();
 	});
 
 	const onSubmit = (values: typeof form.values) => {

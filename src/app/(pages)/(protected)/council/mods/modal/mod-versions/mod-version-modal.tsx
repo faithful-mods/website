@@ -6,6 +6,7 @@ import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState, useTransition } from 'react';
 
+import { useEffectOnce } from '~/hooks/use-effect-once';
 import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
 import { deleteModVersion, removeModpackFromModVersion, updateModVersion } from '~/server/data/mods-version';
 import type { ModVersionExtended } from '~/types';
@@ -31,10 +32,18 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 			},
 			mcVersion: (value) => {
 				if (!value) return 'MC Version is required';
+				if (value === 'unknown') return 'Automatic version detection failed, please enter the version manually';
 				if (extractSemver(value) === null) return 'Invalid MC Version';
 				return null;
 			},
 		},
+		onValuesChange: () => {
+			form.validate();
+		},
+	});
+
+	useEffectOnce(() => {
+		form.validate();
 	});
 
 	const saveMV = () => {

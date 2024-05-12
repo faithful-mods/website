@@ -50,10 +50,17 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 		},
 		validate: {
 			version: (value) => {
-				if (!value) return 'Version is required';
+				if (!value) return 'Modpack version cannot be empty';
 				return null;
 			},
 		},
+		onValuesChange: () => {
+			form.validate();
+		},
+	});
+
+	useEffectOnce(() => {
+		form.validate();
 	});
 
 	const saveMV = () => {
@@ -121,7 +128,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			<TextInput label="Version" placeholder="1.2.4" required {...form.getInputProps('version')} />
 			<Stack justify="start" gap="0">
 				<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Add mods</Text>
-				{form.values.version.length === 0 && <Text size="xs" c={gradientDanger.to}>Set a version first</Text>}
+				{form.values.version.length === 0 && <Text size="xs" c="dimmed">Set a version first</Text>}
 				<Dropzone
 					disabled={form.values.version.length === 0}
 					className={form.values.version.length === 0 ? 'dropzone-disabled' : ''}
