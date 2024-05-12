@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { randomUUID, createHash } from 'crypto';
+import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
@@ -9,6 +9,7 @@ import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
 import { db } from '~/lib/db';
+import { calculateHash } from '~/lib/hash';
 import { bufferToFile, extractSemver } from '~/lib/utils';
 import type { MCModInfo, MCModInfoData } from '~/types';
 
@@ -224,10 +225,4 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 
 		await linkTextureToResource({ resource, texture, assetPath: textureAsset.path });
 	}
-}
-
-function calculateHash(buffer: Buffer) {
-	const hash = createHash('sha256');
-	hash.update(buffer);
-	return hash.digest('hex');
 }

@@ -63,8 +63,14 @@ const ContributePage = () => {
 			const data = new FormData();
 			files.forEach((file) => data.append('files', file));
 
-			await createRawContributions(user.id!, selectedCoAuthors.map((u) => u.id), resolution, data);
-			getDraftContributions(user.id!).then(setDraftContributions);
+			await createRawContributions(user.id!, selectedCoAuthors.map((u) => u.id), resolution, data)
+				.then(() => {
+					getDraftContributions(user.id!).then(setDraftContributions);
+				})
+				.catch((err) => {
+					console.error(err);
+					notify('Error', err.message, 'red');
+				});
 		});
 	};
 
