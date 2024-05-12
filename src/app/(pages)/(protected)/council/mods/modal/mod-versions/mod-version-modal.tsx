@@ -8,14 +8,14 @@ import { useState, useTransition } from 'react';
 
 import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
 import { deleteModVersion, removeModpackFromModVersion, updateModVersion } from '~/server/data/mods-version';
-import type { ModVersionWithModpacks } from '~/types';
+import type { ModVersionExtended } from '~/types';
 
 export interface ModVersionModalFormValues {
 	version: string;
 	mcVersion: string;
 }
 
-export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVersion?: ModVersionWithModpacks | undefined, onClose: () => void }) {
+export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVersion?: ModVersionExtended | undefined, onClose: () => void }) {
 	const [isPending, startTransition] = useTransition();
 	const [modVersionModpacks, setModVersionModpacks] = useState<Modpack[]>(modVersion?.modpacks ?? []);
 
