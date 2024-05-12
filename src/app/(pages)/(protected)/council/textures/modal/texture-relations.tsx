@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { TbPlus } from 'react-icons/tb';
 
 import { TextureImage } from '~/components/texture-img';
+import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { gradient, gradientDanger, sortByName } from '~/lib/utils';
 import { addRelationsToTexture, getRelatedTextures, removeRelationFromTexture } from '~/server/data/texture';
 
@@ -16,6 +18,16 @@ interface TextureRelationsProps {
 export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 	const [relatedTextures, setRelatedTextures] = useState<Texture[]>([]);
 	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<string[]>([]);
+
+	const [windowWidth, _] = useDeviceSize();
+
+	const texturePerRow = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : windowWidth <= BREAKPOINT_TABLET ? 4 : 6;
+	const parentWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE
+		? `${windowWidth}px`
+		: `calc(${windowWidth}px - (2 * var(--modal-inner-x-offset, var(--modal-x-offset))))`;
+
+	// texture width = (parent width - side padding - gap) / items per row
+	const textureWidth = `calc((${parentWidth} - (2 * var(--mantine-spacing-md)) - (${texturePerRow - 1} * var(--mantine-spacing-md))) / ${texturePerRow})`;
 
 	useEffectOnce(() => {
 		getRelatedTextures(texture.id)
@@ -93,7 +105,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 						key={t.id}
 						src={t.filepath}
 						alt={t.name}
-						size={150}
+						size={textureWidth}
 					>
 						<Stack gap="xs">
 							{t.name}
