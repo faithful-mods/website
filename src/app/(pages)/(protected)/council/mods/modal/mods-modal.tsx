@@ -6,6 +6,7 @@ import { useForm } from '@mantine/form';
 import { useState, useTransition } from 'react';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
+import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
 import { createMod, deleteMod, getModsFromIds, updateMod, updateModPicture } from '~/server/data/mods';
@@ -48,7 +49,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				if (value && !value.startsWith('https://')) return 'The URL must start with https://';
 			},
 			image: (value) => {
-				if (!value) return 'You must provide an image for the modpack';
+				if (!value) return 'You must provide an image for the mod';
 			},
 			forgeId: (value) => {
 				if (!value) return 'You must provide a Forge Mod ID for the mod';
@@ -58,10 +59,16 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			},
 		},
 		onValuesChange: (value) => {
+			form.validate();
+
 			if (value.image && value.image instanceof File) {
 				setPreviewImg(URL.createObjectURL(value.image));
 			}
 		},
+	});
+
+	useEffectOnce(() => {
+		form.validate();
 	});
 
 	const onSubmit = (values: typeof form.values) => {
@@ -106,6 +113,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			const addedModVersions = await addModVersionsFromJAR(data);
 			const firstModId = addedModVersions[0].modId;
 			const mod = await getModsFromIds([firstModId]).then((mods) => mods[0]);
+
 			form.setValues({
 				id: firstModId,
 				name: mod.name,
@@ -115,7 +123,9 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				url: mod.url ?? '',
 				forgeId: mod.forgeId ?? '',
 			});
+
 			setMod(mod);
+			form.validate();
 		});
 	};
 

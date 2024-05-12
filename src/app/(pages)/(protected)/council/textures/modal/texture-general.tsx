@@ -31,6 +31,19 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 			name: texture.name,
 			aliases: texture.aliases.join(', '),
 		},
+		validate: {
+			name: (value) => {
+				if (!value) return 'A name is required';
+				return null;
+			},
+		},
+		onValuesChange: () => {
+			form.validate();
+		},
+	});
+
+	useEffectOnce(() => {
+		form.validate();
 	});
 
 	const handleSave = () => {
@@ -103,7 +116,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 						variant="gradient"
 						gradient={gradient}
 						onClick={() => handleSave()}
-						disabled={loading}
+						disabled={loading || !form.isValid()}
 						loading={loading}
 					>
 						Save
