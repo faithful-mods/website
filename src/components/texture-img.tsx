@@ -1,5 +1,5 @@
 import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface TextureImageProps {
 	src: string;
@@ -33,6 +33,10 @@ export function TextureImage({ src, alt, className, size, style, notPixelated, c
 		...imageStyle,
 		...style,
 	};
+
+	useEffect(() => {
+		setSource(src);
+	}, [src]);
 
 	if (children)
 		return (
