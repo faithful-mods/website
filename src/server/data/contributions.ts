@@ -10,6 +10,7 @@ import {
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
+import { calculateHash } from '~/lib/hash';
 import {
 	ContributionWithCoAuthors,
 	ContributionWithCoAuthorsAndFullPoll,
@@ -94,6 +95,12 @@ export async function getPendingContributions(): Promise<ContributionWithCoAutho
 	});
 }
 
+export async function findContribution(hash: string): Promise<Contribution | null> {
+	return db.contribution.findFirst({
+		where: { hash },
+	});
+}
+
 // POST
 
 export async function createRawContributions(
@@ -109,6 +116,11 @@ export async function createRawContributions(
 	for (const file of files) {
 		const filepath = await upload(file, `textures/contributions/${ownerId}/`);
 
+		const buffer = await file.arrayBuffer();
+		const hash = calculateHash(Buffer.from(buffer));
+
+		if (await findContribution(hash)) throw new Error(`Contribution "${file.name}" has already been submitted`);
+
 		const poll = await db.poll.create({ data: {} });
 		const contribution = await db.contribution.create({
 			data: {
@@ -118,6 +130,7 @@ export async function createRawContributions(
 				file: filepath,
 				filename: file.name,
 				pollId: poll.id,
+				hash,
 			},
 		});
 

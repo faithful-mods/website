@@ -206,9 +206,11 @@ model LinkedTexture {
 // }
 
 model Contribution {
-  id       String   @id @default(cuid())
+  id       String @id @default(cuid())
   file     String
   filename String
+  hash     String @unique
+
   date     DateTime @default(now())
 
   ownerId   String
