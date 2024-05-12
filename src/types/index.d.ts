@@ -16,7 +16,7 @@ export type Prettify<T> = {
 } & {};
 
 export type ModpackVersionWithMods = ModpackVersion & { mods: ModVersion[] };
-export type ModVersionWithModpacks = ModVersion & { modpacks: Modpack[] };
+export type ModVersionExtended = ModVersion & { modpacks: Modpack[], textures: number, linked: number };
 
 export type PublicUser = {
 	id: string;

@@ -6,7 +6,7 @@ import { Resolution, UserRole, type ModVersion, type Modpack } from '@prisma/cli
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import { EMPTY_PROGRESSION, EMPTY_PROGRESSION_RES } from '~/lib/utils';
-import type { ModVersionWithModpacks, ModVersionWithProgression } from '~/types';
+import type { ModVersionExtended, ModVersionWithProgression } from '~/types';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
@@ -14,8 +14,8 @@ import { extractModVersionsFromJAR } from '../actions/files';
 
 // GET
 
-export async function getModVersionsWithModpacks(modId: string): Promise<ModVersionWithModpacks[]> {
-	const res: ModVersionWithModpacks[] = [];
+export async function getModVersionsWithModpacks(modId: string): Promise<ModVersionExtended[]> {
+	const res: ModVersionExtended[] = [];
 	const modVersions = await db.modVersion.findMany({ where: { modId } });
 
 	for (const modVer of modVersions) {
@@ -23,10 +23,22 @@ export async function getModVersionsWithModpacks(modId: string): Promise<ModVers
 			.findMany({ where: { mods: { some: { id: modVer.id } } }, include: { modpack: true } })
 			.then((mvs) => mvs.map((mv) => mv.modpack));
 
-		res.push({ ...modVer, modpacks });
+		const [linked, textures] = await getNumberOfTextureFromModVersion(modVer.id);
+
+		res.push({ ...modVer, modpacks, textures, linked });
 	}
 
 	return res;
+}
+
+export async function getNumberOfTextureFromModVersion(modVersionId: string) {
+	const resources = await db.resource.findMany({ where: { modVersionId }, include: { textures: true } });
+	const totalLinked = resources.reduce((acc, res) => acc + res.textures.length, 0);
+
+	const linked = resources.map((r) => r.textures).flat();
+	const totalTextures = await db.texture.count({ where: { id: { in: linked.map((l) => l.textureId) } } });
+
+	return [totalLinked, totalTextures];
 }
 
 export async function getModsVersionsFromResources(resourceIds: string[]): Promise<(ModVersion & { resources: string[] })[]> {

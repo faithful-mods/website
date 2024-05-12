@@ -1,3 +1,5 @@
+'use client';
+
 import type { Mod } from '@prisma/client';
 
 import { Code, Group, Table, Text } from '@mantine/core';
@@ -8,23 +10,33 @@ import { useState, startTransition } from 'react';
 import { Modal } from '~/components/modal';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { extractSemver, notify } from '~/lib/utils';
-import { addModVersionsFromJAR, getModVersionsWithModpacks } from '~/server/data/mods-version';
-import { ModVersionWithModpacks } from '~/types';
+import { addModVersionsFromJAR, getModVersionsWithModpacks, getNumberOfTextureFromModVersion } from '~/server/data/mods-version';
+import { ModVersionExtended } from '~/types';
 
 import { ModVersionModal } from './mod-version-modal';
 
 export function ModVersions({ mod }: { mod: Mod }) {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
-	const [modVersions, setModVersions] = useState<ModVersionWithModpacks[]>([]);
-	const [modalModVersion, setModalModVersion] = useState<ModVersionWithModpacks | undefined>();
+	const [modVersions, setModVersions] = useState<ModVersionExtended[]>([]);
+	const [modalModVersion, setModalModVersion] = useState<ModVersionExtended | undefined>();
 
 	const [windowWidth, _] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getModVersionsWithModpacks(mod.id)
-			.then(setModVersions)
+			.then((res) => {
+				Promise.all(
+					res.map((modVersions) =>
+						getNumberOfTextureFromModVersion(modVersions.id).then((r) => ({
+							...modVersions,
+							linked: r[0],
+							textures: r[1],
+						}))
+					)
+				).then(setModVersions);
+			})
 			.catch((err) => {
 				console.error(err);
 				notify('Error', err.message, 'red');
@@ -40,13 +52,13 @@ export function ModVersions({ mod }: { mod: Mod }) {
 				.then((updated) => {
 					setModVersions(updated
 						.filter((modVer) => modVer.modId === mod.id)
-						.map((modVer) => ({ ...modVer, modpacks: [] }))
+						.map((modVer) => ({ ...modVer, modpacks: [], textures: 0, linked: 0 }))
 					);
 				});
 		});
 	};
 
-	const openModVersionModal = (modVersion?: ModVersionWithModpacks | undefined) => {
+	const openModVersionModal = (modVersion?: ModVersionExtended | undefined) => {
 		setModalModVersion(modVersion);
 		openModal();
 	};
@@ -74,8 +86,9 @@ export function ModVersions({ mod }: { mod: Mod }) {
 						<Table.Thead>
 							<Table.Tr>
 								<Table.Th>Version</Table.Th>
-								<Table.Th>MC Version</Table.Th>
+								<Table.Th>Minecraft</Table.Th>
 								{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Th>Modpacks</Table.Th>}
+								{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Th>Textures</Table.Th>}
 								<Table.Th>Created</Table.Th>
 								<Table.Th>Updated</Table.Th>
 							</Table.Tr>
@@ -85,9 +98,10 @@ export function ModVersions({ mod }: { mod: Mod }) {
 								<Table.Tr key={version.id} onClick={() => openModVersionModal(version)} className="cursor-pointer">
 									<Table.Td>{version.version}</Table.Td>
 									<Table.Td className={extractSemver(version.mcVersion) === null ? 'blink' : ''}>{version.mcVersion}</Table.Td>
-									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.modpacks.map((m) => m.name)}</Table.Td>}
-									<Table.Td>{version.createdAt.toLocaleString()}</Table.Td>
-									<Table.Td>{version.updatedAt.toLocaleString()}</Table.Td>
+									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.modpacks.length}</Table.Td>}
+									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>linked: {version.linked}, unique: {version.textures}</Table.Td>}
+									<Table.Td>{windowWidth > BREAKPOINT_TABLET ? version.createdAt.toLocaleString() : version.createdAt.toLocaleDateString()}</Table.Td>
+									<Table.Td>{windowWidth > BREAKPOINT_TABLET ? version.updatedAt.toLocaleString() : version.updatedAt.toLocaleDateString()}</Table.Td>
 								</Table.Tr>
 							))}
 						</Table.Tbody>
