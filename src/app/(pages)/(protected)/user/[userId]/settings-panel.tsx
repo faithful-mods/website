@@ -1,11 +1,12 @@
 'use client';
 
-import { Button, Text, Card, TextInput, Image, Group, Stack, Badge, Skeleton } from '@mantine/core';
+import { Button, Text, Card, TextInput, Group, Stack, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { User, UserRole } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { useTransition } from 'react';
 
+import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
@@ -16,7 +17,7 @@ export function UserSettingsPanel({ user, self }: { user: User, self: boolean })
 	const [isPending, startTransition] = useTransition();
 	const [windowWidth, _] = useDeviceSize();
 
-	let pictureWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? `calc(${windowWidth} - (2 * var(--mantine-spacing-md)))` : '120px';
+	const pictureWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? `calc(${windowWidth - 2}px - (2 * var(--mantine-spacing-md)) - (2 * var(--mantine-spacing-sm)) )` : '120px';
 
 	const form = useForm<Pick<User, 'name' | 'image'>>({
 		initialValues: { name: user.name, image: user.image },
@@ -25,6 +26,10 @@ export function UserSettingsPanel({ user, self }: { user: User, self: boolean })
 				if (!value) return 'You must provide a name';
 				if (value.length < MIN_NAME_LENGTH) return `Your name should be at least ${MIN_NAME_LENGTH} characters long`;
 				if (value.length > MAX_NAME_LENGTH) return `Your name should be less than ${MAX_NAME_LENGTH} characters long`;
+			},
+			image: (value) => {
+				if (!value) return null;
+				if (!value?.startsWith('https://')) return 'Your personal picture should be a HTTPS URL';
 			},
 		},
 		onValuesChange: () => {
@@ -57,22 +62,15 @@ export function UserSettingsPanel({ user, self }: { user: User, self: boolean })
 			withBorder
 		>
 			<Group>
-				{form.values['image'] &&
-					<Image
-						radius="md"
-						src={form.values['image']}
-						alt="User avatar"
-						width={pictureWidth}
-						height={pictureWidth}
-						className="image-background"
-						onError={() => form.setFieldValue('image', '')}
-					/>
-				}
-				{!form.values['image'] && <Skeleton width={pictureWidth} height={pictureWidth} radius="md" animate={false} />}
+				<TextureImage
+					src={form.values['image'] ?? ''}
+					alt="User avatar"
+					size={pictureWidth}
+				/>
 
 				<Stack
 					justify="space-between"
-					style={{ width: `calc(100% - var(--mantine-spacing-md) - ${pictureWidth})`, height: `${pictureWidth}` }}
+					style={{ width:  windowWidth > BREAKPOINT_MOBILE_LARGE ? `calc(100% - ${pictureWidth} - var(--mantine-spacing-md))` : pictureWidth }}
 				>
 					<Group
 						gap="sm"
