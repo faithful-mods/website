@@ -1,4 +1,4 @@
-import { HoverCard, Image } from '@mantine/core';
+import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
 import { useState } from 'react';
 
 interface TextureImageProps {
@@ -16,6 +16,9 @@ interface TextureImageProps {
 export function TextureImage({ src, alt, className, size, style, notPixelated, children, fallback }: TextureImageProps) {
 	const [_src, setSource] = useState(src);
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
+
+	const { colorScheme } = useMantineColorScheme();
+	const defaultFallback = colorScheme === 'dark' ? '/transparent.png' : '/transparent_light.png';
 
 	const imageStyle = {
 		maxWidth: trueSize,
@@ -44,7 +47,7 @@ export function TextureImage({ src, alt, className, size, style, notPixelated, c
 							fit="contain"
 							style={imageStyle}
 							className={`${!notPixelated && 'image-pixelated'} ${className}`}
-							onError={() => setSource(fallback ?? '/transparent.png')}
+							onError={() => setSource(fallback ?? defaultFallback)}
 						/>
 					</div>
 				</HoverCard.Target>
@@ -62,7 +65,7 @@ export function TextureImage({ src, alt, className, size, style, notPixelated, c
 				fit="contain"
 				style={imageStyle}
 				className={`${!notPixelated && 'image-pixelated'} ${className}`}
-				onError={() => setSource(fallback ?? '/transparent.png')}
+				onError={() => setSource(fallback ?? defaultFallback)}
 			/>
 		</div>
 	);
