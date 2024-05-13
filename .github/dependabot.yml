@@ -10,3 +10,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    target-branch: "dev"
+    commit-message:
+      prefix: "deps :"
+      prefix-development: "deps-dev :"
+      include: "scope"
+    assignees:
+      - "Juknum"
