@@ -1,9 +1,12 @@
 import { Stack, Tabs } from '@mantine/core';
 import { Texture } from '@prisma/client';
+import { useState } from 'react';
 
 import { TextureImage } from '~/components/texture-img';
+import { MCMETA } from '~/types';
 
 import { TextureGeneral } from './texture-general';
+import { TextureMCMETA } from './texture-mcmeta';
 import { TextureRelations } from './texture-relations';
 import { TextureUses } from './texture-uses';
 
@@ -13,6 +16,8 @@ export interface TextureModalProps {
 }
 
 export function TextureModal({ texture, textures }: TextureModalProps) {
+	const [mcmeta, setMCMETA] = useState<MCMETA | undefined>(texture.mcmeta as unknown as MCMETA);
+
 	return (
 		<Stack>
 			<TextureImage
@@ -20,6 +25,7 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 				alt={texture.name}
 				size={256}
 				style={{ margin: 'auto' }}
+				mcmeta={mcmeta}
 			/>
 			<Tabs defaultValue="general">
 				<Tabs.List>
@@ -32,7 +38,7 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 					<Tabs.Tab value="relations">
 						Relations
 					</Tabs.Tab>
-					<Tabs.Tab value="mcmeta" disabled>
+					<Tabs.Tab value="mcmeta">
 						MCMETA
 					</Tabs.Tab>
 				</Tabs.List>
@@ -45,6 +51,9 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 				</Tabs.Panel>
 				<Tabs.Panel value="uses">
 					<TextureUses texture={texture} />
+				</Tabs.Panel>
+				<Tabs.Panel value="mcmeta">
+					<TextureMCMETA texture={texture} onUpdate={setMCMETA} />
 				</Tabs.Panel>
 			</Tabs>
 		</Stack>
