@@ -18,7 +18,7 @@ export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 
 export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> {
 	return db.mod
-		.findMany({ include: { versions: { select: { mcVersion: true } } } })
+		.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' }})
 		.then((mods) =>
 			mods.map((mod) => {
 				return { ...mod, unknownVersion: mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 };

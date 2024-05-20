@@ -42,9 +42,8 @@ const ModsPanel = () => {
 	useEffectOnce(() => {
 		getMods()
 			.then((mods) => {
-				const sorted = mods.sort(sortByName);
-				setMods(sorted);
-				setSearchedMods(sorted);
+				setMods(mods);
+				setSearchedMods(mods);
 			})
 			.catch((err) => {
 				console.error(err);
