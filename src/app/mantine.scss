@@ -16,3 +16,7 @@
 :where([data-mantine-color-scheme='light']) .mantine-Accordion-item {
 	background-color: var(--mantine-color-white) !important;
 }
+
+:where([data-mantine-color-scheme="dark"]) .mantine-Checkbox-input:disabled {
+	border-color: var(--mantine-color-dark-4);
+}

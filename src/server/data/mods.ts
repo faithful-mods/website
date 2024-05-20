@@ -26,6 +26,14 @@ export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> 
 		);
 }
 
+export async function getModsWithVersions(): Promise<(Mod & { versions: string[] })[]> {
+	return db.mod.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } }).then((mods) =>
+		mods.map((mod) => {
+			return { ...mod, versions: mod.versions.map((v) => v.mcVersion) };
+		})
+	);
+}
+
 export async function modHasUnknownVersion(id: string): Promise<boolean> {
 	const mod = await db.mod.findUnique({ where: { id }, include: { versions: { select: { mcVersion: true } } } });
 	return mod ? mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 : false;
