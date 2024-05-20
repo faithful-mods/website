@@ -116,7 +116,7 @@ const CouncilTexturesPage = () => {
 				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>
 
-			<Card withBorder shadow="sm" radius="md" padding="md">
+			<Card withBorder shadow="sm" radius="md" padding="md" mb="sm">
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Textures</Text>
 					<Badge color="teal" variant="filled">
@@ -158,7 +158,15 @@ const CouncilTexturesPage = () => {
 								mcmeta={t.mcmeta as unknown as string}
 								size={90}
 							/>
-							<Stack gap="0" align="flex-start" mt="sm" pr="sm">
+							<Stack
+								gap="0"
+								align="flex-start"
+								mt="sm"
+								pr="sm"
+								style={{
+									overflow: 'hidden',
+								}}
+							>
 								<Text size="sm" fw={700}>{t.name}</Text>
 								<Text size="xs" lineClamp={2}>{t.aliases.join(', ')}</Text>
 							</Stack>
