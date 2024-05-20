@@ -40,6 +40,7 @@ export async function updateMod({
 	authors,
 	url,
 	forgeId,
+	loaders,
 }: {
 	id: string;
 	name: string;
@@ -47,11 +48,12 @@ export async function updateMod({
 	authors?: string[];
 	url?: string;
 	forgeId?: string;
+	loaders: string[];
 }): Promise<Mod> {
 	await canAccess(UserRole.COUNCIL);
 
 	const mod = await db.mod.findUnique({ where: { id } });
-	return db.mod.update({ where: { id }, data: { ...mod, ...{ name, description, authors, url, forgeId } } });
+	return db.mod.update({ where: { id }, data: { ...mod, ...{ name, description, authors, url, forgeId, loaders } } });
 }
 
 export async function updateModPicture(id: string, data: FormData): Promise<Mod> {
@@ -67,17 +69,19 @@ export async function createMod({
 	authors,
 	url,
 	forgeId,
+	loaders,
 }: {
 	name: string;
 	description?: string;
 	authors?: string[];
 	url?: string;
 	forgeId?: string;
+	loaders: string[];
 }): Promise<Mod> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.mod.create({
-		data: { name, description, authors: authors ?? [], url, forgeId },
+		data: { name, description, authors: authors ?? [], url, forgeId, loaders },
 	});
 }
 

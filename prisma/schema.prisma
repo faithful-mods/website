@@ -84,6 +84,7 @@ model Mod {
   name        String
   description String?
   image       String?
+  loaders     String[]
   versions    ModVersion[]
   authors     String[]
   url         String?

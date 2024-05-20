@@ -23,6 +23,7 @@ export interface ModModalFormValues {
 	url: string;
 	forgeId: string;
 	image: File | string;
+	loaders: string[];
 }
 
 export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (editedMod: Mod | string) => void }) {
@@ -40,6 +41,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			image: mod?.image || '',
 			url: mod?.url || '',
 			forgeId: mod?.forgeId || '',
+			loaders: mod?.loaders || [],
 		},
 		validate: {
 			name: (value) => {
@@ -56,6 +58,9 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 			},
 			authors: (value) => {
 				if (!value) return 'You must provide an author for the mod';
+			},
+			loaders: (value) => {
+				if (!value || value.length === 0) return 'You must provide at least 1 mod loader';
 			},
 		},
 		onValuesChange: (value) => {
@@ -122,6 +127,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 				image: mod.image ?? '',
 				url: mod.url ?? '',
 				forgeId: mod.forgeId ?? '',
+				loaders: mod.loaders ?? [],
 			});
 
 			setMod(mod);

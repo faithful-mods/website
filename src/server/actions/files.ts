@@ -8,6 +8,7 @@ import { join } from 'path';
 import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
+import { MODS_LOADERS } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
 import { bufferToFile, extractSemver } from '~/lib/utils';
@@ -146,6 +147,7 @@ export async function extractModVersionsFromJAR(jar: File): Promise<ModVersion[]
 				description: modInfo.description,
 				authors: modInfo.authorList,
 				url: modInfo.url,
+				loaders: [MODS_LOADERS[0]], // TODO: Add support for fabric
 			});
 		}
 
