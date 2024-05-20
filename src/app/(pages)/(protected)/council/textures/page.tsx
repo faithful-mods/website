@@ -9,6 +9,7 @@ import { Modal } from '~/components/modal';
 import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET, ITEMS_PER_PAGE } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
@@ -40,6 +41,8 @@ const CouncilTexturesPage = () => {
 	const [activePage, setActivePage] = useState(1);
 	const [texturesShownPerPage, setTexturesShowPerPage] = useState<string | null>(itemsPerPage[0]);
 
+	const prevSearchedTextures = usePrevious(searchedTextures);
+
 	useEffectOnce(() => {
 		getTextures()
 			.then((res) => {
@@ -61,10 +64,12 @@ const CouncilTexturesPage = () => {
 			chunks.push(searchedTextures.slice(i, i + int));
 		}
 
-		setActivePage(1);
-		setTexturesShown(chunks);
+		if (!prevSearchedTextures || searchedTextures.length !== prevSearchedTextures.length) {
+			setActivePage(1);
+		}
 
-	}, [searchedTextures, texturesShownPerPage, itemsPerPage]);
+		setTexturesShown(chunks);
+	}, [searchedTextures, texturesShownPerPage, prevSearchedTextures, activePage, itemsPerPage]);
 
 	useEffect(() => {
 		if (!search) {

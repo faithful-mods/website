@@ -10,6 +10,7 @@ import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { usePrevious } from '~/hooks/use-previous';
 import { ITEMS_PER_PAGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
@@ -32,6 +33,8 @@ const ModpacksPanel = () => {
 	const [activePage, setActivePage] = useState(1);
 	const [modpacksShownPerPage, setModpacksShownPerPage] = useState<string | null>(itemsPerPage[0]);
 
+	const prevSearchedModpacks = usePrevious(searchedModpacks);
+
 	useEffectOnce(() => {
 		getModpacks()
 			.then((modpacks) => {
@@ -53,9 +56,12 @@ const ModpacksPanel = () => {
 			chunks.push(searchedModpacks.slice(i, i + int));
 		}
 
-		setActivePage(1);
+		if (!prevSearchedModpacks || prevSearchedModpacks.length !== searchedModpacks.length) {
+			setActivePage(1);
+		}
+
 		setModpacksShown(chunks);
-	}, [searchedModpacks, modpacksShownPerPage, itemsPerPage]);
+	}, [searchedModpacks, modpacksShownPerPage, prevSearchedModpacks, itemsPerPage]);
 
 	useEffect(() => {
 		if (!search) {

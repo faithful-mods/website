@@ -10,6 +10,7 @@ import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { usePrevious } from '~/hooks/use-previous';
 import { ITEMS_PER_PAGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
@@ -34,6 +35,8 @@ const ModsPanel = () => {
 	const [searchedMods, setSearchedMods] = useState<ModWVer[]>([]);
 	const [modalMod, setModalMod] = useState<Mod | undefined>();
 
+	const prevSearchedMods = usePrevious(searchedMods);
+
 	const [showUnknown, setShowUnknown] = useState(false);
 
 	useEffectOnce(() => {
@@ -57,9 +60,12 @@ const ModsPanel = () => {
 			chunks.push(searchedMods.slice(i, i + int));
 		}
 
-		setActivePage(1);
+		if (!prevSearchedMods || prevSearchedMods.length !== searchedMods.length) {
+			setActivePage(1);
+		}
+
 		setModsShown(chunks);
-	}, [searchedMods, modsShownPerPage, itemsPerPage]);
+	}, [searchedMods, modsShownPerPage, prevSearchedMods, itemsPerPage]);
 
 	useEffect(() => {
 		if (!search) {
