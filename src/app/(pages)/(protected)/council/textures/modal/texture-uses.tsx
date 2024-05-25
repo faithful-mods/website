@@ -1,11 +1,12 @@
 'use client';
 
-import { Stack, Card, Group, Divider, Code, Image, Text } from '@mantine/core';
+import { Stack, Group, Divider, Code, Image, Text } from '@mantine/core';
 import { LinkedTexture, Mod, ModVersion, Resource, Texture } from '@prisma/client';
 import { useState } from 'react';
 import { FaRegFolderOpen } from 'react-icons/fa';
 import { LuFolderGit } from 'react-icons/lu';
 
+import { Tile } from '~/components/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { getLinkedTexturesFrom } from '~/server/data/linked-textures';
 import { getModsFromIds } from '~/server/data/mods';
@@ -44,7 +45,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 	return (
 		<Stack ml={0} gap="md" mt="md">
 			{mods.map((mod) => (
-				<Card key={mod.id} p={0} withBorder>
+				<Tile key={mod.id} p={0}>
 					<Group gap="xs" m="xs">
 						<Image src={mod.image ?? '/icon.png'} alt="" width={16} height={16} />
 						<Text fw={500}>{mod.name}</Text>
@@ -77,7 +78,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 						))}
 					</Stack>
 
-				</Card>
+				</Tile>
 			))}
 		</Stack>
 	);

@@ -1,10 +1,11 @@
 'use client';
 
-import { Card, Tabs } from '@mantine/core';
+import { Tabs } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { RoleGate } from '~/components/role-gate';
+import { Tile } from '~/components/tile';
 import { gradient } from '~/lib/utils';
 
 interface ProtectedLayoutProps {
@@ -25,20 +26,14 @@ const CouncilPage = ({ children }: ProtectedLayoutProps) => {
 				value={tab}
 				onChange={(value) => router.push(`${pathname.replace(tab, '')}${value}`)}
 			>
-				<Card
-					shadow="sm"
-					padding="md"
-					radius="md"
-					mb="sm"
-					withBorder
-				>
+				<Tile mb="sm">
 					<Tabs.List>
 						<Tabs.Tab value="contributions">Contributions</Tabs.Tab>
 						<Tabs.Tab value="modpacks">Modpacks</Tabs.Tab>
 						<Tabs.Tab value="mods">Mods</Tabs.Tab>
 						<Tabs.Tab value="textures">Textures</Tabs.Tab>
 					</Tabs.List>
-				</Card>
+				</Tile>
 			</Tabs>
 
 			{children}

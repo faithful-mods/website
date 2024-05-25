@@ -1,6 +1,9 @@
 import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
 import { useEffect, useState } from 'react';
 
+import { useMCMETA } from '~/hooks/use-mcmeta';
+import { TextureMCMETA } from '~/types';
+
 interface TextureImageProps {
 	src: string;
 	alt: string;
@@ -9,12 +12,14 @@ interface TextureImageProps {
 	style?: React.CSSProperties;
 	notPixelated?: boolean;
 	fallback?: string;
-
+	mcmeta?: TextureMCMETA;
 	children?: React.ReactNode;
 }
 
-export function TextureImage({ src, alt, className, size, style, notPixelated, children, fallback }: TextureImageProps) {
+export function TextureImage({ src, alt, className, size, style, mcmeta, notPixelated, children, fallback }: TextureImageProps) {
 	const [_src, setSource] = useState(src);
+	const { canvasRef, isMCMETAValid } = useMCMETA(mcmeta, src);
+
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
 
 	const { colorScheme } = useMantineColorScheme();
@@ -38,39 +43,36 @@ export function TextureImage({ src, alt, className, size, style, notPixelated, c
 		setSource(src);
 	}, [src]);
 
-	if (children)
+	const image = () => {
 		return (
-			<HoverCard
-				position="right"
-			>
-				<HoverCard.Target>
-					<div className="texture-background" style={containerStyle}>
-						<Image
-							src={_src}
-							alt={alt}
-							fit="contain"
-							style={imageStyle}
-							className={`${!notPixelated && 'image-pixelated'} ${className}`}
-							onError={() => setSource(fallback ?? defaultFallback)}
-						/>
-					</div>
-				</HoverCard.Target>
-				<HoverCard.Dropdown>
-					{children}
-				</HoverCard.Dropdown>
-			</HoverCard>
+			<div className="texture-background" style={containerStyle}>
+				{(!mcmeta || !isMCMETAValid) && (
+					<Image
+						src={_src}
+						alt={alt}
+						fit="contain"
+						style={imageStyle}
+						className={`${!notPixelated && 'image-pixelated'} ${className}`}
+						onError={() => setSource(fallback ?? defaultFallback)}
+					/>
+				)}
+				{mcmeta && isMCMETAValid && (
+					<canvas ref={canvasRef} />
+				)}
+			</div>
 		);
+	};
+
+	if (!children) return image();
 
 	return (
-		<div className="texture-background" style={containerStyle}>
-			<Image
-				src={_src}
-				alt={alt}
-				fit="contain"
-				style={imageStyle}
-				className={`${!notPixelated && 'image-pixelated'} ${className}`}
-				onError={() => setSource(fallback ?? defaultFallback)}
-			/>
-		</div>
+		<HoverCard position="right">
+			<HoverCard.Target>
+				{image()}
+			</HoverCard.Target>
+			<HoverCard.Dropdown>
+				{children}
+			</HoverCard.Dropdown>
+		</HoverCard>
 	);
 }

@@ -5,7 +5,7 @@ import { Resolution, UserRole, type ModVersion, type Modpack } from '@prisma/cli
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import { EMPTY_PROGRESSION, EMPTY_PROGRESSION_RES } from '~/lib/utils';
+import { EMPTY_PROGRESSION, EMPTY_PROGRESSION_RES, sortBySemver } from '~/lib/utils';
 import type { ModVersionExtended, ModVersionWithProgression } from '~/types';
 
 import { removeModFromModpackVersion } from './modpacks-version';
@@ -13,6 +13,12 @@ import { deleteResource } from './resource';
 import { extractModVersionsFromJAR } from '../actions/files';
 
 // GET
+
+export async function getSupportedMinecraftVersions(): Promise<string[]> {
+	return db.modVersion.findMany({ distinct: ['mcVersion'] })
+		.then((res) => res.map((r) => r.mcVersion))
+		.then((res) => res.sort(sortBySemver));
+}
 
 export async function getModVersionsWithModpacks(modId: string): Promise<ModVersionExtended[]> {
 	const res: ModVersionExtended[] = [];

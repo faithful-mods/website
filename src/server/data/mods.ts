@@ -18,12 +18,20 @@ export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 
 export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> {
 	return db.mod
-		.findMany({ include: { versions: { select: { mcVersion: true } } } })
+		.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' }})
 		.then((mods) =>
 			mods.map((mod) => {
 				return { ...mod, unknownVersion: mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 };
 			})
 		);
+}
+
+export async function getModsWithVersions(): Promise<(Mod & { versions: string[] })[]> {
+	return db.mod.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } }).then((mods) =>
+		mods.map((mod) => {
+			return { ...mod, versions: mod.versions.map((v) => v.mcVersion) };
+		})
+	);
 }
 
 export async function modHasUnknownVersion(id: string): Promise<boolean> {
@@ -40,6 +48,7 @@ export async function updateMod({
 	authors,
 	url,
 	forgeId,
+	loaders,
 }: {
 	id: string;
 	name: string;
@@ -47,11 +56,12 @@ export async function updateMod({
 	authors?: string[];
 	url?: string;
 	forgeId?: string;
+	loaders: string[];
 }): Promise<Mod> {
 	await canAccess(UserRole.COUNCIL);
 
 	const mod = await db.mod.findUnique({ where: { id } });
-	return db.mod.update({ where: { id }, data: { ...mod, ...{ name, description, authors, url, forgeId } } });
+	return db.mod.update({ where: { id }, data: { ...mod, ...{ name, description, authors, url, forgeId, loaders } } });
 }
 
 export async function updateModPicture(id: string, data: FormData): Promise<Mod> {
@@ -67,17 +77,19 @@ export async function createMod({
 	authors,
 	url,
 	forgeId,
+	loaders,
 }: {
 	name: string;
 	description?: string;
 	authors?: string[];
 	url?: string;
 	forgeId?: string;
+	loaders: string[];
 }): Promise<Mod> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.mod.create({
-		data: { name, description, authors: authors ?? [], url, forgeId },
+		data: { name, description, authors: authors ?? [], url, forgeId, loaders },
 	});
 }
 

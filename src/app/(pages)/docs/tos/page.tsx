@@ -1,6 +1,8 @@
 'use client';
 
-import { Card, List, Text } from '@mantine/core';
+import { List, Text } from '@mantine/core';
+
+import { Tile } from '~/components/tile';
 
 export default function RulesPage() {
 
@@ -9,13 +11,7 @@ export default function RulesPage() {
 	};
 
 	return (
-		<Card
-			shadow="sm"
-			padding="md"
-			radius="md"
-			mb="sm"
-			withBorder
-		>
+		<Tile mb="sm">
 			<Text size="md" fw={700}>Terms of Service (ToS)</Text>
 			<Text size="sm">
 				As a contributor of this platform, you are expected to respect the following terms:<br/>
@@ -116,6 +112,6 @@ export default function RulesPage() {
 			</List>
 
 			<Text mt="md" size="sm" c="red">Those rules may be updated at any time without notice, so please check them regularly.</Text>
-		</Card>
+		</Tile>
 	);
 }

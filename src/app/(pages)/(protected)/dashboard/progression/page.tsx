@@ -2,10 +2,11 @@
 
 import type { Resolution } from '@prisma/client';
 
-import { Button, Card, Group, Progress, Text, Stack } from '@mantine/core';
+import { Button, Group, Progress, Text, Stack } from '@mantine/core';
 import { useState } from 'react';
 import { TbReload } from 'react-icons/tb';
 
+import { Tile } from '~/components/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { EMPTY_PROGRESSION, gradient } from '~/lib/utils';
 import { getModsVersionsProgression } from '~/server/data/mods-version';
@@ -34,12 +35,7 @@ const ProgressionPanel = () => {
 	};
 
 	return (
-		<Card
-			shadow="sm"
-			padding="md"
-			radius="md"
-			withBorder
-		>
+		<Tile>
 			<Group justify="space-between" align="flex-start">
 				<Text size="md" fw={700}>Pack Progression</Text>
 				<Button
@@ -75,7 +71,7 @@ const ProgressionPanel = () => {
 			<Group gap="md" mt="md">
 				{resources.map((modVersion, index) => <ProgressionItem key={index} modVersion={modVersion} />)}
 			</Group>
-		</Card>
+		</Tile>
 	);
 };
 

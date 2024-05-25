@@ -8,6 +8,7 @@ import { join } from 'path';
 import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
+import { MODS_LOADERS } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
 import { bufferToFile, extractSemver } from '~/lib/utils';
@@ -146,6 +147,7 @@ export async function extractModVersionsFromJAR(jar: File): Promise<ModVersion[]
 				description: modInfo.description,
 				authors: modInfo.authorList,
 				url: modInfo.url,
+				loaders: [MODS_LOADERS[0]], // TODO: Add support for fabric
 			});
 		}
 
@@ -180,13 +182,15 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 	const archive = await unzipper.Open.buffer(buffer);
 
 	// Get textures assets
-	const texturesAssets = archive.files.filter(
+	const assets = archive.files.filter(
 		(file) =>
 			file.type === 'File' &&
 			file.path.startsWith('assets') &&
-			file.path.includes('textures') &&
-			file.path.endsWith('.png') // TODO: Add support for mcmeta files
+			file.path.includes('textures')
 	);
+
+	const textureAssets = assets.filter((file) => file.path.endsWith('.png'));
+	const mcmetaAssets = assets.filter((file) => file.path.endsWith('.mcmeta'));
 
 	// TODO: Get models assets
 
@@ -194,7 +198,7 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
 
 	// Check if the extracted file already exists in the public dir
-	for (const textureAsset of texturesAssets) {
+	for (const textureAsset of textureAssets) {
 		const textureName = textureAsset.path.split('/').pop()!.split('.')[0];
 		const asset = textureAsset.path.split('/')[1];
 
@@ -205,10 +209,25 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 
 		if (!texture) {
 			const filepath = await upload(bufferToFile(buffer, `${textureName}.png`, 'image/png'), 'textures/default/');
+			const mcmetaFile = mcmetaAssets.find((mcmeta) => `${textureAsset.path}.mcmeta` === mcmeta.path);
+
+			let mcmeta = undefined;
+			if (mcmetaFile) {
+				mcmeta = await mcmetaFile.buffer().then((b) => {
+					try {
+						return JSON.parse(b.toString('utf-8'));
+					} catch {
+						console.error('Failed to parse MCMETA file:', mcmetaFile.path, ' content: ', b.toString('utf-8'));
+						return b.toString('utf-8'); // Invalid JSON, keep as string for manual checking
+					}
+				});
+			}
+
 			texture = await createTexture({
 				filepath,
 				hash,
 				name: textureName,
+				mcmeta,
 			});
 		}
 		else {

@@ -1,7 +1,8 @@
-import { Popover, Card, Stack, Group, Progress, Text } from '@mantine/core';
+import { Popover, Stack, Group, Progress, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
+import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 import { gradient } from '~/lib/utils';
@@ -14,14 +15,13 @@ export function ProgressionItem({ modVersion }: { modVersion: ModVersionWithProg
 	return (
 		<Popover width={200} position="bottom" withArrow shadow="md" opened={opened}>
 			<Popover.Target>
-				<Card 
-					onMouseEnter={open} 
+				<Tile
+					onMouseEnter={open}
 					onMouseLeave={close}
-					withBorder 
-					shadow="0" 
+					shadow="0"
 					className="dashboard-mod-progress"
-					style={{ '--dashboard-mod-progress-count': windowWidth <= BREAKPOINT_MOBILE_LARGE 
-						? 1 
+					style={{ '--dashboard-mod-progress-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
+						? 1
 						: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
 							? 2
 							: windowWidth <= BREAKPOINT_DESKTOP_LARGE
@@ -36,10 +36,10 @@ export function ProgressionItem({ modVersion }: { modVersion: ModVersionWithProg
 						<Stack gap="sm">
 							{(Object.keys(modVersion.textures.done) as Resolution[])
 								.map((res, i) => (
-									<Stack key={i} gap="0">									
+									<Stack key={i} gap="0">
 										<Text size="xs" c="dimmed">
 											Textures {res}:&nbsp;{modVersion.textures.done[res]}&nbsp;/&nbsp;{modVersion.textures.todo}&nbsp;
-											{modVersion.textures.todo === modVersion.linkedTextures ? '' : `(linked: ${modVersion.linkedTextures})`}	
+											{modVersion.textures.todo === modVersion.linkedTextures ? '' : `(linked: ${modVersion.linkedTextures})`}
 										</Text>
 
 										<Progress.Root size="xl" color={gradient.to}>
@@ -52,7 +52,7 @@ export function ProgressionItem({ modVersion }: { modVersion: ModVersionWithProg
 							}
 						</Stack>
 					</Stack>
-				</Card>
+				</Tile>
 			</Popover.Target>
 			<Popover.Dropdown style={{ pointerEvents: 'none' }}>
 				<Text size="sm">Per Asset folder</Text>

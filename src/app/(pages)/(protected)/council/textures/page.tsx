@@ -1,14 +1,16 @@
 'use client';
 
-import { Badge, Card, Group, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Badge, Group, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Texture } from '@prisma/client';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Modal } from '~/components/modal';
 import { TextureImage } from '~/components/texture-img';
+import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET, ITEMS_PER_PAGE } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
@@ -40,6 +42,8 @@ const CouncilTexturesPage = () => {
 	const [activePage, setActivePage] = useState(1);
 	const [texturesShownPerPage, setTexturesShowPerPage] = useState<string | null>(itemsPerPage[0]);
 
+	const prevSearchedTextures = usePrevious(searchedTextures);
+
 	useEffectOnce(() => {
 		getTextures()
 			.then((res) => {
@@ -61,10 +65,12 @@ const CouncilTexturesPage = () => {
 			chunks.push(searchedTextures.slice(i, i + int));
 		}
 
-		setActivePage(1);
-		setTexturesShown(chunks);
+		if (!prevSearchedTextures || searchedTextures.length !== prevSearchedTextures.length) {
+			setActivePage(1);
+		}
 
-	}, [searchedTextures, texturesShownPerPage, itemsPerPage]);
+		setTexturesShown(chunks);
+	}, [searchedTextures, texturesShownPerPage, prevSearchedTextures, activePage, itemsPerPage]);
 
 	useEffect(() => {
 		if (!search) {
@@ -111,7 +117,7 @@ const CouncilTexturesPage = () => {
 				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>
 
-			<Card withBorder shadow="sm" radius="md" padding="md">
+			<Tile>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Textures</Text>
 					<Badge color="teal" variant="filled">
@@ -150,9 +156,18 @@ const CouncilTexturesPage = () => {
 								className="cursor-pointer"
 								src={t.filepath ?? '/icon.png'}
 								alt={t.name}
+								mcmeta={t.mcmeta as unknown as string}
 								size={90}
 							/>
-							<Stack gap="0" align="flex-start" mt="sm" pr="sm">
+							<Stack
+								gap="0"
+								align="flex-start"
+								mt="sm"
+								pr="sm"
+								style={{
+									overflow: 'hidden',
+								}}
+							>
 								<Text size="sm" fw={700}>{t.name}</Text>
 								<Text size="xs" lineClamp={2}>{t.aliases.join(', ')}</Text>
 							</Stack>
@@ -163,7 +178,7 @@ const CouncilTexturesPage = () => {
 				<Group mt="md" justify="center">
 					<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
 				</Group>
-			</Card>
+			</Tile>
 		</>
 	);
 };

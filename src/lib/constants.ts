@@ -17,3 +17,5 @@ export const BREAKPOINT_DESKTOP_LARGE = 1440 + 100;
 export const BREAKPOINT_DESKTOP_HUGE = 2560;
 
 export const MINIMUM_CARD_WIDTH = `calc(${BREAKPOINT_MOBILE_SMALL}px - (2 * var(--mantine-spacing-sm)))`;
+
+export const MODS_LOADERS = ['Forge'];

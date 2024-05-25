@@ -2,12 +2,12 @@
 
 import type { User } from '@prisma/client';
 
-import { Badge, Button, Card, Group, Tabs } from '@mantine/core';
-import { useParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { Badge, Button, Group, Tabs } from '@mantine/core';
+import { useParams, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useState } from 'react';
 
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient, gradientDanger, notify } from '~/lib/utils';
@@ -49,13 +49,7 @@ const UserPage = () => {
 
 	return (displayedUser && (
 		<Tabs defaultValue="1" variant="pills" color={gradient.to} >
-			<Card
-				withBorder
-				shadow="sm"
-				padding="md"
-				radius="md"
-				mb="sm"
-			>
+			<Tile mb="sm">
 				<Group justify="space-between">
 					<Tabs.List>
 						<Tabs.Tab value="1">Settings</Tabs.Tab>
@@ -73,7 +67,7 @@ const UserPage = () => {
 						</Button>
 					)}
 				</Group>
-			</Card>
+			</Tile>
 
 			<Tabs.Panel value="1"><UserSettingsPanel user={displayedUser} self={self} /></Tabs.Panel>
 			<Tabs.Panel value="2"><UserReportsPanel user={displayedUser} self={self} reports={reports} /></Tabs.Panel>

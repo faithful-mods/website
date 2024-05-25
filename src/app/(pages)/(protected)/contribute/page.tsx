@@ -1,10 +1,11 @@
 'use client';
 
-import { Accordion, Badge, Card, Code, Group, Select, Stack, Text } from '@mantine/core';
+import { Accordion, Badge, Code, Group, Select, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { Resolution } from '@prisma/client';
 import { useState, useTransition } from 'react';
 
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -76,7 +77,7 @@ const ContributePage = () => {
 
 	return (
 		<Stack gap="sm" pb="sm">
-			<Card withBorder shadow="sm" radius="md" padding="md">
+			<Tile>
 				<Text size="md" fw={700}>Submission Process</Text>
 				<Text size="sm">
 					Once submitted, your submissions are subject to a voting process by the council and their decision is final.<br/>
@@ -95,9 +96,9 @@ const ContributePage = () => {
 					you can edit them as many times as you like. But if you want to switch the texture file, please reupload it and delete your draft.<br/>
 				</Text>
 				<Text size="sm" fs="italic" c="dimmed" mt="sm">You want to join the council ? Apply here (soon).</Text>
-			</Card>
+			</Tile>
 
-			<Card withBorder shadow="sm" radius="md" padding="md">
+			<Tile>
 				<Stack gap="sm">
 					<Group justify="space-between">
 						<Text size="md" fw={700}>New contribution(s)</Text>
@@ -148,7 +149,7 @@ const ContributePage = () => {
 						</Text>
 					</Stack>
 				</Stack>
-			</Card>
+			</Tile>
 
 			<Accordion variant="separated" defaultValue={draftContributions?.length ? 'drafts' : 'submitted'} radius="md">
 				{draftContributions &&
