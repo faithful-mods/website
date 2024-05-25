@@ -1,12 +1,13 @@
 'use client';
 
-import { Badge, Card, Group, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Badge, Group, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Texture } from '@prisma/client';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Modal } from '~/components/modal';
 import { TextureImage } from '~/components/texture-img';
+import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
@@ -116,7 +117,7 @@ const CouncilTexturesPage = () => {
 				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>
 
-			<Card withBorder shadow="sm" radius="md" padding="md" mb="sm">
+			<Tile>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Textures</Text>
 					<Badge color="teal" variant="filled">
@@ -177,7 +178,7 @@ const CouncilTexturesPage = () => {
 				<Group mt="md" justify="center">
 					<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
 				</Group>
-			</Card>
+			</Tile>
 		</>
 	);
 };

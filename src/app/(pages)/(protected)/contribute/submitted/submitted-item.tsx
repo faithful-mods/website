@@ -1,10 +1,11 @@
-import { Badge, Card, Group, Image, Stack, Text } from '@mantine/core';
+import { Badge, Group, Image, Stack, Text } from '@mantine/core';
 import { Status } from '@prisma/client';
 import { ClassValue } from 'clsx';
 import { useState } from 'react';
 import { FaFileAlt } from 'react-icons/fa';
 import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 
+import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
@@ -20,23 +21,23 @@ export interface ContributionSubmittedItemProps {
 
 export function ContributionSubmittedItem({ contribution, className, onClick }: ContributionSubmittedItemProps) {
 	const [windowWidth, _] = useDeviceSize();
-	const imgWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 90; 
+	const imgWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 90;
 	const [poll, setPoll] = useState<PollResults>();
 
 	useEffectOnce(() => {
 		getPollResult(contribution.pollId).then((res) => setPoll(res));
 	});
-	
+
 	return (
-		<Card 
-			withBorder 
+		<Tile
+			radius="sm"
 			shadow="0"
 			onClick={onClick}
 			className={cn(className, 'contribution-item')}
-			style={{ 
-				'position': 'relative', 
+			style={{
+				'position': 'relative',
 				'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
-					? 1 
+					? 1
 					: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
 						? 2
 						: 3,
@@ -44,7 +45,7 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 		>
 			<Group gap="sm" wrap="nowrap" justify="space-between" align="start">
 				<Group wrap="nowrap">
-					{contribution.filename.endsWith('.png') && 
+					{contribution.filename.endsWith('.png') &&
 						<Image
 							radius="sm"
 							className="image-background image-pixelated"
@@ -53,13 +54,13 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 							width={imgWidth}
 							height={imgWidth}
 							fit="contain"
-							style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }} 
+							style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }}
 						/>
 					}
 					{
 						(contribution.filename.endsWith('.json') || contribution.filename.endsWith('.mcmeta')) &&
-						<FaFileAlt 
-							style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }} 
+						<FaFileAlt
+							style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }}
 						/>
 					}
 					<Stack gap="0" align="flex-start" mt="0">
@@ -70,12 +71,12 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 					</Stack>
 				</Group>
 				<Stack align="right" gap="xs">
-					<Badge 
+					<Badge
 						color={
-							contribution.status === Status.ACCEPTED 
-								? 'teal' 
-								: contribution.status === Status.REJECTED 
-									? 'red' 
+							contribution.status === Status.ACCEPTED
+								? 'teal'
+								: contribution.status === Status.REJECTED
+									? 'red'
 									: 'orange'
 						}
 						variant="filled"
@@ -96,6 +97,6 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 					}
 				</Stack>
 			</Group>
-		</Card>
+		</Tile>
 	);
 }

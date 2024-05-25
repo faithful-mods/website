@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Group, Text, TextInput, Button, Select, Pagination } from '@mantine/core';
+import { Badge, Group, Text, TextInput, Button, Select, Pagination } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack, UserRole } from '@prisma/client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
@@ -8,6 +8,7 @@ import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
@@ -112,12 +113,7 @@ const ModpacksPanel = () => {
 			>
 				<ModpackModal modpack={modalModpack} onClose={handleModalClose} />
 			</Modal>
-			<Card
-				shadow="sm"
-				padding="md"
-				radius="md"
-				withBorder
-			>
+			<Tile>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Modpacks</Text>
 					<Badge color="teal" variant="filled">
@@ -190,7 +186,7 @@ const ModpacksPanel = () => {
 						</Button>
 					</Group>
 				}
-			</Card>
+			</Tile>
 		</>
 	);
 };

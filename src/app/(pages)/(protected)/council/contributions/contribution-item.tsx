@@ -1,8 +1,9 @@
-import { Badge, Card, Group, Image, Stack, Text } from '@mantine/core';
+import { Badge, Group, Image, Stack, Text } from '@mantine/core';
 import { Texture } from '@prisma/client';
 import { useTransition } from 'react';
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from 'react-icons/lu';
 
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
@@ -41,10 +42,7 @@ export function CouncilContributionItem({ contribution, texture, counselors, onV
 	};
 
 	return (
-		<Card
-			withBorder
-			p="sm"
-		>
+		<Tile shadow="0">
 			<Group gap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'sm' : 'md'} justify="left" align="start">
 				<Group
 					gap="md"
@@ -99,6 +97,6 @@ export function CouncilContributionItem({ contribution, texture, counselors, onV
 					)}
 				</Stack>
 			</Group>
-		</Card>
+		</Tile>
 	);
 }

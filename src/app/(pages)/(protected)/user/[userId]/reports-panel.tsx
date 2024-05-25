@@ -1,5 +1,5 @@
 
-import { Avatar, Button, Card, Group, Select, SelectProps, Stack, Table, Text, Textarea } from '@mantine/core';
+import { Avatar, Button, Group, Select, SelectProps, Stack, Table, Text, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { ReportReason, Report, User, UserRole, Status } from '@prisma/client';
 import Link from 'next/link';
@@ -7,6 +7,7 @@ import { Fragment, startTransition, useEffect, useState } from 'react';
 import { FaArrowRight } from 'react-icons/fa';
 import { IoCloseOutline, IoCheckmark } from 'react-icons/io5';
 
+import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
@@ -142,7 +143,7 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 	return (
 		<Stack gap="sm">
 			{self && (
-				<Card withBorder shadow="sm" radius="md" padding="md">
+				<Tile>
 					<Stack gap="md">
 						<Stack gap={0}>
 							<Text size="md" fw={700}>Reports</Text>
@@ -203,10 +204,10 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 							)}
 						</Group>
 					</Stack>
-				</Card>
+				</Tile>
 			)}
 
-			<Card withBorder shadow="sm" radius="md" padding="md">
+			<Tile>
 				<Stack gap="md">
 					<Stack gap={0}>
 						<Text size="md" fw={700}>Reports against {self ? 'you' : 'that user'}</Text>
@@ -367,7 +368,7 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 						)}
 					</Stack>
 				</Stack>
-			</Card>
+			</Tile>
 		</Stack>
 	);
 }
