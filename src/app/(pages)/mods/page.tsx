@@ -111,7 +111,7 @@ export default function Mods() {
 
 					<Text size="sm" fw={700}>Minecraft Version</Text>
 					<MultiSelect
-						data={MCVersions}
+						data={MCVersions.toReversed()}
 						onChange={setVersions}
 						placeholder={versions.length > 0 ? '' : 'Choose versions...'}
 						nothingFoundMessage="No versions found"
@@ -133,6 +133,7 @@ export default function Mods() {
 							<Radio
 								size="xs"
 								label="All"
+								onChange={() => void 0}
 								checked={loaders.length === MODS_LOADERS.length}
 								onClick={() => loaders.length === MODS_LOADERS.length ? setLoaders([]) : setLoaders(MODS_LOADERS)}
 							/>
@@ -184,7 +185,7 @@ export default function Mods() {
 				</Group>
 				<Group gap="xs" wrap="nowrap" >
 					<HiDownload color="var(--mantine-color-dimmed)" />
-					<Text size="sm" c="dimmed">100k</Text>
+					<Text size="sm" c="dimmed">-</Text>
 				</Group>
 			</Group>
 		);
@@ -233,7 +234,7 @@ export default function Mods() {
 					modsShown[activePage - 1] && modsShown[activePage - 1].map((m) => (
 						<Tile
 							key={m.id}
-							onClick={() => router.push(`/mods/${m.forgeId}`)}
+							onClick={() => router.push(`/mods/${m.id}`)}
 							className="cursor-pointer mod-card"
 						>
 							<Stack gap="xs">
