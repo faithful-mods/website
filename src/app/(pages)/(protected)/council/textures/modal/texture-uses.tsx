@@ -58,7 +58,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 							<Stack key={mv.id} gap={0} >
 								<Group gap="xs">
 									<LuFolderGit />
-									<Text fw={300}>{mv.version}{mv.mcVersion !== 'unknown' && `(MC: ${mv.mcVersion})`}</Text>
+									<Text fw={300}>{mv.version}{mv.mcVersion !== 'unknown' && ` (MC: ${mv.mcVersion})`}</Text>
 								</Group>
 
 								<Stack ml="xs" gap={0}>
