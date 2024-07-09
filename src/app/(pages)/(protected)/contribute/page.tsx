@@ -50,6 +50,7 @@ const ContributePage = () => {
 					console.error(err);
 					notify('Error', 'Failed to fetch submitted contributions', 'red');
 				});
+
 			getSubmittedContributions(user.id!)
 				.then(setContributions)
 				.catch((err) => {

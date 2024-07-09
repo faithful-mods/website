@@ -28,7 +28,6 @@ const DashboardPage = ({ children }: ProtectedLayoutProps) => {
 			>
 				<Tile mb="sm">
 					<Tabs.List>
-						<Tabs.Tab value="progression">Progression</Tabs.Tab>
 						<Tabs.Tab value="users">Users</Tabs.Tab>
 					</Tabs.List>
 				</Tile>

@@ -144,7 +144,7 @@ export const Navbar = () => {
 						{!user && <GitHubLogin />}
 
 						{user && (user.role === UserRole.COUNCIL || user.role === UserRole.ADMIN) &&
-							<Link href='/council'>
+							<Link href='/council/contributions'>
 								<ActionIcon
 									size="lg"
 									variant="transparent"
@@ -154,7 +154,7 @@ export const Navbar = () => {
 						}
 
 						{user && user.role === 'ADMIN' &&
-							<Link href='/dashboard'>
+							<Link href='/dashboard/users'>
 								<ActionIcon
 									size="lg"
 									variant="transparent"
