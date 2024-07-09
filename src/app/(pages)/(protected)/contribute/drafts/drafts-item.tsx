@@ -1,8 +1,9 @@
 
-import { Button, Card, Group, Image, Stack, Text } from '@mantine/core';
+import { Button, Group, Image, Stack, Text } from '@mantine/core';
 import { useTransition } from 'react';
 import { FaEdit, FaFileAlt } from 'react-icons/fa';
 
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET } from '~/lib/constants';
@@ -42,8 +43,7 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 	};
 
 	return (
-		<Card
-			withBorder
+		<Tile
 			shadow="0"
 			className="contribution-item"
 			style={{
@@ -127,6 +127,6 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 					Submit
 				</Button>
 			</Group>
-		</Card>
+		</Tile>
 	);
 }

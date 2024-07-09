@@ -49,6 +49,18 @@ export type Progression = {
 	};
 }
 
+export type TextureMCMETA = MCMETA | string | null | undefined;
+
+export interface MCMETA {
+	animation: {
+		frametime?: number;
+		interpolate?: boolean;
+		frames?: (number | { index: number; time: number })[];
+		height?: number;
+		width?: number;
+	};
+}
+
 export type ReportWithReporter = Report & { reporter: PublicUser };
 export type UserWithReports = Prettify<User & { reports: Report[] }>;
 

@@ -1,9 +1,10 @@
-import { Avatar, Button, Card, Container, Group, Image, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
+import { Avatar, Button, Container, Group, Image, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
 import { ContributionDeactivation, Resolution, type Texture } from '@prisma/client';
 import { useState, useTransition } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { PiMagicWandBold } from 'react-icons/pi';
 
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -129,11 +130,11 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						<Title order={5}>Your Contribution</Title>
 						<Text size="sm" c="dimmed">The file you&apos;re submitting.</Text>
 					</Stack>
-					<Card h={rowHeight} shadow="0" withBorder p="0">
+					<Tile h={rowHeight} shadow="0" radius="sm" p="0">
 						<Group justify="center" h={rowHeight}>
 							<Text size="sm">{contribution.filename}</Text>
 						</Group>
-					</Card>
+					</Tile>
 					<Image
 						src={contribution.file}
 						className="texture-background image-pixelated"

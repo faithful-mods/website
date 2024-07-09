@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Button, Card, Group, Pagination, Select, Switch, Text, TextInput } from '@mantine/core';
+import { Badge, Button, Group, Pagination, Select, Switch, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { UserRole, Mod } from '@prisma/client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
@@ -8,8 +8,10 @@ import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { usePrevious } from '~/hooks/use-previous';
 import { ITEMS_PER_PAGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
@@ -34,14 +36,15 @@ const ModsPanel = () => {
 	const [searchedMods, setSearchedMods] = useState<ModWVer[]>([]);
 	const [modalMod, setModalMod] = useState<Mod | undefined>();
 
+	const prevSearchedMods = usePrevious(searchedMods);
+
 	const [showUnknown, setShowUnknown] = useState(false);
 
 	useEffectOnce(() => {
 		getMods()
 			.then((mods) => {
-				const sorted = mods.sort(sortByName);
-				setMods(sorted);
-				setSearchedMods(sorted);
+				setMods(mods);
+				setSearchedMods(mods);
 			})
 			.catch((err) => {
 				console.error(err);
@@ -57,9 +60,12 @@ const ModsPanel = () => {
 			chunks.push(searchedMods.slice(i, i + int));
 		}
 
-		setActivePage(1);
+		if (!prevSearchedMods || prevSearchedMods.length !== searchedMods.length) {
+			setActivePage(1);
+		}
+
 		setModsShown(chunks);
-	}, [searchedMods, modsShownPerPage, itemsPerPage]);
+	}, [searchedMods, modsShownPerPage, prevSearchedMods, itemsPerPage]);
 
 	useEffect(() => {
 		if (!search) {
@@ -111,12 +117,7 @@ const ModsPanel = () => {
 			>
 				<ModModal mod={modalMod} onClose={handleModalClose} />
 			</Modal>
-			<Card
-				shadow="sm"
-				padding="md"
-				radius="md"
-				withBorder
-			>
+			<Tile>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Mods</Text>
 					<Badge color="teal" variant="filled">
@@ -202,7 +203,7 @@ const ModsPanel = () => {
 						</Button>
 					</Group>
 				}
-			</Card>
+			</Tile>
 		</>
 	);
 };

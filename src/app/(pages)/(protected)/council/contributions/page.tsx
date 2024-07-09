@@ -1,9 +1,10 @@
 'use client';
 
-import { Accordion, Badge, Card, Stack, Text } from '@mantine/core';
+import { Accordion, Badge, Stack, Text } from '@mantine/core';
 import { Texture } from '@prisma/client';
 import { useState } from 'react';
 
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { getPendingContributions } from '~/server/data/contributions';
@@ -55,7 +56,7 @@ const CouncilContributionsPanel = () => {
 
 	return (
 		<Stack gap="sm">
-			<Card withBorder shadow="sm" radius="md" padding="md">
+			<Tile>
 				<Text size="md" fw={700}>Submission Process</Text>
 				<Text size="sm">
 					Once all counselors have voted:
@@ -75,7 +76,7 @@ const CouncilContributionsPanel = () => {
 					There is actually {counselorUnvoted.length + counselorVoted.length} contribution(s) in the voting process
 					and {counselors.length} counselor(s) in the council.
 				</Text>
-			</Card>
+			</Tile>
 
 			<Accordion variant="separated" radius="md">
 				<Accordion.Item value="unvoted">

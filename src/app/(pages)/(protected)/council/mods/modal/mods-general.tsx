@@ -1,12 +1,12 @@
 import type { ModModalFormValues } from './mods-modal';
 import type { Mod } from '@prisma/client';
 
-import { Badge, FileInput, Group, Stack, TextInput } from '@mantine/core';
+import { Badge, FileInput, Group, MultiSelect, Stack, TextInput } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 
 import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, MODS_LOADERS } from '~/lib/constants';
 
 export interface ModModalGeneralProps {
 	form: UseFormReturnType<ModModalFormValues>;
@@ -41,6 +41,7 @@ export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps)
 				<TextInput label="Author(s)" required description="Use a comma to separate multiple authors" {...form.getInputProps('authors')} />
 				<FileInput label="Picture" required accept="image/*"{...form.getInputProps('image')} />
 				<TextInput label="Page URL" {...form.getInputProps('url')} />
+				<MultiSelect data={MODS_LOADERS} label="Mod loader(s)" required {...form.getInputProps('loaders')} />
 				<TextInput label="Forge Mod ID" required {...form.getInputProps('forgeId')} />
 			</Stack>
 		</Group>

@@ -1,18 +1,24 @@
 'use server';
 import 'server-only';
 
-import { Resolution, UserRole, type ModVersion, type Modpack } from '@prisma/client';
+import { Status, UserRole, type ModVersion, type Modpack } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import { EMPTY_PROGRESSION, EMPTY_PROGRESSION_RES } from '~/lib/utils';
-import type { ModVersionExtended, ModVersionWithProgression } from '~/types';
+import { EMPTY_PROGRESSION_RES, sortBySemver } from '~/lib/utils';
+import type { ModVersionExtended, Progression } from '~/types';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
 import { extractModVersionsFromJAR } from '../actions/files';
 
 // GET
+
+export async function getSupportedMinecraftVersions(): Promise<string[]> {
+	return db.modVersion.findMany({ distinct: ['mcVersion'] })
+		.then((res) => res.map((r) => r.mcVersion))
+		.then((res) => res.sort(sortBySemver));
+}
 
 export async function getModVersionsWithModpacks(modId: string): Promise<ModVersionExtended[]> {
 	const res: ModVersionExtended[] = [];
@@ -50,66 +56,48 @@ export async function getModsVersionsFromResources(resourceIds: string[]): Promi
 		.then((res) => res.map((modVer) => ({ ...modVer, resources: modVer.resources.map((r) => r.id) })));
 }
 
-export async function getModsVersionsProgression(): Promise<ModVersionWithProgression[]> {
-	const modVersions = (await db.modVersion.findMany({ include: { mod: true, resources: true } })).map((modVer) => ({
-		...modVer,
-		...EMPTY_PROGRESSION,
-		resources: modVer.resources.map((resource) => ({
-			...resource,
-			...EMPTY_PROGRESSION,
-		})),
-	}));
+export async function getModVersionProgression(modVersionId: string): Promise<Progression | null> {
+	const modVersion = await db.modVersion.findUnique({ where: { id: modVersionId }, include: { resources: true } });
+	if (!modVersion) return null;
 
-	for (const modVersion of modVersions) {
-		for (const resource of modVersion.resources) {
-			const linkedTextures = await db.linkedTexture.findMany({ where: { resourceId: resource.id } });
+	// get all textures uses for the mod version
+	const linkedTexturesIds = await db.linkedTexture.findMany({ where: { resourceId: { in: modVersion.resources.map((r) => r.id) } }, select: { textureId: true } });
 
-			const textures = await db.texture.findMany({
-				where: {
-					id: { in: linkedTextures.map((lt) => lt.textureId) },
-				},
-			});
+	// filter duplicates
+	const uniqueTextures = linkedTexturesIds.filter((lt, i, arr) => arr.findIndex((lt2) => lt2.textureId === lt.textureId) === i);
 
-			const contributions = await db.texture
-				.findMany({
-					where: {
-						contributions: { some: {} }, // at least one contribution
-						id: { in: linkedTextures.map((lt) => lt.textureId) },
-					},
-					include: { contributions: true },
-				})
-				// keep contributions only
-				.then((textures) => textures.map((texture) => texture.contributions).flat())
-				// remove multiple contributions on the same resolution for the same texture
-				.then((contributions) =>
-					contributions.filter(
-						(c, i, arr) => arr.findIndex((c2) => c2.textureId === c.textureId && c2.resolution === c.resolution) === i
-					)
-				)
-				// count contributions per resolution
-				.then((contributions) => {
-					const output = EMPTY_PROGRESSION_RES;
+	// get all contributions for the textures
+	const contributionsIds = await db.contribution.findMany({
+		where: {
+			textureId: { in: uniqueTextures.map((e) => e.textureId) },
+			status: Status.ACCEPTED,
+		},
+		select: {
+			textureId: true,
+			resolution: true,
+			id: true,
+		},
+	});
 
-					for (const contribution of contributions) {
-						output[contribution.resolution] += 1;
-					}
+	// keep only one contribution per resolution per texture
+	const contributions = contributionsIds.filter(
+		(c, i, arr) => arr.findIndex((c2) => c2.textureId === c.textureId && c2.resolution === c.resolution) === i
+	);
 
-					return output;
-				});
+	// split contributions per resolution
+	const progression: Progression = {
+		textures: {
+			done: Object.assign({}, EMPTY_PROGRESSION_RES),
+			todo: uniqueTextures.length,
+		},
+		linkedTextures: linkedTexturesIds.length,
+	};
 
-			modVersion.linkedTextures += linkedTextures.length;
-			modVersion.textures.todo += textures.length;
-			(Object.keys(modVersion.textures.done) as Resolution[]).forEach(
-				(res) => (modVersion.textures.done[res] += contributions[res])
-			);
-
-			resource.linkedTextures = linkedTextures.length;
-			resource.textures.todo = textures.length;
-			resource.textures.done = contributions;
-		}
+	for (const contribution of contributions) {
+		progression.textures.done[contribution.resolution] += 1;
 	}
 
-	return modVersions.filter((modVer) => modVer.linkedTextures > 0); // only return mod versions with linked textures
+	return progression;
 }
 
 // POST

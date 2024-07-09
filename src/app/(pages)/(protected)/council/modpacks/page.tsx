@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Group, Text, TextInput, Button, Select, Pagination } from '@mantine/core';
+import { Badge, Group, Text, TextInput, Button, Select, Pagination } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Modpack, UserRole } from '@prisma/client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
@@ -8,8 +8,10 @@ import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
+import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { usePrevious } from '~/hooks/use-previous';
 import { ITEMS_PER_PAGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
@@ -32,6 +34,8 @@ const ModpacksPanel = () => {
 	const [activePage, setActivePage] = useState(1);
 	const [modpacksShownPerPage, setModpacksShownPerPage] = useState<string | null>(itemsPerPage[0]);
 
+	const prevSearchedModpacks = usePrevious(searchedModpacks);
+
 	useEffectOnce(() => {
 		getModpacks()
 			.then((modpacks) => {
@@ -53,9 +57,12 @@ const ModpacksPanel = () => {
 			chunks.push(searchedModpacks.slice(i, i + int));
 		}
 
-		setActivePage(1);
+		if (!prevSearchedModpacks || prevSearchedModpacks.length !== searchedModpacks.length) {
+			setActivePage(1);
+		}
+
 		setModpacksShown(chunks);
-	}, [searchedModpacks, modpacksShownPerPage, itemsPerPage]);
+	}, [searchedModpacks, modpacksShownPerPage, prevSearchedModpacks, itemsPerPage]);
 
 	useEffect(() => {
 		if (!search) {
@@ -106,12 +113,7 @@ const ModpacksPanel = () => {
 			>
 				<ModpackModal modpack={modalModpack} onClose={handleModalClose} />
 			</Modal>
-			<Card
-				shadow="sm"
-				padding="md"
-				radius="md"
-				withBorder
-			>
+			<Tile>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Modpacks</Text>
 					<Badge color="teal" variant="filled">
@@ -184,7 +186,7 @@ const ModpacksPanel = () => {
 						</Button>
 					</Group>
 				}
-			</Card>
+			</Tile>
 		</>
 	);
 };

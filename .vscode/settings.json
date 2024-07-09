@@ -13,6 +13,7 @@
 		"mcmod",
 		"mcversion",
 		"modid",
+		"Mojangstudios",
 		"prisma",
 		"stylelint",
 		"tailwindcss",
@@ -34,5 +35,8 @@
 		"**/node_modules": true
 	},
 	"css.validate": false,
-	"scss.validate": false
+	"scss.validate": false,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "always"
+	},
 }

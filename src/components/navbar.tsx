@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionIcon, Avatar, Badge, Button, Card, Group, Image, Menu } from '@mantine/core';
+import { ActionIcon, Avatar, Badge, Button, Group, Image, Menu } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,6 +22,7 @@ import { BREAKPOINT_TABLET } from '~/lib/constants';
 import { gradient } from '~/lib/utils';
 
 import { ThemeSwitch } from './theme-switch';
+import { Tile } from './tile';
 
 
 export const Navbar = () => {
@@ -69,13 +70,13 @@ export const Navbar = () => {
 	return (
 		<Group gap="sm" mb="sm" mt="sm" wrap="nowrap">
 			{windowWidth >= BREAKPOINT_TABLET &&
-				<Card padding="sm" radius="md" withBorder shadow="sm" style={{ minWidth: '62px' }}>
+				<Tile padding="sm" radius="md" withBorder shadow="sm" style={{ minWidth: '62px' }}>
 					<Link href="/" className="navbar-icon-fix">
 						<Image src="/icon.png" alt="FM" className="navbar-icon-fix" />
 					</Link>
-				</Card>
+				</Tile>
 			}
-			<Card padding="sm" radius="md" withBorder className="w-full" shadow="sm">
+			<Tile padding="sm" radius="md" withBorder className="w-full" shadow="sm">
 				<Group justify="space-between" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 						{windowWidth < BREAKPOINT_TABLET &&
@@ -143,7 +144,7 @@ export const Navbar = () => {
 						{!user && <GitHubLogin />}
 
 						{user && (user.role === UserRole.COUNCIL || user.role === UserRole.ADMIN) &&
-							<Link href='/council'>
+							<Link href='/council/contributions'>
 								<ActionIcon
 									size="lg"
 									variant="transparent"
@@ -153,7 +154,7 @@ export const Navbar = () => {
 						}
 
 						{user && user.role === 'ADMIN' &&
-							<Link href='/dashboard'>
+							<Link href='/dashboard/users'>
 								<ActionIcon
 									size="lg"
 									variant="transparent"
@@ -192,7 +193,7 @@ export const Navbar = () => {
 						}
 					</Group>
 				</Group>
-			</Card>
+			</Tile>
 		</Group>
 	);
 };
