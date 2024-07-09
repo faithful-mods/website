@@ -1,9 +1,10 @@
 'use client';
 
-import { Button, Group, Stack, Text } from '@mantine/core';
-import { Mod } from '@prisma/client';
+import { Accordion, Button, Group, Progress, Stack, Text, Title, Tooltip } from '@mantine/core';
+import { Mod, ModVersion, Resolution } from '@prisma/client';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { GrGallery } from 'react-icons/gr';
 import { HiDownload } from 'react-icons/hi';
 import { IoExtensionPuzzleOutline } from 'react-icons/io5';
 import { TfiWorld } from 'react-icons/tfi';
@@ -12,26 +13,85 @@ import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
-import { getModsFromIds } from '~/server/data/mods';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, RESOLUTIONS_COLORS } from '~/lib/constants';
+import { EMPTY_PROGRESSION } from '~/lib/utils';
+import { getModWithModVersions } from '~/server/data/mods';
+import { getModVersionProgression } from '~/server/data/mods-version';
+import { Progression } from '~/types';
 
 export default function ModPage() {
 	const modId = useParams().modId as string;
 
 	const [windowWidth, _] = useDeviceSize();
 
-	const [mod, setMod] = useState<Mod | null>(null);
+	const [mod, setMod] = useState<(Mod & { versions: ModVersion[] }) | null>(null);
 	const [isLoading, setLoading] = useState(true);
+
+	const [versions, setVersions] = useState<Record<string, ModVersion[]> | null>(null);
+	const [verProgress, setVerProgress] = useState<Record<string, Progression> | null>(null);
+
+	const latestVersion = useMemo(() => Object.keys(versions ?? {})[0], [versions]);
 
 	useEffectOnce(() => {
 		if (!modId) return;
 
-		getModsFromIds([modId])
+		getModWithModVersions(modId)
 			.then((m) => {
-				setMod(m[0]);
+				if (m) {
+					const versions = m.versions
+						.sort((a, b) => a.mcVersion.localeCompare(b.mcVersion))
+						.toReversed()
+						.reduce<Record<string, ModVersion[]>>((acc, v) => {
+							acc[v.mcVersion] = [...(acc[v.mcVersion] ?? []), v]
+								.sort((a, b) => a.version.localeCompare(b.version))
+								.reverse();
+
+							return acc;
+						}, {});
+
+					setMod(m);
+					setVersions(versions);
+
+					m.versions.reduce<Record<string, Progression>>((acc, v) => {
+						getModVersionProgression(v.id)
+							.then((p) => {
+								acc[v.id] = p ?? Object.assign({}, EMPTY_PROGRESSION);
+								setVerProgress(acc);
+							});
+
+						return acc;
+					}, {});
+				}
+
 				setLoading(false);
 			});
 	});
+
+	const progressBar = (modVersion: string) => {
+		const p = verProgress?.[modVersion] ?? Object.assign({}, EMPTY_PROGRESSION);
+		const percentage = (res: Resolution) => p.textures.todo === 0 ? 0 : (p.textures.done[res] * 100) / p.textures.todo;
+
+		return (
+			<Group gap="md" wrap="wrap">
+				{(Object.keys(Resolution) as Resolution[]).map((res) => (
+					<Stack key={res} gap="xs" w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'calc((100% - (2 * var(--mantine-spacing-md))) / 3)'}>
+						<Group gap="xs" wrap="nowrap" w="100%">
+							<Text size="xs" w="30px">{res}</Text>
+							<Tooltip label={`${p.textures.done[res]}/${p.textures.todo === 0 ? '?' : p.textures.todo} (${percentage(res).toFixed(2)}%)`}>
+								<Progress.Root size="xl" w="100%">
+									<Progress.Section value={percentage(res)} color={RESOLUTIONS_COLORS[res]} />
+								</Progress.Root>
+							</Tooltip>
+						</Group>
+						<Group w="100%" ml={windowWidth <= BREAKPOINT_TABLET ? 0 : 'calc(30px + var(--mantine-spacing-xs))'} gap="xs">
+							<Button disabled size="compact-md" rightSection={<HiDownload />} variant="outline" fullWidth={windowWidth <= BREAKPOINT_TABLET}>Download</Button>
+							<Button disabled size="compact-md" rightSection={<GrGallery />} variant="outline" fullWidth={windowWidth <= BREAKPOINT_TABLET}>Textures</Button>
+						</Group>
+					</Stack>
+				))}
+			</Group>
+		);
+	};
 
 	return (
 		<Stack gap="sm" mb="sm">
@@ -143,13 +203,38 @@ export default function ModPage() {
 									w="calc(100% / 3)"
 									p={0}
 								>
-									<Text size="sm" c="dimmed">100 232</Text>
+									<Text size="sm" c="dimmed">-</Text>
 								</Button>
 							</Group>
 						</Tile>
 					)}
 
-					<Tile />
+					{versions && (
+						<Accordion variant="separated" radius="md" defaultValue={latestVersion}>
+
+							{Object.entries(versions).map(([mcVersion, modVersions]) => (
+								<Accordion.Item value={mcVersion} key={mcVersion}>
+									<Accordion.Control>
+										<Title order={4}>{mcVersion}</Title>
+									</Accordion.Control>
+									<Accordion.Panel>
+										<Stack gap="xs">
+											{modVersions.map((v) => (
+												<Tile key={v.id} shadowless>
+													<Stack>
+														<Title order={4} mb="xs">{v.version}</Title>
+														{progressBar(v.id)}
+													</Stack>
+												</Tile>
+											))}
+										</Stack>
+									</Accordion.Panel>
+
+								</Accordion.Item>
+							))}
+
+						</Accordion>
+					)}
 				</>
 			)}
 		</Stack>

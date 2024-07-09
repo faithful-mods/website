@@ -1,10 +1,14 @@
 import { Card, CardProps, PolymorphicComponentProps } from '@mantine/core';
 
-export function Tile({ children, ...props }: PolymorphicComponentProps<'div', CardProps>) {
+interface TileProps {
+	shadowless?: boolean;
+}
+
+export function Tile({ children, shadowless, ...props }: PolymorphicComponentProps<'div', CardProps> & TileProps) {
 	return (
 		<Card
 			withBorder
-			shadow="sm"
+			shadow={!shadowless ? 'sm' : 'none'}
 			radius="md"
 			padding="md"
 			{...props}

@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { UserRole, type Mod } from '@prisma/client';
+import { ModVersion, UserRole, type Mod } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -27,11 +27,16 @@ export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> 
 }
 
 export async function getModsWithVersions(): Promise<(Mod & { versions: string[] })[]> {
-	return db.mod.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } }).then((mods) =>
-		mods.map((mod) => {
-			return { ...mod, versions: mod.versions.map((v) => v.mcVersion) };
-		})
-	);
+	return db.mod.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } })
+		.then((mods) =>
+			mods.map((mod) => {
+				return { ...mod, versions: mod.versions.map((v) => v.mcVersion) };
+			})
+		);
+}
+
+export async function getModWithModVersions(id: string): Promise<(Mod & { versions: ModVersion[] }) | null> {
+	return db.mod.findUnique({ where: { id }, include: { versions: { orderBy: { createdAt: 'desc' } } } });
 }
 
 export async function modHasUnknownVersion(id: string): Promise<boolean> {

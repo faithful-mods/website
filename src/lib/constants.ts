@@ -1,3 +1,6 @@
+import type { MantineColor } from '@mantine/core';
+
+import { Resolution } from '@prisma/client';
 
 export const MAX_NAME_LENGTH = 32;
 export const MIN_NAME_LENGTH = 3;
@@ -19,3 +22,9 @@ export const BREAKPOINT_DESKTOP_HUGE = 2560;
 export const MINIMUM_CARD_WIDTH = `calc(${BREAKPOINT_MOBILE_SMALL}px - (2 * var(--mantine-spacing-sm)))`;
 
 export const MODS_LOADERS = ['Forge'];
+
+export const RESOLUTIONS_COLORS: Record<Resolution, MantineColor> = {
+	[Resolution.x32]: 'cyan',
+	[Resolution.x64]: 'yellow',
+};
+
