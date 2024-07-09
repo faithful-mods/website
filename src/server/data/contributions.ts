@@ -114,12 +114,11 @@ export async function createRawContributions(
 
 	const contributions: Contribution[] = [];
 	for (const file of files) {
-		const filepath = await upload(file, `textures/contributions/${ownerId}/`);
-
 		const buffer = await file.arrayBuffer();
 		const hash = calculateHash(Buffer.from(buffer));
 
 		if (await findContribution(hash)) throw new Error(`Contribution "${file.name}" has already been submitted`);
+		const filepath = await upload(file, `textures/contributions/${ownerId}/`);
 
 		const poll = await db.poll.create({ data: {} });
 		const contribution = await db.contribution.create({
