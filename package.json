@@ -54,7 +54,7 @@
 		"postcss": "^8.4.39",
 		"postcss-preset-mantine": "^1.13.0",
 		"postcss-simple-vars": "^7.0.1",
-		"prisma": "^5.16.1",
+		"prisma": "^5.16.2",
 		"stylelint": "^16.6.1",
 		"stylelint-config-standard-scss": "^13.1.0",
 		"stylelint-scss": "^6.3.2",
