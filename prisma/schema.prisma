@@ -139,6 +139,8 @@ model Texture {
   linkedTextures LinkedTexture[]
   mcmeta         Json?
 
+  // tags TextureTag[] @relation("texture_tags_to_textures")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -150,11 +152,23 @@ model Texture {
   @@map("textures")
 }
 
+// model TextureTag {
+//   id   String @id @default(cuid())
+//   name String
+
+//   textures Texture[] @relation("texture_tags_to_textures")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@map("texture_tags")
+// }
+
 model ContributionDeactivation {
   id String @id @default(cuid())
 
-  textureId  String @map("texture_id")
-  texture    Texture @relation(fields: [textureId], references: [id])
+  textureId  String      @map("texture_id")
+  texture    Texture     @relation(fields: [textureId], references: [id])
   resolution Resolution? // No resolution means all resolutions
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -213,7 +227,7 @@ model Contribution {
   filename String
   hash     String @unique
 
-  date     DateTime @default(now())
+  date DateTime @default(now())
 
   ownerId   String
   owner     User   @relation(fields: [ownerId], references: [id])

@@ -1,9 +1,10 @@
-import { Avatar, Button, Container, Group, Image, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
+import { Avatar, Button, Container, Group, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
 import { ContributionDeactivation, Resolution, type Texture } from '@prisma/client';
-import { useState, useTransition } from 'react';
+import { useMemo, useRef, useState, useTransition } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { PiMagicWandBold } from 'react-icons/pi';
 
+import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -11,7 +12,7 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger } from '~/lib/utils';
 import { getContributionsOfTexture, updateDraftContribution } from '~/server/data/contributions';
-import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
+import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser, TextureMCMETA } from '~/types';
 
 import { CoAuthorsSelector } from '../co-authors-select';
 
@@ -29,7 +30,12 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	const [windowWidth, _] = useDeviceSize();
 
 	const rowHeight = 36;
-	const colWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'calc((100% - (2 * var(--mantine-spacing-md))) / 3)' as const;
+
+	const stackRef = useRef<HTMLDivElement>(null);
+	const colWidth = useMemo(() => windowWidth <= BREAKPOINT_MOBILE_LARGE
+		? stackRef.current?.clientWidth
+		: `calc((${stackRef.current?.clientWidth}px - (2 * var(--mantine-spacing-md))) / 3)`,
+	[stackRef, windowWidth]);
 
 	const columnStyle = {
 		width: colWidth,
@@ -59,7 +65,6 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 
 		const texture = textures.find((t) => t.id === textureId)!;
 		const disabled = texture.disabledContributions.map((d) => d.resolution);
-		console.log(disabled);
 		setDisabledResolution(disabled);
 
 		getContributionsOfTexture(textureId)
@@ -122,7 +127,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	};
 
 	return (
-		<Stack gap="md" className="w-full">
+		<Stack gap="md" className="w-full" ref={stackRef}>
 			<Group gap="md" align="start">
 				{/* User contribution */}
 				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
@@ -135,12 +140,10 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 							<Text size="sm">{contribution.filename}</Text>
 						</Group>
 					</Tile>
-					<Image
+					<TextureImage
 						src={contribution.file}
-						className="texture-background image-pixelated"
-						width={colWidth}
-						height={colWidth}
-						fit="contain"
+						mcmeta={selectedTexture?.mcmeta as TextureMCMETA}
+						size={colWidth}
 						alt=""
 					/>
 				</Stack>
@@ -181,12 +184,10 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						/>
 					</Group>
 					{selectedTexture &&
-						<Image
+						<TextureImage
 							src={selectedTexture.filepath}
-							className="texture-background image-pixelated"
-							width={colWidth}
-							height={colWidth}
-							fit="contain"
+							size={colWidth}
+							mcmeta={selectedTexture?.mcmeta as TextureMCMETA}
 							alt=""
 						/>
 					}
@@ -253,12 +254,10 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						</Container>
 					}
 					{selectedTexture && selectedTextureContributions.length > 0 && displayedSelectedTextureContributions &&
-						<Image
+						<TextureImage
 							src={displayedSelectedTextureContributions.file}
-							className="texture-background image-pixelated"
-							width={colWidth}
-							height={colWidth}
-							fit="contain"
+							size={colWidth}
+							mcmeta={selectedTexture?.mcmeta as TextureMCMETA}
 							alt=""
 						/>
 					}
