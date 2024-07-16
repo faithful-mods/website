@@ -60,7 +60,7 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 		const image = new Image();
 		image.src = imageURL;
 
-		const tick = Math.max(__mcmeta.animation.frametime || 1, 1);
+		const tick = Math.max(__mcmeta?.animation?.frametime || 1, 1);
 		const frames: Frame[] = [];
 
 		let interval: number;
@@ -87,7 +87,7 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 				canvas.width, canvas.height
 			);
 
-			if (__mcmeta.animation.interpolate) {
+			if (__mcmeta?.animation?.interpolate) {
 				context.globalAlpha = ticks / frames[frame].duration;
 				context.drawImage(
 					image,
@@ -100,15 +100,16 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 		};
 
 		image.onload = () => {
-			if (__mcmeta.animation.frames && __mcmeta.animation.frames.length > 0) {
+			if (__mcmeta?.animation?.frames && __mcmeta?.animation.frames.length > 0) {
 				interval =
-					__mcmeta.animation.interpolate ||
-					__mcmeta.animation.frames.find((e) => typeof e === 'object' && e.time % tick !== 0)
+					__mcmeta?.animation.interpolate ||
+					__mcmeta?.animation.frames.find((e) => typeof e === 'object' && e.time % tick !== 0)
 						? 1
 						: tick;
 
-				for (let e = 0; e < __mcmeta.animation.frames.length; e++) {
-					const a = __mcmeta.animation.frames[e];
+				for (let e = 0; e < __mcmeta?.animation.frames.length; e++) {
+					const a = __mcmeta?.animation.frames[e];
+
 					if (typeof a === 'object')
 						frames.push({
 							index: a.index,
@@ -119,9 +120,10 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 							index: a,
 							duration: tick / interval,
 						});
+
 				}
 			} else {
-				interval = __mcmeta.animation.interpolate ? 1 : tick;
+				interval = __mcmeta?.animation?.interpolate ? 1 : tick;
 				const e = image.height / image.width;
 				for (let a = 0; a < e; a++) frames.push({ index: a, duration: tick / interval });
 			}
@@ -137,7 +139,7 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 					currentFrame++;
 					if (currentFrame >= frames.length) currentFrame = 0;
 					draw(currentFrame);
-				} else if (__mcmeta.animation.interpolate) draw(currentFrame, ticks);
+				} else if (__mcmeta?.animation?.interpolate) draw(currentFrame, ticks);
 			};
 
 			if (!animationInterval.current) {
