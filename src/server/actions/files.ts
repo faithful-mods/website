@@ -45,7 +45,11 @@ export async function upload(file: File, path: `${string}/` = '/'): Promise<stri
 	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
 	writeFileSync(filePath, buffer);
 
-	return encodeURI(join(fileDirPub, `${uuid}_${file.name}`).replace('https:/', 'https://'));
+	return encodeURI(
+		join(fileDirPub, `${uuid}_${file.name}`)
+			.replaceAll('\\', '/') // Windows fix
+			.replace('https:/', 'https://')
+	);
 }
 
 export async function remove(publicPath: `${typeof FILE_DIR}/${string}`): Promise<void> {
