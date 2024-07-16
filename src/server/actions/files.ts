@@ -219,7 +219,12 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 			if (mcmetaFile) {
 				mcmeta = await mcmetaFile.buffer().then((b) => {
 					try {
-						return JSON.parse(b.toString('utf-8'));
+						return JSON.parse(
+							b
+								.toString('utf-8')
+								.replace(/(?<!")(\b\w+\b)(?=\s*:)/g, '"$1"') // Add missing quotes to keys
+								.replace(/\,(?!\s*?[\{\[\"\'\w])/g, '') // Remove trailing commas
+						);
 					} catch {
 						console.error('Failed to parse MCMETA file:', mcmetaFile.path, ' content: ', b.toString('utf-8'));
 						return b.toString('utf-8'); // Invalid JSON, keep as string for manual checking
