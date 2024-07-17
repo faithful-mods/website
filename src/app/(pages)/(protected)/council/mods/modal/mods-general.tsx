@@ -1,7 +1,7 @@
 import type { ModModalFormValues } from './mods-modal';
 import type { Mod } from '@prisma/client';
 
-import { Badge, FileInput, Group, MultiSelect, Stack, TextInput } from '@mantine/core';
+import { Badge, FileInput, FileInputProps, Group, MultiSelect, Stack, TextInput, Text } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 
 import { TextureImage } from '~/components/texture-img';
@@ -17,6 +17,14 @@ export interface ModModalGeneralProps {
 export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps) {
 	const [windowWidth] = useDeviceSize();
 	const imageWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? windowWidth * 0.7 : 220;
+
+	const filename: FileInputProps['valueComponent'] = ({ value }) => {
+		if (value === null) return <Text size="sm" c="dimmed">None</Text>;
+		if (typeof value === 'string') return <Text size="sm" c="dimmed">{value}</Text>;
+
+		if (Array.isArray(value)) return <Text size="sm" c="dimmed">{value.map(file => file.name).join(', ')}</Text>;
+		return <Text size="sm" c="dimmed">{value.name}</Text>;
+	};
 
 	return (
 		<Group gap="md" align="start" mt="md">
@@ -39,7 +47,7 @@ export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps)
 				<TextInput label="Name" required {...form.getInputProps('name')} />
 				<TextInput label="Description" {...form.getInputProps('description')} />
 				<TextInput label="Author(s)" required description="Use a comma to separate multiple authors" {...form.getInputProps('authors')} />
-				<FileInput label="Picture" required accept="image/*"{...form.getInputProps('image')} />
+				<FileInput label="Picture" required accept="image/*" {...form.getInputProps('image')} valueComponent={filename} />
 				<TextInput label="Page URL" {...form.getInputProps('url')} />
 				<MultiSelect data={MODS_LOADERS} label="Mod loader(s)" required {...form.getInputProps('loaders')} />
 				<TextInput label="Forge Mod ID" required {...form.getInputProps('forgeId')} />
