@@ -44,6 +44,7 @@ export function ContributionDraftPanel({ draftContributions, onUpdate }: Contrib
 	return (
 		<>
 			<Modal
+				forceFullScreen
 				opened={modalOpened}
 				onClose={closeModal}
 				title="Draft Edition"

@@ -8,11 +8,12 @@ interface ModalProps {
 	onClose: () => void;
 	title: React.ReactNode;
 	popup?: boolean;
+	forceFullScreen?: boolean;
 
 	children?: React.ReactNode;
 }
 
-export function Modal({ opened, onClose, title, children, popup }: ModalProps) {
+export function Modal({ opened, onClose, title, children, popup, forceFullScreen }: ModalProps) {
 	const [windowWidth] = useDeviceSize();
 
 	return (
@@ -25,7 +26,7 @@ export function Modal({ opened, onClose, title, children, popup }: ModalProps) {
 			trapFocus
 			closeOnClickOutside={false}
 			closeOnEscape={false}
-			fullScreen={!popup && windowWidth <= BREAKPOINT_MOBILE_LARGE}
+			fullScreen={!popup && windowWidth <= BREAKPOINT_MOBILE_LARGE || forceFullScreen}
 		>
 			{children}
 		</MantineModal>
