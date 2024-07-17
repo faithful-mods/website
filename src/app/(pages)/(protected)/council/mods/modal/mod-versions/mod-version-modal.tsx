@@ -6,6 +6,7 @@ import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useState, useTransition } from 'react';
 
+import { TextureImage } from '~/components/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
 import { deleteModVersion, removeModpackFromModVersion, updateModVersion } from '~/server/data/mods-version';
@@ -83,10 +84,13 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 					<Text fw={500} size="var(--input-label-size, var(--mantine-font-size-sm))">Modpacks attached</Text>
 					{modVersionModpacks.map((modpack, index) =>
 						<Group key={index} justify="space-between">
-							<Stack gap="0">
-								<Text size="sm">{modpack.name}</Text>
-								<Text size="xs" c="dimmed">{modpack.authors.join(', ')}</Text>
-							</Stack>
+							<Group gap="xs">
+								<TextureImage src={modpack.image ?? './icon.png'} alt={mod.name} size={36} />
+								<Stack gap="0">
+									<Text size="sm">{modpack.name}</Text>
+									<Text size="xs" c="dimmed">{modpack.authors.join(', ')}</Text>
+								</Stack>
+							</Group>
 							<Button
 								variant="light"
 								color={gradientDanger.to}
