@@ -9,7 +9,6 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { gradient, gradientDanger, sortByName } from '~/lib/utils';
 import { addRelationsToTexture, getRelatedTextures, removeRelationFromTexture } from '~/server/data/texture';
-import { MCMETA } from '~/types';
 
 interface TextureRelationsProps {
 	texture: Texture;
@@ -56,7 +55,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 					src={texture.filepath}
 					size={40}
 					alt={texture.name}
-					mcmeta={texture.mcmeta as unknown as MCMETA}
+					mcmeta={texture.mcmeta}
 				/>
 				<div>
 					<Text size="sm">{texture.name}</Text>

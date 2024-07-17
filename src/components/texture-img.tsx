@@ -12,13 +12,13 @@ interface TextureImageProps {
 	style?: React.CSSProperties;
 	notPixelated?: boolean;
 	fallback?: string;
-	mcmeta?: TextureMCMETA;
+	mcmeta?: TextureMCMETA | null;
 	children?: React.ReactNode;
 }
 
 export function TextureImage({ src, alt, className, size, style, mcmeta, notPixelated, children, fallback }: TextureImageProps) {
 	const [_src, setSource] = useState(src);
-	const { canvasRef, isMCMETAValid } = useMCMETA(mcmeta, src);
+	const { canvasRef, isMCMETAValid } = useMCMETA(src, mcmeta);
 
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
 

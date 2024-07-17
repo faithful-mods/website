@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { MCMETA, TextureMCMETA } from '~/types';
+import type { TextureMCMETA } from '~/types';
 
 interface Frame {
 	index: number;
 	duration: number;
 }
 
-interface useAnimationReturn {
+export interface MCMETAHookResult {
 	/**
 	 * A ref to the canvas element used for the animation
 	 */
@@ -27,7 +27,7 @@ interface useAnimationReturn {
  *
  * @author [Even Torset](https://github.com/EvenTorset) for the original MCMETA to canvas code
  */
-export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimationReturn {
+export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCMETAHookResult {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const animationInterval = useRef<NodeJS.Timeout>();
 
@@ -41,26 +41,15 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 			animationInterval.current = undefined;
 		}
 
-		let __mcmeta: MCMETA;
-
 		// Short return if the mcmeta is not valid or not present
 		if (!mcmeta) return setValid(false);
-		if (typeof mcmeta === 'string') {
-			try {
-				__mcmeta = JSON.parse(mcmeta);
-				setValid(true);
-			} catch {
-				return setValid(false);
-			}
-		} else {
-			__mcmeta = mcmeta;
-			setValid(true);
-		}
+
+		setValid(true);
 
 		const image = new Image();
 		image.src = imageURL;
 
-		const tick = Math.max(__mcmeta?.animation?.frametime || 1, 1);
+		const tick = Math.max(mcmeta?.animation?.frametime || 1, 1);
 		const frames: Frame[] = [];
 
 		let interval: number;
@@ -87,7 +76,7 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 				canvas.width, canvas.height
 			);
 
-			if (__mcmeta?.animation?.interpolate) {
+			if (mcmeta?.animation?.interpolate) {
 				context.globalAlpha = ticks / frames[frame].duration;
 				context.drawImage(
 					image,
@@ -100,15 +89,15 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 		};
 
 		image.onload = () => {
-			if (__mcmeta?.animation?.frames && __mcmeta?.animation.frames.length > 0) {
+			if (mcmeta?.animation?.frames && mcmeta?.animation.frames.length > 0) {
 				interval =
-					__mcmeta?.animation.interpolate ||
-					__mcmeta?.animation.frames.find((e) => typeof e === 'object' && e.time % tick !== 0)
+					mcmeta?.animation.interpolate ||
+					mcmeta?.animation.frames.find((e) => typeof e === 'object' && e.time % tick !== 0)
 						? 1
 						: tick;
 
-				for (let e = 0; e < __mcmeta?.animation.frames.length; e++) {
-					const a = __mcmeta?.animation.frames[e];
+				for (let e = 0; e < mcmeta?.animation.frames.length; e++) {
+					const a = mcmeta?.animation.frames[e];
 
 					if (typeof a === 'object')
 						frames.push({
@@ -120,10 +109,9 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 							index: a,
 							duration: tick / interval,
 						});
-
 				}
 			} else {
-				interval = __mcmeta?.animation?.interpolate ? 1 : tick;
+				interval = mcmeta?.animation?.interpolate ? 1 : tick;
 				const e = image.height / image.width;
 				for (let a = 0; a < e; a++) frames.push({ index: a, duration: tick / interval });
 			}
@@ -139,7 +127,7 @@ export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimation
 					currentFrame++;
 					if (currentFrame >= frames.length) currentFrame = 0;
 					draw(currentFrame);
-				} else if (__mcmeta?.animation?.interpolate) draw(currentFrame, ticks);
+				} else if (mcmeta?.animation?.interpolate) draw(currentFrame, ticks);
 			};
 
 			if (!animationInterval.current) {
