@@ -1,6 +1,6 @@
 import type { Modpack } from '@prisma/client';
 
-import { Group, FileInput, TextInput, Badge, Stack } from '@mantine/core';
+import { Group, FileInput, TextInput, Badge, Stack, Text, FileInputProps } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 
 import { TextureImage } from '~/components/texture-img';
@@ -12,6 +12,14 @@ import { ModpackModalFormValues } from './modpack-modal';
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<ModpackModalFormValues>, previewImg: string, modpack: Modpack | undefined }) {
 	const [windowWidth] = useDeviceSize();
 	const imageWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? windowWidth * 0.7 : 220;
+
+	const filename: FileInputProps['valueComponent'] = ({ value }) => {
+		if (value === null) return <Text size="sm" c="dimmed">None</Text>;
+		if (typeof value === 'string') return <Text size="sm" c="dimmed">{value}</Text>;
+
+		if (Array.isArray(value)) return <Text size="sm" c="dimmed">{value.map(file => file.name).join(', ')}</Text>;
+		return <Text size="sm" c="dimmed">{value.name}</Text>;
+	};
 
 	return (
 		<Group gap="md" align="start" mt="md">
@@ -34,7 +42,7 @@ export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFo
 				<TextInput label="Name" required {...form.getInputProps('name')} />
 				<TextInput label="Description" placeholder="Give this modpack a nice description" {...form.getInputProps('description')} />
 				<TextInput label="Authors" description="Use a comma to separate multiple authors" required {...form.getInputProps('authors')} />
-				<FileInput label="Picture" placeholder={previewImg} accept="image/*" required {...form.getInputProps('image')} />
+				<FileInput label="Picture" placeholder={previewImg} accept="image/*" required {...form.getInputProps('image')} valueComponent={filename} />
 			</Stack>
 		</Group>
 	);
