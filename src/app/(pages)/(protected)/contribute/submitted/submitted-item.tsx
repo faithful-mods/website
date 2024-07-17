@@ -33,6 +33,7 @@ export function ContributionSubmittedItem({ contribution, className, onClick }: 
 			radius="sm"
 			shadow="0"
 			onClick={onClick}
+			withBorder
 			className={cn(className, 'contribution-item')}
 			style={{
 				'position': 'relative',
