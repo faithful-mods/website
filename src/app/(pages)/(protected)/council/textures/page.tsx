@@ -20,7 +20,7 @@ import { TextureModal } from './modal/texture-modal';
 import './page.scss';
 
 const CouncilTexturesPage = () => {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);

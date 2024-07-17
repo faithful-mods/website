@@ -26,7 +26,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	const [selectedTexture, setSelectedTexture] = useState<Texture | null>(null);
 	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>(contribution.coAuthors);
 	const [selectedResolution, setSelectedResolution] = useState<Resolution>(contribution.resolution);
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const rowHeight = 36;
 	const colWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'calc((100% - (2 * var(--mantine-spacing-md))) / 3)' as const;

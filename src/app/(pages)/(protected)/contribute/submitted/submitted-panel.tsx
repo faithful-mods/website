@@ -24,7 +24,7 @@ export interface ContributionDraftPanelProps {
 }
 
 export function ContributionSubmittedPanel({ contributions, coSubmitted, onUpdate }: ContributionDraftPanelProps) {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [isPending, startTransition] = useTransition();
 	const [searchedContributions, setSearchedContributions] = useState<ContributionWithCoAuthorsAndPoll[]>(contributions);

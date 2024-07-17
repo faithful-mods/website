@@ -20,7 +20,7 @@ export interface ContributionSubmittedItemProps {
 }
 
 export function ContributionSubmittedItem({ contribution, className, onClick }: ContributionSubmittedItemProps) {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 	const imgWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 90;
 	const [poll, setPoll] = useState<PollResults>();
 

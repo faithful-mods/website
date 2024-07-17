@@ -28,7 +28,7 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 		setUser(user);
 	}, [reports, user]);
 
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getPublicUsers()

@@ -19,7 +19,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 	const [relatedTextures, setRelatedTextures] = useState<Texture[]>([]);
 	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<string[]>([]);
 
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const texturePerRow = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : windowWidth <= BREAKPOINT_TABLET ? 4 : 6;
 	const parentWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE

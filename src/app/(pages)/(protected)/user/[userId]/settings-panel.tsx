@@ -16,7 +16,7 @@ import { updateUser } from '~/server/data/user';
 export function UserSettingsPanel({ user, self }: { user: User, self: boolean }) {
 	const { update } = useSession();
 	const [isPending, startTransition] = useTransition();
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const pictureWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? `calc(${windowWidth - 2}px - (2 * var(--mantine-spacing-md)) - (2 * var(--mantine-spacing-sm)) )` : '120px';
 

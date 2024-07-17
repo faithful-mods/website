@@ -20,7 +20,7 @@ import { ContributionSubmittedPanel } from './submitted/submitted-panel';
 
 const ContributePage = () => {
 	const [isPending, startTransition] = useTransition();
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const [resolution, setResolution] = useState<Resolution>(Resolution.x32);
 	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>([]);

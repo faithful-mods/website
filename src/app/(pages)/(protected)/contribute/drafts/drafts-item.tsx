@@ -21,7 +21,7 @@ export interface ContributionDraftItemProps {
 
 export function ContributionDraftItem({ contribution, openModal, onDelete }: ContributionDraftItemProps) {
 	const [isPending, startTransition] = useTransition();
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const imgWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 90;
 	const author = useCurrentUser()!;

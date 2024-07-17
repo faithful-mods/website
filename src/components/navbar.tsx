@@ -28,7 +28,7 @@ import { Tile } from './tile';
 export const Navbar = () => {
 	const pathname = usePathname();
 	const user = useCurrentUser();
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 	const [userPicture, setUserPicture] = useState<string | undefined>(user?.image ?? undefined);
 
 	const links = [

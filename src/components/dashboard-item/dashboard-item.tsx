@@ -15,7 +15,7 @@ export interface ItemDisplayProps {
 }
 
 export function DashboardItem({ image, title, description, onClick, warning }: ItemDisplayProps) {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	return (
 		<Group

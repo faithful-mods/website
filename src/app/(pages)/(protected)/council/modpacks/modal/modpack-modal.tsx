@@ -23,7 +23,7 @@ export interface ModpackModalFormValues {
 export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefined, onClose: (editedModpack: Modpack | string) => void }) {
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(modpack?.image ?? '');
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const form = useForm<ModpackModalFormValues>({
 		initialValues: {

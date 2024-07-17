@@ -21,7 +21,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 	const [modalModpackVersion, setModalModpackVersion] = useState<ModpackVersionWithMods | undefined>();
 	const [modpackVersions, setModpackVersions] = useState<ModpackVersionWithMods[]>([]);
 
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	useEffectOnce(() => {
 		getModpackVersions(modpack.id)

@@ -13,7 +13,7 @@ interface ModalProps {
 }
 
 export function Modal({ opened, onClose, title, children, popup }: ModalProps) {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	return (
 		<MantineModal

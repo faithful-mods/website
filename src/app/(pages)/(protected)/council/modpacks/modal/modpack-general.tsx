@@ -10,7 +10,7 @@ import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { ModpackModalFormValues } from './modpack-modal';
 
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<ModpackModalFormValues>, previewImg: string, modpack: Modpack | undefined }) {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 	const imageWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? windowWidth * 0.7 : 220;
 
 	return (
