@@ -1,8 +1,9 @@
 
-import { Button, Group, Image, Stack, Text } from '@mantine/core';
+import { Button, Group, Stack, Text } from '@mantine/core';
 import { useTransition } from 'react';
 import { FaEdit, FaFileAlt } from 'react-icons/fa';
 
+import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -68,15 +69,12 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 			}
 			<Group gap="sm" wrap="nowrap">
 				{contribution.filename.endsWith('.png') &&
-					<Image
-						radius="sm"
+					<TextureImage
 						className="image-background image-pixelated"
 						src={contribution.file}
 						alt=""
-						width={imgWidth}
-						height={imgWidth}
-						fit="contain"
-						style={{ maxWidth: `${imgWidth}px`, maxHeight: `${imgWidth}px`, minWidth: `${imgWidth}px`, minHeight: `${imgWidth}px` }}
+						size={imgWidth}
+						mcmeta={contribution.textureId !== null ? contribution.mcmeta : undefined}
 					/>
 				}
 				{

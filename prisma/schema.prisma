@@ -159,8 +159,8 @@ model Texture {
 model ContributionDeactivation {
   id String @id @default(cuid())
 
-  textureId  String @map("texture_id")
-  texture    Texture @relation(fields: [textureId], references: [id])
+  textureId  String      @map("texture_id")
+  texture    Texture     @relation(fields: [textureId], references: [id])
   resolution Resolution? // No resolution means all resolutions
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -219,7 +219,7 @@ model Contribution {
   filename String
   hash     String @unique
 
-  date     DateTime @default(now())
+  date DateTime @default(now())
 
   ownerId   String
   owner     User   @relation(fields: [ownerId], references: [id])
@@ -233,6 +233,9 @@ model Contribution {
 
   Texture   Texture? @relation(fields: [textureId], references: [id])
   textureId String?
+
+  /// [ContributionMCMETAType]
+  mcmeta Json?
 
   // blockModel   BlockModel? @relation(fields: [blockModelId], references: [id])
   // blockModelId String?

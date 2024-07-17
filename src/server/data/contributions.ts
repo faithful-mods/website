@@ -15,6 +15,7 @@ import {
 	ContributionWithCoAuthors,
 	ContributionWithCoAuthorsAndFullPoll,
 	ContributionWithCoAuthorsAndPoll,
+	TextureMCMETA,
 } from '~/types';
 
 import { getCounselors } from './user';
@@ -147,12 +148,14 @@ export async function updateDraftContribution({
 	coAuthors,
 	resolution,
 	textureId,
+	mcmeta,
 }: {
 	ownerId: string;
 	contributionId: string;
 	coAuthors: string[];
 	resolution: Resolution;
 	textureId: string;
+	mcmeta: TextureMCMETA;
 }): Promise<ContributionWithCoAuthors> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
@@ -162,6 +165,7 @@ export async function updateDraftContribution({
 			coAuthors: { set: coAuthors.map((id) => ({ id })) },
 			resolution,
 			textureId,
+			mcmeta,
 		},
 		include: {
 			coAuthors: { select: { id: true, name: true, image: true } },
