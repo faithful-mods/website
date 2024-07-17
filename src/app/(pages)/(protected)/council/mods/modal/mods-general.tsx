@@ -15,7 +15,7 @@ export interface ModModalGeneralProps {
 }
 
 export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps) {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 	const imageWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? windowWidth * 0.7 : 220;
 
 	return (

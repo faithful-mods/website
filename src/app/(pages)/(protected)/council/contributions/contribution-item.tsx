@@ -20,8 +20,8 @@ export interface CouncilContributionItemProps {
 }
 
 export function CouncilContributionItem({ contribution, texture, counselors, onVote }: CouncilContributionItemProps) {
-	const [_1, startTransition] = useTransition();
-	const [windowWidth, _2] = useDeviceSize();
+	const [, startTransition] = useTransition();
+	const [windowWidth] = useDeviceSize();
 	const counselor = useCurrentUser()!;
 
 	const imageStyle = {

@@ -22,7 +22,7 @@ import { Progression } from '~/types';
 export default function ModPage() {
 	const modId = useParams().modId as string;
 
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const [mod, setMod] = useState<(Mod & { versions: ModVersion[] }) | null>(null);
 	const [isLoading, setLoading] = useState(true);

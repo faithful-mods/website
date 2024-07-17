@@ -30,7 +30,7 @@ export function ModModal({ mod, onClose }: {mod?: Mod | undefined, onClose: (edi
 	const [_mod, setMod] = useState<Mod | undefined>(mod);
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(mod?.image || '');
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const form = useForm<ModModalFormValues>({
 		initialValues: {

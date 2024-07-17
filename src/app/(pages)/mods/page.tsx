@@ -26,7 +26,7 @@ import '~/lib/polyfills';
 type ModWithVersions = Mod & { versions: string[] };
 
 export default function Mods() {
-	const [windowWidth, _] = useDeviceSize();
+	const [windowWidth] = useDeviceSize();
 
 	const [activePage, setActivePage] = useState(1);
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
