@@ -8,6 +8,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 enum UserRole {
   ADMIN
   COUNCIL
@@ -137,6 +141,8 @@ model Texture {
   filepath       String
   hash           String          @unique
   linkedTextures LinkedTexture[]
+
+  /// [TextureMCMETAType]
   mcmeta         Json?
 
   createdAt DateTime @default(now()) @map("created_at")

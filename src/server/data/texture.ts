@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { ContributionDeactivation, Prisma, Resolution, Texture, UserRole } from '@prisma/client';
+import { ContributionDeactivation, Resolution, Texture, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -103,7 +103,7 @@ export async function createTexture({
 	name: string;
 	filepath: string;
 	hash: string;
-	mcmeta?: string;
+	mcmeta?: TextureMCMETA;
 }): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
@@ -117,12 +117,12 @@ export async function createTexture({
 	});
 }
 
-export async function updateMCMETA(id: string, mcmeta: TextureMCMETA): Promise<Texture> {
+export async function updateMCMETA(id: string, mcmeta: TextureMCMETA | undefined): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.texture.update({
 		where: { id },
-		data: { mcmeta: mcmeta as unknown ?? Prisma.JsonNull },
+		data: { mcmeta },
 	});
 }
 

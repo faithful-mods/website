@@ -3,10 +3,10 @@ import { Texture } from '@prisma/client';
 import { useState } from 'react';
 
 import { TextureImage } from '~/components/texture-img';
-import { MCMETA } from '~/types';
+import { TextureMCMETA } from '~/types';
 
 import { TextureGeneral } from './texture-general';
-import { TextureMCMETA } from './texture-mcmeta';
+import { TextureMCMETAEdition } from './texture-mcmeta';
 import { TextureRelations } from './texture-relations';
 import { TextureUses } from './texture-uses';
 
@@ -16,7 +16,7 @@ export interface TextureModalProps {
 }
 
 export function TextureModal({ texture, textures }: TextureModalProps) {
-	const [mcmeta, setMCMETA] = useState<MCMETA | undefined>(texture.mcmeta as unknown as MCMETA);
+	const [mcmeta, setMCMETA] = useState<TextureMCMETA | null>(texture.mcmeta);
 
 	return (
 		<Stack>
@@ -53,7 +53,7 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 					<TextureUses texture={texture} />
 				</Tabs.Panel>
 				<Tabs.Panel value="mcmeta">
-					<TextureMCMETA texture={texture} onUpdate={setMCMETA} />
+					<TextureMCMETAEdition texture={texture} onUpdate={setMCMETA} />
 				</Tabs.Panel>
 			</Tabs>
 		</Stack>

@@ -156,7 +156,7 @@ const CouncilTexturesPage = () => {
 								className="cursor-pointer"
 								src={t.filepath ?? '/icon.png'}
 								alt={t.name}
-								mcmeta={t.mcmeta as unknown as string}
+								mcmeta={t.mcmeta}
 								size={90}
 							/>
 							<Stack
