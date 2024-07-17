@@ -1,9 +1,10 @@
-import { Avatar, Button, Container, Group, Image, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
+import { Avatar, Button, Container, Group, JsonInput, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
 import { ContributionDeactivation, Resolution, type Texture } from '@prisma/client';
-import { useState, useTransition } from 'react';
+import { useMemo, useRef, useState, useTransition } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { PiMagicWandBold } from 'react-icons/pi';
 
+import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -29,7 +30,13 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	const [windowWidth] = useDeviceSize();
 
 	const rowHeight = 36;
-	const colWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'calc((100% - (2 * var(--mantine-spacing-md))) / 3)' as const;
+	const stackRef = useRef<HTMLDivElement>(null);
+	const colWidth = useMemo(() => {
+		const width = stackRef.current?.parentElement?.clientWidth ?? 0;
+
+		return windowWidth <= BREAKPOINT_MOBILE_LARGE ? width : `calc((${width}px - (2 * var(--mantine-spacing-md))) / 3.1)`;
+	},
+	[stackRef, windowWidth]);
 
 	const columnStyle = {
 		width: colWidth,
@@ -40,6 +47,15 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	const [displayedSelectedTextureContributions, setDisplayedSelectedTextureContributions] = useState<ContributionWithCoAuthorsAndPoll | undefined>();
 
 	const [disabledResolution, setDisabledResolution] = useState<(Resolution | null)[]>([]);
+
+	const [contributionMCMETA, setContributionMCMETA] = useState<string>(contribution.mcmeta ? JSON.stringify(contribution.mcmeta, null, 2) : '');
+	const parsedMCMETA = useMemo(() => {
+		try {
+			return JSON.parse(contributionMCMETA);
+		} catch {
+			return null;
+		}
+	}, [contributionMCMETA]);
 
 	const author = useCurrentUser()!;
 
@@ -53,14 +69,15 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 			setSelectedTextureContributions([]);
 			setSelectedTextureContributionsIndex(0);
 			setDisplayedSelectedTextureContributions(undefined);
+			setContributionMCMETA('');
 			setDisabledResolution([]);
 			return;
 		}
 
 		const texture = textures.find((t) => t.id === textureId)!;
 		const disabled = texture.disabledContributions.map((d) => d.resolution);
-		console.log(disabled);
 		setDisabledResolution(disabled);
+		if (!contributionMCMETA) setContributionMCMETA(JSON.stringify(texture.mcmeta, null, 2));
 
 		getContributionsOfTexture(textureId)
 			.then((res) => {
@@ -111,6 +128,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 				coAuthors: selectedCoAuthors.map((c) => c.id),
 				resolution: selectedResolution,
 				textureId: selectedTexture.id,
+				mcmeta: parsedMCMETA,
 			})
 				.then(onClose)
 				.catch(console.error);
@@ -122,7 +140,34 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	};
 
 	return (
-		<Stack gap="md" className="w-full">
+		<Stack gap="lg" className="w-full" ref={stackRef}>
+			<Group gap="md" justify="center">
+				<Select
+					label="Resolution"
+					data={(Object.keys(Resolution) as Resolution[]).filter((r) => !disabledResolution.includes(r))}
+					disabled={disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
+					allowDeselect={false}
+					defaultValue={contribution.resolution}
+					onChange={(value) => setSelectedResolution(value as Resolution)}
+					style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
+					required
+				/>
+				<CoAuthorsSelector
+					author={author}
+					onCoAuthorsSelect={setSelectedCoAuthors}
+					defaultValue={selectedCoAuthors.map((c) => c.id)}
+					style={windowWidth <= BREAKPOINT_MOBILE_LARGE
+						? { width: '100%' }
+						: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
+					}
+				/>
+			</Group>
+			{(disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)) && (
+				<Text size="xs" c="red" mt={-10}>
+					Contributions for all resolutions are deactivated for this texture.
+				</Text>
+			)}
+
 			<Group gap="md" align="start">
 				{/* User contribution */}
 				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
@@ -135,13 +180,21 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 							<Text size="sm">{contribution.filename}</Text>
 						</Group>
 					</Tile>
-					<Image
+					<TextureImage
 						src={contribution.file}
-						className="texture-background image-pixelated"
-						width={colWidth}
-						height={colWidth}
-						fit="contain"
+						mcmeta={parsedMCMETA}
+						size={colWidth}
 						alt=""
+					/>
+					<JsonInput
+						label="&nbsp;"
+						validationError="Invalid JSON"
+						formatOnBlur
+						autosize
+						minRows={4}
+
+						value={contributionMCMETA}
+						onChange={setContributionMCMETA}
 					/>
 				</Stack>
 				{/* Default texture */}
@@ -159,9 +212,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 							onClick={() => {
 								startTransition(() => {
 									const texture = textures.find((t) => t.name === contribution.filename.replace('.png', '') || t.aliases.includes(contribution.filename.replace('.png', '')));
-									if (texture) {
-										handleTextureSelected(texture.id);
-									}
+									if (texture) handleTextureSelected(texture.id);
 								});
 							}}
 						>
@@ -181,16 +232,25 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						/>
 					</Group>
 					{selectedTexture &&
-						<Image
+						<TextureImage
 							src={selectedTexture.filepath}
-							className="texture-background image-pixelated"
-							width={colWidth}
-							height={colWidth}
-							fit="contain"
+							size={colWidth}
+							mcmeta={selectedTexture?.mcmeta}
 							alt=""
 						/>
 					}
 					{!selectedTexture && <Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" />}
+					<JsonInput
+						label={<Title order={6} ta="center">MCMETA</Title>}
+						labelProps={{ style: { width: '100%' }}}
+						validationError="Invalid JSON"
+						formatOnBlur
+						autosize
+						minRows={4}
+
+						value={JSON.stringify(selectedTexture?.mcmeta, null, 2)}
+						disabled
+					/>
 				</Stack>
 				{/* Existing contribution */}
 				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
@@ -208,12 +268,12 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						</Button>
 						{selectedTextureContributions.length > 0 &&
 							<Group w={50} align="center">
-								<Text w={50} style={{ textAlign: 'center' }}>{selectedTextureContributionsIndex + 1} / {selectedTextureContributions.length}</Text>
+								<Text w={50} ta="center">{selectedTextureContributionsIndex + 1} / {selectedTextureContributions.length}</Text>
 							</Group>
 						}
 						{selectedTextureContributions.length === 0 &&
 							<Group w={50} align="center">
-								<Text w={50} style={{ textAlign: 'center' }}>- / -</Text>
+								<Text w={50} ta="center">- / -</Text>
 							</Group>
 						}
 						<Button
@@ -253,47 +313,27 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						</Container>
 					}
 					{selectedTexture && selectedTextureContributions.length > 0 && displayedSelectedTextureContributions &&
-						<Image
+						<TextureImage
 							src={displayedSelectedTextureContributions.file}
-							className="texture-background image-pixelated"
-							width={colWidth}
-							height={colWidth}
-							fit="contain"
+							size={colWidth}
+							mcmeta={displayedSelectedTextureContributions?.mcmeta}
 							alt=""
 						/>
 					}
+					<JsonInput
+						label="&nbsp;"
+						validationError="Invalid JSON"
+						formatOnBlur
+						autosize
+						minRows={4}
+
+						value={JSON.stringify(displayedSelectedTextureContributions?.mcmeta, null, 2)}
+						disabled
+					/>
 				</Stack>
 
 			</Group>
-			<Group className="w-full" mt="lg">
-				<Title order={4}>Contribution Info</Title>
-			</Group>
-			<Group gap="md" justify="center">
-				<Select
-					label="Resolution"
-					data={(Object.keys(Resolution) as Resolution[]).filter((r) => !disabledResolution.includes(r))}
-					disabled={disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
-					allowDeselect={false}
-					defaultValue={contribution.resolution}
-					onChange={(value) => setSelectedResolution(value as Resolution)}
-					style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
-					required
-				/>
-				<CoAuthorsSelector
-					author={author}
-					onCoAuthorsSelect={setSelectedCoAuthors}
-					defaultValue={selectedCoAuthors.map((c) => c.id)}
-					style={windowWidth <= BREAKPOINT_MOBILE_LARGE
-						? { width: '100%' }
-						: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
-					}
-				/>
-			</Group>
-			{(disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)) && (
-				<Text size="xs" c="red" mt={-10}>
-					Contributions for all resolutions are deactivated for this texture.
-				</Text>
-			)}
+
 			<Group gap="md" justify="center" className="w-full" mt="xl">
 				<Button
 					loading={isPending}
