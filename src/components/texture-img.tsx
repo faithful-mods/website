@@ -1,5 +1,5 @@
 import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useState } from 'react';
 
 import { useMCMETA } from '~/hooks/use-mcmeta';
 import { TextureMCMETA } from '~/types';
@@ -25,7 +25,7 @@ export function TextureImage({ src, alt, className, size, style, mcmeta, notPixe
 	const { colorScheme } = useMantineColorScheme();
 	const defaultFallback = colorScheme === 'dark' ? '/transparent.png' : '/transparent_light.png';
 
-	const imageStyle = {
+	const imageStyle: CSSProperties = {
 		maxWidth: trueSize,
 		maxHeight: trueSize,
 		minWidth: trueSize,

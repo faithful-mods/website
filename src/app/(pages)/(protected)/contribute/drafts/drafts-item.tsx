@@ -47,6 +47,7 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 		<Tile
 			shadow="0"
 			className="contribution-item"
+			withBorder
 			style={{
 				'position': 'relative',
 				'--contribution-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
@@ -62,6 +63,7 @@ export function ContributionDraftItem({ contribution, openModal, onDelete }: Con
 					className="navbar-icon-fix"
 					onClick={() => openModal(contribution)}
 					color={gradient.to}
+					p={0}
 					style={{ position: 'absolute', top: 'var(--mantine-spacing-md)', right: 'var(--mantine-spacing-md)' }}
 				>
 					<FaEdit />
