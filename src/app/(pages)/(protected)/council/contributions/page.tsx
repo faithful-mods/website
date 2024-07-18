@@ -73,8 +73,8 @@ const CouncilContributionsPanel = () => {
 					</Text>
 				</ul>
 				<Text size="sm">
-					There is actually {counselorUnvoted.length + counselorVoted.length} contribution(s) in the voting process
-					and {counselors.length} counselor(s) in the council.
+					There is actually {counselorUnvoted.length + counselorVoted.length} contribution{counselorUnvoted.length + counselorVoted.length > 1 ? 's' : ''} in the voting process
+					and {counselors.length} counselor{counselors.length > 1 ? 's' : ''} in the council.
 				</Text>
 			</Tile>
 

@@ -9,14 +9,16 @@ interface TextureImageProps {
 	alt: string;
 	className?: string;
 	size?: number | string;
-	style?: React.CSSProperties;
+	styles?: React.CSSProperties;
 	notPixelated?: boolean;
 	fallback?: string;
 	mcmeta?: TextureMCMETA | null;
 	children?: React.ReactNode;
+	onPopupClick?: () => void;
+	onClick?: () => void;
 }
 
-export function TextureImage({ src, alt, className, size, style, mcmeta, notPixelated, children, fallback }: TextureImageProps) {
+export function TextureImage({ src, alt, className, size, styles, mcmeta, notPixelated, children, fallback, onClick, onPopupClick }: TextureImageProps) {
 	const [_src, setSource] = useState(src);
 	const { canvasRef, isMCMETAValid } = useMCMETA(src, mcmeta);
 
@@ -36,7 +38,7 @@ export function TextureImage({ src, alt, className, size, style, mcmeta, notPixe
 
 	const containerStyle = {
 		...imageStyle,
-		...style,
+		...styles,
 	};
 
 	useEffect(() => {
@@ -48,16 +50,22 @@ export function TextureImage({ src, alt, className, size, style, mcmeta, notPixe
 			<div className="texture-background" style={containerStyle}>
 				{(!mcmeta || !isMCMETAValid) && (
 					<Image
+						onClick={onClick}
 						src={_src}
 						alt={alt}
 						fit="contain"
 						style={imageStyle}
-						className={`${!notPixelated && 'image-pixelated'} ${className}`}
+						className={`${!notPixelated && 'image-pixelated'} ${className ?? ''} ${onClick && 'cursor-pointer'}`}
 						onError={() => setSource(fallback ?? defaultFallback)}
 					/>
 				)}
 				{mcmeta && isMCMETAValid && (
-					<canvas ref={canvasRef} />
+					<canvas
+						ref={canvasRef}
+						onClick={onClick}
+						className={`${onClick && 'cursor-pointer'} ${className ?? ''}`}
+						style={imageStyle}
+					/>
 				)}
 			</div>
 		);
@@ -70,7 +78,10 @@ export function TextureImage({ src, alt, className, size, style, mcmeta, notPixe
 			<HoverCard.Target>
 				{image()}
 			</HoverCard.Target>
-			<HoverCard.Dropdown>
+			<HoverCard.Dropdown
+				onClick={onPopupClick}
+				className="hover-card-popup"
+			>
 				{children}
 			</HoverCard.Dropdown>
 		</HoverCard>

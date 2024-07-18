@@ -35,3 +35,12 @@
 :where([data-mantine-color-scheme='light']) * {
 	--mantine-color-body: #f9f9f9;
 }
+
+.hover-card-popup {
+	background-color: var(--mantine-color-dark-7);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+:where([data-mantine-color-scheme='light']) .hover-card-popup {
+	background-color: var(--mantine-color-white);
+}
