@@ -21,7 +21,7 @@
 		"@mantine/form": "^7.11.1",
 		"@mantine/hooks": "^7.11.1",
 		"@mantine/modals": "^7.11.1",
-		"@mantine/notifications": "^7.11.1",
+		"@mantine/notifications": "^7.11.2",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.0.0",
 		"next": "^14.2.4",
