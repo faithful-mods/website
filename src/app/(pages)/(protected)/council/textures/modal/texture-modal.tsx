@@ -24,7 +24,7 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 				src={texture.filepath}
 				alt={texture.name}
 				size={256}
-				style={{ margin: 'auto' }}
+				styles={{ margin: 'auto' }}
 				mcmeta={mcmeta}
 			/>
 			<Tabs defaultValue="general">

@@ -1,4 +1,4 @@
-import { Avatar, Button, Container, Group, JsonInput, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
+import { Button, Container, Divider, Group, JsonInput, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
 import { ContributionDeactivation, Resolution, type Texture } from '@prisma/client';
 import { useMemo, useRef, useState, useTransition } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -14,15 +14,15 @@ import { gradient, gradientDanger } from '~/lib/utils';
 import { getContributionsOfTexture, updateDraftContribution } from '~/server/data/contributions';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
-import { CoAuthorsSelector } from '../co-authors-select';
+import { CoAuthorsSelector } from './co-authors-select';
 
-export interface ContributionDraftModalProps {
+export interface ContributionModalProps {
 	contribution: ContributionWithCoAuthors;
 	textures: (Texture & { disabledContributions: ContributionDeactivation[] })[];
 	onClose: (editedContribution: ContributionWithCoAuthors) => void;
 }
 
-export function ContributionDraftModal({ contribution, textures, onClose }: ContributionDraftModalProps) {
+export function ContributionModal({ contribution, textures, onClose }: ContributionModalProps) {
 	const [isPending, startTransition] = useTransition();
 	const [selectedTexture, setSelectedTexture] = useState<Texture | null>(null);
 	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>(contribution.coAuthors);
@@ -31,10 +31,10 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 
 	const rowHeight = 36;
 	const stackRef = useRef<HTMLDivElement>(null);
+
 	const colWidth = useMemo(() => {
 		const width = stackRef.current?.parentElement?.clientWidth ?? 0;
-
-		return windowWidth <= BREAKPOINT_MOBILE_LARGE ? width : `calc((${width}px - (2 * var(--mantine-spacing-md))) / 3.1)`;
+		return windowWidth <= BREAKPOINT_MOBILE_LARGE ? `${width * .93}px` : `calc((${width}px - (2 * var(--mantine-spacing-md))) / 3.25)`;
 	},
 	[stackRef, windowWidth]);
 
@@ -42,6 +42,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 		width: colWidth,
 	};
 
+	const [selectedTextureId, setSelectedTextureId] = useState<string | null>(null);
 	const [selectedTextureContributions, setSelectedTextureContributions] = useState<ContributionWithCoAuthorsAndPoll[]>([]);
 	const [selectedTextureContributionsIndex, setSelectedTextureContributionsIndex] = useState<number>(0);
 	const [displayedSelectedTextureContributions, setDisplayedSelectedTextureContributions] = useState<ContributionWithCoAuthorsAndPoll | undefined>();
@@ -66,6 +67,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	const handleTextureSelected = (textureId: string | null) => {
 		if (textureId === null) {
 			setSelectedTexture(null);
+			setSelectedTextureId(null);
 			setSelectedTextureContributions([]);
 			setSelectedTextureContributionsIndex(0);
 			setDisplayedSelectedTextureContributions(undefined);
@@ -77,11 +79,16 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 		const texture = textures.find((t) => t.id === textureId)!;
 		const disabled = texture.disabledContributions.map((d) => d.resolution);
 		setDisabledResolution(disabled);
-		if (!contributionMCMETA) setContributionMCMETA(JSON.stringify(texture.mcmeta, null, 2));
+		setSelectedTexture(texture);
+		setSelectedTextureId(texture.id);
+
+		if (!contributionMCMETA && texture.mcmeta) setContributionMCMETA(JSON.stringify(texture.mcmeta, null, 2));
 
 		getContributionsOfTexture(textureId)
 			.then((res) => {
-				setSelectedTexture(texture);
+				// remove the current contribution from the list
+				res = res.filter((c) => c.resolution === selectedResolution && c.id !== contribution.id);
+
 				setSelectedTextureContributions(res);
 				setSelectedTextureContributionsIndex(0);
 				setDisplayedSelectedTextureContributions(res[0]);
@@ -93,13 +100,13 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 		const texture = textures.find((u) => u.id === option.value)!;
 
 		return (
-			<Group gap="sm" wrap="nowrap">
-				<Avatar src={texture.filepath} size={40} radius="0" className="texture-background image-pixelated"/>
-				<div>
-					<Text size="sm">{texture.name}</Text>
+			<Group gap="sm" wrap="nowrap" align="start">
+				<TextureImage src={texture.filepath} alt="" size={120} mcmeta={texture.mcmeta} />
+				<Stack gap={0}>
+					<Text size="sm" fw={700}>{texture.name}</Text>
 					{option.disabled && <Text size="xs" c="dimmed">Already selected!</Text>}
 					{!option.disabled && <Text size="xs" c="dimmed">{texture.aliases.join(', ')}</Text>}
-				</div>
+				</Stack>
 			</Group>
 		);
 	};
@@ -140,39 +147,12 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 	};
 
 	return (
-		<Stack gap="lg" className="w-full" ref={stackRef}>
-			<Group gap="md" justify="center">
-				<Select
-					label="Resolution"
-					data={(Object.keys(Resolution) as Resolution[]).filter((r) => !disabledResolution.includes(r))}
-					disabled={disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
-					allowDeselect={false}
-					defaultValue={contribution.resolution}
-					onChange={(value) => setSelectedResolution(value as Resolution)}
-					style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
-					required
-				/>
-				<CoAuthorsSelector
-					author={author}
-					onCoAuthorsSelect={setSelectedCoAuthors}
-					defaultValue={selectedCoAuthors.map((c) => c.id)}
-					style={windowWidth <= BREAKPOINT_MOBILE_LARGE
-						? { width: '100%' }
-						: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
-					}
-				/>
-			</Group>
-			{(disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)) && (
-				<Text size="xs" c="red" mt={-10}>
-					Contributions for all resolutions are deactivated for this texture.
-				</Text>
-			)}
-
+		<Stack gap="lg" className="w-full" ref={stackRef} align="center">
 			<Group gap="md" align="start">
 				{/* User contribution */}
 				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
 					<Stack gap="0">
-						<Title order={5}>Your Contribution</Title>
+						<Title order={5}>Yours</Title>
 						<Text size="sm" c="dimmed">The file you&apos;re submitting.</Text>
 					</Stack>
 					<Tile h={rowHeight} shadow="0" radius="sm" p="0">
@@ -187,7 +167,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						alt=""
 					/>
 					<JsonInput
-						label="&nbsp;"
+						label={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'Custom MCMETA' : <></>}
 						validationError="Invalid JSON"
 						formatOnBlur
 						autosize
@@ -207,6 +187,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						<Button
 							variant="light"
 							color={gradient.to}
+							p={0}
 							className="navbar-icon-fix"
 							loading={isPending}
 							onClick={() => {
@@ -220,14 +201,16 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						</Button>
 						<Select
 							limit={100}
-							data={textures.map((t) => ({ value: t.id, label: `${t.name} ${t.aliases.join(' ')}`, disabled: t.id === selectedTexture?.id }))}
+							data={textures.map((t) => ({ value: t.id, label: `${t.name} ${t.aliases.join(' ')}`, disabled: t.id === selectedTextureId }))}
 							defaultValue={contribution.textureId}
+							value={selectedTextureId}
 							renderOption={renderMultiSelectOption}
 							className="w-full"
 							onChange={handleTextureSelected}
 							onClear={() => setSelectedTexture(null)}
 							placeholder="Search a texture..."
 							searchable
+							required
 							clearable
 						/>
 					</Group>
@@ -241,14 +224,14 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 					}
 					{!selectedTexture && <Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" />}
 					<JsonInput
-						label={<Title order={6} ta="center">MCMETA</Title>}
+						label={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'Default MCMETA' : <Title order={6} ta="center">MCMETA</Title>}
 						labelProps={{ style: { width: '100%' }}}
 						validationError="Invalid JSON"
 						formatOnBlur
 						autosize
 						minRows={4}
 
-						value={JSON.stringify(selectedTexture?.mcmeta, null, 2)}
+						value={(selectedTexture?.mcmeta && JSON.stringify(selectedTexture?.mcmeta, null, 2)) ?? ''}
 						disabled
 					/>
 				</Stack>
@@ -256,7 +239,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 				<Stack gap="md" align="left" justify="space-between" style={columnStyle}>
 					<Stack gap="0">
 						<Title order={5}>Existing Contributions</Title>
-						<Text size="sm" c="dimmed">For the selected texture.</Text>
+						<Text size="sm" c="dimmed">Of the targeted texture.</Text>
 					</Stack>
 					<Group gap="md" justify="center">
 						<Button
@@ -321,7 +304,7 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 						/>
 					}
 					<JsonInput
-						label="&nbsp;"
+						label={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'Contribution MCMETA' : <></>}
 						validationError="Invalid JSON"
 						formatOnBlur
 						autosize
@@ -334,8 +317,39 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 
 			</Group>
 
+			<Divider size="xs" w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '90%' : `calc(${colWidth} * 1.5)`}/>
+
+			<Group gap="md" justify="center" >
+				<Select
+					label="Resolution"
+					data={(Object.keys(Resolution) as Resolution[]).filter((r) => !disabledResolution.includes(r))}
+					disabled={disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
+					allowDeselect={false}
+					defaultValue={contribution.resolution}
+					onChange={(value) => setSelectedResolution(value as Resolution)}
+					style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
+					required
+				/>
+				<CoAuthorsSelector
+					author={author}
+					onCoAuthorsSelect={setSelectedCoAuthors}
+					defaultValue={selectedCoAuthors.map((c) => c.id)}
+					style={windowWidth <= BREAKPOINT_MOBILE_LARGE
+						? { width: '100%' }
+						: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
+					}
+				/>
+			</Group>
+			{(disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)) && (
+				<Text size="xs" c="red" mt={-10}>
+					Contributions for all resolutions are deactivated for this texture.
+				</Text>
+			)}
+
 			<Group gap="md" justify="center" className="w-full" mt="xl">
 				<Button
+					fullWidth
+					maw="200px"
 					loading={isPending}
 					variant="gradient"
 					gradient={gradientDanger}
@@ -344,6 +358,8 @@ export function ContributionDraftModal({ contribution, textures, onClose }: Cont
 					Cancel
 				</Button>
 				<Button
+					fullWidth
+					maw="200px"
 					loading={isPending}
 					disabled={!selectedTexture || disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
 					variant="gradient"

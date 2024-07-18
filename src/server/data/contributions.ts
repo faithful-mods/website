@@ -159,26 +159,38 @@ export async function updateDraftContribution({
 }): Promise<ContributionWithCoAuthors> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
-	return await db.contribution.update({
+	const contribution = await db.contribution.update({
 		where: { id: contributionId },
 		data: {
 			coAuthors: { set: coAuthors.map((id) => ({ id })) },
 			resolution,
 			textureId,
 			mcmeta,
+			status: Status.DRAFT,
 		},
 		include: {
 			coAuthors: { select: { id: true, name: true, image: true } },
 			owner: { select: { id: true, name: true, image: true } },
 		},
 	});
+
+	// reset poll
+	await db.poll.update({
+		where: { id: contribution.pollId },
+		data: {
+			upvotes: { set: [] },
+			downvotes: { set: [] },
+		},
+	});
+
+	return contribution;
 }
 
-export async function submitContribution(ownerId: string, id: string) {
+export async function submitContributions(ownerId: string, ids: string[]) {
 	await canAccess(UserRole.ADMIN, ownerId);
 
-	return await db.contribution.update({
-		where: { id },
+	return await db.contribution.updateMany({
+		where: { id: { in: ids }, ownerId },
 		data: { status: Status.PENDING },
 	});
 }
@@ -202,7 +214,7 @@ export async function checkContributionStatus(contributionId: string) {
 
 	// voting period ended
 	if (contribution.poll.upvotes.length + contribution.poll.downvotes.length === counselors.length) {
-		if (contribution.poll.upvotes.length > contribution.poll.downvotes.length) {
+		if (contribution.poll.upvotes.length >= contribution.poll.downvotes.length) {
 			await db.contribution.update({
 				where: { id: contributionId },
 				data: { status: Status.ACCEPTED },
@@ -214,6 +226,15 @@ export async function checkContributionStatus(contributionId: string) {
 			});
 		}
 	}
+}
+
+export async function removeCoAuthor(ownerId: string, coAuthorId: string, contributionId: string) {
+	await canAccess(UserRole.ADMIN, ownerId);
+
+	return await db.contribution.update({
+		where: { id: contributionId },
+		data: { coAuthors: { disconnect: { id: coAuthorId } } },
+	});
 }
 
 // DELETE
