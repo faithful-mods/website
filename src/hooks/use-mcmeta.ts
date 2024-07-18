@@ -60,10 +60,6 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 		const context = canvas.getContext('2d');
 		if (!context) return;
 
-		canvas.style.width = '100%';
-		canvas.width = canvas.offsetWidth;
-		canvas.height = canvas.offsetWidth;
-
 		const draw = (frame = 0, ticks = 0) => {
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.globalAlpha = 1;
@@ -121,6 +117,12 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 
 			const update = () => {
 				ticks++;
+
+				// update canvas size each frame to match the container size
+				// >> this is required if the canvas is first hidden and then shown
+				canvas.style.width = '100%';
+				canvas.width = canvas.offsetWidth;
+				canvas.height = canvas.offsetWidth;
 
 				if (frames[currentFrame].duration <= ticks) {
 					ticks = 0;
