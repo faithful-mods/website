@@ -6,7 +6,7 @@
 		"dev": "next dev --turbo",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint --fix; npx stylelint \"src/**/*.{scss,css}\" --fix",
+		"lint": "next lint --fix && npx stylelint \"src/**/*.{scss,css}\" --fix",
 		"db:migrate": "prisma migrate dev",
 		"db:apply": "prisma migrate deploy",
 		"postinstall": "prisma generate"
