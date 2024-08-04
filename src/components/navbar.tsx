@@ -101,7 +101,7 @@ export const Navbar = () => {
 								<Menu.Dropdown style={
 									{
 										left: 'var(--mantine-spacing-sm)',
-										top: 'calc(62px + (2 * var(--mantine-spacing-sm)))',
+										top: 'calc(60px + 24px)', // 60px is the height of the navbar and 24px is its margin
 									}
 								}>
 									{links.map((link, i) => (
@@ -111,7 +111,7 @@ export const Navbar = () => {
 											href={link.href}
 											disabled={link.disabled}
 											leftSection={link.icon}
-											c={pathname === link.href ? gradient.to : undefined}
+											c={(pathname.startsWith(link.href) && link.href !== '/') || link.href === pathname ? gradient.to : undefined}
 										>
 											{link.label}
 										</Menu.Item>
@@ -126,7 +126,7 @@ export const Navbar = () => {
 							<Link href={link.href} key={index}>
 								<Button
 									autoContrast
-									variant={pathname === link.href ? 'gradient' : 'transparent'}
+									variant={pathname.startsWith(link.href) ? 'gradient' : 'transparent'}
 									gradient={gradient}
 									color={gradient.to}
 									disabled={link.disabled}
