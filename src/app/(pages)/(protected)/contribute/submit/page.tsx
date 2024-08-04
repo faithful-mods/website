@@ -43,7 +43,7 @@ const SubmitPage = () => {
 			const accepted = contributions.filter((c) => c.status === Status.ACCEPTED).length;
 			const rejected = contributions.filter((c) => c.status === Status.REJECTED).length;
 
-			setCounts([pending, accepted, rejected]);
+			setCounts([pending, rejected, accepted]);
 		}
 	}, [contributions]);
 
@@ -89,15 +89,14 @@ const SubmitPage = () => {
 	};
 
 	return (
-
 		<Stack gap="sm">
 			<Tile>
 				<Stack gap="sm">
 					<Stack gap={0}>
-						<Text size="md" fw={700}>New contribution(s)</Text>
+						<Text size="md" fw={700} mb="sm">New contribution(s)</Text>
 						<Text size="sm">
 							By contributing to the platform, you agree to the <Text component="a" href="/docs/tos" c="blue" target="_blank">Terms of Service</Text>.<br />
-							<Text component="span" size="sm" c="dimmed" fs="italic">Please do not submit textures for unsupported mod/modpack. Ask the admins to add it first.</Text>
+							<Text component="span" size="sm" c="dimmed" fs="italic">Please do not submit textures for unsupported mod/modpack. Ask the council to add it first.</Text>
 						</Text>
 					</Stack>
 					<Group gap="md">
@@ -204,7 +203,6 @@ const SubmitPage = () => {
 				}
 			</Accordion>
 		</Stack>
-
 	);
 };
 
