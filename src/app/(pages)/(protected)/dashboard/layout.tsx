@@ -1,39 +1,27 @@
 'use client';
 
-import { Tabs } from '@mantine/core';
 import { UserRole } from '@prisma/client';
-import { usePathname, useRouter } from 'next/navigation';
 
 import { RoleGate } from '~/components/role-gate';
-import { Tile } from '~/components/tile';
-import { gradient } from '~/lib/utils';
+import { TabsLayout } from '~/components/tabs';
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
 };
 
 const DashboardPage = ({ children }: ProtectedLayoutProps) => {
-	const router = useRouter();
-	const pathname = usePathname();
-	const tab = pathname.split('/').pop() || 'modpacks';
+	const tabs = [
+		{ value: 'users', label: 'Users' },
+	];
 
 	return (
 		<RoleGate allowedRoles={[UserRole.ADMIN]}>
-			<Tabs
-				defaultValue="1"
-				variant="pills"
-				color={gradient.to}
-				value={tab}
-				onChange={(value) => router.push(`${pathname.replace(tab, '')}${value}`)}
+			<TabsLayout
+				tabs={tabs}
+				defaultValue="users"
 			>
-				<Tile mb="sm">
-					<Tabs.List>
-						<Tabs.Tab value="users">Users</Tabs.Tab>
-					</Tabs.List>
-				</Tile>
-			</Tabs>
-
-			{children}
+				{children}
+			</TabsLayout>
 		</RoleGate>
 	);
 };

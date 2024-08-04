@@ -122,7 +122,10 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 						))}
 						{submitted.filter((s) => s.status === Status.PENDING).length === 0 && <Text size="sm" c="dimmed" mt={-10}>None</Text>}
 					</Group>
-					<Text size="md" fw={700}>Rejected</Text>
+					<Stack gap={0}>
+						<Text size="md" fw={700}>Rejected</Text>
+						<Text size="sm" c="dimmed">Rejected contributions are deleted after 6 months. You can edit and resubmit them within this time.</Text>
+					</Stack>
 					<Group gap="sm">
 						{submitted.filter((s) => s.status === Status.REJECTED).map((submitted) => (
 							<ContributionPanelItem
