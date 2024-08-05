@@ -1,27 +1,29 @@
 'use client';
 
-import { Badge, Button, Group, Pagination, Select, Switch, Text, TextInput } from '@mantine/core';
+import { Badge, Button, Group, Pagination, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { UserRole, Mod } from '@prisma/client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { TbPlus } from 'react-icons/tb';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
+import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { ITEMS_PER_PAGE } from '~/lib/constants';
-import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE } from '~/lib/constants';
+import { gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
+import { ModUpload } from './mods-upload';
 
 type ModWVer = Mod & { unknownVersion: boolean };
 
 const ModsPanel = () => {
 	const user = useCurrentUser()!;
+	const [windowWidth] = useDeviceSize();
 
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -110,54 +112,64 @@ const ModsPanel = () => {
 
 	return (
 		<>
-			<Modal
-				opened={modalOpened}
-				onClose={closeModal}
-				title={modalMod ? modalMod.name : 'Add new mods'}
-			>
-				<ModModal mod={modalMod} onClose={handleModalClose} />
-			</Modal>
+			{modalMod && (
+				<Modal
+					opened={modalOpened}
+					onClose={closeModal}
+					title={modalMod.name}
+				>
+					<ModModal mod={modalMod} onClose={handleModalClose} />
+				</Modal>
+			)}
 			<Tile>
-				<Group justify="space-between">
-					<Text size="md" fw={700}>Mods</Text>
-					<Badge color="teal" variant="filled">
-						{search === '' ? mods.length : `${searchedMods.length} / ${mods.length}`}
-					</Badge>
-				</Group>
-				<Text c="dimmed" size="sm">
-					Here you can manage mods and their versions. Click on a mod to view or edit it.
-				</Text>
-				<Group align="center" mt="md" gap="sm" wrap="nowrap">
-					<Button
-						variant='gradient'
-						gradient={gradient}
-						className="navbar-icon-fix"
-						onClick={() => handleModalOpen()}
-					>
-						<TbPlus />
-					</Button>
-					<TextInput
-						className="w-full"
-						placeholder="Search mods..."
-						onChange={(e) => setSearch(e.currentTarget.value)}
-					/>
-					<Select
-						data={itemsPerPage}
-						value={modsShownPerPage}
-						onChange={setModsShownPerPage}
-						withCheckIcon={false}
-						w={120}
-					/>
-				</Group>
+				<Stack gap="sm">
 
-				<Switch
-					mt="md"
-					label="Only show mods with unknown MC version"
-					checked={showUnknown}
-					onChange={(e) =>{
-						setShowUnknown(e.currentTarget.checked);
-					}}
-				/>
+					<Stack gap={0}>
+						<Group justify="space-between">
+							<Text size="md" fw={700}>Mods</Text>
+							<Badge color="teal" variant="filled">
+								{search === '' ? mods.length : `${searchedMods.length} / ${mods.length}`}
+							</Badge>
+						</Group>
+						<Text c="dimmed" size="sm">
+						Here you can manage mods and their versions. Click on a mod to view or edit it.
+						</Text>
+					</Stack>
+
+					<ModUpload />
+					<Group
+						align="center"
+						gap="sm"
+						wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+					>
+						<Group align="center" gap="sm" wrap="nowrap" className="w-full">
+							<Select
+								data={itemsPerPage}
+								value={modsShownPerPage}
+								onChange={setModsShownPerPage}
+								label="Results per page"
+								withCheckIcon={false}
+								w={250}
+							/>
+							<TextInput
+								className="w-full"
+								placeholder="Search mods..."
+								label="Search"
+								onChange={(e) => setSearch(e.currentTarget.value)}
+							/>
+						</Group>
+
+						<Switch
+							label="Only show mods with unknown MC version"
+							mt={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 0 : 22}
+							className="w-full"
+							checked={showUnknown}
+							onChange={(e) =>{
+								setShowUnknown(e.currentTarget.checked);
+							}}
+						/>
+					</Group>
+				</Stack>
 
 				{mods.length === 0 && (
 					<Group justify="center">

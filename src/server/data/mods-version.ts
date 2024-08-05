@@ -11,6 +11,11 @@ import type { ModVersionExtended, Progression } from '~/types';
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
 import { extractModVersionsFromJAR } from '../actions/files';
+import { socket } from '~/lib/serversocket';
+
+export async function test() {
+	socket?.emit('test', 'Hello from server');
+}
 
 // GET
 
