@@ -117,7 +117,7 @@ const CouncilTexturesPage = () => {
 				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>
 
-			<Tile maw="1429px">
+			<Tile>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Textures</Text>
 					<Badge color="teal" variant="filled">

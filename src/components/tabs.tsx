@@ -41,6 +41,7 @@ export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue }:
 			</Tabs.List>
 
 			<Tabs.Panel
+				maw="1429px"
 				value={currentTab}
 				pl={windowWidth > BREAKPOINT_MOBILE_LARGE ? 'sm' : '0'}
 				pt={windowWidth > BREAKPOINT_MOBILE_LARGE ? '0' : 'sm'}
