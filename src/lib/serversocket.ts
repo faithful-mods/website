@@ -9,6 +9,6 @@ export const socket = globalThis.socketIO;
 export const setServerSocket = (server: Server) => {
 	globalThis.socketIO = server;
 	return globalThis.socketIO;
-}
+};
 
 if (process.env.NODE_ENV !== 'production') globalThis.socketIO = socket;

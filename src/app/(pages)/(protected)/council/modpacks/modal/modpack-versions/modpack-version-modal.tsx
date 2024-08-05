@@ -1,19 +1,21 @@
 'use client';
 
-import { Button, Code, Group, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Code, Group, Progress, Stack, Text, TextInput } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
 import { Mod, ModVersion, Modpack } from '@prisma/client';
 import { useEffect, useState, useTransition } from 'react';
 
 import { TextureImage } from '~/components/texture-img';
+import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
+import { useWebsocket } from '~/hooks/use-websocket';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
+import { gradient, gradientDanger, sortByName } from '~/lib/utils';
 import { createModpackVersion, deleteModpackVersion, updateModpackVersion, addModsToModpackVersion, removeModFromModpackVersion } from '~/server/data/modpacks-version';
 import { getModsFromIds } from '~/server/data/mods';
-import type { ModpackVersionWithMods } from '~/types';
+import type { ModpackVersionWithMods, SocketModUpload } from '~/types';
 
 export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modpack: Modpack, modpackVersion?: ModpackVersionWithMods, onClose: () => void }) {
 	const [isPending, startTransition] = useTransition();
@@ -25,10 +27,20 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 	const [search, setSearch] = useState<string>('');
 	const [displayedMods, setDisplayedMods] = useState<Mod[]>([]);
 
-	const [progression, setProgression] = useState<number>(0);
-	const [progressionMax, setProgressionMax] = useState<number>(0);
-
 	const [windowWidth, windowHeight] = useDeviceSize();
+
+	const [status, setStatus] = useState<SocketModUpload | null>(null);
+	const socketId = modpack.id + '-' + useCurrentUser()!.id!;
+
+	useWebsocket([
+		[socketId, (status: SocketModUpload) => setStatus(status)],
+	]);
+
+	useEffect(() => {
+		if (status && status.mods.done >= status.mods.total) {
+			setStatus(null);
+		}
+	}, [status]);
 
 	useEffectOnce(() => {
 		getModsFromIds(modVersions.map((modVersion) => modVersion.modId))
@@ -97,27 +109,18 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 		});
 	};
 
-	const filesDrop = async (files: File[]) => {
+	const handleFilesDrop = async (files: File[]) => {
 		let editedModpackVersion = !_modpackVersion
 			? await createModpackVersion({ modpack, version: form.values.version })
 			: _modpackVersion;
 
-		for (const file of files) {
-			try {
-				const data = new FormData();
-				data.append('file', file);
-				editedModpackVersion = await addModsToModpackVersion(editedModpackVersion.id, data);
-			} catch (e) {
-				notify('Error', (e as Error).message, 'red');
-			} finally {
-				setProgression((prev) => prev + 1);
-			}
-		}
+		const data = new FormData();
+		files.forEach((file) => data.append('files', file));
+
+		editedModpackVersion = await addModsToModpackVersion(editedModpackVersion.id, data, socketId);
 
 		setModpackVersion(editedModpackVersion);
 		setModVersions(editedModpackVersion.mods);
-		setProgression(0);
-		setProgressionMax(0);
 
 		const mods = await getModsFromIds(editedModpackVersion.mods.map((modVersion) => modVersion.modId));
 		setMods(mods.sort(sortByName));
@@ -129,26 +132,54 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 			<Stack justify="start" gap="0">
 				<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Add mods</Text>
 				{form.values.version.length === 0 && <Text size="xs" c="dimmed">Set a version first</Text>}
-				<Dropzone
-					disabled={form.values.version.length === 0}
-					className={form.values.version.length === 0 ? 'dropzone-disabled' : ''}
-					onDrop={async (files) => {
-						setProgression(0);
-						setProgressionMax(files.length);
-						await filesDrop(files);
-					}}
-					accept={['application/java-archive']}
-					mt="0"
-				>
-					<div>
-						<Text size="l" inline>
+				{!status && (
+					<Dropzone
+						disabled={form.values.version.length === 0}
+						className={form.values.version.length === 0 ? 'dropzone-disabled' : ''}
+						onDrop={handleFilesDrop}
+						accept={['application/java-archive']}
+						mt="0"
+					>
+						<div>
+							<Text size="l" inline>
 							Drag <Code>.JAR</Code> files here or click to select files
-						</Text>
-						<Text size="sm" c="dimmed" inline mt={7}>
+							</Text>
+							<Text size="sm" c="dimmed" inline mt={7}>
 							Attach as many files as you like, each file will be added as a separate mod
-						</Text>
-					</div>
-				</Dropzone>
+							</Text>
+						</div>
+					</Dropzone>
+				)}
+
+				{status && (
+					<Stack gap="xs" mt="xs">
+						<Group gap="xs" wrap="nowrap">
+							<Text size="xs" w={50} ta="right">JARs</Text>
+
+							<Progress.Root className="w-full" size="lg">
+								<Progress.Section value={status.mods.total === 0 ? 100 :(status.mods.done * 100) / status.mods.total}>
+									<Progress.Label>{status.mods.done} / {status.mods.total}</Progress.Label>
+								</Progress.Section>
+							</Progress.Root>
+						</Group>
+						<Group gap="xs" wrap="nowrap">
+							<Text size="xs" w={50} ta="right">Mods</Text>
+							<Progress.Root className="w-full" size="lg">
+								<Progress.Section value={status.modInfos.total === 0 ? 100 :(status.modInfos.done * 100) / status.modInfos.total}>
+									<Progress.Label>{status.modInfos.done} / {status.modInfos.total}</Progress.Label>
+								</Progress.Section>
+							</Progress.Root>
+						</Group>
+						<Group gap="xs" wrap="nowrap">
+							<Text size="xs" w={50} ta="right">Textures</Text>
+							<Progress.Root className="w-full" size="lg">
+								<Progress.Section value={status.textures.total === 0 ? 100 :(status.textures.done * 100) / status.textures.total}>
+									<Progress.Label>{status.textures.done} / {status.textures.total}</Progress.Label>
+								</Progress.Section>
+							</Progress.Root>
+						</Group>
+					</Stack>
+				)}
 			</Stack>
 
 			{mods.length > 0 && (
@@ -179,11 +210,6 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 						{displayedMods.length === 0 && <Text ta="center" size="xs" c="dimmed">No mods found</Text>}
 					</Stack>
 				</>
-			)}
-			{progressionMax > 0 && (
-				<Text c="dimmed" ta="center" size="xs" mt="md">
-					uploading: { progression } / { progressionMax }
-				</Text>
 			)}
 
 			<Group gap="sm">

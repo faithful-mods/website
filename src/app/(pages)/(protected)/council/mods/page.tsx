@@ -7,17 +7,17 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
+import { ModUpload } from '~/components/mods-upload';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE } from '~/lib/constants';
-import { gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
+import { gradientDanger, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
-import { ModUpload } from './mods-upload';
 
 type ModWVer = Mod & { unknownVersion: boolean };
 
@@ -42,16 +42,14 @@ const ModsPanel = () => {
 
 	const [showUnknown, setShowUnknown] = useState(false);
 
+	const init = async () => {
+		const mods = await getMods();
+		setMods(mods);
+		setSearchedMods(mods);
+	};
+
 	useEffectOnce(() => {
-		getMods()
-			.then((mods) => {
-				setMods(mods);
-				setSearchedMods(mods);
-			})
-			.catch((err) => {
-				console.error(err);
-				notify('Error', err.message, 'red');
-			});
+		init();
 	});
 
 	useEffect(() => {
@@ -110,6 +108,13 @@ const ModsPanel = () => {
 		});
 	};
 
+	const handleOnUpload = () => {
+		startTransition(() => {
+			init();
+			setSearch('');
+		});
+	};
+
 	return (
 		<>
 			{modalMod && (
@@ -121,7 +126,7 @@ const ModsPanel = () => {
 					<ModModal mod={modalMod} onClose={handleModalClose} />
 				</Modal>
 			)}
-			<Tile>
+			<Tile maw="1429px">
 				<Stack gap="sm">
 
 					<Stack gap={0}>
@@ -136,7 +141,8 @@ const ModsPanel = () => {
 						</Text>
 					</Stack>
 
-					<ModUpload />
+					<ModUpload onUpload={handleOnUpload} />
+
 					<Group
 						align="center"
 						gap="sm"
@@ -192,7 +198,7 @@ const ModsPanel = () => {
 								title={mod.name}
 								description={mod.description}
 								onClick={() => handleModalOpen(mod)}
-								warning={mod.unknownVersion ? 'Unknown version' : undefined}
+								warning={mod.unknownVersion ? true : undefined}
 							/>
 						))}
 					</Group>

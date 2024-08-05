@@ -15,6 +15,21 @@ export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
+export interface SocketModUpload {
+	mods: {
+		total: number;
+		done: number;
+	};
+	modInfos: {
+		total: number;
+		done: number;
+	};
+	textures: {
+		total: number;
+		done: number;
+	};
+}
+
 export type ModpackVersionWithMods = ModpackVersion & { mods: ModVersion[] };
 export type ModVersionExtended = ModVersion & { modpacks: Modpack[], textures: number, linked: number };
 

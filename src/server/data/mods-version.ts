@@ -5,17 +5,13 @@ import { Status, UserRole, type ModVersion, type Modpack } from '@prisma/client'
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
+import { socket } from '~/lib/serversocket';
 import { EMPTY_PROGRESSION_RES, sortBySemver } from '~/lib/utils';
-import type { ModVersionExtended, Progression } from '~/types';
+import type { ModVersionExtended, Progression, SocketModUpload } from '~/types';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
 import { extractModVersionsFromJAR } from '../actions/files';
-import { socket } from '~/lib/serversocket';
-
-export async function test() {
-	socket?.emit('test', 'Hello from server');
-}
 
 // GET
 
@@ -107,13 +103,34 @@ export async function getModVersionProgression(modVersionId: string): Promise<Pr
 
 // POST
 
-export async function addModVersionsFromJAR(jar: FormData): Promise<ModVersion[]> {
+/**
+ * This function will extract the mods from the JAR files and add them to the database.
+ * @param jars files to extract the mods from
+ * @param socketId the socket id to send the progression to
+ * @returns A list of the added mod versions
+ */
+export async function addModVersionsFromJAR(jars: FormData, socketId: string): Promise<ModVersion[]> {
 	await canAccess(UserRole.COUNCIL);
-	const res: ModVersion[] = [];
 
-	const files = jar.getAll('files') as File[];
+	let status: SocketModUpload = {
+		mods: { total: 0, done: 0 },
+		modInfos: { total: 0, done: 0 },
+		textures: { total: 0, done: 0 },
+	};
+
+	const res: ModVersion[] = [];
+	const files = jars.getAll('files') as File[];
+
+	status.mods.total = files.length;
+	socket?.emit(socketId, status);
+
 	for (const file of files) {
-		res.push(...(await extractModVersionsFromJAR(file)));
+		const extracted = await extractModVersionsFromJAR(file, socketId, status);
+		res.push(...extracted[0]);
+
+		status = extracted[1];
+		status.mods.done += 1;
+		socket?.emit(socketId, status);
 	}
 
 	// remove duplicates
