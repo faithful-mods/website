@@ -220,7 +220,7 @@ export default function ModPage() {
 									<Accordion.Panel>
 										<Stack gap="xs">
 											{modVersions.map((v) => (
-												<Tile key={v.id} shadowless>
+												<Tile key={v.id} shadowless withBorder>
 													<Stack>
 														<Title order={4} mb="xs">{v.version}</Title>
 														{progressBar(v.id)}
