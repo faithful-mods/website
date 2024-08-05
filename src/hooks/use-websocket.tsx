@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { socket } from '~/lib/websocket';
 
-export function useWebsocket(watchers: [string, (args: unknown) => void][]) {
+export function useWebsocket(watchers: [string, (args: any) => void][]) {
 	const [isConnected, setIsConnected] = useState(false);
 	const [transport, setTransport] = useState('N/A');
 

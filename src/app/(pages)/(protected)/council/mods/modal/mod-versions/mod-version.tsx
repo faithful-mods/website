@@ -2,17 +2,17 @@
 
 import type { Mod } from '@prisma/client';
 
-import { Code, Group, Table, Text } from '@mantine/core';
-import { Dropzone } from '@mantine/dropzone';
+import { Group, Table, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState, startTransition } from 'react';
+import { useState } from 'react';
 
 import { Modal } from '~/components/modal';
+import { ModUpload } from '~/components/mods-upload';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { extractSemver, notify } from '~/lib/utils';
-import { addModVersionsFromJAR, getModVersionsWithModpacks, getNumberOfTextureFromModVersion } from '~/server/data/mods-version';
+import { getModVersionsWithModpacks, getNumberOfTextureFromModVersion } from '~/server/data/mods-version';
 import { ModVersionExtended } from '~/types';
 
 import { ModVersionModal } from './mod-version-modal';
@@ -43,19 +43,8 @@ export function ModVersions({ mod }: { mod: Mod }) {
 			});
 	});
 
-	const filesDrop = (files: File[]) => {
-		startTransition(() => {
-			const data = new FormData();
-			files.forEach((file) => data.append('files', file));
-
-			addModVersionsFromJAR(data)
-				.then((updated) => {
-					setModVersions(updated
-						.filter((modVer) => modVer.modId === mod.id)
-						.map((modVer) => ({ ...modVer, modpacks: [], textures: 0, linked: 0 }))
-					);
-				});
-		});
+	const handleOnUpload = async () => {
+		setModVersions(await getModVersionsWithModpacks(mod.id));
 	};
 
 	const openModVersionModal = (modVersion?: ModVersionExtended | undefined) => {
@@ -108,22 +97,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 					</Table>
 				</>}
 
-				<Dropzone
-					className="w-full"
-					onDrop={filesDrop}
-					accept={['application/java-archive']}
-					mt="0"
-				>
-					<div>
-						<Text size="l" inline>
-							Drag <Code>.JAR</Code> files here or click to select files
-						</Text>
-						<Text size="sm" c="dimmed" inline mt={7}>
-							Attach as many files as you like, each file will be added as a separate mod version.
-							If there is another mod in the JAR, it will be added as a new mod and its version added to it.
-						</Text>
-					</div>
-				</Dropzone>
+				<ModUpload onUpload={handleOnUpload} socketIdSuffix='mod-versions' />
 			</Group>
 		</>
 	);

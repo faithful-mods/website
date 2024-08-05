@@ -11,8 +11,9 @@ import unzipper from 'unzipper';
 import { MODS_LOADERS } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
+import { socket } from '~/lib/serversocket';
 import { bufferToFile, extractSemver } from '~/lib/utils';
-import type { MCModInfo, MCModInfoData } from '~/types';
+import type { MCModInfo, MCModInfoData, SocketModUpload } from '~/types';
 
 import { createMod } from '../data/mods';
 import { createModVersion } from '../data/mods-version';
@@ -135,11 +136,15 @@ function sanitizeMCModInfo(mcmodInfo: MCModInfoData): MCModInfo[] {
  * - If mod(s) version(s) does not exist, create it and extract the default resource pack
  *
  * @param jar the jar file to extract the mod versions from
+ * @param socketId the socket id to send the progression to
+ * @param status the socket status to update
  * @returns The extracted mod versions
  */
-export async function extractModVersionsFromJAR(jar: File): Promise<ModVersion[]> {
+export async function extractModVersionsFromJAR(jar: File, socketId: string, status: SocketModUpload): Promise<[ModVersion[], SocketModUpload]> {
 	const res: ModVersion[] = [];
 	const modInfos = await fetchMCModInfoFromJAR(jar);
+
+	status.modInfos.total += modInfos.length;
 
 	// Check if all mods exists, if not create them
 	for (const modInfo of modInfos) {
@@ -162,13 +167,16 @@ export async function extractModVersionsFromJAR(jar: File): Promise<ModVersion[]
 				version: modInfo.version,
 				mcVersion: modInfo.mcversion,
 			});
-			await extractDefaultResourcePack(jar, modVersion);
+
+			status = await extractDefaultResourcePack(jar, modVersion, socketId, status);
 		}
 
 		res.push(modVersion);
+		status.modInfos.done += 1;
+		socket?.emit(socketId, status);
 	}
 
-	return res;
+	return [res, status];
 }
 
 /**
@@ -178,8 +186,10 @@ export async function extractModVersionsFromJAR(jar: File): Promise<ModVersion[]
  *
  * @param jar The jar file to extract the resources from
  * @param modVersion The mod version to extract the resources from and to be linked to the extracted resources
+ * @param socketId The socket id to send the progression to
+ * @param status The socket status to update
  */
-export async function extractDefaultResourcePack(jar: File, modVersion: ModVersion): Promise<void> {
+export async function extractDefaultResourcePack(jar: File, modVersion: ModVersion, socketId: string, status: SocketModUpload): Promise<SocketModUpload> {
 	const bytes = await jar.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 
@@ -195,6 +205,8 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 
 	const textureAssets = assets.filter((file) => file.path.endsWith('.png'));
 	const mcmetaAssets = assets.filter((file) => file.path.endsWith('.mcmeta'));
+
+	status.textures.total += textureAssets.length;
 
 	// TODO: Get models assets
 
@@ -252,5 +264,9 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 		if (!resource) resource = await createResource({ asset, modVersion });
 
 		await linkTextureToResource({ resource, texture, assetPath: textureAsset.path });
+		status.textures.done += 1;
+		socket?.emit(socketId, status);
 	}
+
+	return status;
 }

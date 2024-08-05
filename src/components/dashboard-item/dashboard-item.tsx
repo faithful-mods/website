@@ -1,4 +1,4 @@
-import { Badge, Group, Image, Stack, Text } from '@mantine/core';
+import { Button, Group, Image, Stack, Text } from '@mantine/core';
 import { TiWarning } from 'react-icons/ti';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -10,7 +10,7 @@ export interface ItemDisplayProps {
 	image?: string | null,
 	title: string,
 	description?: string | null,
-	warning?: string,
+	warning?: boolean,
 	onClick: () => void
 }
 
@@ -50,18 +50,20 @@ export function DashboardItem({ image, title, description, onClick, warning }: I
 				<Text size="xs" lineClamp={2}>{description?.trim() ?? 'No description'}</Text>
 			</Stack>
 			{warning && (
-				<Badge
+				<Button
 					color={gradientDanger.from}
-					size="xs"
+					w={20}
+					h={20}
+					p={0}
+					className="cursor-clickable"
 					style={{
 						position:'absolute',
-						bottom: 'calc(var(--mantine-spacing-sm) / 2)',
-						right: 'calc(var(--mantine-spacing-sm) / 2)',
+						top: 'calc(var(--mantine-spacing-sm) / 2)',
+						left: 'calc(var(--mantine-spacing-sm) / 2)',
 					}}
-					leftSection={<TiWarning />}
 				>
-					{warning}
-				</Badge>
+					<TiWarning />
+				</Button>
 			)}
 
 		</Group>
