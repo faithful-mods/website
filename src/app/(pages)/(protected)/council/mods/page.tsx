@@ -126,7 +126,7 @@ const ModsPanel = () => {
 					<ModModal mod={modalMod} onClose={handleModalClose} />
 				</Modal>
 			)}
-			<Tile maw="1429px">
+			<Tile>
 				<Stack gap="sm">
 
 					<Stack gap={0}>
