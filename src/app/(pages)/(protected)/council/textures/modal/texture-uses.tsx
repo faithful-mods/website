@@ -1,17 +1,23 @@
 'use client';
 
-import { Stack, Group, Divider, Code, Image, Text } from '@mantine/core';
+import { Stack, Group, Divider, Code, Image, Text, Button } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { LinkedTexture, Mod, ModVersion, Resource, Texture } from '@prisma/client';
 import { useState } from 'react';
 import { FaRegFolderOpen } from 'react-icons/fa';
 import { LuFolderGit } from 'react-icons/lu';
+import { TbHttpDelete } from 'react-icons/tb';
 
+import { Modal } from '~/components/modal';
 import { Tile } from '~/components/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { getLinkedTexturesFrom } from '~/server/data/linked-textures';
+import { gradient, gradientDanger } from '~/lib/utils';
+import { deleteLinkedTexture, getLinkedTexturesFrom } from '~/server/data/linked-textures';
 import { getModsFromIds } from '~/server/data/mods';
 import { getModsVersionsFromResources } from '~/server/data/mods-version';
 import { getResourceByIds } from '~/server/data/resource';
+
+import { TextureUsesLinkedPopup } from './texture-use-linked-popup';
 
 export interface TextureUsesProps {
 	texture: Texture;
@@ -22,28 +28,46 @@ export function TextureUses({ texture }: TextureUsesProps) {
 	const [resources, setResources] = useState<Resource[]>([]);
 	const [modsVersions, setModsVersions] = useState<(ModVersion & { resources: string[] })[]>([]);
 	const [mods, setMods] = useState<Mod[]>([]);
+	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
+
+	const init = async () => {
+		const linkedTextures = await getLinkedTexturesFrom(texture.id);
+		setLinkedTextures(linkedTextures);
+
+		const resources = await getResourceByIds(linkedTextures.map((lt) => lt.resourceId));
+		setResources(resources);
+
+		const modsVersions = await getModsVersionsFromResources(resources.map((r) => r.id));
+		setModsVersions(modsVersions);
+
+		const mods = await getModsFromIds(modsVersions.map((mv) => mv.modId));
+		setMods(mods);
+	};
+
+	const handleLinkedTextureDelete = async (id: string) => {
+		await deleteLinkedTexture(id);
+		init();
+	};
 
 	useEffectOnce(() => {
-		getLinkedTexturesFrom(texture.id)
-			.then((res) => {
-				setLinkedTextures(res);
-				getResourceByIds(res.map((lt) => lt.resourceId))
-					.then((resources) => {
-						setResources(resources);
-						getModsVersionsFromResources(resources.map((r) => r.id))
-							.then((modsVersions) => {
-								setModsVersions(modsVersions);
-								getModsFromIds(modsVersions.map((mv) => mv.modId))
-									.then((mods) => {
-										setMods(mods);
-									});
-							});
-					});
-			});
+		init();
 	});
 
 	return (
 		<Stack ml={0} gap="md" mt="md">
+			<Modal
+				opened={modalOpened}
+				onClose={() => closeModal()}
+				title="Add a Linked Texture to this Texture"
+			>
+				<TextureUsesLinkedPopup
+					textureId={texture.id}
+					onUpdate={() => {
+						init();
+						closeModal();
+					}}
+				/>
+			</Modal>
 			{mods.map((mod) => (
 				<Tile key={mod.id} p={0}>
 					<Group gap="xs" m="xs">
@@ -68,7 +92,28 @@ export function TextureUses({ texture }: TextureUsesProps) {
 
 											<Stack ml="sm" gap={2}>
 												{linkedTextures.filter((lt) => lt.resourceId === r.id).map((lt) => (
-													<Code key={lt.id}>{lt.assetPath}</Code>
+													<Group key={lt.id} gap={2} wrap="nowrap">
+														<Code className="w-full">{lt.assetPath}</Code>
+														<Button
+															p={0}
+															w={32}
+															h={22}
+															disabled={linkedTextures.length === 1}
+															gradient={gradientDanger}
+															variant="gradient"
+															onClick={() => {
+																handleLinkedTextureDelete(lt.id);
+															}}
+														>
+															<TbHttpDelete
+																className="navbar-icon-fix"
+																style={{
+																	// @ts-expect-error
+																	'--size': '24px',
+																}}
+															/>
+														</Button>
+													</Group>
 												))}
 											</Stack>
 										</Stack>
@@ -77,9 +122,15 @@ export function TextureUses({ texture }: TextureUsesProps) {
 							</Stack>
 						))}
 					</Stack>
-
 				</Tile>
 			))}
+			<Button
+				variant="gradient"
+				gradient={gradient}
+				onClick={() => openModal()}
+			>
+				Add a linked Texture
+			</Button>
 		</Stack>
 	);
 }

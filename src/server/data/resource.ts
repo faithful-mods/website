@@ -10,6 +10,10 @@ import { deleteTexture } from './texture';
 
 // GET
 
+export async function getResources(): Promise<Resource[]> {
+	return db.resource.findMany();
+}
+
 export async function getResource({
 	asset,
 	modVersion,

@@ -38,6 +38,10 @@ export async function getModVersionsWithModpacks(modId: string): Promise<ModVers
 	return res;
 }
 
+export async function getModVersions(): Promise<ModVersion[]> {
+	return db.modVersion.findMany();
+}
+
 export async function getNumberOfTextureFromModVersion(modVersionId: string) {
 	const resources = await db.resource.findMany({ where: { modVersionId }, include: { textures: true } });
 	const totalLinked = resources.reduce((acc, res) => acc + res.textures.length, 0);

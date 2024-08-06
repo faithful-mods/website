@@ -44,12 +44,14 @@ main {
 }
 
 .navbar-icon-fix {
-	max-width: 36px;
-	max-height: 36px;
-	min-width: 36px !important;
-	min-height: 36px;
-	width: 36px !important;
-	height: 36px !important;
+	--size: 36px;
+
+	max-width: var(--size);
+	max-height: var(--size);
+	min-width: var(--size) !important;
+	min-height: var(--size);
+	width: var(--size) !important;
+	height: var(--size) !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;
