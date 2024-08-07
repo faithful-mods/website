@@ -145,6 +145,8 @@ model Texture {
   /// [TextureMCMETAType]
   mcmeta         Json?
 
+  // tags TextureTag[] @relation("texture_tags_to_textures")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -155,6 +157,18 @@ model Texture {
 
   @@map("textures")
 }
+
+// model TextureTag {
+//   id   String @id @default(cuid())
+//   name String
+
+//   textures Texture[] @relation("texture_tags_to_textures")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@map("texture_tags")
+// }
 
 model ContributionDeactivation {
   id String @id @default(cuid())
