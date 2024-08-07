@@ -44,7 +44,7 @@ export async function getModVersions(): Promise<ModVersion[]> {
 	return db.modVersion.findMany();
 }
 
-export async function getNumberOfTextureFromModVersion(modVersionId: string) {
+export async function getNumberOfTextureFromModVersion(modVersionId: string): Promise<[number, number]> {
 	const resources = await db.resource.findMany({ where: { modVersionId }, include: { textures: true } });
 	const totalLinked = resources.reduce((acc, res) => acc + res.textures.length, 0);
 

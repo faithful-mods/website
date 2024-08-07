@@ -194,7 +194,7 @@ const ModsPanel = () => {
 
 				{searchedMods.length > 0 && (
 					<Group mt="md" align="start">
-						{modsShown[activePage - 1] && modsShown[activePage - 1].map((mod, index) => (
+						{modsShown[activePage - 1] && modsShown[activePage - 1]?.map((mod, index) => (
 							<DashboardItem
 								key={index}
 								image={mod.image}

@@ -15,6 +15,13 @@ export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
+/**
+ * Remove readonly from all properties
+ */
+export type Writable<T> = {
+	-readonly [P in keyof T]: T[P];
+};
+
 export interface SocketModUpload {
 	mods: {
 		total: number;

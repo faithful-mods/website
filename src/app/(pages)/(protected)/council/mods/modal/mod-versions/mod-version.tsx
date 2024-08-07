@@ -32,8 +32,8 @@ export function ModVersions({ mod }: { mod: Mod }) {
 					res.map((modVersions) =>
 						getNumberOfTextureFromModVersion(modVersions.id).then((r) => ({
 							...modVersions,
-							linked: r[0],
-							textures: r[1],
+							linked: r[0]!,
+							textures: r[1]!,
 						}))
 					)
 				).then(setModVersions);

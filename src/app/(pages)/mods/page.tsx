@@ -23,6 +23,8 @@ import { getModsWithVersions } from '~/server/data/mods';
 import { getSupportedMinecraftVersions } from '~/server/data/mods-version';
 
 import type { Mod } from '@prisma/client';
+import type { ModLoaders } from '~/lib/constants';
+import type { Writable } from '~/types';
 
 import './mods.scss';
 import '~/lib/polyfills';
@@ -45,7 +47,7 @@ export default function Mods() {
 
 	const [MCVersions, setMCVersions] = useState<string[]>([]);
 
-	const [loaders, setLoaders] = useState<string[]>(MODS_LOADERS);
+	const [loaders, setLoaders] = useState<ModLoaders[]>(MODS_LOADERS as Writable<typeof MODS_LOADERS>);
 	const [versions, setVersions] = useState<string[]>([]);
 
 	const [showFilters, setShowFilters] = useState(false);
@@ -59,7 +61,7 @@ export default function Mods() {
 	});
 
 	useEffect(() => {
-		let filteredMods = mods.filter((m) => m.loaders.some((l) => loaders.includes(l)));
+		let filteredMods = mods.filter((m) => (m.loaders as ModLoaders[]).some((l) => loaders.includes(l)));
 
 		if (search) {
 			filteredMods = filteredMods.filter(searchFilter(search));
@@ -95,7 +97,7 @@ export default function Mods() {
 		loaders,
 	]);
 
-	const editLoaders = (l: string) => {
+	const editLoaders = (l: ModLoaders) => {
 		const newLoaders = loaders.includes(l)
 			? loaders.filter((loader) => loader !== l)
 			: [...loaders, l];
@@ -139,9 +141,9 @@ export default function Mods() {
 								label="All"
 								onChange={() => void 0}
 								checked={loaders.length === MODS_LOADERS.length}
-								onClick={() => loaders.length === MODS_LOADERS.length ? setLoaders([]) : setLoaders(MODS_LOADERS)}
+								onClick={() => loaders.length === MODS_LOADERS.length ? setLoaders([]) : setLoaders(MODS_LOADERS as Writable<typeof MODS_LOADERS>)}
 							/>
-							{MODS_LOADERS.sort().map((l) => (
+							{MODS_LOADERS.toSorted().map((l) => (
 								<Checkbox key={l} size="xs" value={l} onChange={() => editLoaders(l)} label={l} />
 							))}
 						</Stack>
@@ -235,7 +237,7 @@ export default function Mods() {
 				{windowWidth <= BREAKPOINT_TABLET && showFilters && filter()}
 				{
 					(windowWidth > BREAKPOINT_TABLET || (windowWidth <= BREAKPOINT_TABLET && !showFilters)) &&
-					modsShown[activePage - 1] && modsShown[activePage - 1].map((m) => (
+					modsShown[activePage - 1] && modsShown[activePage - 1]?.map((m) => (
 						<Tile
 							key={m.id}
 							onClick={() => router.push(`/mods/${m.id}`)}
