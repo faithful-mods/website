@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { ModVersion, UserRole, type Mod } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -9,6 +9,9 @@ import { extractSemver } from '~/lib/utils';
 
 import { deleteModVersion } from './mods-version';
 import { remove, upload } from '../actions/files';
+
+import type { ModVersion } from '@prisma/client';
+import type { Mod } from '@prisma/client';
 
 // GET
 
@@ -18,7 +21,7 @@ export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 
 export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> {
 	return db.mod
-		.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' }})
+		.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } })
 		.then((mods) =>
 			mods.map((mod) => {
 				return { ...mod, unknownVersion: mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 };

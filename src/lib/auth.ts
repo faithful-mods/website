@@ -1,8 +1,9 @@
-import { User, UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { auth } from '~/auth';
 
-import { ExtendedUser } from '../../next-auth';
+import type { ExtendedUser } from '../../next-auth';
+import type { User } from '@prisma/client';
 
 /**
  * Get the logged in user

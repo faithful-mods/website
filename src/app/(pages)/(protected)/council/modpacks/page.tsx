@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useMemo, useState, useTransition } from 'react';
+
+import { TbPlus } from 'react-icons/tb';
+
 import { Badge, Group, Text, TextInput, Button, Select, Pagination } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Modpack, UserRole } from '@prisma/client';
-import { useEffect, useMemo, useState, useTransition } from 'react';
-import { TbPlus } from 'react-icons/tb';
+import { UserRole } from '@prisma/client';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
@@ -17,6 +19,8 @@ import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/li
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
 import { ModpackModal } from './modal/modpack-modal';
+
+import type { Modpack } from '@prisma/client';
 
 const ModpacksPanel = () => {
 	const user = useCurrentUser()!;
@@ -76,7 +80,6 @@ const ModpacksPanel = () => {
 				.sort(sortByName)
 		);
 	}, [search, modpacks]);
-
 
 	const handleModalOpen = (modpack?: Modpack | undefined) => {
 		setModalModpack(modpack);

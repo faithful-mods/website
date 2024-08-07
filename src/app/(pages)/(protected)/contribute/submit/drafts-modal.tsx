@@ -1,8 +1,10 @@
-import { Button, Container, Divider, Group, JsonInput, MultiSelectProps, Select, Stack, Text, Title } from '@mantine/core';
-import { ContributionDeactivation, Resolution, type Texture } from '@prisma/client';
 import { useMemo, useRef, useState, useTransition } from 'react';
+
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { PiMagicWandBold } from 'react-icons/pi';
+
+import { Button, Container, Divider, Group, JsonInput, Select, Stack, Text, Title } from '@mantine/core';
+import { Resolution } from '@prisma/client';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
@@ -12,9 +14,13 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger } from '~/lib/utils';
 import { getContributionsOfTexture, updateDraftContribution } from '~/server/data/contributions';
-import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
 import { CoAuthorsSelector } from './co-authors-select';
+
+import type { MultiSelectProps } from '@mantine/core';
+import type { ContributionDeactivation } from '@prisma/client';
+import type { Texture } from '@prisma/client';
+import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
 export interface ContributionModalProps {
 	contribution: ContributionWithCoAuthors;
@@ -225,7 +231,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 					{!selectedTexture && <Container className="texture-background" pt="100%" pl="calc(100% - var(--mantine-spacing-md))" />}
 					<JsonInput
 						label={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'Default MCMETA' : <Title order={6} ta="center">MCMETA</Title>}
-						labelProps={{ style: { width: '100%' }}}
+						labelProps={{ style: { width: '100%' } }}
 						validationError="Invalid JSON"
 						formatOnBlur
 						autosize

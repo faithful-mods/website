@@ -1,12 +1,13 @@
 'use client';
 
-import { Stack, Group, Divider, Code, Image, Text, Button } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { LinkedTexture, Mod, ModVersion, Resource, Texture } from '@prisma/client';
 import { useState } from 'react';
+
 import { FaRegFolderOpen } from 'react-icons/fa';
 import { LuFolderGit } from 'react-icons/lu';
 import { TbHttpDelete } from 'react-icons/tb';
+
+import { Stack, Group, Divider, Code, Image, Text, Button } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 import { Modal } from '~/components/modal';
 import { Tile } from '~/components/tile';
@@ -18,6 +19,8 @@ import { getModsVersionsFromResources } from '~/server/data/mods-version';
 import { getResourceByIds } from '~/server/data/resource';
 
 import { TextureUsesLinkedPopup } from './texture-use-linked-popup';
+
+import type { LinkedTexture, Mod, ModVersion, Resource, Texture } from '@prisma/client';
 
 export interface TextureUsesProps {
 	texture: Texture;

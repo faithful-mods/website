@@ -1,10 +1,12 @@
 'use server';
 import 'server-only';
 
-import { LinkedTexture, UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
+
+import type { LinkedTexture } from '@prisma/client';
 
 // GET
 

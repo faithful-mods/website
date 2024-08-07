@@ -2,28 +2,45 @@
 	"extends": "next/core-web-vitals",
 	"plugins": ["unused-imports"],
 	"rules": {
-		"indent": ["error", "tab", { "SwitchCase": 1 }],
-		"quotes": ["error", "single"],
-		"semi": ["error", "always"],
 		"comma-dangle": ["error", "always-multiline"],
-		"unused-imports/no-unused-imports": "error",
+		"object-curly-spacing": ["warn", "always"],
+		"import/consistent-type-specifier-style": ["error", "prefer-top-level"],
 		"import/order": [
 			"error",
 			{
 				"newlines-between": "always",
-				"groups": ["type", "builtin", "external", "internal", ["parent","sibling", "index"]],
+				"groups": ["builtin", "external", "internal", ["parent","sibling", "index"], "type"],
 				"pathGroups": [
 					{
-						"pattern": "~/**",
-						"group": "internal"
+						"pattern": "react",
+						"group": "builtin",
+						"position": "after"
+					},
+					{
+						"pattern": "react-icons/**",
+						"group": "builtin",
+						"position": "after"
+					},
+					{
+						"pattern": "next/**",
+						"group": "builtin",
+						"position": "before"
 					}
 				],
-				"pathGroupsExcludedImportTypes": ["builtin"],
+				"pathGroupsExcludedImportTypes": [
+					"react", "react-icons/**", "next/**"
+				],
 				"alphabetize": {
 					"order": "asc",
 					"caseInsensitive": false
 				}
 			}
-		]
+		],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"no-multi-spaces": ["error", { "ignoreEOLComments": true }],
+		"no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1 }],
+		"quotes": ["error", "single"],
+		"semi": ["error", "always"],
+		"unused-imports/no-unused-imports": "error"
 	}
 }

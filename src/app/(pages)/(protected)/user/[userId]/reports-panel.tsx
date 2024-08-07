@@ -1,11 +1,14 @@
 
-import { Avatar, Button, Group, Select, SelectProps, Stack, Table, Text, Textarea } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { ReportReason, Report, User, UserRole, Status } from '@prisma/client';
 import Link from 'next/link';
+
 import { Fragment, startTransition, useEffect, useState } from 'react';
+
 import { FaArrowRight } from 'react-icons/fa';
 import { IoCloseOutline, IoCheckmark } from 'react-icons/io5';
+
+import { Avatar, Button, Group, Select, Stack, Table, Text, Textarea } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { UserRole, Status } from '@prisma/client';
 
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -14,6 +17,9 @@ import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradientDanger, gradientWarning, notify } from '~/lib/utils';
 import { getReportsReasons, reportSomeone, updateReportStatus } from '~/server/data/reports';
 import { getPublicUsers, updateUserRole } from '~/server/data/user';
+
+import type { SelectProps } from '@mantine/core';
+import type { ReportReason, Report, User } from '@prisma/client';
 import type { PublicUser } from '~/types';
 
 export function UserReportsPanel({ user, self, reports }: { user: User, reports: Report[], self: boolean }) {

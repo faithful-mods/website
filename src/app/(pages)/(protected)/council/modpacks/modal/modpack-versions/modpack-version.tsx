@@ -1,10 +1,9 @@
 'use client';
 
-import type { Modpack } from '@prisma/client';
+import { useState } from 'react';
 
 import { Button, Group, Table, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
 
 import { Modal } from '~/components/modal';
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -12,9 +11,11 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
 import { getModpackVersions } from '~/server/data/modpacks-version';
-import type { ModpackVersionWithMods } from '~/types';
 
 import { ModpackVersionModal } from './modpack-version-modal';
+
+import type { Modpack } from '@prisma/client';
+import type { ModpackVersionWithMods } from '~/types';
 
 export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);

@@ -1,17 +1,19 @@
 'use server';
 import 'server-only';
 
-import { Status, UserRole, type ModVersion, type Modpack } from '@prisma/client';
+import { Status, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import { socket } from '~/lib/serversocket';
 import { EMPTY_PROGRESSION_RES, sortBySemver } from '~/lib/utils';
-import type { ModVersionExtended, Progression, SocketModUpload } from '~/types';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
 import { extractModVersionsFromJAR } from '../actions/files';
+
+import type { ModVersion, Modpack } from '@prisma/client';
+import type { ModVersionExtended, Progression, SocketModUpload } from '~/types';
 
 // GET
 

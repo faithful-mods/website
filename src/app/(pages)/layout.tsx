@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 
 import { ColorSchemeScript, createTheme, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
@@ -7,6 +6,8 @@ import { SessionProvider } from 'next-auth/react';
 import { auth } from '~/auth';
 import { Navbar } from '~/components/navbar';
 import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
+
+import type { Metadata } from 'next';
 
 // Import styles of packages that you"ve installed.
 // All packages except `@mantine/hooks` require styles imports
@@ -24,7 +25,7 @@ const theme = createTheme({
 	cursorType: 'pointer',
 });
 
-export default async function RootLayout({children}: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const session = await auth();
 
 	return (

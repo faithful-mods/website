@@ -1,12 +1,14 @@
-import type { ModModalFormValues } from './mods-modal';
-import type { Mod } from '@prisma/client';
 
-import { Badge, FileInput, FileInputProps, Group, MultiSelect, Stack, TextInput, Text } from '@mantine/core';
-import { UseFormReturnType } from '@mantine/form';
+import { Badge, FileInput, Group, MultiSelect, Stack, TextInput, Text } from '@mantine/core';
 
 import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE, MODS_LOADERS } from '~/lib/constants';
+
+import type { ModModalFormValues } from './mods-modal';
+import type { FileInputProps } from '@mantine/core';
+import type { UseFormReturnType } from '@mantine/form';
+import type { Mod } from '@prisma/client';
 
 export interface ModModalGeneralProps {
 	form: UseFormReturnType<ModModalFormValues>;

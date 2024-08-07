@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
+
 import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
-import { CSSProperties, useEffect, useState } from 'react';
 
 import { useMCMETA } from '~/hooks/use-mcmeta';
-import { TextureMCMETA } from '~/types';
+
+import type { TextureMCMETA } from '~/types';
 
 interface TextureImageProps {
 	src: string;

@@ -1,6 +1,6 @@
-import type { MantineColor } from '@mantine/core';
-
 import { Resolution } from '@prisma/client';
+
+import type { MantineColor } from '@mantine/core';
 
 export const MAX_NAME_LENGTH = 32;
 export const MIN_NAME_LENGTH = 3;

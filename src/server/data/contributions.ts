@@ -3,23 +3,24 @@ import 'server-only';
 
 import {
 	Status,
-	type Contribution,
-	type Resolution,
+
 	UserRole,
 } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
-import {
+
+import { getCounselors } from './user';
+import { remove, upload } from '../actions/files';
+
+import type { Contribution, Resolution } from '@prisma/client';
+import type {
 	ContributionWithCoAuthors,
 	ContributionWithCoAuthorsAndFullPoll,
 	ContributionWithCoAuthorsAndPoll,
 	TextureMCMETA,
 } from '~/types';
-
-import { getCounselors } from './user';
-import { remove, upload } from '../actions/files';
 
 // GET
 
@@ -194,7 +195,6 @@ export async function submitContributions(ownerId: string, ids: string[]) {
 		data: { status: Status.PENDING },
 	});
 }
-
 
 export async function checkContributionStatus(contributionId: string) {
 	await canAccess(UserRole.COUNCIL);

@@ -1,15 +1,16 @@
 'use client';
 
-import type { Mod, Modpack } from '@prisma/client';
+import { useState, useTransition } from 'react';
 
 import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useState, useTransition } from 'react';
 
 import { TextureImage } from '~/components/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
 import { deleteModVersion, removeModpackFromModVersion, updateModVersion } from '~/server/data/mods-version';
+
+import type { Mod, Modpack } from '@prisma/client';
 import type { ModVersionExtended } from '~/types';
 
 export interface ModVersionModalFormValues {

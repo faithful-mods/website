@@ -1,8 +1,7 @@
-import type { Mod } from '@prisma/client';
+import { useState, useTransition } from 'react';
 
 import { Button, Group, Tabs } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useState, useTransition } from 'react';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -12,6 +11,8 @@ import { createMod, deleteMod, updateMod, updateModPicture } from '~/server/data
 
 import { ModVersions } from './mod-versions/mod-version';
 import { ModModalGeneral } from './mods-general';
+
+import type { Mod } from '@prisma/client';
 
 export interface ModModalFormValues {
 	authors: string;

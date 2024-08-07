@@ -1,13 +1,15 @@
 'use server';
 import 'server-only';
 
-import { ContributionDeactivation, Resolution, Texture, UserRole } from '@prisma/client';
+import { Resolution, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import type { ContributionActivationStatus, Progression, TextureMCMETA } from '~/types';
 
 import { remove } from '../actions/files';
+
+import type { ContributionDeactivation, Texture } from '@prisma/client';
+import type { ContributionActivationStatus, Progression, TextureMCMETA } from '~/types';
 
 // GET
 
@@ -20,7 +22,7 @@ export async function getTexture(id: string): Promise<Texture | null> {
 }
 
 export async function getRelatedTextures(id: string): Promise<Texture[]> {
-	return db.texture.findFirst({ where: { id }, include: { relations: true, relationOf: true }})
+	return db.texture.findFirst({ where: { id }, include: { relations: true, relationOf: true } })
 		.then((res) => [...(res?.relations ?? []), ...(res?.relationOf ?? [])])
 		.then((res) => {
 			return res.unique((t1, t2) => t1.id === t2.id);

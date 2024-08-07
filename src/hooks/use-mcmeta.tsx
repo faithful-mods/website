@@ -66,9 +66,9 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 			context.imageSmoothingEnabled = false;
 			context.drawImage(
 				image,
-				0,            image.width * frames[frame].index,
-				image.width,  image.width,
-				0,            0,
+				0, image.width * frames[frame].index,
+				image.width, image.width,
+				0, 0,
 				canvas.width, canvas.height
 			);
 
@@ -76,9 +76,9 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 				context.globalAlpha = ticks / frames[frame].duration;
 				context.drawImage(
 					image,
-					0,            image.width * frames[(frame + 1) % frames.length].index,
-					image.width,  image.width,
-					0,            0,
+					0, image.width * frames[(frame + 1) % frames.length].index,
+					image.width, image.width,
+					0, 0,
 					canvas.width,	canvas.height
 				);
 			}

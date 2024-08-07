@@ -5,7 +5,6 @@ import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-import { ModVersion } from '@prisma/client';
 import unzipper from 'unzipper';
 
 import { MODS_LOADERS } from '~/lib/constants';
@@ -13,12 +12,14 @@ import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
 import { socket } from '~/lib/serversocket';
 import { bufferToFile, extractSemver } from '~/lib/utils';
-import type { MCModInfo, MCModInfoData, SocketModUpload } from '~/types';
 
 import { createMod } from '../data/mods';
 import { createModVersion } from '../data/mods-version';
 import { linkTextureToResource, createResource, getResource } from '../data/resource';
 import { createTexture, findTexture } from '../data/texture';
+
+import type { ModVersion } from '@prisma/client';
+import type { MCModInfo, MCModInfoData, SocketModUpload } from '~/types';
 
 const FILE_DIR = process.env.NODE_ENV === 'production'
 	? 'https://data.faithfulmods.net'
@@ -41,7 +42,7 @@ export async function upload(file: File, path: `${string}/` = '/'): Promise<stri
 	const uuid = randomUUID();
 	const fileDirPub = join(FILE_DIR, path);
 	const fileDirPrv = join(FILE_PATH, path);
-	const filePath   = join(fileDirPrv, `${uuid}_${file.name}`);
+	const filePath = join(fileDirPrv, `${uuid}_${file.name}`);
 
 	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
 	writeFileSync(filePath, buffer);

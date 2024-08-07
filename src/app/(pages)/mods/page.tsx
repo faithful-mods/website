@@ -1,14 +1,16 @@
 'use client';
 
-import { ActionIcon, Badge, Button, Checkbox, Group, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
-import { Mod } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+
 import { useEffect, useMemo, useState } from 'react';
+
 import { HiDownload } from 'react-icons/hi';
 import { IoExtensionPuzzleOutline } from 'react-icons/io5';
 import { LuFilter } from 'react-icons/lu';
 import { SiMojangstudios } from 'react-icons/si';
 import { TfiWorld } from 'react-icons/tfi';
+
+import { ActionIcon, Badge, Button, Checkbox, Group, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
@@ -19,6 +21,8 @@ import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, MODS_LOADER
 import { gradientDanger, searchFilter, sortByName, sortBySemver } from '~/lib/utils';
 import { getModsWithVersions } from '~/server/data/mods';
 import { getSupportedMinecraftVersions } from '~/server/data/mods-version';
+
+import type { Mod } from '@prisma/client';
 
 import './mods.scss';
 import '~/lib/polyfills';

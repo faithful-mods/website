@@ -1,5 +1,6 @@
-import { Tabs } from '@mantine/core';
 import { usePathname, useRouter } from 'next/navigation';
+
+import { Tabs } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';

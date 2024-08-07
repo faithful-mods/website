@@ -1,10 +1,9 @@
 'use client';
 
-import type { Mod } from '@prisma/client';
+import { useState } from 'react';
 
 import { Group, Table, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
 
 import { Modal } from '~/components/modal';
 import { ModUpload } from '~/components/mods-upload';
@@ -13,9 +12,11 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { extractSemver, notify } from '~/lib/utils';
 import { getModVersionsWithModpacks, getNumberOfTextureFromModVersion } from '~/server/data/mods-version';
-import { ModVersionExtended } from '~/types';
 
 import { ModVersionModal } from './mod-version-modal';
+
+import type { Mod } from '@prisma/client';
+import type { ModVersionExtended } from '~/types';
 
 export function ModVersions({ mod }: { mod: Mod }) {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);

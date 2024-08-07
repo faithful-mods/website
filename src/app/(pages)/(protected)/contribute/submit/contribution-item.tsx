@@ -1,8 +1,11 @@
-import { Button, Code, CSSProperties, Group, Stack, Text } from '@mantine/core';
-import { Status } from '@prisma/client';
+
 import { useState } from 'react';
+
 import { LuArrowUpDown } from 'react-icons/lu';
 import { RxCross2 } from 'react-icons/rx';
+
+import { Button, Code, Group, Stack, Text } from '@mantine/core';
+import { Status } from '@prisma/client';
 
 import { TextureImage } from '~/components/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -11,6 +14,8 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { removeCoAuthor } from '~/server/data/contributions';
 import { getPollResult } from '~/server/data/polls';
+
+import type { CSSProperties } from '@mantine/core';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PollResults } from '~/types';
 
 export interface ContributionPanelItemProps {

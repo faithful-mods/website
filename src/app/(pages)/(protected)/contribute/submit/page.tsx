@@ -1,9 +1,10 @@
 'use client';
 
+import { useEffect, useState, useTransition } from 'react';
+
 import { Accordion, Badge, Code, Group, Select, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { Resolution, Status } from '@prisma/client';
-import { useEffect, useState, useTransition } from 'react';
 
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -12,11 +13,12 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger, gradientWarning, notify } from '~/lib/utils';
 import { createRawContributions, getCoSubmittedContributions, getDraftContributions, getSubmittedContributions } from '~/server/data/contributions';
-import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
 import { CoAuthorsSelector } from './co-authors-select';
 import { ContributionPanelItem } from './contribution-item';
 import { ContributionPanel } from './contribution-panel';
+
+import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
 const SubmitPage = () => {
 	const [isPending, startTransition] = useTransition();

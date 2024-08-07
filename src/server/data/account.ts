@@ -1,9 +1,9 @@
 'use server';
 import 'server-only';
 
-import { Account } from '@prisma/client';
-
 import { db } from '~/lib/db';
+
+import type { Account } from '@prisma/client';
 
 // GET
 

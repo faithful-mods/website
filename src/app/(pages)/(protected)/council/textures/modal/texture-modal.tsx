@@ -1,14 +1,17 @@
-import { Stack, Tabs } from '@mantine/core';
-import { Texture } from '@prisma/client';
+
 import { useState } from 'react';
 
+import { Stack, Tabs } from '@mantine/core';
+
 import { TextureImage } from '~/components/texture-img';
-import { TextureMCMETA } from '~/types';
 
 import { TextureGeneral } from './texture-general';
 import { TextureMCMETAEdition } from './texture-mcmeta';
 import { TextureRelations } from './texture-relations';
 import { TextureUses } from './texture-uses';
+
+import type{ Texture } from '@prisma/client';
+import type { TextureMCMETA } from '~/types';
 
 export interface TextureModalProps {
 	texture: Texture;

@@ -1,5 +1,6 @@
-import { Card, CardProps, PolymorphicComponentProps } from '@mantine/core';
+import { Card } from '@mantine/core';
 
+import type { CardProps, PolymorphicComponentProps } from '@mantine/core';
 
 interface TileProps {
 	shadowless?: boolean;

@@ -1,13 +1,14 @@
-import type { Modpack } from '@prisma/client';
 
-import { Group, FileInput, TextInput, Badge, Stack, Text, FileInputProps } from '@mantine/core';
-import { UseFormReturnType } from '@mantine/form';
+import { Group, FileInput, TextInput, Badge, Stack, Text } from '@mantine/core';
 
 import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
-import { ModpackModalFormValues } from './modpack-modal';
+import type { ModpackModalFormValues } from './modpack-modal';
+import type { FileInputProps } from '@mantine/core';
+import type { UseFormReturnType } from '@mantine/form';
+import type { Modpack } from '@prisma/client';
 
 export function ModpackModalGeneral({ previewImg, modpack, form }: { form: UseFormReturnType<ModpackModalFormValues>, previewImg: string, modpack: Modpack | undefined }) {
 	const [windowWidth] = useDeviceSize();

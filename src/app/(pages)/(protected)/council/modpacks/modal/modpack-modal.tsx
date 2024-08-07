@@ -1,7 +1,8 @@
+
+import { useState, useTransition } from 'react';
+
 import { Group, Button, Tabs } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { Modpack } from '@prisma/client';
-import { useState, useTransition } from 'react';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -11,6 +12,8 @@ import { createModpack, deleteModpack, updateModpack, updateModpackPicture } fro
 
 import { ModpackModalGeneral } from './modpack-general';
 import { ModpackVersions } from './modpack-versions/modpack-version';
+
+import type { Modpack } from '@prisma/client';
 
 export interface ModpackModalFormValues {
 	id: string;
