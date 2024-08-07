@@ -7,7 +7,8 @@ import { setServerSocket } from '~/lib/serversocket';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
-const port = 3000;
+const port = dev ? 3000 : 3264;
+
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
