@@ -1,10 +1,11 @@
 'use client';
 
+import { useTransition } from 'react';
+
 import { Button, Text, TextInput, Group, Stack, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { User, UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 import { useSession } from 'next-auth/react';
-import { useTransition } from 'react';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
@@ -12,6 +13,8 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
 import { updateUser } from '~/server/data/user';
+
+import type { User } from '@prisma/client';
 
 export function UserSettingsPanel({ user, self }: { user: User, self: boolean }) {
 	const { update } = useSession();

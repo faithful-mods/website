@@ -1,11 +1,10 @@
 'use client';
 
-import { ActionIcon, Avatar, Badge, Button, Divider, Group, Image, Menu } from '@mantine/core';
-import { UserRole } from '@prisma/client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+
 import { useState } from 'react';
+
 import { FaHome } from 'react-icons/fa';
 import { GoLaw } from 'react-icons/go';
 import { GrGallery } from 'react-icons/gr';
@@ -15,6 +14,10 @@ import { IoLogOut } from 'react-icons/io5';
 import { MdDashboard } from 'react-icons/md';
 import { TbPackage, TbPackages } from 'react-icons/tb';
 
+import { ActionIcon, Avatar, Badge, Button, Divider, Group, Image, Menu } from '@mantine/core';
+import { UserRole } from '@prisma/client';
+import { signOut } from 'next-auth/react';
+
 import { GitHubLogin } from '~/components/github-login';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -23,7 +26,6 @@ import { gradient } from '~/lib/utils';
 
 import { ThemeSwitch } from './theme-switch';
 import { Tile } from './tile';
-
 
 export const Navbar = () => {
 	const pathname = usePathname();

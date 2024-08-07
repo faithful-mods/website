@@ -1,11 +1,14 @@
+import { useState, useTransition } from 'react';
+
 import { Stack, Switch, TextInput, Text, Textarea, Button, Group } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { Resolution, Texture } from '@prisma/client';
-import { useState, useTransition } from 'react';
+import { Resolution } from '@prisma/client';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { gradient } from '~/lib/utils';
 import { getTextureStatus, updateTexture } from '~/server/data/texture';
+
+import type { Texture } from '@prisma/client';
 import type { ContributionActivationStatus } from '~/types';
 
 export interface TextureGeneralProps {
@@ -89,7 +92,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 					checked={contributionsStatus.find((s) => s.resolution === null)?.status}
 					onChange={() => {
 						const general = contributionsStatus.find((s) => s.resolution === null)!;
-						setContributionsStatus([...contributionsStatus.filter((s) => s.resolution !== null), { resolution: null, status: !general.status}]);
+						setContributionsStatus([...contributionsStatus.filter((s) => s.resolution !== null), { resolution: null, status: !general.status }]);
 					}}
 				/>
 
@@ -104,7 +107,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 						checked={contributionsStatus.find((s) => s.resolution === res)?.status}
 						onChange={() => {
 							const perRes = contributionsStatus.find((s) => s.resolution === res)!;
-							setContributionsStatus([...contributionsStatus.filter((s) => s.resolution !== res), { resolution: res, status: !perRes.status}]);
+							setContributionsStatus([...contributionsStatus.filter((s) => s.resolution !== res), { resolution: res, status: !perRes.status }]);
 						}}
 					/>
 				)}

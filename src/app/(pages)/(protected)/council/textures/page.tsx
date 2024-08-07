@@ -1,9 +1,9 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
+
 import { Badge, Group, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Texture } from '@prisma/client';
-import { useEffect, useMemo, useState } from 'react';
 
 import { Modal } from '~/components/modal';
 import { TextureImage } from '~/components/texture-img';
@@ -17,6 +17,8 @@ import { getTexture, getTextures } from '~/server/data/texture';
 
 import { TextureModal } from './modal/texture-modal';
 
+import type { Texture } from '@prisma/client';
+
 import './page.scss';
 
 const CouncilTexturesPage = () => {
@@ -24,7 +26,7 @@ const CouncilTexturesPage = () => {
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
-	const itemsPerRow =  windowWidth <= BREAKPOINT_MOBILE_LARGE
+	const itemsPerRow = windowWidth <= BREAKPOINT_MOBILE_LARGE
 		? 1
 		: windowWidth <= BREAKPOINT_TABLET
 			? 2

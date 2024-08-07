@@ -1,11 +1,14 @@
 'use client';
 
+import Link from 'next/link';
+
+import { useState } from 'react';
+
+import { FaArrowRight } from 'react-icons/fa';
+
 import { Avatar, Badge, Button, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { UserRole } from '@prisma/client';
-import Link from 'next/link';
-import { useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa';
 
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -13,7 +16,8 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { MINIMUM_CARD_WIDTH } from '~/lib/constants';
 import { gradient, notify } from '~/lib/utils';
 import { getUsers, updateUserRole } from '~/server/data/user';
-import { UserWithReports } from '~/types';
+
+import type { UserWithReports } from '~/types';
 
 const UsersPanel = () => {
 	const [users, setUsers] = useState<UserWithReports[] | undefined>();

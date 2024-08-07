@@ -1,8 +1,8 @@
 'use client';
 
-import { Accordion, Badge, Stack, Text } from '@mantine/core';
-import { Texture } from '@prisma/client';
 import { useState } from 'react';
+
+import { Accordion, Badge, Stack, Text } from '@mantine/core';
 
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -10,9 +10,11 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { getPendingContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
 import { getCounselors } from '~/server/data/user';
-import { ContributionWithCoAuthorsAndFullPoll, PublicUser } from '~/types';
 
 import { CouncilContributionItem } from './contribution-item';
+
+import type { Texture } from '@prisma/client';
+import type { ContributionWithCoAuthorsAndFullPoll, PublicUser } from '~/types';
 
 const CouncilContributionsPanel = () => {
 	const [textures, setTextures] = useState<Texture[]>([]);

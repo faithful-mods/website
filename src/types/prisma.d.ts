@@ -1,4 +1,4 @@
-import { TextureMCMETA } from '.';
+import type { TextureMCMETA } from '.';
 
 declare global {
 	namespace PrismaJson {

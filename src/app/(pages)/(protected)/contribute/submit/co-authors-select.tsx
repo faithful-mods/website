@@ -1,11 +1,14 @@
-import { Avatar, Group, MultiSelect, type MultiSelectProps, Text } from '@mantine/core';
 import { useState } from 'react';
 
-import type { useCurrentUser } from '~/hooks/use-current-user';
+import { Avatar, Group, MultiSelect, Text } from '@mantine/core';
+
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { notify } from '~/lib/utils';
 import { getPublicUsers } from '~/server/data/user';
-import { PublicUser } from '~/types';
+
+import type { MultiSelectProps } from '@mantine/core';
+import type { useCurrentUser } from '~/hooks/use-current-user';
+import type { PublicUser } from '~/types';
 
 /**
  * Select co-authors for a contribution.
@@ -16,9 +19,9 @@ export interface CoAuthorsSelectorProps extends MultiSelectProps {
 	onCoAuthorsSelect: (coAuthors: PublicUser[]) => void;
 }
 
-export function CoAuthorsSelector({ author, onCoAuthorsSelect, ...props}: CoAuthorsSelectorProps) {
+export function CoAuthorsSelector({ author, onCoAuthorsSelect, ...props }: CoAuthorsSelectorProps) {
 	const [users, setUsers] = useState<PublicUser[]>([]);
-	
+
 	useEffectOnce(() => {
 		getPublicUsers()
 			.then(setUsers)
@@ -27,7 +30,7 @@ export function CoAuthorsSelector({ author, onCoAuthorsSelect, ...props}: CoAuth
 				notify('Error', 'Failed to fetch users', 'red');
 			});
 	});
-	
+
 	const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({ option }) => {
 		const user = users.find((u) => u.id === option.value)!;
 
@@ -41,9 +44,9 @@ export function CoAuthorsSelector({ author, onCoAuthorsSelect, ...props}: CoAuth
 			</Group>
 		);
 	};
-	
+
 	return (
-		<MultiSelect 
+		<MultiSelect
 			limit={10}
 			label="Co-authors"
 			placeholder="Select or search co-authors..."

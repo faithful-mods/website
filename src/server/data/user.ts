@@ -1,10 +1,12 @@
 'use server';
 import 'server-only';
 
-import { User, UserRole } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
+
+import type { User } from '@prisma/client';
 import type { PublicUser, UserWithReports } from '~/types';
 
 // GET
@@ -15,7 +17,7 @@ import type { PublicUser, UserWithReports } from '~/types';
  */
 export async function getUsers(): Promise<UserWithReports[]> {
 	await canAccess();
-	return db.user.findMany({ include: { reports: true }});
+	return db.user.findMany({ include: { reports: true } });
 }
 
 export async function getPublicUsers(): Promise<PublicUser[]> {

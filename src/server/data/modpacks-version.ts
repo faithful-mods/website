@@ -6,9 +6,10 @@ import { UserRole } from '@prisma/client';
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 import { socket } from '~/lib/serversocket';
-import type { ModpackVersionWithMods, SocketModUpload } from '~/types';
 
 import { extractModVersionsFromJAR } from '../actions/files';
+
+import type { ModpackVersionWithMods, SocketModUpload } from '~/types';
 
 // GET
 

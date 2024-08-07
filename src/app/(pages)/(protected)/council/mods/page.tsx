@@ -1,9 +1,10 @@
 'use client';
 
+import { useEffect, useMemo, useState, useTransition } from 'react';
+
 import { Badge, Button, Group, Pagination, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { UserRole, Mod } from '@prisma/client';
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { UserRole } from '@prisma/client';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
@@ -18,6 +19,8 @@ import { gradientDanger, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
+
+import type { Mod } from '@prisma/client';
 
 type ModWVer = Mod & { unknownVersion: boolean };
 
@@ -88,7 +91,7 @@ const ModsPanel = () => {
 	};
 
 	const handleModalClose = async (editedMod: Mod | string) => {
-		const newMod = (typeof editedMod === 'string') ? null : {...editedMod, unknownVersion: await modHasUnknownVersion(editedMod.id) };
+		const newMod = (typeof editedMod === 'string') ? null : { ...editedMod, unknownVersion: await modHasUnknownVersion(editedMod.id) };
 		const newMods = mods.filter((mod) => mod.id !== (typeof editedMod === 'string' ? editedMod : editedMod?.id));
 
 		if (newMod) newMods.push(newMod);

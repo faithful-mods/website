@@ -1,12 +1,14 @@
 'use server';
 import 'server-only';
 
-import { UserRole, type Resource } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 
 import { deleteTexture } from './texture';
+
+import type { Resource } from '@prisma/client';
 
 // GET
 

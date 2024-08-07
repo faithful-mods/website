@@ -1,13 +1,16 @@
 'use client';
 
-import { Accordion, Button, Group, Progress, Stack, Text, Title, Tooltip } from '@mantine/core';
-import { Mod, ModVersion, Resolution } from '@prisma/client';
 import { useParams } from 'next/navigation';
+
 import { useMemo, useState } from 'react';
+
 import { GrGallery } from 'react-icons/gr';
 import { HiDownload } from 'react-icons/hi';
 import { IoExtensionPuzzleOutline } from 'react-icons/io5';
 import { TfiWorld } from 'react-icons/tfi';
+
+import { Accordion, Button, Group, Progress, Stack, Text, Title, Tooltip } from '@mantine/core';
+import { Resolution } from '@prisma/client';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
@@ -17,7 +20,9 @@ import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, RESOLUTIONS_COLORS } from '
 import { EMPTY_PROGRESSION } from '~/lib/utils';
 import { getModWithModVersions } from '~/server/data/mods';
 import { getModVersionProgression } from '~/server/data/mods-version';
-import { Progression } from '~/types';
+
+import type { Mod, ModVersion } from '@prisma/client';
+import type { Progression } from '~/types';
 
 export default function ModPage() {
 	const modId = useParams().modId as string;

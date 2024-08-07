@@ -1,12 +1,14 @@
 'use server';
 import 'server-only';
 
-import { UserRole, type Modpack } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 
 import { remove, upload } from '../actions/files';
+
+import type { Modpack } from '@prisma/client';
 
 // GET
 

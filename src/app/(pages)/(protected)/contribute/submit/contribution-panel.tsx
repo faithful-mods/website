@@ -1,7 +1,8 @@
+import { startTransition, useMemo, useState } from 'react';
+
 import { Button, Divider, Group, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { ContributionDeactivation, Status, Texture } from '@prisma/client';
-import { startTransition, useMemo, useState } from 'react';
+import { Status } from '@prisma/client';
 
 import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -11,10 +12,12 @@ import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, notify, sortByName } from '~/lib/utils';
 import { submitContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
-import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll } from '~/types';
 
 import { ContributionPanelItem } from './contribution-item';
 import { ContributionModal } from './drafts-modal';
+
+import type { ContributionDeactivation, Texture } from '@prisma/client';
+import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll } from '~/types';
 
 export interface ContributionPanelProps {
 	drafts: ContributionWithCoAuthors[];

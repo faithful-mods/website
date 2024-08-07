@@ -1,12 +1,12 @@
 'use server';
 import 'server-only';
 
-
 import { Status, UserRole } from '@prisma/client';
 
 import { auth } from '~/auth';
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
+
 import type { ReportWithReporter } from '~/types';
 
 // GET
@@ -32,7 +32,7 @@ export async function getReportsOfUser(userId: string): Promise<ReportWithReport
 }
 
 export async function getReportsReasons() {
-	return db.reportReason.findMany({ include: { Report: { select: { reason: true  } } } });
+	return db.reportReason.findMany({ include: { Report: { select: { reason: true } } } });
 }
 
 // POST

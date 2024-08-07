@@ -1,12 +1,14 @@
-import { MantineColor, MantineGradient } from '@mantine/core';
+
 import { showNotification } from '@mantine/notifications';
 import { Resolution } from '@prisma/client';
-import { type ClassValue, clsx } from 'clsx';
+import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-import { Progression } from '~/types';
-
 import { NOTIFICATIONS_DURATION_MS } from './constants';
+
+import type { MantineColor, MantineGradient } from '@mantine/core';
+import type { ClassValue } from 'clsx';
+import type { Progression } from '~/types';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

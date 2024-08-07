@@ -1,13 +1,15 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import { Code, Group, InputLabel, Progress, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
-import { useEffect, useState } from 'react';
 
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useWebsocket } from '~/hooks/use-websocket';
 import { addModVersionsFromJAR } from '~/server/data/mods-version';
-import { SocketModUpload } from '~/types';
+
+import type { SocketModUpload } from '~/types';
 
 interface ModUploadProps {
 	onUpload: () => void;

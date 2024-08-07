@@ -1,10 +1,10 @@
 'use client';
 
+import { useEffect, useState, useTransition } from 'react';
+
 import { Button, Code, Group, Progress, Stack, Text, TextInput } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
-import { Mod, ModVersion, Modpack } from '@prisma/client';
-import { useEffect, useState, useTransition } from 'react';
 
 import { TextureImage } from '~/components/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -15,6 +15,8 @@ import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger, sortByName } from '~/lib/utils';
 import { createModpackVersion, deleteModpackVersion, updateModpackVersion, addModsToModpackVersion, removeModFromModpackVersion } from '~/server/data/modpacks-version';
 import { getModsFromIds } from '~/server/data/mods';
+
+import type { Mod, ModVersion, Modpack } from '@prisma/client';
 import type { ModpackVersionWithMods, SocketModUpload } from '~/types';
 
 export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modpack: Modpack, modpackVersion?: ModpackVersionWithMods, onClose: () => void }) {

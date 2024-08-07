@@ -1,6 +1,6 @@
-import type { NextAuthConfig } from 'next-auth';
-
 import Github from 'next-auth/providers/github';
+
+import type { NextAuthConfig } from 'next-auth';
 
 /**
  * For callback URLs: http://localhost:3000/api/auth/providers

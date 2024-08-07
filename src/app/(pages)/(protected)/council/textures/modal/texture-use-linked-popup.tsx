@@ -1,7 +1,9 @@
-import { Group, Text, TextInput, Select, Button, Stack } from '@mantine/core';
-import { Mod, ModVersion, Resource } from '@prisma/client';
+
 import Link from 'next/link';
+
 import { useEffect, useState } from 'react';
+
+import { Group, Text, TextInput, Select, Button, Stack } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -10,6 +12,8 @@ import { gradient } from '~/lib/utils';
 import { getModsWithVersions } from '~/server/data/mods';
 import { getModVersions } from '~/server/data/mods-version';
 import { getResources, linkTextureToResource } from '~/server/data/resource';
+
+import type { Mod, ModVersion, Resource } from '@prisma/client';
 
 interface TextureUsesLinkedPopupProps {
 	onUpdate: () => void;

@@ -1,7 +1,9 @@
-import { Badge, Group, Image, Stack, Text } from '@mantine/core';
-import { Texture } from '@prisma/client';
+
 import { useTransition } from 'react';
+
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from 'react-icons/lu';
+
+import { Badge, Group, Image, Stack, Text } from '@mantine/core';
 
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -9,8 +11,9 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { checkContributionStatus } from '~/server/data/contributions';
 import { editPollChoice } from '~/server/data/polls';
-import type { PublicUser, ContributionWithCoAuthorsAndFullPoll } from '~/types';
 
+import type { Texture } from '@prisma/client';
+import type { PublicUser, ContributionWithCoAuthorsAndFullPoll } from '~/types';
 
 export interface CouncilContributionItemProps {
 	counselors: PublicUser[];

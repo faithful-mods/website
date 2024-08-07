@@ -1,5 +1,6 @@
-import { Button, Group, Image, Stack, Text } from '@mantine/core';
 import { TiWarning } from 'react-icons/ti';
+
+import { Button, Group, Image, Stack, Text } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';

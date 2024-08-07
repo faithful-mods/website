@@ -1,7 +1,8 @@
 'use client';
 
-import { Button, Badge, Text, Checkbox } from '@mantine/core';
 import { useEffect, useState } from 'react';
+
+import { Button, Badge, Text, Checkbox } from '@mantine/core';
 
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';

@@ -1,11 +1,13 @@
 'use client';
 
-import { Button, Group, JsonInput, Stack } from '@mantine/core';
-import { Texture } from '@prisma/client';
 import { useEffect, useState } from 'react';
+
+import { Button, Group, JsonInput, Stack } from '@mantine/core';
 
 import { gradient, gradientDanger } from '~/lib/utils';
 import { updateMCMETA } from '~/server/data/texture';
+
+import type { Texture } from '@prisma/client';
 import type { TextureMCMETA } from '~/types';
 
 export interface TextureUsesProps {

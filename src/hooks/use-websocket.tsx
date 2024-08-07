@@ -47,4 +47,3 @@ export function useWebsocket(watchers: [string, (args: any) => void][]) {
 	};
 }
 
-
