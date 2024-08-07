@@ -66,17 +66,17 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 			context.imageSmoothingEnabled = false;
 			context.drawImage(
 				image,
-				0, image.width * frames[frame].index,
+				0, image.width * (frames[frame]?.index ?? 1),
 				image.width, image.width,
 				0, 0,
 				canvas.width, canvas.height
 			);
 
 			if (mcmeta?.animation?.interpolate) {
-				context.globalAlpha = ticks / frames[frame].duration;
+				context.globalAlpha = ticks / (frames[frame]?.duration ?? 1);
 				context.drawImage(
 					image,
-					0, image.width * frames[(frame + 1) % frames.length].index,
+					0, image.width * (frames[(frame + 1) % frames.length]?.index ?? 1),
 					image.width, image.width,
 					0, 0,
 					canvas.width,	canvas.height
@@ -93,7 +93,7 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 						: tick;
 
 				for (let e = 0; e < mcmeta?.animation.frames.length; e++) {
-					const a = mcmeta?.animation.frames[e];
+					const a = mcmeta?.animation.frames[e]!;
 
 					if (typeof a === 'object')
 						frames.push({
@@ -124,7 +124,7 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 				canvas.width = canvas.offsetWidth;
 				canvas.height = canvas.offsetWidth;
 
-				if (frames[currentFrame].duration <= ticks) {
+				if (frames[currentFrame]!.duration <= ticks) {
 					ticks = 0;
 					currentFrame++;
 					if (currentFrame >= frames.length) currentFrame = 0;

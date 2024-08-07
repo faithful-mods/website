@@ -216,8 +216,8 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 
 	// Check if the extracted file already exists in the public dir
 	for (const textureAsset of textureAssets) {
-		const textureName = textureAsset.path.split('/').pop()!.split('.')[0];
-		const asset = textureAsset.path.split('/')[1];
+		const textureName = textureAsset.path.split('/').pop()!.split('.')[0] ?? 'unknown';
+		const asset = textureAsset.path.split('/')[1] ?? 'unknown';
 
 		const buffer = await textureAsset.buffer();
 		const hash = calculateHash(buffer);

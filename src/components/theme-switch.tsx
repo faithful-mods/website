@@ -29,7 +29,7 @@ export const ThemeSwitch = () => {
 	};
 
 	const toggleColorScheme = () => {
-		const newColorScheme = colorSchemes[(colorSchemes.indexOf(colorScheme) + 1) % colorSchemes.length];
+		const newColorScheme = colorSchemes[(colorSchemes.indexOf(colorScheme) + 1) % colorSchemes.length]!;
 		setColorScheme(newColorScheme);
 		setIconFromStr(newColorScheme);
 	};

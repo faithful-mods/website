@@ -141,7 +141,7 @@ const CouncilTexturesPage = () => {
 					/>
 				</Group>
 				<Group wrap="wrap">
-					{texturesShown[activePage - 1] && texturesShown[activePage - 1].map((t) => (
+					{texturesShown[activePage - 1] && texturesShown[activePage - 1]?.map((t) => (
 						<Group
 							key={t.id}
 							align="start"

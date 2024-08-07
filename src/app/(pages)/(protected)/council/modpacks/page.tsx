@@ -36,7 +36,7 @@ const ModpacksPanel = () => {
 
 	const [modpacksShown, setModpacksShown] = useState<Modpack[][]>([[]]);
 	const [activePage, setActivePage] = useState(1);
-	const [modpacksShownPerPage, setModpacksShownPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [modpacksShownPerPage, setModpacksShownPerPage] = useState<string | null>(itemsPerPage[0] ?? null);
 
 	const prevSearchedModpacks = usePrevious(searchedModpacks);
 
@@ -160,7 +160,7 @@ const ModpacksPanel = () => {
 
 				{searchedModpacks.length > 0 && (
 					<Group mt="md" align="start">
-						{modpacksShown[activePage - 1] && modpacksShown[activePage - 1].map((modpack, index) => (
+						{modpacksShown[activePage - 1] && modpacksShown[activePage - 1]?.map((modpack, index) => (
 							<DashboardItem
 								key={index}
 								image={modpack.image}

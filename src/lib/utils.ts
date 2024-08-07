@@ -101,10 +101,11 @@ export function sortBySemver(a: string, b: string) {
 	}
 
 	const upper = Math.min(aSplit.length, bSplit.length);
+
 	let i = 0;
 	let result = 0;
 	while (i < upper && result == 0) {
-		result = aSplit[i] == bSplit[i] ? 0 : aSplit[i] < bSplit[i] ? -1 : 1; // each number
+		result = aSplit[i] == bSplit[i] ? 0 : aSplit[i]! < bSplit[i]! ? -1 : 1; // each number
 		++i;
 	}
 
