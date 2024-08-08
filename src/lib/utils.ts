@@ -4,7 +4,7 @@ import { Resolution } from '@prisma/client';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-import { NOTIFICATIONS_DURATION_MS } from './constants';
+import { NOTIFICATIONS_DURATION_MS, PACK_FORMAT_VERSIONS } from './constants';
 
 import type { MantineColor, MantineGradient } from '@mantine/core';
 import type { ClassValue } from 'clsx';
@@ -114,4 +114,29 @@ export function sortBySemver(a: string, b: string) {
 	result = aSplit.length == bSplit.length ? 0 : aSplit.length < bSplit.length ? -1 : 1; // longer length wins
 
 	return result;
+}
+
+/**
+ * Get the pack format version for a given minecraft version
+ *
+ * @param minecraftVersion the minecraft version to get the pack format version for (e.g. '1.17.1')
+ * @returns the pack format version or null if not found
+ */
+export function getPackFormatVersion(minecraftVersion: string): number | null {
+	const compareVersions = (a: string, b: string) => {
+		const [majorA, minorA, patchA] = a.split('.').map((s) => parseInt(s, 10)) as [number, number, number?];
+		const [majorB, minorB, patchB] = b.split('.').map((s) => parseInt(s, 10)) as [number, number, number?];
+
+		if (majorA !== majorB) return majorA - majorB;
+		if (minorA !== minorB) return minorA - minorB;
+		return (patchA ?? 0) - (patchB ?? 0);
+	};
+
+	for (const [packFormat, { min, max }] of Object.entries(PACK_FORMAT_VERSIONS)) {
+		if (compareVersions(min, minecraftVersion) <= 0 && compareVersions(max, minecraftVersion) >= 0) {
+			return parseInt(packFormat);
+		}
+	}
+
+	return null;
 }

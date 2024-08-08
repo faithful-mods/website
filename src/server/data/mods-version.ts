@@ -40,6 +40,10 @@ export async function getModVersionsWithModpacks(modId: string): Promise<ModVers
 	return res;
 }
 
+export async function getModVersionFromMod(modId: string): Promise<ModVersion[]> {
+	return db.modVersion.findMany({ where: { modId } });
+}
+
 export async function getModVersions(): Promise<ModVersion[]> {
 	return db.modVersion.findMany();
 }
@@ -61,6 +65,19 @@ export async function getModsVersionsFromResources(resourceIds: string[]): Promi
 			include: { resources: { select: { id: true } } },
 		})
 		.then((res) => res.map((modVer) => ({ ...modVer, resources: modVer.resources.map((r) => r.id) })));
+}
+
+export async function getModVersionProgressionFromMod(modId: string): Promise<Record<string, Progression>> {
+	const modVersions = await db.modVersion.findMany({ where: { modId }, select: { id: true } });
+	const modVersionsIds = modVersions.map((mv) => mv.id);
+
+	const progressions: Record<string, Progression> = {};
+
+	for (const modVersionId of modVersionsIds) {
+		progressions[modVersionId] = (await getModVersionProgression(modVersionId))!;
+	}
+
+	return progressions;
 }
 
 export async function getModVersionProgression(modVersionId: string): Promise<Progression | null> {

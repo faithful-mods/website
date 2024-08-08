@@ -233,8 +233,6 @@ model Contribution {
   filename String
   hash     String @unique
 
-  date DateTime @default(now())
-
   ownerId   String
   owner     User   @relation(fields: [ownerId], references: [id])
   coAuthors User[] @relation("contributions_to_coauthors")

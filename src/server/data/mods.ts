@@ -10,7 +10,6 @@ import { extractSemver } from '~/lib/utils';
 import { deleteModVersion } from './mods-version';
 import { remove, upload } from '../actions/files';
 
-import type { ModVersion } from '@prisma/client';
 import type { Mod } from '@prisma/client';
 
 // GET
@@ -42,10 +41,6 @@ export async function getModsWithVersions(): Promise<(Mod & { versions: string[]
 				return { ...mod, versions: mod.versions.map((v) => v.mcVersion).flat() };
 			})
 		);
-}
-
-export async function getModWithModVersions(id: string): Promise<(Mod & { versions: ModVersion[] }) | null> {
-	return db.mod.findUnique({ where: { id }, include: { versions: { orderBy: { createdAt: 'desc' } } } });
 }
 
 export async function modHasUnknownVersion(id: string): Promise<boolean> {
