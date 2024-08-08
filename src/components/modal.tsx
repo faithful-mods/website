@@ -6,7 +6,7 @@ import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 interface ModalProps {
 	opened: boolean;
 	onClose: () => void;
-	title: React.ReactNode;
+	title?: React.ReactNode;
 	popup?: boolean;
 	forceFullScreen?: boolean;
 

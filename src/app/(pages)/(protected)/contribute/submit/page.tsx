@@ -114,6 +114,7 @@ const SubmitPage = () => {
 						<CoAuthorsSelector
 							author={user}
 							onCoAuthorsSelect={setSelectedCoAuthors}
+							mb={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : '0'}
 							style={windowWidth <= BREAKPOINT_MOBILE_LARGE
 								? { width: '100%' }
 								: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }

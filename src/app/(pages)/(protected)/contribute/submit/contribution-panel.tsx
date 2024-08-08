@@ -11,13 +11,13 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
 import { submitContributions } from '~/server/data/contributions';
-import { getTextures } from '~/server/data/texture';
+import { getTexturesWithUsePaths } from '~/server/data/texture';
 
 import { ContributionPanelItem } from './contribution-item';
+import { ContributionModal } from './contribution-modal';
 import { ContributionDeleteModal } from './delete-modal';
-import { ContributionModal } from './drafts-modal';
 
-import type { ContributionDeactivation, Texture } from '@prisma/client';
+import type { GetTexturesWithUsePaths } from '~/server/data/texture';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll } from '~/types';
 
 export interface ContributionPanelProps {
@@ -33,7 +33,7 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 
 	const [isModalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 	const [modalContribution, setModalContribution] = useState<ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll | null>(null);
-	const [textures, setTextures] = useState<(Texture & { disabledContributions: ContributionDeactivation[] })[]>([]);
+	const [textures, setTextures] = useState<GetTexturesWithUsePaths[]>([]);
 
 	const [isHoveringSubmit, setHoveringSubmit] = useState(false);
 
@@ -91,7 +91,7 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 	}, [isDeletionMode]);
 
 	useEffectOnce(() => {
-		getTextures()
+		getTexturesWithUsePaths()
 			.then((res)=> {
 				const sorted = res.sort(sortByName);
 				setTextures(sorted);
@@ -124,7 +124,6 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 				forceFullScreen
 				opened={isModalOpened}
 				onClose={closeModal}
-				title="Edit Contribution"
 			>
 				{modalContribution &&
 					<ContributionModal

@@ -17,6 +17,15 @@ export async function getTextures(): Promise<(Texture & { disabledContributions:
 	return db.texture.findMany({ include: { disabledContributions: true } });
 }
 
+export type GetTexturesWithUsePaths = Texture & {
+	disabledContributions: ContributionDeactivation[];
+	linkedTextures: { assetPath: string }[];
+};
+
+export async function getTexturesWithUsePaths(): Promise<GetTexturesWithUsePaths[]> {
+	return db.texture.findMany({ include: { disabledContributions: true, linkedTextures: { select: { assetPath: true } } } });
+}
+
 export async function getTexture(id: string): Promise<Texture | null> {
 	return db.texture.findUnique({ where: { id } });
 }
