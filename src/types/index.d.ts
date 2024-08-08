@@ -145,6 +145,68 @@ export type MCModInfoData = MCModInfo[] | {
 	modList: MCModInfo[];
 }
 
+export interface ModFabricJsonContact {
+	email?: string;
+	irc?: string;
+	homepage?: string;
+	issues?: string;
+	sources?: string;
+	[key: string]: string | undefined;
+}
+
+export type ModFabricJsonPerson = string | {
+	name: string;
+	contact?: ModFabricJsonContact;
+}
+
+/**
+ * @see https://fabricmc.net/wiki/documentation:fabric_mod_json
+ */
+export interface ModFabricJson {
+	// mandatory fields
+	schemaVersion: 1;
+	id: string;
+	version: string;
+
+	// optional fields
+	// > mod loading
+	provides?: string[];
+	environment?: 'client' | 'server' | '*';
+	entrypoints?: {
+		main?: string[];
+		client?: string[];
+		server?: string[];
+		[key: string]: string[] | undefined;
+	};
+	jars?: {
+		file: string;
+	};
+	languageAdapters?: {
+		[key: string]: string;
+	};
+	mixins?: (string | { config: string, environment: 'client' | 'server' | '*' })[];
+	// > dependency resolution
+	depends?: { [key: string]: string | string[]; };
+	recommends?: { [key: string]: string | string[]; };
+	suggests?: { [key: string]: string | string[]; };
+	breaks?: { [key: string]: string | string[]; };
+	conflicts?: { [key: string]: string | string[]; };
+	// > metadata
+	name?: string;
+	description?: string;
+	contact?: ModFabricJsonContact;
+	authors?: ModFabricJsonPerson[];
+	contributors?: ModFabricJsonPerson[];
+	license?: string | string[];
+	icon?: string | { [key: string]: string };
+
+	// custom fields
+	[key: string]: unknown;
+}
+
+/**
+ * @see https://forge.gemwire.uk/wiki/Mods.toml
+ */
 export interface ModsToml {
 	modLoader: string;
 	loaderVersion: string;
