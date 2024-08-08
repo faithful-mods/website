@@ -10,6 +10,7 @@ import type {
 	Resource,
 	User,
 } from '@prisma/client';
+import type { ModLoaders } from '~/lib/constants';
 
 export type Prettify<T> = {
 	[K in keyof T]: T[K];
@@ -127,9 +128,55 @@ export type ModVersionWithProgression = Prettify<ModVersion & Progression & {
 	resources: ResourceWithProgression[];
 }>;
 
+export interface ModData {
+	name: string;
+	description?: string;
+	authors: string[];
+	modId: string;
+	mcVersion: string[];
+	version: string;
+	loaders: ModLoaders[];
+	url?: string;
+	picture?: Buffer;
+}
+
 export type MCModInfoData = MCModInfo[] | {
 	modListVersion: number;
 	modList: MCModInfo[];
+}
+
+export interface ModsToml {
+	modLoader: string;
+	loaderVersion: string;
+	license: string;
+	showAsResourcePack?: boolean;
+	properties?: object;
+	logoFile?: string;
+	issueTrackerURL?: string;
+	mods: Array<{
+		modId: string;
+		namespace?: string;
+		version?: string;
+		displayName?: string;
+		description?: string;
+		logoFile?: string;
+		logoBlur?: boolean;
+		updateJSONURL?: string;
+		modproperties?: object;
+		credits?: string;
+		authors?: string;
+		displayURL?: string;
+		displayTest?: string;
+	}>
+	dependencies: {
+		[modId: string]: {
+			modId: string;
+			mandatory: boolean;
+			versionRange: string;
+			ordering: 'BEFORE' | 'AFTER' | 'NONE';
+			side: 'CLIENT' | 'SERVER' | 'BOTH';
+		}
+	}
 }
 
 /**
