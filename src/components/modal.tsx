@@ -21,7 +21,7 @@ export function Modal({ opened, onClose, title, children, popup, forceFullScreen
 			opened={opened}
 			onClose={onClose}
 			title={<Title order={4} component="span">{title}</Title>}
-			size="100%"
+			size={popup ? 'auto': '100%'}
 			centered
 			trapFocus
 			closeOnClickOutside={false}
