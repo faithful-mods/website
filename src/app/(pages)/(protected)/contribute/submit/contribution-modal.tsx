@@ -3,7 +3,7 @@ import { useMemo, useRef, useState, useTransition } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { PiMagicWandBold } from 'react-icons/pi';
 
-import { Button, Container, Divider, Group, JsonInput, Select, Stack, Text, Title } from '@mantine/core';
+import { Button, Code, Container, Divider, Group, JsonInput, Select, Stack, Text, Title } from '@mantine/core';
 import { Resolution } from '@prisma/client';
 
 import { TextureImage } from '~/components/texture-img';
@@ -18,13 +18,13 @@ import { getContributionsOfTexture, updateDraftContribution } from '~/server/dat
 import { CoAuthorsSelector } from './co-authors-select';
 
 import type { MultiSelectProps } from '@mantine/core';
-import type { ContributionDeactivation } from '@prisma/client';
 import type { Texture } from '@prisma/client';
+import type { GetTexturesWithUsePaths } from '~/server/data/texture';
 import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
 
 export interface ContributionModalProps {
 	contribution: ContributionWithCoAuthors;
-	textures: (Texture & { disabledContributions: ContributionDeactivation[] })[];
+	textures: GetTexturesWithUsePaths[];
 	onClose: (editedContribution: ContributionWithCoAuthors) => void;
 }
 
@@ -106,14 +106,47 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 		const texture = textures.find((u) => u.id === option.value)!;
 
 		return (
-			<Group gap="sm" wrap="nowrap" align="start">
-				<TextureImage src={texture.filepath} alt="" size={120} mcmeta={texture.mcmeta} />
-				<Stack gap={0}>
-					<Text size="sm" fw={700}>{texture.name}</Text>
-					{option.disabled && <Text size="xs" c="dimmed">Already selected!</Text>}
-					{!option.disabled && <Text size="xs" c="dimmed">{texture.aliases.join(', ')}</Text>}
-				</Stack>
-			</Group>
+			<Stack gap="sm" className="w-full">
+				<Group gap="sm" wrap="nowrap" align="start">
+					<TextureImage src={texture.filepath} alt="" size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 120} mcmeta={texture.mcmeta} />
+					<Stack gap={2} className="w-full">
+						<Group wrap="nowrap" className="w-full">
+							{windowWidth > BREAKPOINT_MOBILE_LARGE && (
+								<Text w={50} size="sm" fw={400}>Name:</Text>
+							)}
+							<Code>{texture.name}</Code>
+						</Group>
+						{texture.aliases.length > 0 && (
+							<Group wrap="nowrap" className="w-full">
+								{windowWidth > BREAKPOINT_MOBILE_LARGE && (
+									<Text w={50} size="sm" fw={400}>Aliases:</Text>
+								)}
+								<Group gap={2}>
+									{texture.aliases.map((a, index) => <Code key={index}>{a}</Code>)}
+								</Group>
+							</Group>
+						)}
+						{windowWidth > BREAKPOINT_MOBILE_LARGE && (
+							<Group align="start" wrap="nowrap" className="w-full">
+								<Text w={50} size="sm" fw={400}>Uses:</Text>
+								<Stack gap={2}>
+									{texture.linkedTextures.map((t, index) =>
+										<Code key={index}>{t.assetPath}</Code>
+									)}
+								</Stack>
+							</Group>
+						)}
+					</Stack>
+				</Group>
+
+				{windowWidth <= BREAKPOINT_MOBILE_LARGE && (
+					<Stack gap={2}>
+						{texture.linkedTextures.map((t, index) =>
+							<Code key={index}>{t.assetPath}</Code>
+						)}
+					</Stack>
+				)}
+			</Stack>
 		);
 	};
 
@@ -207,14 +240,31 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 						</Button>
 						<Select
 							limit={100}
-							data={textures.map((t) => ({ value: t.id, label: `${t.name} ${t.aliases.join(' ')}`, disabled: t.id === selectedTextureId }))}
+							data={textures.map((t) => ({ value: t.id, label: `${t.name} ${t.aliases.join(' ')} ${t.linkedTextures.map((l) => l.assetPath).join(' ')} ${t.id}`, disabled: t.id === selectedTextureId }))}
 							defaultValue={contribution.textureId}
 							value={selectedTextureId}
 							renderOption={renderMultiSelectOption}
 							className="w-full"
 							onChange={handleTextureSelected}
 							onClear={() => setSelectedTexture(null)}
-							placeholder="Search a texture..."
+							maxDropdownHeight={colWidth}
+							comboboxProps={windowWidth > BREAKPOINT_MOBILE_LARGE
+								? {
+									width: `calc((${colWidth} * 3) + 2 * var(--mantine-spacing-md))`,
+									offset: {
+										mainAxis: 5,
+										crossAxis: -27,
+									},
+								}
+								: {
+									width: colWidth,
+									offset: {
+										mainAxis: 5,
+										crossAxis: -27,
+									},
+								}
+							}
+							placeholder="Search a texture by its name/path..."
 							searchable
 							required
 							clearable
