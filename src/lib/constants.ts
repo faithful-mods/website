@@ -23,7 +23,7 @@ export const BREAKPOINT_DESKTOP_HUGE = 2560;
 
 export const MINIMUM_CARD_WIDTH = `calc(${BREAKPOINT_MOBILE_SMALL}px - (2 * var(--mantine-spacing-sm)))`;
 
-export const MODS_LOADERS = ['Forge'] as const;
+export const MODS_LOADERS = ['Fabric', 'Forge'] as const;
 export type ModLoaders = typeof MODS_LOADERS[number];
 
 export const RESOLUTIONS_COLORS: Record<Resolution, MantineColor> = {

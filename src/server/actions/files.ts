@@ -21,7 +21,7 @@ import { createTexture, findTexture } from '../data/texture';
 
 import type { ModVersion } from '@prisma/client';
 import type { CentralDirectory } from 'unzipper';
-import type { MCModInfoData, ModData, ModsToml, SocketModUpload } from '~/types';
+import type { MCModInfoData, ModData, ModFabricJson, ModFabricJsonPerson, ModsToml, SocketModUpload } from '~/types';
 
 /**
  * Uploads a file to the server
@@ -80,15 +80,57 @@ export async function fetchModDataFromJAR(jar: File): Promise<ModData[]> {
 		return sanitizeModsToml(toml, archive);
 	}
 
+	// Fabric Mod -- fabric.mod.json
+	const fabricModJson = archive.files.find((file) => file.path === 'fabric.mod.json');
+	if (fabricModJson) {
+		const buff = await fabricModJson.buffer();
+		const json = JSON.parse(buff.toString('utf-8')) as ModFabricJson;
+		return sanitizeFabricJson(json, archive);
+	}
+
 	throw new Error('Unsupported mod loader for the given JAR, aborting');
 }
 
 /**
  * Add a @ to the author name if it does not already start with it
  */
-function sanitizeAuthorName(name: string): string {
-	if (name.startsWith('@')) return name;
-	return `@${name}`;
+const sanitizeAuthorName = (name: string): string => name.startsWith('@') ? name.replace('@', '') : name;
+
+/**
+ * Convert the fabric.mod.json data to a ModData array
+ */
+async function sanitizeFabricJson(fabricJson: ModFabricJson, archive: CentralDirectory): Promise<ModData[]> {
+	const output: ModData[] = [];
+
+	let logoBuffer: Buffer | undefined;
+	if (fabricJson.icon && typeof fabricJson.icon === 'string') {
+		const logo = archive.files.find((file) => file.path === fabricJson.icon);
+		if (logo) logoBuffer = await logo.buffer();
+	}
+
+	const keepName = (person: ModFabricJsonPerson) => typeof person === 'string' ? person : person.name;
+
+	output.push({
+		name: fabricJson.id,
+		description: fabricJson.description,
+		authors:
+			[
+				...(fabricJson.authors?.map(keepName) ?? []),
+				...(fabricJson.contributors?.map(keepName) ?? []),
+			].unique().map(sanitizeAuthorName)
+			?? [],
+		modId: fabricJson.id,
+		mcVersion: fabricJson.depends?.minecraft
+			? [fabricJson.depends?.minecraft].flat().sort(sortBySemver)
+			: [],
+		version: fabricJson.version,
+		loaders: ['Fabric'],
+		url: fabricJson.contact?.homepage,
+		picture: logoBuffer,
+	});
+
+	return output;
+
 }
 
 /**
