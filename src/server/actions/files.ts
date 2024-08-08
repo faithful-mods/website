@@ -81,6 +81,7 @@ export async function fetchModDataFromJAR(jar: File): Promise<ModData[]> {
 	}
 
 	// Fabric Mod -- fabric.mod.json
+	// TODO: add support for inners jars (nested jars) in ModFabricJson.jars
 	const fabricModJson = archive.files.find((file) => file.path === 'fabric.mod.json');
 	if (fabricModJson) {
 		const buff = await fabricModJson.buffer();
@@ -111,7 +112,7 @@ async function sanitizeFabricJson(fabricJson: ModFabricJson, archive: CentralDir
 	const keepName = (person: ModFabricJsonPerson) => typeof person === 'string' ? person : person.name;
 
 	output.push({
-		name: fabricJson.id,
+		name: fabricJson.name ?? fabricJson.id,
 		description: fabricJson.description,
 		authors:
 			[
