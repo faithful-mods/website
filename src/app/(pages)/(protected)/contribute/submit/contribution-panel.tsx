@@ -1,6 +1,6 @@
-import { startTransition, useMemo, useState } from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 
-import { Button, Divider, Group, Stack, Text } from '@mantine/core';
+import { Button, Checkbox, Divider, Group, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Status } from '@prisma/client';
 
@@ -9,11 +9,12 @@ import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, notify, sortByName } from '~/lib/utils';
+import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
 import { submitContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
 
 import { ContributionPanelItem } from './contribution-item';
+import { ContributionDeleteModal } from './delete-modal';
 import { ContributionModal } from './drafts-modal';
 
 import type { ContributionDeactivation, Texture } from '@prisma/client';
@@ -36,10 +37,43 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 
 	const [isHoveringSubmit, setHoveringSubmit] = useState(false);
 
-	const handleModalOpen = (c: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll) => {
-		setModalContribution(c);
-		openModal();
+	const [isDeletionMode, setDeletionMode] = useState(false);
+	const [isDeleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+	const [contributionToDelete, setContributionToDelete] = useState<string[]>([]);
+
+	const pending = useMemo(() => submitted.filter((s) => s.status === Status.PENDING), [submitted]);
+	const rejected = useMemo(() => submitted.filter((s) => s.status === Status.REJECTED), [submitted]);
+	const accepted = useMemo(() => submitted.filter((s) => s.status === Status.ACCEPTED), [submitted]);
+
+	const handleContributionClick = (c: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll) => {
+		if (isDeletionMode) {
+			if (contributionToDelete.includes(c.id)) setContributionToDelete(contributionToDelete.filter((id) => id !== c.id));
+			else setContributionToDelete([...contributionToDelete, c.id]);
+		}
+		else {
+			setModalContribution(c);
+			openModal();
+		}
 	};
+
+	const handleContributionsSubmit = () => {
+		startTransition(() => {
+			submitContributions(author.id!, drafts.filter((c) => c.textureId !== null).map((c) => c.id));
+			onUpdate();
+		});
+	};
+
+	const getBorderStyles = (c: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll) => {
+		if (contributionToDelete.includes(c.id))
+			return { boxShadow: '0 0 10px var(--mantine-color-red-filled)' };
+
+		if (c.textureId !== null && isHoveringSubmit && c.status === Status.DRAFT)
+			return { boxShadow: '0 0 10px var(--mantine-color-teal-filled)' };
+	};
+
+	useEffect(() => {
+		if (!isDeletionMode) setContributionToDelete([]);
+	}, [isDeletionMode]);
 
 	useEffectOnce(() => {
 		getTextures()
@@ -53,15 +87,24 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 			});
 	});
 
-	const handleContributionsSubmit = () => {
-		startTransition(() => {
-			submitContributions(author.id!, drafts.filter((c) => c.textureId !== null).map((c) => c.id));
-			onUpdate();
-		});
-	};
-
 	return (
 		<>
+			<Modal
+				opened={isDeleteModalOpened}
+				onClose={closeDeleteModal}
+				title="Confirmation"
+				popup
+			>
+				<ContributionDeleteModal
+					contributionsAndDrafts={[...drafts, ...submitted]}
+					contributionToDelete={contributionToDelete}
+					closeModal={(decision) => {
+						if (decision === 'yes') onUpdate();
+						setDeletionMode(false);
+						closeDeleteModal();
+					}}
+				/>
+			</Modal>
 			<Modal
 				forceFullScreen
 				opened={isModalOpened}
@@ -80,79 +123,138 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 				}
 			</Modal>
 			<Stack gap="sm">
-				<Group justify="space-between" align="center">
-					<Stack gap={0}>
-						<Text size="md" fw={700}>Draft(s)</Text>
-						{drafts.length === 0 && <Text size="sm" c="dimmed">No drafts!</Text>}
-						{drafts.length > 0 && <Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>}
-					</Stack>
+				<Group
+					wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+					w="100%"
+					mb="md"
+				>
 					<Button
 						variant="gradient"
 						gradient={gradient}
-						disabled={ready.length === 0}
-						className={ready.length === 0 ? 'button-disabled-with-bg' : undefined}
+						disabled={ready.length === 0 || isDeletionMode}
+						className={(ready.length === 0 || isDeletionMode) ? 'button-disabled-with-bg' : undefined}
 						fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
 						onClick={() => handleContributionsSubmit()}
 						onMouseEnter={() => setHoveringSubmit(true)}
 						onMouseLeave={() => setHoveringSubmit(false)}
 					>
-						Submit {ready.length} draft{ready.length > 1 ? 's' : ''}
+						Submit {ready.length > 1 ? ready.length : ''} draft{ready.length > 1 ? 's' : ''}
 					</Button>
+
+					{windowWidth > BREAKPOINT_MOBILE_LARGE && (
+						<Divider orientation="vertical" size="sm" h={20} mt="auto" mb="auto" />
+					)}
+
+					<Group
+						gap="md"
+						wrap="nowrap"
+						className="w-full"
+						maw={BREAKPOINT_MOBILE_LARGE}
+					>
+						<Button
+							variant="gradient"
+							gradient={gradientDanger}
+							disabled={!isDeletionMode || contributionToDelete.length === 0}
+							className={(!isDeletionMode || contributionToDelete.length === 0) ? 'w-full button-disabled-with-bg' : 'w-full'}
+							onClick={openDeleteModal}
+						>
+							Delete {contributionToDelete.length > 1 ? contributionToDelete.length : ''} contribution{contributionToDelete.length > 1 ? 's' : ''}
+						</Button>
+						<Checkbox
+							label="Delete mode"
+							color={gradientDanger.to}
+							checked={isDeletionMode}
+							className="w-full"
+							onChange={(e) => setDeletionMode(e.target.checked)}
+							disabled={drafts.length === 0 && submitted.length === 0}
+						/>
+					</Group>
 				</Group>
+
+				<Stack gap={0}>
+					<Text size="md" fw={700}>Draft(s)</Text>
+					<Text size="sm" c="dimmed">These contributions are not yet submitted and only visible by you.</Text>
+				</Stack>
 				<Group gap="sm">
 					{drafts.map((draft) => (
 						<ContributionPanelItem
 							key={draft.id}
 							contribution={draft}
-							openModal={handleModalOpen}
-							styles={draft.textureId !== null && isHoveringSubmit
-								? { boxShadow: '0 0 10px var(--mantine-color-teal-filled)' }
-								: undefined
-							}
+							onClick={handleContributionClick}
+							styles={getBorderStyles(draft)}
 						/>
 					))}
+					{drafts.length === 0 && (
+						<Text size="sm" c="dimmed" fs="italic">
+							No drafts.
+						</Text>
+					)}
 				</Group>
-				<Divider />
-				<Stack gap="xs">
-					<Text size="md" fw={700}>Pending</Text>
-					<Group gap="sm">
-						{submitted.filter((s) => s.status === Status.PENDING).map((submitted) => (
-							<ContributionPanelItem
-								key={submitted.id}
-								contribution={submitted}
-								openModal={handleModalOpen}
-							/>
-						))}
-						{submitted.filter((s) => s.status === Status.PENDING).length === 0 && <Text size="sm" c="dimmed" mt={-10}>None</Text>}
-					</Group>
-					<Stack gap={0}>
-						<Text size="md" fw={700}>Rejected</Text>
-						<Text size="sm" c="dimmed">Rejected contributions are deleted after 6 months. You can edit and resubmit them within this time.</Text>
-					</Stack>
-					<Group gap="sm">
-						{submitted.filter((s) => s.status === Status.REJECTED).map((submitted) => (
-							<ContributionPanelItem
-								key={submitted.id}
-								contribution={submitted}
-								openModal={handleModalOpen}
-							/>
-						))}
-						{submitted.filter((s) => s.status === Status.REJECTED).length === 0 && <Text size="sm" c="dimmed" mt={-10}>None</Text>}
-					</Group>
-					<Text size="md" fw={700}>Accepted</Text>
-					<Group gap="sm">
-						{submitted.filter((s) => s.status === Status.ACCEPTED).map((submitted) => (
-							<ContributionPanelItem
-								key={submitted.id}
-								contribution={submitted}
-								openModal={handleModalOpen}
-							/>
-						))}
-						{submitted.filter((s) => s.status === Status.ACCEPTED).length === 0 && <Text size="sm" c="dimmed" mt={-10}>None</Text>}
-					</Group>
-				</Stack>
-			</Stack>
 
+				<Divider mt="md" mb="sm" />
+
+				<Stack gap={0} mb="sm">
+					<Text size="md" fw={700}>Pending</Text>
+					<Text size="sm" c="dimmed">These contributions are awaiting review from the council.</Text>
+				</Stack>
+				<Group gap="sm">
+					{pending.map((submitted) => (
+						<ContributionPanelItem
+							key={submitted.id}
+							contribution={submitted}
+							onClick={handleContributionClick}
+							styles={getBorderStyles(submitted)}
+						/>
+					))}
+					{pending.length === 0 && (
+						<Text size="sm" c="dimmed" mt={-10} fs="italic">
+							No contributions pending yet.
+						</Text>
+					)}
+				</Group>
+
+				<Divider mt="md" mb="sm" />
+
+				<Stack gap={0} mb="sm">
+					<Text size="md" fw={700}>Rejected</Text>
+					<Text size="sm" c="dimmed">The council has rejected these contributions. You can edit and resubmit them within 6 months.</Text>
+				</Stack>
+				<Group gap="sm">
+					{rejected.map((submitted) => (
+						<ContributionPanelItem
+							key={submitted.id}
+							contribution={submitted}
+							onClick={handleContributionClick}
+							styles={getBorderStyles(submitted)}
+						/>
+					))}
+					{rejected.length === 0 && (
+						<Text size="sm" c="dimmed" mt={-10} fs="italic">
+							No contributions rejected yet. Keep up the good work!
+						</Text>
+					)}
+				</Group>
+				<Divider mt="md" mb="sm" />
+				<Stack gap={0} mb="sm">
+					<Text size="md" fw={700}>Accepted</Text>
+					<Text size="sm" c="dimmed">These contributions are live on the website.</Text>
+				</Stack>
+				<Group gap="sm">
+					{accepted.map((submitted) => (
+						<ContributionPanelItem
+							key={submitted.id}
+							contribution={submitted}
+							onClick={handleContributionClick}
+							styles={getBorderStyles(submitted)}
+						/>
+					))}
+					{accepted.length === 0 && (
+						<Text size="sm" c="dimmed" mt={-10} fs="italic">
+							No contributions accepted yet. Submit some drafts!
+						</Text>
+					)}
+				</Group>
+			</Stack>
 		</>
 	);
 }

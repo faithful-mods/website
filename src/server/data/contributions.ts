@@ -241,7 +241,7 @@ export async function removeCoAuthor(ownerId: string, coAuthorId: string, contri
 
 export async function deleteContributions(
 	ownerId: string,
-	...ids: string[]
+	ids: string[]
 ): Promise<void> {
 	await canAccess(UserRole.ADMIN, ownerId);
 

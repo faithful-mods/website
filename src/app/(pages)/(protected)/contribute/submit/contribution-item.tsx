@@ -21,12 +21,12 @@ import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PollR
 export interface ContributionPanelItemProps {
 	contribution: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll;
 	isCoAuthorContribution?: boolean;
-	openModal?: (c: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll) => void;
+	onClick?: (c: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll) => void;
 	onUpdate?: () => void;
 	styles?: CSSProperties;
 }
 
-export function ContributionPanelItem({ contribution, openModal, onUpdate, styles, isCoAuthorContribution }: ContributionPanelItemProps) {
+export function ContributionPanelItem({ contribution, onClick, onUpdate, styles, isCoAuthorContribution }: ContributionPanelItemProps) {
 	const [windowWidth] = useDeviceSize();
 	const imgWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 90;
 	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
@@ -35,8 +35,7 @@ export function ContributionPanelItem({ contribution, openModal, onUpdate, style
 	const isDraft = contribution.status === Status.DRAFT;
 
 	useEffectOnce(() => {
-		getPollResult(contribution.pollId)
-			.then(setPoll);
+		getPollResult(contribution.pollId).then(setPoll);
 	});
 
 	return (
@@ -47,7 +46,7 @@ export function ContributionPanelItem({ contribution, openModal, onUpdate, style
 				alt=""
 				size={imgWidth}
 				mcmeta={contribution.mcmeta}
-				onClick={() => openModal?.(contribution)}
+				onClick={() => onClick?.(contribution)}
 				styles={styles}
 			>
 				<Group align="baseline" justify="space-between" >
