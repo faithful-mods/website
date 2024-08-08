@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useMemo, useState } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button, Checkbox, Divider, Group, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -61,6 +61,21 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 			submitContributions(author.id!, drafts.filter((c) => c.textureId !== null).map((c) => c.id));
 			onUpdate();
 		});
+	};
+
+	const linkRef = useRef<HTMLAnchorElement>(null);
+	const handleContributionsDownload = async () => {
+		const response = await fetch(`/api/download/contributions/${author.id}`, { method: 'GET' });
+		const blob = await response.blob();
+		const url = window.URL.createObjectURL(blob);
+		const link = linkRef.current;
+
+		if (!link) return;
+
+		link.href = url;
+		link.download = 'contributions.zip';
+		link.click();
+		window.URL.revokeObjectURL(url);
 	};
 
 	const getBorderStyles = (c: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll) => {
@@ -139,6 +154,22 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 						onMouseLeave={() => setHoveringSubmit(false)}
 					>
 						Submit {ready.length > 1 ? ready.length : ''} draft{ready.length > 1 ? 's' : ''}
+						<a ref={linkRef} style={{ display: 'none' }} />
+					</Button>
+
+					{windowWidth > BREAKPOINT_MOBILE_LARGE && (
+						<Divider orientation="vertical" size="sm" h={20} mt="auto" mb="auto" />
+					)}
+
+					<Button
+						variant="gradient"
+						gradient={gradient}
+						fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+						disabled={drafts.length === 0 && submitted.length === 0}
+						className={drafts.length === 0 && submitted.length === 0 ? 'button-disabled-with-bg' : undefined}
+						onClick={() => handleContributionsDownload()}
+					>
+						Download all contributions
 					</Button>
 
 					{windowWidth > BREAKPOINT_MOBILE_LARGE && (

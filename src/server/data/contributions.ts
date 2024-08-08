@@ -1,11 +1,7 @@
 'use server';
 import 'server-only';
 
-import {
-	Status,
-
-	UserRole,
-} from '@prisma/client';
+import { Status, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';

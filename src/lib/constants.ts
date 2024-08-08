@@ -1,3 +1,5 @@
+import { join } from 'path';
+
 import { Resolution } from '@prisma/client';
 
 import type { MantineColor } from '@mantine/core';
@@ -29,3 +31,9 @@ export const RESOLUTIONS_COLORS: Record<Resolution, MantineColor> = {
 	[Resolution.x64]: 'yellow',
 };
 
+export const FILE_DIR = process.env.NODE_ENV === 'production'
+	? 'https://data.faithfulmods.net'
+	: '/files';
+export const FILE_PATH = process.env.NODE_ENV === 'production'
+	? '/var/www/html/data.faithfulmods.net'
+	: join(process.cwd(), './public/files');
