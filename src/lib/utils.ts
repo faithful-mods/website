@@ -89,7 +89,7 @@ export function extractSemver(version: string) {
 }
 
 /**
- * Sort Semver Version
+ * Sort Semver Version, lowest version first
  * @author [TheRolfFR](https://github.com/TheRolfFR)
  */
 export function sortBySemver(a: string, b: string) {

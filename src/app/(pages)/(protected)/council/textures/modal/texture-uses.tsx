@@ -12,7 +12,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { Modal } from '~/components/modal';
 import { Tile } from '~/components/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient, gradientDanger } from '~/lib/utils';
+import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
 import { deleteLinkedTexture, getLinkedTexturesFrom } from '~/server/data/linked-textures';
 import { getModsFromIds } from '~/server/data/mods';
 import { getModsVersionsFromResources } from '~/server/data/mods-version';
@@ -85,7 +85,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 							<Stack key={mv.id} gap={0} >
 								<Group gap="xs">
 									<LuFolderGit />
-									<Text fw={300}>{mv.version}{mv.mcVersion !== 'unknown' && ` (MC: ${mv.mcVersion})`}</Text>
+									<Text fw={300}>{mv.version}&nbsp;{!mv.mcVersion.some((v) => extractSemver(v) === null) && mv.mcVersion.length > 0 && `(MC: ${mv.mcVersion.join(', ')})`}</Text>
 								</Group>
 
 								<Stack ml="xs" gap={0}>

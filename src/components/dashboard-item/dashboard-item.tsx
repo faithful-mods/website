@@ -1,11 +1,12 @@
-import { TiWarning } from 'react-icons/ti';
 
-import { Button, Group, Image, Stack, Text } from '@mantine/core';
+import { Group, Image, Stack, Text } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
+
+import { WarningIcon } from '../warning-icon';
+
 import './dashboard.scss';
-import { gradientDanger } from '~/lib/utils';
 
 export interface ItemDisplayProps {
 	image?: string | null,
@@ -51,20 +52,13 @@ export function DashboardItem({ image, title, description, onClick, warning }: I
 				<Text size="xs" lineClamp={2}>{description?.trim() ?? 'No description'}</Text>
 			</Stack>
 			{warning && (
-				<Button
-					color={gradientDanger.from}
-					w={20}
-					h={20}
-					p={0}
-					className="cursor-clickable"
+				<WarningIcon
 					style={{
 						position:'absolute',
 						top: 'calc(var(--mantine-spacing-sm) / 2)',
 						left: 'calc(var(--mantine-spacing-sm) / 2)',
 					}}
-				>
-					<TiWarning />
-				</Button>
+				/>
 			)}
 
 		</Group>

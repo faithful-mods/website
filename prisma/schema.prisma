@@ -102,7 +102,7 @@ model Mod {
 model ModVersion {
   id        String     @id @default(cuid())
   version   String
-  mcVersion String     @map("minecraft_version")
+  mcVersion String[]   @map("minecraft_version")
   mod       Mod        @relation(fields: [modId], references: [id])
   modId     String     @map("mod_id")
   resources Resource[]

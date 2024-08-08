@@ -24,7 +24,13 @@ export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> 
 		.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } })
 		.then((mods) =>
 			mods.map((mod) => {
-				return { ...mod, unknownVersion: mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 };
+				return {
+					...mod,
+					unknownVersion: mod.versions
+						.map((mv) => mv.mcVersion.some((v) => extractSemver(v) === null) || mv.mcVersion.length === 0)
+						.filter((v) => !!v).length > 0
+					|| mod.versions.length === 0,
+				};
 			})
 		);
 }
@@ -33,7 +39,7 @@ export async function getModsWithVersions(): Promise<(Mod & { versions: string[]
 	return db.mod.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } })
 		.then((mods) =>
 			mods.map((mod) => {
-				return { ...mod, versions: mod.versions.map((v) => v.mcVersion) };
+				return { ...mod, versions: mod.versions.map((v) => v.mcVersion).flat() };
 			})
 		);
 }
@@ -44,7 +50,9 @@ export async function getModWithModVersions(id: string): Promise<(Mod & { versio
 
 export async function modHasUnknownVersion(id: string): Promise<boolean> {
 	const mod = await db.mod.findUnique({ where: { id }, include: { versions: { select: { mcVersion: true } } } });
-	return mod ? mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 : false;
+	return mod
+		? mod.versions.map((mv) => mv.mcVersion.some((v) => extractSemver(v) === null) || mv.mcVersion.length === 0).filter((v) => !!v).length > 0
+		: false;
 }
 
 // POST

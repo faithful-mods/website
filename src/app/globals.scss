@@ -80,17 +80,3 @@ main {
 		background-color: rgb(0 0 0 / 7.5%);
 	}
 }
-
-.blink {
-	animation: blink-animation .5s ease infinite;
-}
-
-@keyframes blink-animation {
-	from {
-		color: red;
-	}
-
-	to {
-		color: white;
-	}
-}
