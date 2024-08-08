@@ -34,11 +34,30 @@ export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> 
 		);
 }
 
-export async function getModsWithVersions(): Promise<(Mod & { versions: string[] })[]> {
-	return db.mod.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } })
+export async function getModsWithVersions(): Promise<(Mod & { versions: string[], textures: number })[]> {
+	return db.mod.findMany({
+		include: {
+			versions: {
+				include: {
+					resources: {
+						include: {
+							textures: true,
+						},
+					},
+				},
+			},
+		},
+		orderBy: {
+			name: 'asc',
+		},
+	})
 		.then((mods) =>
 			mods.map((mod) => {
-				return { ...mod, versions: mod.versions.map((v) => v.mcVersion).flat() };
+				return {
+					...mod,
+					versions: mod.versions.map((v) => v.mcVersion).flat(),
+					textures: mod.versions.map((v) => v.resources.map((r) => r.textures.length).flat()).flat().reduce((a, b) => a + b, 0),
+				};
 			})
 		);
 }
