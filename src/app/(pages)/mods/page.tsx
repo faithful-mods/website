@@ -29,7 +29,7 @@ import type { Writable } from '~/types';
 import './mods.scss';
 import '~/lib/polyfills';
 
-type ModWithVersions = Mod & { versions: string[] };
+type ModWithVersions = Mod & { versions: string[], textures: number };
 
 export default function Mods() {
 	const [windowWidth] = useDeviceSize();
@@ -52,6 +52,7 @@ export default function Mods() {
 	const [versions, setVersions] = useState<string[]>([]);
 
 	const [showFilters, setShowFilters] = useState(false);
+	const [showModsNoTextures, setShowModsNoTextures] = useState(false);
 
 	const router = useRouter();
 	const maxOptionsShown = windowWidth > BREAKPOINT_TABLET ? 2 : 1;
@@ -68,12 +69,16 @@ export default function Mods() {
 			filteredMods = filteredMods.filter(searchFilter(search));
 		}
 
+		if (!showModsNoTextures) {
+			filteredMods = filteredMods.filter((m) => m.textures > 0);
+		}
+
 		if (versions.length > 0) {
 			filteredMods = filteredMods.filter((m) => m.versions.some((v) => versions.includes(v)));
 		}
 
 		setFilteredMods(filteredMods.sort(sortByName));
-	}, [search, versions, mods, loaders]);
+	}, [search, versions, mods, loaders, showModsNoTextures]);
 
 	useEffect(() => {
 		const chunks: ModWithVersions[][] = [];
@@ -149,6 +154,14 @@ export default function Mods() {
 							))}
 						</Stack>
 					</Checkbox.Group>
+
+					<Text size="sm" fw={700}>Others</Text>
+					<Checkbox
+						size="xs"
+						label="Show mods with no textures"
+						checked={showModsNoTextures}
+						onChange={(e) => setShowModsNoTextures(e.target.checked)}
+					/>
 
 					<Button variant="transparent" c={gradientDanger.to}>
 						Reset
