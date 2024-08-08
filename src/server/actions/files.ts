@@ -8,6 +8,7 @@ import { join } from 'path';
 import unzipper from 'unzipper';
 
 import { MODS_LOADERS } from '~/lib/constants';
+import { FILE_DIR, FILE_PATH } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
 import { socket } from '~/lib/serversocket';
@@ -20,14 +21,6 @@ import { createTexture, findTexture } from '../data/texture';
 
 import type { ModVersion } from '@prisma/client';
 import type { MCModInfo, MCModInfoData, SocketModUpload } from '~/types';
-
-const FILE_DIR = process.env.NODE_ENV === 'production'
-	? 'https://data.faithfulmods.net'
-	: '/files';
-
-const FILE_PATH = process.env.NODE_ENV === 'production'
-	? '/var/www/html/data.faithfulmods.net'
-	: join(process.cwd(), './public/files');
 
 /**
  * Uploads a file to the server

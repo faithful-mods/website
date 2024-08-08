@@ -16,6 +16,7 @@
 		"mcversion",
 		"modid",
 		"Mojangstudios",
+		"nodebuffer",
 		"prisma",
 		"serversocket",
 		"stylelint",
