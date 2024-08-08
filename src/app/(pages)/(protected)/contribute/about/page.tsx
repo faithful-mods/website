@@ -55,7 +55,7 @@ const ContributeAboutPage = () => {
 				mt="md"
 				checked={checked ?? false}
 				onChange={(e) => setChecked(e.target.checked)}
-				label={<Text size="sm" c="dimmed">I have read and understood the submission process, won&apos;t show this page again</Text>}
+				label={<Text size="sm" c="dimmed">I have read and understood the submission process, don&apos;t show this page again</Text>}
 			/>
 		</Tile>
 	);
