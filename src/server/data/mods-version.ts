@@ -18,9 +18,9 @@ import type { ModVersionExtended, Progression, SocketModUpload } from '~/types';
 // GET
 
 export async function getSupportedMinecraftVersions(): Promise<string[]> {
-	return db.modVersion.findMany({ distinct: ['mcVersion'] })
+	return db.modVersion.findMany({ select: { mcVersion: true } })
 		.then((res) => res.map((r) => r.mcVersion))
-		.then((res) => res.sort(sortBySemver));
+		.then((res) => res.flat().unique().sort(sortBySemver));
 }
 
 export async function getModVersionsWithModpacks(modId: string): Promise<ModVersionExtended[]> {
@@ -151,14 +151,14 @@ export async function createModVersion({
 }: {
 	mod: { id: string };
 	version: string;
-	mcVersion: string;
+	mcVersion: string[];
 }): Promise<ModVersion> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.modVersion.create({ data: { modId: mod.id, version, mcVersion } });
 }
 
-export async function updateModVersion({ id, version, mcVersion }: { id: string; version: string; mcVersion: string }) {
+export async function updateModVersion({ id, version, mcVersion }: { id: string; version: string; mcVersion: string[] }) {
 	await canAccess(UserRole.COUNCIL);
 	return await db.modVersion.update({ where: { id }, data: { version, mcVersion } });
 }

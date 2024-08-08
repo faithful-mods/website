@@ -7,6 +7,7 @@ import { useDisclosure } from '@mantine/hooks';
 
 import { Modal } from '~/components/modal';
 import { ModUpload } from '~/components/mods-upload';
+import { WarningIcon } from '~/components/warning-icon';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
@@ -87,7 +88,18 @@ export function ModVersions({ mod }: { mod: Mod }) {
 							{modVersions.map((version) => (
 								<Table.Tr key={version.id} onClick={() => openModVersionModal(version)} className="cursor-pointer">
 									<Table.Td>{version.version}</Table.Td>
-									<Table.Td className={extractSemver(version.mcVersion) === null ? 'blink' : ''}>{version.mcVersion}</Table.Td>
+									<Table.Td style={{ position: 'relative' }}>
+										{version.mcVersion.join(', ')}
+										{(version.mcVersion.length === 0 || version.mcVersion.some((v) => extractSemver(v) === null)) && (
+											<WarningIcon
+												style={{
+													position: 'absolute',
+													top: 'calc((36px / 2 - (20px / 2)))',
+													right: 'calc(var(--mantine-spacing-sm) / 2)',
+												}}
+											/>
+										)}
+									</Table.Td>
 									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.modpacks.length}</Table.Td>}
 									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>linked: {version.linked}, unique: {version.textures}</Table.Td>}
 									<Table.Td>{windowWidth > BREAKPOINT_TABLET ? version.createdAt.toLocaleString() : version.createdAt.toLocaleDateString()}</Table.Td>
