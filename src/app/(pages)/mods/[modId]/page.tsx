@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { GrGallery } from 'react-icons/gr';
 import { HiDownload } from 'react-icons/hi';
@@ -10,14 +10,15 @@ import { HiArrowRight } from 'react-icons/hi2';
 import { IoExtensionPuzzleOutline } from 'react-icons/io5';
 import { TfiWorld } from 'react-icons/tfi';
 
-import { Button, Group, Progress, Stack, Text, Tooltip } from '@mantine/core';
+import { Button, Group, Pagination, Progress, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import { usePrevious } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, RESOLUTIONS_COLORS } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, RESOLUTIONS_COLORS } from '~/lib/constants';
 import { EMPTY_PROGRESSION } from '~/lib/utils';
 import { getModsFromIds } from '~/server/data/mods';
 import { getModVersionFromMod, getModVersionProgressionFromMod } from '~/server/data/mods-version';
@@ -33,13 +34,17 @@ export default function ModPage() {
 	const [mod, setMod] = useState<Mod | null>(null);
 	const [isLoading, setLoading] = useState(true);
 
-	const [versions, setVersions] = useState<ModVersion[] | null>(null);
+	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
+	const [activePage, setActivePage] = useState(1);
+	const [versionShownPerPage, setVersionsShownPerPage] = useState<string | null>(itemsPerPage[0]);
+
+	const [versions, setVersions] = useState<ModVersion[]>([]);
+	const [versionsShown, setVersionsShown] = useState<ModVersion[][]>([[]]);
 	const [progressions, setProgressions] = useState<Record<string, Progression> | null>(null);
 
 	const slice = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
 
 	const resolutions = useMemo(() => Object.keys(Resolution) as Resolution[], []);
-
 	const percentages = useMemo(() => {
 		const p = versions?.map((modVer) => progressions?.[modVer.id]
 			? ({ id: modVer.id, progression: progressions?.[modVer.id]! })
@@ -61,6 +66,7 @@ export default function ModPage() {
 	}, [versions, progressions, resolutions]);
 
 	const linkRef = useRef<HTMLAnchorElement>(null);
+
 	const handlePackDownload = async (modVerId: string, resolution: Resolution) => {
 		const response = await fetch(`/api/download/mods/${modVerId}/${resolution}`, { method: 'GET' });
 		console.log(response);
@@ -76,13 +82,51 @@ export default function ModPage() {
 		window.URL.revokeObjectURL(url);
 	};
 
+	const [search, setSearch] = useState('');
+	const [filteredVersions, setFilteredVersions] = useState<ModVersion[]>([]);
+	const prevSearchedMods = usePrevious(filteredVersions);
+
+	useEffect(() => {
+		const chunks: ModVersion[][] = [];
+		const int = parseInt(versionShownPerPage ?? itemsPerPage[0]);
+
+		for (let i = 0; i < filteredVersions.length; i += int) {
+			chunks.push(filteredVersions.slice(i, i + int));
+		}
+
+		if (!prevSearchedMods || prevSearchedMods.length !== filteredVersions.length) {
+			setActivePage(1);
+		}
+
+		setVersionsShown(chunks);
+	}, [filteredVersions, itemsPerPage, prevSearchedMods, versionShownPerPage]);
+
+	useEffect(() => {
+		if (!search) {
+			setFilteredVersions(versions);
+			return;
+		}
+
+		setFilteredVersions(
+			versions?.filter((v) =>
+				v.version.toLowerCase().includes(search.toLowerCase())
+			  || v.mcVersion.some((mcv) => mcv.toLowerCase().includes(search.toLowerCase()))
+			)
+			?? []
+		);
+
+	}, [search, versions]);
+
 	useEffectOnce(() => {
 		if (!modId) return;
 
 		getModsFromIds([modId])
 			.then((mod) => setMod(mod[0] ?? null))
 			.then(() => {
-				getModVersionFromMod(modId).then(setVersions);
+				getModVersionFromMod(modId).then((versions) => {
+					setVersions(versions);
+					setFilteredVersions(versions);
+				});
 				getModVersionProgressionFromMod(modId).then(setProgressions);
 			})
 			.finally(() => setLoading(false));
@@ -213,12 +257,24 @@ export default function ModPage() {
 
 					{versions && (
 						<Stack gap="sm">
-							{/* <Tile p="sm">
-								<TextInput
-									placeholder="Search for a mod version or minecraft version..."
-								/>
-							</Tile> */}
-							{versions.map((ver) =>
+							<Tile p="sm">
+								<Group align="center" gap="sm" wrap="nowrap">
+									<TextInput
+										className="w-full"
+										value={search}
+										onChange={(e) => setSearch(e.currentTarget.value)}
+										placeholder="Search for a mod/minecraft version..."
+									/>
+									<Select
+										data={itemsPerPage}
+										value={versionShownPerPage}
+										onChange={setVersionsShownPerPage}
+										withCheckIcon={false}
+										w={120}
+									/>
+								</Group>
+							</Tile>
+							{versionsShown[activePage - 1] && versionsShown[activePage - 1]?.map((ver) =>
 								<Tile key={ver.id}>
 									<Stack gap="md">
 										<Group gap={5} align="baseline">
@@ -282,56 +338,11 @@ export default function ModPage() {
 									</Stack>
 								</Tile>
 							)}
+
+							<Group mt="md" justify="center">
+								<Pagination total={versionsShown.length} value={activePage} onChange={setActivePage} />
+							</Group>
 						</Stack>
-
-					// const progressBar = (modVersion: string) => {
-					// 	const p = verProgress?.[modVersion] ?? Object.assign({}, EMPTY_PROGRESSION);
-					// 	const percentage = (res: Resolution) => p.textures.todo === 0 ? 0 : (p.textures.done[res] * 100) / p.textures.todo;
-
-					// 	return (
-					// 		<Group gap="md" wrap="wrap">
-					// 			{(Object.keys(Resolution) as Resolution[]).map((res) => (
-					// 				<Stack key={res} gap="xs" w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'calc((100% - (2 * var(--mantine-spacing-md))) / 3)'}>
-					// 					<Group gap="xs" wrap="nowrap" w="100%">
-					// 						<Text size="xs" w="30px">{res}</Text>
-					// 						<Tooltip label={`${p.textures.done[res]}/${p.textures.todo === 0 ? '?' : p.textures.todo} (${percentage(res).toFixed(2)}%)`}>
-					// 							<Progress.Root size="xl" w="100%">
-					// 								<Progress.Section value={percentage(res)} color={RESOLUTIONS_COLORS[res]} />
-					// 							</Progress.Root>
-					// 						</Tooltip>
-					// 					</Group>
-					// 					<Group w="100%" ml={windowWidth <= BREAKPOINT_TABLET ? 0 : 'calc(30px + var(--mantine-spacing-xs))'} gap="xs">
-					// 						<Button disabled size="compact-md" rightSection={<HiDownload />} variant="outline" fullWidth={windowWidth <= BREAKPOINT_TABLET}>Download</Button>
-					// 						<Button disabled size="compact-md" rightSection={<GrGallery />} variant="outline" fullWidth={windowWidth <= BREAKPOINT_TABLET}>Textures</Button>
-					// 					</Group>
-					// 				</Stack>
-					// 			))}
-					// 		</Group>
-					// 	);
-					// };
-
-					// <Accordion variant="separated" radius="md" defaultValue={latestVersion}>
-					// 	{Object.entries(versions).map(([mcVersion, modVersions]) => (
-					// 		<Accordion.Item value={mcVersion} key={mcVersion} mb="sm" mt={0}>
-					// 			<Accordion.Control>
-					// 				<Title order={4}>{mcVersion}</Title>
-					// 			</Accordion.Control>
-					// 			<Accordion.Panel>
-					// 				<Stack gap="xs">
-					// 					{modVersions.map((v) => (
-					// 						<Tile key={v.id} shadowless withBorder>
-					// 							<Stack>
-					// 								<Title order={4} mb="xs">{v.version}</Title>
-					// 								{progressBar(v.id)}
-					// 							</Stack>
-					// 						</Tile>
-					// 					))}
-					// 				</Stack>
-					// 			</Accordion.Panel>
-					// 		</Accordion.Item>
-					// 	))}
-
-					// </Accordion>
 					)}
 				</>
 			)}
