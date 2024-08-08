@@ -36,6 +36,7 @@ export default function Mods() {
 
 	const [activePage, setActivePage] = useState(1);
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
+	const slice = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
 
 	const [mods, setMods] = useState<ModWithVersions[]>([]);
 	const [modsShown, setModsShown] = useState<ModWithVersions[][]>([[]]);
@@ -258,7 +259,12 @@ export default function Mods() {
 										<Stack gap={0}>
 											<Group gap={5} align="baseline">
 												<Text fw={700} size="md">{m.name}</Text>
-												{m.authors.length > 0 && (<Text size="xs" c="dimmed">by {m.authors.join(', ')}</Text>)}
+												{m.authors.length > 0 && (
+													<Text size="xs" c="dimmed">
+														by {m.authors.slice(0, slice).join(', ')}
+														{m.authors.length > (slice - 1) && ` and ${m.authors.length - (slice - 1)} more...`}
+													</Text>
+												)}
 											</Group>
 											{m.description && (<Text size="sm" lineClamp={2}>{m.description}</Text>)}
 											{!m.description && (<Text size="sm" c="dimmed">No description</Text>)}
