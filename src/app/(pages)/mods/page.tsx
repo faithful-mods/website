@@ -17,7 +17,7 @@ import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, MODS_LOADERS } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
 import { gradientDanger, searchFilter, sortByName, sortBySemver } from '~/lib/utils';
 import { getModsOfModsPage } from '~/server/data/mods';
 import { getSupportedMinecraftVersions } from '~/server/data/mods-version';
@@ -38,7 +38,7 @@ export default function Mods() {
 
 	const [mods, setMods] = useState<ModOfModsPage[]>([]);
 	const [modsShown, setModsShown] = useState<ModOfModsPage[][]>([[]]);
-	const [modsShownPerPage, setModsShownPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [modsShownPerPage, setModsShownPerPage] = useState<string>(ITEMS_PER_PAGE_DEFAULT);
 
 	const [search, setSearch] = useState<string>('');
 	const [filteredMods, setFilteredMods] = useState<ModOfModsPage[]>([]);
@@ -241,7 +241,7 @@ export default function Mods() {
 						<Select
 							data={itemsPerPage}
 							value={modsShownPerPage}
-							onChange={setModsShownPerPage}
+							onChange={(e) => e ? setModsShownPerPage(e) : null}
 							withCheckIcon={false}
 							w={120}
 						/>

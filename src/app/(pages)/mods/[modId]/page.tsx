@@ -18,7 +18,7 @@ import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, RESOLUTIONS_COLORS, EMPTY_PROGRESSION } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, RESOLUTIONS_COLORS, EMPTY_PROGRESSION, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { getModDownloads, getModsFromIds } from '~/server/data/mods';
 import { getModVersionFromMod, getModVersionProgressionFromMod } from '~/server/data/mods-version';
 
@@ -35,7 +35,7 @@ export default function ModPage() {
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 	const [activePage, setActivePage] = useState(1);
-	const [versionShownPerPage, setVersionsShownPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [versionShownPerPage, setVersionsShownPerPage] = useState<string>(ITEMS_PER_PAGE_DEFAULT);
 
 	const [versions, setVersions] = useState<ModVersion[]>([]);
 	const [versionsShown, setVersionsShown] = useState<ModVersion[][]>([[]]);
@@ -273,7 +273,7 @@ export default function ModPage() {
 									<Select
 										data={itemsPerPage}
 										value={versionShownPerPage}
-										onChange={setVersionsShownPerPage}
+										onChange={(e) => e ? setVersionsShownPerPage(e) : null}
 										withCheckIcon={false}
 										w={120}
 									/>

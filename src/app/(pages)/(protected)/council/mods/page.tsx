@@ -14,7 +14,7 @@ import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { gradientDanger, searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
@@ -33,7 +33,7 @@ const ModsPanel = () => {
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 	const [activePage, setActivePage] = useState(1);
-	const [modsShownPerPage, setModsShownPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [modsShownPerPage, setModsShownPerPage] = useState<string>(ITEMS_PER_PAGE_DEFAULT);
 	const [search, setSearch] = useState('');
 
 	const [mods, setMods] = useState<ModWVer[]>([]);
@@ -155,7 +155,7 @@ const ModsPanel = () => {
 							<Select
 								data={itemsPerPage}
 								value={modsShownPerPage}
-								onChange={setModsShownPerPage}
+								onChange={(e) => e ? setModsShownPerPage(e) : null}
 								label="Results per page"
 								withCheckIcon={false}
 								w={250}

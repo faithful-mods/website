@@ -10,7 +10,8 @@ export const MIN_NAME_LENGTH = 3;
 
 export const NOTIFICATIONS_DURATION_MS = 3000;
 
-export const ITEMS_PER_PAGE = ['32', '64', '128', '256'] as const;
+export const ITEMS_PER_PAGE = ['6', '12', '18', '24', '48', '96'] as const;
+export const ITEMS_PER_PAGE_DEFAULT = '18';
 
 export const BREAKPOINT_MOBILE_SMALL = 320;
 export const BREAKPOINT_MOBILE_MEDIUM = 375;

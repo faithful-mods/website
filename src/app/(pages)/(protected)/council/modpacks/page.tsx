@@ -14,7 +14,7 @@ import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { ITEMS_PER_PAGE } from '~/lib/constants';
+import { ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
@@ -36,7 +36,7 @@ const ModpacksPanel = () => {
 
 	const [modpacksShown, setModpacksShown] = useState<Modpack[][]>([[]]);
 	const [activePage, setActivePage] = useState(1);
-	const [modpacksShownPerPage, setModpacksShownPerPage] = useState<string | null>(itemsPerPage[0] ?? null);
+	const [modpacksShownPerPage, setModpacksShownPerPage] = useState<string>(ITEMS_PER_PAGE_DEFAULT);
 
 	const prevSearchedModpacks = usePrevious(searchedModpacks);
 
@@ -140,7 +140,7 @@ const ModpacksPanel = () => {
 					<Select
 						data={itemsPerPage}
 						value={modpacksShownPerPage}
-						onChange={setModpacksShownPerPage}
+						onChange={(e) => e ? setModpacksShownPerPage(e) : null}
 						withCheckIcon={false}
 						w={120}
 					/>
