@@ -1,19 +1,18 @@
 import { useMemo, useRef, useState, useTransition } from 'react';
 
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { PiMagicWandBold } from 'react-icons/pi';
+import { PiMagicWandBold, PiFileArrowUpBold } from 'react-icons/pi';
 
-import { Button, Code, Container, Divider, Group, JsonInput, Select, Stack, Text, Title } from '@mantine/core';
+import { Button, Code, Container, Divider, FileButton, Group, JsonInput, Select, Stack, Text, TextInput, Title } from '@mantine/core';
 import { Resolution } from '@prisma/client';
 
 import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient, gradientDanger } from '~/lib/utils';
-import { getContributionsOfTexture, updateDraftContribution } from '~/server/data/contributions';
+import { getContributionsOfTexture, updateContributionPicture, updateDraftContribution } from '~/server/data/contributions';
 
 import { CoAuthorsSelector } from './co-authors-select';
 
@@ -35,7 +34,6 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 	const [selectedResolution, setSelectedResolution] = useState<Resolution>(contribution.resolution);
 	const [windowWidth] = useDeviceSize();
 
-	const rowHeight = 36;
 	const stackRef = useRef<HTMLDivElement>(null);
 
 	const colWidth = useMemo(() => {
@@ -108,7 +106,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 		return (
 			<Stack gap="sm" className="w-full">
 				<Group gap="sm" wrap="nowrap" align="start">
-					<TextureImage src={texture.filepath} alt="" size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 120} mcmeta={texture.mcmeta} />
+					<TextureImage src={texture.filepath} alt="" size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 60 : 160} mcmeta={texture.mcmeta} />
 					<Stack gap={2} className="w-full">
 						<Group wrap="nowrap" className="w-full">
 							{windowWidth > BREAKPOINT_MOBILE_LARGE && (
@@ -164,6 +162,18 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 		setDisplayedSelectedTextureContributions(selectedTextureContributions[index]);
 	};
 
+	const handleContributionFileChange = (file: File | null) => {
+		if (!file) return;
+
+		const formData = new FormData();
+		formData.append('file', file);
+
+		startTransition(() => {
+			updateContributionPicture(author.id!, contribution.id, formData)
+				.then(() => onClose(contribution));
+		});
+	};
+
 	const handleDraftUpdate = () => {
 		if (!selectedTexture) return;
 
@@ -194,11 +204,27 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 						<Title order={5}>Yours</Title>
 						<Text size="sm" c="dimmed">The file you&apos;re submitting.</Text>
 					</Stack>
-					<Tile h={rowHeight} shadow="0" radius="sm" p="0">
-						<Group justify="center" h={rowHeight}>
-							<Text size="sm">{contribution.filename}</Text>
-						</Group>
-					</Tile>
+					<Group wrap="nowrap">
+						<FileButton accept="image/png" onChange={handleContributionFileChange}>
+							{(props) => (
+								<Button
+									variant="light"
+									color={gradient.to}
+									p={0}
+									className="navbar-icon-fix"
+									loading={isPending}
+									{...props}
+								>
+									<PiFileArrowUpBold />
+								</Button>
+							)}
+						</FileButton>
+						<TextInput
+							value={contribution.filename}
+							disabled
+							className="w-full"
+						/>
+					</Group>
 					<TextureImage
 						src={contribution.file}
 						mcmeta={parsedMCMETA}
