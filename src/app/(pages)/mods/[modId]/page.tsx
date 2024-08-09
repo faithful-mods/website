@@ -293,7 +293,7 @@ export default function ModPage() {
 										>
 											<Group w="100%" wrap="nowrap" gap="sm">
 												{resolutions.map((res) => (
-													<Tooltip position="bottom" label={ver.downloads[res] === 0 ? 'no downloads yet :(' : `${ver.downloads[res]} download${ver.downloads[res] && ver.downloads[res] > 1 ? 's' : ''}`} key={res} display={progressions?.[ver.id]?.textures.done[res] === 0 ? 'none' : undefined}>
+													<Tooltip position="bottom" label={!ver.downloads[res] ? 'no downloads yet :(' : `${ver.downloads[res]} download${ver.downloads[res] && ver.downloads[res] > 1 ? 's' : ''}`} key={res} display={progressions?.[ver.id]?.textures.done[res] === 0 ? 'none' : undefined}>
 														<Button
 															leftSection={<HiDownload size={14} />}
 															variant="light"
