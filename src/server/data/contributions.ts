@@ -139,6 +139,33 @@ export async function createRawContributions(
 	);
 }
 
+export async function updateContributionPicture(ownerId: string, contributionId: string, formData: FormData) {
+	await canAccess(UserRole.ADMIN, ownerId);
+
+	const file = formData.get('file') as File;
+	const buffer = await file.arrayBuffer();
+	const hash = calculateHash(Buffer.from(buffer));
+
+	if (await findContribution(hash)) throw new Error(`Contribution "${file.name}" has already been submitted`);
+	const filepath = await upload(file, `textures/contributions/${ownerId}/`);
+
+	const oldFile = await db.contribution.findFirst({ where: { id: contributionId }, select: { file: true } });
+	if (oldFile) await remove(oldFile.file as `/files/${string}`);
+
+	const contribution = await db.contribution.update({ where: { id: contributionId }, data: { file: filepath, filename: file.name, hash, status: Status.DRAFT } });
+
+	// reset poll
+	await db.poll.update({
+		where: { id: contribution.pollId },
+		data: {
+			upvotes: { set: [] },
+			downvotes: { set: [] },
+		},
+	});
+
+	return contribution;
+}
+
 export async function updateDraftContribution({
 	ownerId,
 	contributionId,
