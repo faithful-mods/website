@@ -4,13 +4,15 @@ import 'server-only';
 import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
+import { EMPTY_PROGRESSION_RES } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { extractSemver } from '~/lib/utils';
 
 import { deleteModVersion } from './mods-version';
 import { remove, upload } from '../actions/files';
 
-import type { Mod } from '@prisma/client';
+import type { Mod, Resolution } from '@prisma/client';
+import type { Downloads } from '~/types';
 
 // GET
 
@@ -34,7 +36,41 @@ export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> 
 		);
 }
 
-export async function getModsWithVersions(): Promise<(Mod & { versions: string[], textures: number })[]> {
+export async function getModDownloads(id: string): Promise<Downloads | null> {
+	const results = await db.mod.findFirst({
+		where: { id },
+		include: {
+			versions: {
+				select: {
+					downloads: true,
+				},
+			},
+		},
+	});
+
+	if (!results) return null;
+
+	return results?.versions
+		.map((v) => v.downloads)
+		.reduce<Downloads>((acc, curr) => {
+			const resolutions = Object.keys(curr) as Resolution[];
+
+			for (const res of resolutions) {
+				if (!acc[res]) acc[res] = curr[res] ?? 0;
+				else acc[res] += curr[res] ?? 0;
+			}
+
+			return acc;
+		}, Object.assign({}, EMPTY_PROGRESSION_RES));
+}
+
+export type ModOfModsPage = Mod & {
+	versions: string[];
+	textures: number;
+	downloads: Downloads;
+};
+
+export async function getModsOfModsPage(): Promise<ModOfModsPage[]> {
 	return db.mod.findMany({
 		include: {
 			versions: {
@@ -55,8 +91,25 @@ export async function getModsWithVersions(): Promise<(Mod & { versions: string[]
 			mods.map((mod) => {
 				return {
 					...mod,
-					versions: mod.versions.map((v) => v.mcVersion).flat(),
-					textures: mod.versions.map((v) => v.resources.map((r) => r.textures.length).flat()).flat().reduce((a, b) => a + b, 0),
+					versions: mod.versions
+						.map((v) => v.mcVersion)
+						.flat(),
+					textures: mod.versions
+						.map((v) => v.resources.map((r) => r.textures.length).flat())
+						.flat()
+						.reduce((a, b) => a + b, 0),
+					downloads: mod.versions
+						.map((v) => v.downloads)
+						.reduce<Downloads>((acc, curr) => {
+							const resolutions = Object.keys(curr) as Resolution[];
+
+							for (const res of resolutions) {
+								if (!acc[res]) acc[res] = curr[res] ?? 0;
+								else acc[res] += curr[res] ?? 0;
+							}
+
+							return acc;
+						}, Object.assign({}, EMPTY_PROGRESSION_RES)),
 				};
 			})
 		);

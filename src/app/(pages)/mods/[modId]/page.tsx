@@ -18,13 +18,12 @@ import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, RESOLUTIONS_COLORS } from '~/lib/constants';
-import { EMPTY_PROGRESSION } from '~/lib/utils';
-import { getModsFromIds } from '~/server/data/mods';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, RESOLUTIONS_COLORS, EMPTY_PROGRESSION } from '~/lib/constants';
+import { getModDownloads, getModsFromIds } from '~/server/data/mods';
 import { getModVersionFromMod, getModVersionProgressionFromMod } from '~/server/data/mods-version';
 
 import type { Mod, ModVersion } from '@prisma/client';
-import type { Progression } from '~/types';
+import type { Downloads, Progression } from '~/types';
 
 export default function ModPage() {
 	const modId = useParams().modId as string;
@@ -43,6 +42,7 @@ export default function ModPage() {
 	const [progressions, setProgressions] = useState<Record<string, Progression> | null>(null);
 
 	const slice = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
+	const [downloads, setDownloads] = useState<Downloads | null>(null);
 
 	const resolutions = useMemo(() => Object.keys(Resolution) as Resolution[], []);
 	const percentages = useMemo(() => {
@@ -127,6 +127,7 @@ export default function ModPage() {
 					setVersions(versions);
 					setFilteredVersions(versions);
 				});
+				getModDownloads(modId).then(setDownloads);
 				getModVersionProgressionFromMod(modId).then(setProgressions);
 			})
 			.finally(() => setLoading(false));
@@ -209,7 +210,9 @@ export default function ModPage() {
 												<IoExtensionPuzzleOutline color="var(--mantine-color-dimmed)" />
 											</Group>
 											<Group gap="xs" wrap="nowrap" align="center" style={{ height: '36px' }}>
-												<Text size="sm" c="dimmed">-</Text>
+												<Text size="sm" c="dimmed">
+													{downloads ? Object.values(downloads).reduce<number>((acc, curr) => acc + (curr ?? 0), 0) : 0}
+												</Text>
 												<HiDownload color="var(--mantine-color-dimmed)" />
 											</Group>
 										</Stack>
@@ -249,7 +252,9 @@ export default function ModPage() {
 									w="calc(100% / 3)"
 									p={0}
 								>
-									<Text size="sm" c="dimmed">-</Text>
+									<Text size="sm" c="dimmed">
+										{downloads ? Object.values(downloads).reduce<number>((acc, curr) => acc + (curr ?? 0), 0) : 0}
+									</Text>
 								</Button>
 							</Group>
 						</Tile>
@@ -288,18 +293,19 @@ export default function ModPage() {
 										>
 											<Group w="100%" wrap="nowrap" gap="sm">
 												{resolutions.map((res) => (
-													<Button
-														key={res}
-														leftSection={<HiDownload size={14} />}
-														variant="light"
-														color={RESOLUTIONS_COLORS[res]}
-														w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'auto'}
-														className={progressions?.[ver.id]?.textures.done[res] === 0 ? 'button-disabled-with-bg' : ''}
-														disabled={progressions?.[ver.id]?.textures.done[res] === 0}
-														onClick={() => handlePackDownload(ver.id, res)}
-													>
-														{res}
-													</Button>
+													<Tooltip position="bottom" label={ver.downloads[res] === 0 ? 'no downloads yet :(' : `${ver.downloads[res]} download${ver.downloads[res] && ver.downloads[res] > 1 ? 's' : ''}`} key={res} display={progressions?.[ver.id]?.textures.done[res] === 0 ? 'none' : undefined}>
+														<Button
+															leftSection={<HiDownload size={14} />}
+															variant="light"
+															color={RESOLUTIONS_COLORS[res]}
+															w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'auto'}
+															className={progressions?.[ver.id]?.textures.done[res] === 0 ? 'button-disabled-with-bg' : ''}
+															disabled={progressions?.[ver.id]?.textures.done[res] === 0}
+															onClick={() => handlePackDownload(ver.id, res)}
+														>
+															{res}
+														</Button>
+													</Tooltip>
 												))}
 												{windowWidth <= BREAKPOINT_MOBILE_LARGE && (
 													<Button
@@ -322,8 +328,7 @@ export default function ModPage() {
 
 											<Stack gap="sm" w="100%">
 												{resolutions.map((res) => (
-													<Tooltip key={res} label={`${
-														progressions?.[ver.id]?.textures.done[res]}/${progressions?.[ver.id]?.textures.todo === 0 ? '?' : progressions?.[ver.id]?.textures.todo} (${(percentages[res]?.[ver.id] ?? 0).toFixed(2)}%)`}>
+													<Tooltip key={res} label={`${progressions?.[ver.id]?.textures.done[res]}/${progressions?.[ver.id]?.textures.todo === 0 ? '?' : progressions?.[ver.id]?.textures.todo} (${(percentages[res]?.[ver.id] ?? 0).toFixed(2)}%)`}>
 														<Group wrap="nowrap" gap="sm">
 															<Text size="xs" w="30px" ta="right">{res}</Text>
 															<Progress.Root size="md" w="100%">

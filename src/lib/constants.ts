@@ -3,6 +3,7 @@ import { join } from 'path';
 import { Resolution } from '@prisma/client';
 
 import type { MantineColor } from '@mantine/core';
+import type { Progression } from '~/types';
 
 export const MAX_NAME_LENGTH = 32;
 export const MIN_NAME_LENGTH = 3;
@@ -59,4 +60,13 @@ export const PACK_FORMAT_VERSIONS = {
 	22: { min: '1.20.3', max: '1.20.4' },
 	32: { min: '1.20.5', max: '1.20.6' },
 	34: { min: '1.21.0', max: '2.0.0' },
+} as const;
+
+export const EMPTY_PROGRESSION_RES = Object
+	.keys(Resolution)
+	.reduce((acc, res) => ({ ...acc, [res]: 0 }), {}) as Progression['textures']['done'];
+
+export const EMPTY_PROGRESSION: Progression = {
+	linkedTextures: 0,
+	textures: { done: EMPTY_PROGRESSION_RES, todo: 0 },
 } as const;

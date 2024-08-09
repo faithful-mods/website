@@ -19,17 +19,15 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, MODS_LOADERS } from '~/lib/constants';
 import { gradientDanger, searchFilter, sortByName, sortBySemver } from '~/lib/utils';
-import { getModsWithVersions } from '~/server/data/mods';
+import { getModsOfModsPage } from '~/server/data/mods';
 import { getSupportedMinecraftVersions } from '~/server/data/mods-version';
 
-import type { Mod } from '@prisma/client';
 import type { ModLoaders } from '~/lib/constants';
+import type { ModOfModsPage } from '~/server/data/mods';
 import type { Writable } from '~/types';
 
 import './mods.scss';
 import '~/lib/polyfills';
-
-type ModWithVersions = Mod & { versions: string[], textures: number };
 
 export default function Mods() {
 	const [windowWidth] = useDeviceSize();
@@ -38,12 +36,12 @@ export default function Mods() {
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 	const slice = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
 
-	const [mods, setMods] = useState<ModWithVersions[]>([]);
-	const [modsShown, setModsShown] = useState<ModWithVersions[][]>([[]]);
+	const [mods, setMods] = useState<ModOfModsPage[]>([]);
+	const [modsShown, setModsShown] = useState<ModOfModsPage[][]>([[]]);
 	const [modsShownPerPage, setModsShownPerPage] = useState<string | null>(itemsPerPage[0]);
 
 	const [search, setSearch] = useState<string>('');
-	const [filteredMods, setFilteredMods] = useState<ModWithVersions[]>([]);
+	const [filteredMods, setFilteredMods] = useState<ModOfModsPage[]>([]);
 	const prevSearchedMods = usePrevious(filteredMods);
 
 	const [MCVersions, setMCVersions] = useState<string[]>([]);
@@ -58,7 +56,7 @@ export default function Mods() {
 	const maxOptionsShown = windowWidth > BREAKPOINT_TABLET ? 2 : 1;
 
 	useEffectOnce(() => {
-		getModsWithVersions().then(setMods);
+		getModsOfModsPage().then(setMods);
 		getSupportedMinecraftVersions().then(setMCVersions);
 	});
 
@@ -81,7 +79,7 @@ export default function Mods() {
 	}, [search, versions, mods, loaders, showModsNoTextures]);
 
 	useEffect(() => {
-		const chunks: ModWithVersions[][] = [];
+		const chunks: ModOfModsPage[][] = [];
 		const int = parseInt(modsShownPerPage ?? itemsPerPage[0]);
 
 		for (let i = 0; i < filteredMods.length; i += int) {
@@ -171,7 +169,7 @@ export default function Mods() {
 		);
 	};
 
-	const details = (m: ModWithVersions) => {
+	const details = (m: ModOfModsPage) => {
 		return (
 			<Group
 				gap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 0 : 'md'}
@@ -205,7 +203,9 @@ export default function Mods() {
 				</Group>
 				<Group gap="xs" wrap="nowrap" >
 					<HiDownload color="var(--mantine-color-dimmed)" />
-					<Text size="sm" c="dimmed">-</Text>
+					<Text size="sm" c="dimmed">
+						{Object.values(m.downloads).reduce<number>((acc, curr) => acc + (curr ?? 0), 0)}
+					</Text>
 				</Group>
 			</Group>
 		);

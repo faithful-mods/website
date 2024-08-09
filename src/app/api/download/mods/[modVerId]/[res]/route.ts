@@ -33,6 +33,17 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 		return new Response('Not found', { status: 404 });
 	}
 
+	const downloads = modVersion.downloads[res] ?? 0;
+	await db.modVersion.update({
+		where: { id: modVerId },
+		data: {
+			downloads: {
+				...modVersion.downloads,
+				[res]: downloads + 1,
+			},
+		},
+	});
+
 	const resources = modVersion?.resources || [];
 	const linkedTextures = await db.linkedTexture.findMany({
 		where: {

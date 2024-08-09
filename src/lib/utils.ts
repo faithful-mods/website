@@ -1,6 +1,5 @@
 
 import { showNotification } from '@mantine/notifications';
-import { Resolution } from '@prisma/client';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -8,7 +7,6 @@ import { NOTIFICATIONS_DURATION_MS, PACK_FORMAT_VERSIONS } from './constants';
 
 import type { MantineColor, MantineGradient } from '@mantine/core';
 import type { ClassValue } from 'clsx';
-import type { Progression } from '~/types';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -63,12 +61,6 @@ export function searchFilter<T extends { name: string, aliases?: string[] }>(sea
 		return name.includes(searchLower) || aliases.some((alias) => alias.includes(searchLower));
 	};
 }
-
-export const EMPTY_PROGRESSION_RES = Object.keys(Resolution).reduce((acc, res) => ({ ...acc, [res]: 0 }), {}) as Progression['textures']['done'];
-export const EMPTY_PROGRESSION: Progression = {
-	linkedTextures: 0,
-	textures: { done: EMPTY_PROGRESSION_RES, todo: 0 },
-} as const;
 
 export function bufferToFile(
 	buffer: Buffer,
