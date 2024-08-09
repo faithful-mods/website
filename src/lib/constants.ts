@@ -40,6 +40,10 @@ export const FILE_PATH = process.env.NODE_ENV === 'production'
 	? '/var/www/html/data.faithfulmods.net'
 	: join(process.cwd(), './public/files');
 
+export const PUBLIC_PATH = process.env.NODE_ENV === 'production'
+	? '/var/www/html/faithfulmods.net/public'
+	: join(process.cwd(), './public');
+
 /**
  * @see https://minecraft.wiki/w/Pack_format
  */

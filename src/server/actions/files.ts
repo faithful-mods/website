@@ -204,7 +204,7 @@ async function sanitizeMCModInfo(mcModInfos: MCModInfoData, archive: CentralDire
 			description: modInfo.description,
 			authors: modInfo.authorList?.map(sanitizeAuthorName) ?? [],
 			modId: modInfo.modid,
-			mcVersion: modInfo.mcversion === 'extension \'minecraft\' property \'mcVersion\'' ? [] : [modInfo.mcversion],
+			mcVersion: modInfo.mcversion === 'extension \'minecraft\' property \'mcVersion\'' || !modInfo.mcversion ? [] : [modInfo.mcversion],
 			version: modInfo.version ?? 'unknown',
 			loaders: ['Forge'],
 			url: modInfo.url,
