@@ -4,9 +4,10 @@ import 'server-only';
 import { Status, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
+import { EMPTY_PROGRESSION_RES } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { socket } from '~/lib/serversocket';
-import { EMPTY_PROGRESSION_RES, sortBySemver } from '~/lib/utils';
+import { sortBySemver } from '~/lib/utils';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
@@ -41,7 +42,7 @@ export async function getModVersionsWithModpacks(modId: string): Promise<ModVers
 }
 
 export async function getModVersionFromMod(modId: string): Promise<ModVersion[]> {
-	return db.modVersion.findMany({ where: { modId } });
+	return db.modVersion.findMany({ where: { modId } }).then((res) => res.sort((a, b) => sortBySemver(a.version, b.version)));
 }
 
 export async function getModVersions(): Promise<ModVersion[]> {

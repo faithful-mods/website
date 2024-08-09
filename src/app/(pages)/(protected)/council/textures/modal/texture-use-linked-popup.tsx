@@ -9,7 +9,7 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { gradient } from '~/lib/utils';
-import { getModsWithVersions } from '~/server/data/mods';
+import { getModsOfModsPage } from '~/server/data/mods';
 import { getModVersions } from '~/server/data/mods-version';
 import { getResources, linkTextureToResource } from '~/server/data/resource';
 
@@ -36,7 +36,7 @@ export function TextureUsesLinkedPopup({ textureId, onUpdate }: TextureUsesLinke
 	const [resourcesFiltered, setResourcesFiltered] = useState<Resource[]>([]);
 
 	const init = async () => {
-		const mods = await getModsWithVersions();
+		const mods = await getModsOfModsPage();
 		setMods(mods);
 
 		const modsVersions = await getModVersions();

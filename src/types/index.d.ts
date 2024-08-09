@@ -104,6 +104,8 @@ export interface VillagerMCMETA {
 	hat?: 'full' | 'partial';
 }
 
+export type Downloads = Record<Resolution, number | undefined>;
+
 export interface TextureMCMETA {
 	animation?: AnimationMCMETA;
 	texture?: PropertiesMCMETA;
