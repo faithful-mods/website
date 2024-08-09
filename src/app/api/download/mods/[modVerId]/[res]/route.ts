@@ -3,7 +3,7 @@ import { createReadStream } from 'fs';
 import { Resolution, Status } from '@prisma/client';
 import JSZip from 'jszip';
 
-import { FILE_PATH } from '~/lib/constants';
+import { FILE_DIR, FILE_PATH, PUBLIC_PATH } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { getPackFormatVersion, sortBySemver } from '~/lib/utils';
 import { getModVersionProgression } from '~/server/data/mods-version';
@@ -80,7 +80,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 
 		zip.file<'stream'>(
 			`${linkedTexture.assetPath}`,
-			createReadStream(`${FILE_PATH}/${contribution.file.replace('/files', '/')}`)
+			createReadStream(`${FILE_PATH}/${contribution.file.replace('/files', '/').replace(FILE_DIR, '')}`)
 		);
 
 		if (contribution.mcmeta) {
@@ -107,7 +107,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 		},
 	};
 
-	zip.file<'stream'>('pack.png', createReadStream(`${FILE_PATH.replace('files', '')}pack.png`));
+	zip.file<'stream'>('pack.png', createReadStream(`${PUBLIC_PATH}/pack.png`));
 	zip.file<'text'>('pack.mcmeta', JSON.stringify(packMcmeta, null, 2));
 
 	const zipFile = await zip.generateAsync({ type: 'nodebuffer' });

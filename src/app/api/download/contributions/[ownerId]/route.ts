@@ -5,7 +5,7 @@ import { UserRole } from '@prisma/client';
 import JSZip from 'jszip';
 
 import { canAccess } from '~/lib/auth';
-import { FILE_PATH } from '~/lib/constants';
+import { FILE_DIR, FILE_PATH } from '~/lib/constants';
 import { db } from '~/lib/db';
 
 interface Params {
@@ -27,7 +27,7 @@ export async function GET(req: Request, { params: { ownerId } }: Params) {
 	for (const contribution of contributions) {
 		zip.file<'stream'>(
 			`${contribution.status}/${contribution.hash}_${contribution.filename}`,
-			createReadStream(`${FILE_PATH}/${contribution.file.replace('/files', '/')}`)
+			createReadStream(`${FILE_PATH}/${contribution.file.replace('/files', '/').replace(FILE_DIR, '')}`)
 		);
 	}
 
