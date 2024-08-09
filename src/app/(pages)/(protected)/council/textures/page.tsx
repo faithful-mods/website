@@ -11,7 +11,7 @@ import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET, ITEMS_PER_PAGE } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
 
@@ -42,7 +42,7 @@ const CouncilTexturesPage = () => {
 
 	const [texturesShown, setTexturesShown] = useState<Texture[][]>([[]]);
 	const [activePage, setActivePage] = useState(1);
-	const [texturesShownPerPage, setTexturesShowPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [texturesShownPerPage, setTexturesShowPerPage] = useState<string>(ITEMS_PER_PAGE_DEFAULT);
 
 	const prevSearchedTextures = usePrevious(searchedTextures);
 
@@ -135,7 +135,7 @@ const CouncilTexturesPage = () => {
 					<Select
 						data={itemsPerPage}
 						value={texturesShownPerPage}
-						onChange={setTexturesShowPerPage}
+						onChange={(e) => e ? setTexturesShowPerPage(e) : null}
 						withCheckIcon={false}
 						w={120}
 					/>
