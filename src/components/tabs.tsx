@@ -59,6 +59,7 @@ export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, i
 		>
 			<Tabs.List
 				mt={tabsStyle === 'filled' && windowWidth > BREAKPOINT_MOBILE_LARGE ? 26 : 0}
+				mah={tabsStyle === 'default' ? tabs.length * 34 : undefined}
 				w={windowWidth > BREAKPOINT_MOBILE_LARGE ? (tabsStyle === 'default' ? 200 : 120) : undefined}
 			>
 				{tabs.map((tab) => (
