@@ -11,7 +11,7 @@ interface ProtectedLayoutProps {
 
 const CouncilPage = ({ children }: ProtectedLayoutProps) => {
 	const tabs = [
-		{ value: 'contributions', label: 'Contributions' },
+		{ value: 'submissions', label: 'Submissions' },
 		{ value: 'modpacks', label: 'Modpacks' },
 		{ value: 'mods', label: 'Mods' },
 		{ value: 'textures', label: 'Textures' },
