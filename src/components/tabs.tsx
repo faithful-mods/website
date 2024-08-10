@@ -1,5 +1,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 
+import { useMemo } from 'react';
+
 import { Tabs } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
@@ -9,40 +11,71 @@ import { gradient } from '~/lib/utils';
 interface TabsLayoutProps<T extends string[]> {
 	children: React.ReactNode;
 	defaultValue?: T[number];
-	tabs: { value: T[number]; label: T[number] }[];
+	isLayout?: boolean;
+	variant?: 'default' | 'filled';
+	tabs: {
+		value: T[number];
+		label: T[number];
+		layoutTab?: boolean;
+	}[];
 };
 
-export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue }: TabsLayoutProps<T>) => {
+export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, isLayout, variant }: TabsLayoutProps<T>) => {
 	const [windowWidth] = useDeviceSize();
 	const router = useRouter();
 	const pathname = usePathname();
-	const currentTab = pathname.split('/').pop() ?? '';
+
+	const tabsStyle = useMemo(() => variant ?? 'default', [variant]);
+	const currentTab = useMemo(() => {
+		if (!isLayout) return pathname.split('/').pop() as T[number];
+
+		// check if the current page shown is the base layout page
+		const maybeBaseLayoutPage = pathname.split('/').pop();
+		const found = tabs.find((tab) => tab.value === maybeBaseLayoutPage);
+		if (found) return found.value;
+		return tabs.find((tab) => tab.layoutTab)?.value ?? '';
+
+	}, [isLayout, pathname, tabs]);
 
 	return (
 		<Tabs
 			color={gradient.to}
 			value={currentTab}
-			onChange={(value) => router.push(`${pathname.replace(currentTab, '')}${value}`)}
+			onChange={(value) => {
+				const tab = tabs.find((tab) => tab.value === value);
+				if (tab?.layoutTab) return router.push(`${pathname.replace(currentTab, '')}`);
+				return router.push(`${(pathname.endsWith('/') ? pathname : `${pathname}/`).replace(currentTab, '')}${value}`);
+			}}
 
 			orientation={windowWidth > BREAKPOINT_MOBILE_LARGE ? 'vertical' : 'horizontal'}
-			ml={windowWidth > BREAKPOINT_MOBILE_LARGE ? -125 : 0}
+			ml={windowWidth > BREAKPOINT_MOBILE_LARGE && tabsStyle === 'default' ? -125 : 0}
+
+			variant={tabsStyle === 'filled'
+				? windowWidth > BREAKPOINT_MOBILE_LARGE ? 'pills' : 'default'
+				: 'default'
+			}
 
 			defaultValue={defaultValue}
 		>
 			<Tabs.List
-				w={windowWidth > BREAKPOINT_MOBILE_LARGE ? 200 : undefined}
-				mah={34 * tabs.length}
-				content="right"
+				mt={tabsStyle === 'filled' && windowWidth > BREAKPOINT_MOBILE_LARGE ? 26 : 0}
+				w={windowWidth > BREAKPOINT_MOBILE_LARGE ? (tabsStyle === 'default' ? 200 : 120) : undefined}
 			>
 				{tabs.map((tab) => (
-					<Tabs.Tab key={tab.value} value={tab.value} style={{ justifyContent: 'right' }}>
+					<Tabs.Tab
+						key={tab.value}
+						value={tab.value}
+						style={{
+							justifyContent: tabsStyle === 'default' ? 'right' : 'center',
+						}}
+					>
 						{tab.label}
 					</Tabs.Tab>
 				))}
 			</Tabs.List>
 
 			<Tabs.Panel
-				maw="1429px"
+				maw={tabsStyle === 'default' ? '1429px' : undefined}
 				value={currentTab}
 				pl={windowWidth > BREAKPOINT_MOBILE_LARGE ? 'sm' : '0'}
 				pt={windowWidth > BREAKPOINT_MOBILE_LARGE ? '0' : 'sm'}

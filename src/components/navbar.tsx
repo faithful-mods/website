@@ -7,7 +7,6 @@ import { useState } from 'react';
 
 import { FaHome } from 'react-icons/fa';
 import { GoLaw } from 'react-icons/go';
-import { GrGallery } from 'react-icons/gr';
 import { HiOutlineMenu } from 'react-icons/hi';
 import { IoMdCloudUpload } from 'react-icons/io';
 import { IoLogOut } from 'react-icons/io5';
@@ -46,13 +45,6 @@ export const Navbar = () => {
 			disabled: false,
 			icon: <TbPackage />,
 		},
-		{
-			href: '/gallery',
-			label: 'Gallery',
-			disabled: false,
-			icon: <GrGallery />,
-		},
-
 	];
 
 	if (user) links.push({
