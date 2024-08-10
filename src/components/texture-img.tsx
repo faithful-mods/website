@@ -8,20 +8,38 @@ import { useMCMETA } from '~/hooks/use-mcmeta';
 import type { TextureMCMETA } from '~/types';
 
 interface TextureImageProps {
+	isTransparent?: boolean;
 	src: string;
 	alt: string;
 	className?: string;
 	size?: number | string;
 	styles?: React.CSSProperties;
+	popupStyles?: React.CSSProperties;
 	notPixelated?: boolean;
 	fallback?: string;
 	mcmeta?: TextureMCMETA | null;
 	children?: React.ReactNode;
+	withArrow?: boolean;
 	onPopupClick?: () => void;
 	onClick?: () => void;
 }
 
-export function TextureImage({ src, alt, className, size, styles, mcmeta, notPixelated, children, fallback, onClick, onPopupClick }: TextureImageProps) {
+export function TextureImage({
+	isTransparent,
+	src,
+	alt,
+	className,
+	size,
+	styles,
+	popupStyles,
+	mcmeta,
+	notPixelated,
+	children,
+	fallback,
+	withArrow,
+	onClick,
+	onPopupClick,
+}: TextureImageProps) {
 	const [_src, setSource] = useState(src);
 	const { canvasRef, isMCMETAValid } = useMCMETA(src, mcmeta);
 
@@ -37,10 +55,12 @@ export function TextureImage({ src, alt, className, size, styles, mcmeta, notPix
 		minHeight: trueSize,
 		height: trueSize,
 		width: trueSize,
+		opacity: isTransparent ? 0.05 : 1,
 	};
 
 	const containerStyle = {
 		...imageStyle,
+		opacity: 1,
 		...styles,
 	};
 
@@ -77,13 +97,17 @@ export function TextureImage({ src, alt, className, size, styles, mcmeta, notPix
 	if (!children) return image();
 
 	return (
-		<HoverCard position="right">
+		<HoverCard
+			position="right-start"
+			keepMounted={process.env.NODE_ENV === 'development'}
+		>
 			<HoverCard.Target>
 				{image()}
 			</HoverCard.Target>
 			<HoverCard.Dropdown
 				onClick={onPopupClick}
 				className="hover-card-popup"
+				style={popupStyles}
 			>
 				{children}
 			</HoverCard.Dropdown>
