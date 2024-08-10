@@ -103,6 +103,26 @@ export async function findTexture({ hash }: { hash: string }): Promise<Texture |
 	});
 }
 
+export async function getTexturesFromModVersion(modVersionId: string): Promise<Texture[]> {
+	return db.resource.findMany({
+		where: {
+			modVersionId,
+		},
+		include: {
+			linkedTextures: {
+				include: {
+					texture: true,
+				},
+			},
+		},
+	}).then((resources) =>
+		resources
+			.flatMap((r) => r.linkedTextures)
+			.map((linkedTexture) => linkedTexture.texture)
+			.unique((t1, t2) => t1.id === t2.id)
+	);
+}
+
 // POST
 
 export async function createTexture({

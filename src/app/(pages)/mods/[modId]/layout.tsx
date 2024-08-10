@@ -9,7 +9,7 @@ import { IoExtensionPuzzleOutline } from 'react-icons/io5';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { TfiWorld } from 'react-icons/tfi';
 
-import { Button, Group, Stack, Text, Title } from '@mantine/core';
+import { Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
 
 import { TabsLayout } from '~/components/tabs';
 import { TextureImage } from '~/components/texture-img';
@@ -43,15 +43,14 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 
 	if (!mod && isLoading) {
 		return (
-			<Stack
+			<Group
 				align="center"
 				justify="center"
 				gap="md"
 				style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 			>
-				<Title><Text component="span" fw={300} inherit>Loading</Text></Title>
-				<Text size="lg">Fetching mod data...</Text>
-			</Stack>
+				<Loader color="blue" mt={5} />
+			</Group>
 		);
 	}
 
@@ -79,9 +78,9 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<Stack gap="sm" mb="sm">
+		<Stack gap="sm">
 			<Stack gap="xs">
-				<Group wrap="nowrap">
+				<Group wrap="nowrap" align="start">
 					<TextureImage
 						src={mod.image ?? './icon.png'}
 						alt={mod.name}
@@ -93,7 +92,7 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 					<Stack
 						align="start"
 						gap="xs"
-						h={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 85 : 120}
+						mih={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 85 : 120}
 						w="100%"
 					>
 						<Stack gap={0}>
@@ -101,7 +100,7 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 								<Text fw={700} size="md">{mod.name}</Text>
 								{mod.authors.length > 0 && (
 									<Text size="xs" c="dimmed">
-													by {mod.authors.slice(0, slice).join(', ')}
+										by {mod.authors.slice(0, slice).join(', ')}
 										{mod.authors.length > (slice - 1) && ` and ${mod.authors.length - (slice - 1)} more...`}
 									</Text>
 								)}
@@ -119,7 +118,7 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 									leftSection={<TfiWorld />}
 									p={0}
 								>
-											Website
+									Website
 								</Button>
 							)}
 							<Group gap="xs" wrap="nowrap" align="center" style={{ height: '36px' }}>

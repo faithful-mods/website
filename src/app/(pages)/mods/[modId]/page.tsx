@@ -4,9 +4,7 @@ import { useParams } from 'next/navigation';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { GrGallery } from 'react-icons/gr';
 import { HiDownload } from 'react-icons/hi';
-import { HiArrowRight } from 'react-icons/hi2';
 
 import { Button, Group, Pagination, Progress, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
 import { usePrevious } from '@mantine/hooks';
@@ -100,11 +98,10 @@ export default function ModPage() {
 		}
 
 		setFilteredVersions(
-			versions?.filter((v) =>
-				v.version.toLowerCase().includes(search.toLowerCase())
-				|| v.mcVersion.some((mcv) => mcv.toLowerCase().includes(search.toLowerCase()))
+			versions.filter((v) =>
+				 v.version.toLowerCase().includes(search.toLowerCase())
+			|| v.mcVersion.some((mcv) => mcv.toLowerCase().includes(search.toLowerCase()))
 			)
-			?? []
 		);
 
 	}, [search, versions]);
@@ -160,6 +157,7 @@ export default function ModPage() {
 								<Group
 									gap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'md' : 'sm'}
 									wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+									style={{ flexDirection: windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'column-reverse' : 'row' }}
 								>
 									<Group w="100%" wrap="nowrap" gap="sm">
 										{resolutions.map((res) => (
@@ -186,23 +184,6 @@ export default function ModPage() {
 												</Button>
 											</Tooltip>
 										))}
-										{windowWidth <= BREAKPOINT_MOBILE_LARGE && (
-											<Button
-												variant="light"
-												className="navbar-icon-fix"
-											>
-												<GrGallery size={14} />
-											</Button>
-										)}
-										{windowWidth > BREAKPOINT_MOBILE_LARGE && (
-											<Button
-												variant="light"
-												leftSection={<GrGallery size={14} />}
-												rightSection={<HiArrowRight size={14} />}
-											>
-												Visit gallery
-											</Button>
-										)}
 									</Group>
 
 									<Stack gap="sm" w="100%">
