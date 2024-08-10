@@ -80,7 +80,7 @@ export function CouncilContributionItem({ disabled, contribution, isLightBackgro
 								}}
 								size={190}
 								mcmeta={contribution?.mcmeta}
-								src={contribution.file}
+								src={contribution.filepath}
 								alt=''
 							/>
 						}

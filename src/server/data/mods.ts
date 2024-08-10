@@ -77,7 +77,7 @@ export async function getModsOfModsPage(): Promise<ModOfModsPage[]> {
 				include: {
 					resources: {
 						include: {
-							textures: true,
+							linkedTextures: true,
 						},
 					},
 				},
@@ -95,7 +95,7 @@ export async function getModsOfModsPage(): Promise<ModOfModsPage[]> {
 						.map((v) => v.mcVersion)
 						.flat(),
 					textures: mod.versions
-						.map((v) => v.resources.map((r) => r.textures.length).flat())
+						.map((v) => v.resources.map((r) => r.linkedTextures.length).flat())
 						.flat()
 						.reduce((a, b) => a + b, 0),
 					downloads: mod.versions

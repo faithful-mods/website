@@ -42,7 +42,7 @@ export function ContributionPanelItem({ contribution, onClick, onUpdate, styles,
 		<Stack gap="sm" align="center">
 
 			<TextureImage
-				src={contribution.file}
+				src={contribution.filepath}
 				alt=""
 				size={imgWidth}
 				mcmeta={contribution.mcmeta}
