@@ -52,7 +52,7 @@ export function ModModal({ mod, onClose }: {mod: Mod, onClose: (editedMod: Mod |
 				if (!value) return 'You must provide an image for the mod';
 			},
 			forgeId: (value) => {
-				if (!value) return 'You must provide a Forge Mod ID for the mod';
+				if (!value) return 'You must provide a Mod ID for the mod';
 			},
 			authors: (value) => {
 				if (!value) return 'You must provide an author for the mod';
