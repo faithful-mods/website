@@ -51,7 +51,7 @@ export default function ModPage() {
 			: ({ id: modVer.id, progression: Object.assign({}, EMPTY_PROGRESSION) }))
 			?? [];
 
-		const output: Partial<Record<Resolution, Record<string, number>>>= {};
+		const output: Partial<Record<Resolution, Record<string, number>>> = {};
 
 		for (const res of resolutions) {
 			for (const { id, progression } of p) {
@@ -110,7 +110,7 @@ export default function ModPage() {
 		setFilteredVersions(
 			versions?.filter((v) =>
 				v.version.toLowerCase().includes(search.toLowerCase())
-			  || v.mcVersion.some((mcv) => mcv.toLowerCase().includes(search.toLowerCase()))
+				|| v.mcVersion.some((mcv) => mcv.toLowerCase().includes(search.toLowerCase()))
 			)
 			?? []
 		);
@@ -200,7 +200,7 @@ export default function ModPage() {
 													rightSection={<TfiWorld />}
 													p={0}
 												>
-												Website
+													Website
 												</Button>
 											)}
 											<Group gap="xs" wrap="nowrap" align="center" style={{ height: '36px' }}>
@@ -293,7 +293,16 @@ export default function ModPage() {
 										>
 											<Group w="100%" wrap="nowrap" gap="sm">
 												{resolutions.map((res) => (
-													<Tooltip position="bottom" label={!ver.downloads[res] ? 'no downloads yet :(' : `${ver.downloads[res]} download${ver.downloads[res] && ver.downloads[res] > 1 ? 's' : ''}`} key={res} display={progressions?.[ver.id]?.textures.done[res] === 0 ? 'none' : undefined}>
+													<Tooltip
+														position="bottom"
+														label={progressions?.[ver.id]?.textures.done[res] === 0
+															? 'No textures to download yet...'
+															: !ver.downloads[res]
+																? 'Nobody has downloaded this resolution yet'
+																: `${ver.downloads[res]} download${ver.downloads[res] && ver.downloads[res] > 1 ? 's' : ''}`
+														}
+														key={res}
+													>
 														<Button
 															leftSection={<HiDownload size={14} />}
 															variant="light"
