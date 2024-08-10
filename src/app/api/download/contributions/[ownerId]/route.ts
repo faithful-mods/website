@@ -19,7 +19,7 @@ export async function GET(req: Request, { params: { ownerId } }: Params) {
 
 	const contributions = await db.contribution.findMany({
 		where: { ownerId },
-		select: { file: true, filename: true, status: true, hash: true },
+		select: { filepath: true, filename: true, status: true, hash: true },
 	});
 
 	const zip = new JSZip();
@@ -27,7 +27,7 @@ export async function GET(req: Request, { params: { ownerId } }: Params) {
 	for (const contribution of contributions) {
 		zip.file<'stream'>(
 			`${contribution.status}/${contribution.hash}_${contribution.filename}`,
-			createReadStream(`${FILE_PATH}/${contribution.file.replace('/files', '/').replace(FILE_DIR, '')}`)
+			createReadStream(`${FILE_PATH}/${contribution.filepath.replace('/files', '/').replace(FILE_DIR, '')}`)
 		);
 	}
 

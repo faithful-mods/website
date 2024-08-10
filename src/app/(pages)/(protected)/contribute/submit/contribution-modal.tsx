@@ -46,7 +46,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 		width: colWidth,
 	};
 
-	const [selectedTextureId, setSelectedTextureId] = useState<string | null>(null);
+	const [selectedTextureId, setSelectedTextureId] = useState<number | null>(null);
 	const [selectedTextureContributions, setSelectedTextureContributions] = useState<ContributionWithCoAuthorsAndPoll[]>([]);
 	const [selectedTextureContributionsIndex, setSelectedTextureContributionsIndex] = useState<number>(0);
 	const [displayedSelectedTextureContributions, setDisplayedSelectedTextureContributions] = useState<ContributionWithCoAuthorsAndPoll | undefined>();
@@ -68,7 +68,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 		if (contribution.textureId) handleTextureSelected(contribution.textureId);
 	});
 
-	const handleTextureSelected = (textureId: string | null) => {
+	const handleTextureSelected = (textureId: number | null) => {
 		if (textureId === null) {
 			setSelectedTexture(null);
 			setSelectedTextureId(null);
@@ -101,7 +101,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 	};
 
 	const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({ option }) => {
-		const texture = textures.find((u) => u.id === option.value)!;
+		const texture = textures.find((u) => u.id === parseInt(option.value, 10))!;
 
 		return (
 			<Stack gap="sm" className="w-full">
@@ -226,7 +226,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 						/>
 					</Group>
 					<TextureImage
-						src={contribution.file}
+						src={contribution.filepath}
 						mcmeta={parsedMCMETA}
 						size={colWidth}
 						alt=""
@@ -266,12 +266,12 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 						</Button>
 						<Select
 							limit={100}
-							data={textures.map((t) => ({ value: t.id, label: `${t.name} ${t.aliases.join(' ')} ${t.linkedTextures.map((l) => l.assetPath).join(' ')} ${t.id}`, disabled: t.id === selectedTextureId }))}
-							defaultValue={contribution.textureId}
-							value={selectedTextureId}
+							data={textures.map((t) => ({ value: t.id.toString(), label: `${t.name} ${t.aliases.join(' ')} ${t.linkedTextures.map((l) => l.assetPath).join(' ')} ${t.id}`, disabled: t.id === selectedTextureId }))}
+							defaultValue={contribution.textureId?.toString()}
+							value={selectedTextureId?.toString()}
 							renderOption={renderMultiSelectOption}
 							className="w-full"
-							onChange={handleTextureSelected}
+							onChange={(e) => handleTextureSelected(e ? parseInt(e, 10) : null)}
 							onClear={() => setSelectedTexture(null)}
 							maxDropdownHeight={colWidth}
 							comboboxProps={windowWidth > BREAKPOINT_MOBILE_LARGE
@@ -379,7 +379,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 					}
 					{selectedTexture && selectedTextureContributions.length > 0 && displayedSelectedTextureContributions &&
 						<TextureImage
-							src={displayedSelectedTextureContributions.file}
+							src={displayedSelectedTextureContributions.filepath}
 							size={colWidth}
 							mcmeta={displayedSelectedTextureContributions?.mcmeta}
 							alt=""

@@ -43,7 +43,7 @@ export async function linkTextureToResource({
 	assetPath,
 }: {
 	resource: { id: string };
-	texture: { id: string };
+	texture: { id: number };
 	assetPath: string;
 }) {
 	await canAccess(UserRole.COUNCIL);

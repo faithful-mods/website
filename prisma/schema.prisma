@@ -125,7 +125,7 @@ model Resource {
   modVersionId String     @map("mod_version_id")
   mod          ModVersion @relation(fields: [modVersionId], references: [id])
 
-  textures LinkedTexture[]
+  linkedTextures LinkedTexture[]
   // blockModels  LinkedBlockModel[]
   // itemModels   LinkedItemModel[]
 
@@ -137,7 +137,7 @@ model Resource {
 }
 
 model Texture {
-  id             String          @id @default(cuid())
+  id             Int             @id @default(autoincrement())
   name           String
   aliases        String[]
   contributions  Contribution[]
@@ -176,7 +176,7 @@ model Texture {
 model ContributionDeactivation {
   id String @id @default(cuid())
 
-  textureId  String      @map("texture_id")
+  textureId  Int         @map("texture_id")
   texture    Texture     @relation(fields: [textureId], references: [id])
   resolution Resolution? // No resolution means all resolutions
 
@@ -190,7 +190,7 @@ model LinkedTexture {
   id        String @id @default(cuid())
   assetPath String @map("asset_path")
 
-  textureId String  @map("texture_id")
+  textureId Int     @map("texture_id")
   texture   Texture @relation(fields: [textureId], references: [id])
 
   Resource   Resource @relation(fields: [resourceId], references: [id])
@@ -232,7 +232,7 @@ model LinkedTexture {
 
 model Contribution {
   id       String @id @default(cuid())
-  file     String
+  filepath String
   filename String
   hash     String @unique
 
@@ -247,7 +247,7 @@ model Contribution {
   poll   Poll   @relation(fields: [pollId], references: [id])
 
   Texture   Texture? @relation(fields: [textureId], references: [id])
-  textureId String?
+  textureId Int?
 
   /// [ContributionMCMETAType]
   mcmeta Json?

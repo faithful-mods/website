@@ -26,11 +26,11 @@ export async function getTexturesWithUsePaths(): Promise<GetTexturesWithUsePaths
 	return db.texture.findMany({ include: { disabledContributions: true, linkedTextures: { select: { assetPath: true } } } });
 }
 
-export async function getTexture(id: string): Promise<Texture | null> {
+export async function getTexture(id: number): Promise<Texture | null> {
 	return db.texture.findUnique({ where: { id } });
 }
 
-export async function getRelatedTextures(id: string): Promise<Texture[]> {
+export async function getRelatedTextures(id: number): Promise<Texture[]> {
 	return db.texture.findFirst({ where: { id }, include: { relations: true, relationOf: true } })
 		.then((res) => [...(res?.relations ?? []), ...(res?.relationOf ?? [])])
 		.then((res) => {
@@ -38,7 +38,7 @@ export async function getRelatedTextures(id: string): Promise<Texture[]> {
 		});
 }
 
-export async function getTextureStatus(textureId: string): Promise<ContributionActivationStatus[]> {
+export async function getTextureStatus(textureId: number): Promise<ContributionActivationStatus[]> {
 	return db.contributionDeactivation
 		.findMany({
 			where: {
@@ -128,7 +128,7 @@ export async function createTexture({
 	});
 }
 
-export async function updateMCMETA(id: string, mcmeta: TextureMCMETA | undefined): Promise<Texture> {
+export async function updateMCMETA(id: number, mcmeta: TextureMCMETA | undefined): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.texture.update({
@@ -138,7 +138,7 @@ export async function updateMCMETA(id: string, mcmeta: TextureMCMETA | undefined
 }
 
 interface UpdateTextureParams {
-	id: string;
+	id: number;
 	name: string;
 	aliases: string[];
 	contributions: ContributionActivationStatus[];
@@ -165,7 +165,7 @@ export async function updateTexture({ id, name, aliases, contributions }: Update
 	return db.texture.update({ where: { id }, data: { name, aliases } });
 };
 
-export async function addRelationsToTexture(textureId: string, relatedTextures: string[]): Promise<Texture[]> {
+export async function addRelationsToTexture(textureId: number, relatedTextures: number[]): Promise<Texture[]> {
 	await canAccess(UserRole.COUNCIL);
 
 	// get current relations
@@ -186,7 +186,7 @@ export async function addRelationsToTexture(textureId: string, relatedTextures: 
 
 // DELETE
 
-export async function deleteTexture(id: string): Promise<Texture> {
+export async function deleteTexture(id: number): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	// Delete on disk
@@ -200,7 +200,7 @@ export async function deleteTexture(id: string): Promise<Texture> {
 	return db.texture.delete({ where: { id } });
 }
 
-export async function removeRelationFromTexture(textureId: string, relatedTextureId: string) {
+export async function removeRelationFromTexture(textureId: number, relatedTextureId: number) {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.texture

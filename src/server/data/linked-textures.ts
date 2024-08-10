@@ -10,7 +10,7 @@ import type { LinkedTexture } from '@prisma/client';
 
 // GET
 
-export async function getLinkedTexturesFrom(textureId:string): Promise<LinkedTexture[]> {
+export async function getLinkedTexturesFrom(textureId: number): Promise<LinkedTexture[]> {
 	return db.linkedTexture.findMany({
 		where: {
 			textureId,

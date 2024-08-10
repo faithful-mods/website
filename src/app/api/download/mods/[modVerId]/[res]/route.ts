@@ -63,7 +63,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 						take: 1,
 						select: {
 							id: true,
-							file: true,
+							filepath: true,
 							mcmeta: true,
 						},
 					},
@@ -80,7 +80,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 
 		zip.file<'stream'>(
 			`${linkedTexture.assetPath}`,
-			createReadStream(`${FILE_PATH}/${contribution.file.replace('/files', '/').replace(FILE_DIR, '')}`)
+			createReadStream(`${FILE_PATH}/${contribution.filepath.replace('/files', '/').replace(FILE_DIR, '')}`)
 		);
 
 		if (contribution.mcmeta) {

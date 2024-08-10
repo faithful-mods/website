@@ -17,7 +17,7 @@ import type { Mod, ModVersion, Resource } from '@prisma/client';
 
 interface TextureUsesLinkedPopupProps {
 	onUpdate: () => void;
-	textureId: string;
+	textureId: number;
 }
 
 export function TextureUsesLinkedPopup({ textureId, onUpdate }: TextureUsesLinkedPopupProps) {

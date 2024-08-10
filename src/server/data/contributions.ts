@@ -35,7 +35,7 @@ export async function getSubmittedContributions(
 	});
 }
 
-export async function getContributionsOfTexture(textureId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
+export async function getContributionsOfTexture(textureId: number): Promise<ContributionWithCoAuthorsAndPoll[]> {
 	return await db.contribution.findMany({
 		where: { textureId, status: Status.ACCEPTED },
 		include: {
@@ -99,6 +99,45 @@ export async function findContribution(hash: string): Promise<Contribution | nul
 	});
 }
 
+export async function getLatestContributionsOfModVersion(modVersionId: string, res: Resolution): Promise<ContributionWithCoAuthors[]> {
+	return db.resource.findMany({
+		where: {
+			modVersionId,
+		},
+		include: {
+			linkedTextures: {
+				include: {
+					texture: {
+						include: {
+							contributions: {
+								orderBy: {
+									updatedAt: 'desc',
+								},
+								where: {
+									status: Status.ACCEPTED,
+									resolution: res,
+								},
+								take: 1,
+								include: {
+									coAuthors: { select: { id: true, name: true, image: true } },
+									owner: { select: { id: true, name: true, image: true } },
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}).then((resources) =>
+		resources
+			.flatMap((r) => r.linkedTextures)
+			.map((linkedTexture) => linkedTexture.texture)
+			.unique((t1, t2) => t1.id === t2.id)
+			.map((texture) => texture.contributions[0])
+			.filter((c) => !!c)
+	);
+}
+
 // POST
 
 export async function createRawContributions(
@@ -124,7 +163,7 @@ export async function createRawContributions(
 				ownerId,
 				coAuthors: { connect: coAuthors.map((id) => ({ id })) },
 				resolution,
-				file: filepath,
+				filepath,
 				filename: file.name,
 				pollId: poll.id,
 				hash,
@@ -149,10 +188,10 @@ export async function updateContributionPicture(ownerId: string, contributionId:
 	if (await findContribution(hash)) throw new Error(`Contribution "${file.name}" has already been submitted`);
 	const filepath = await upload(file, `textures/contributions/${ownerId}/`);
 
-	const oldFile = await db.contribution.findFirst({ where: { id: contributionId }, select: { file: true } });
-	if (oldFile) await remove(oldFile.file as `/files/${string}`);
+	const oldFile = await db.contribution.findFirst({ where: { id: contributionId }, select: { filepath: true } });
+	if (oldFile) await remove(oldFile.filepath as `/files/${string}`);
 
-	const contribution = await db.contribution.update({ where: { id: contributionId }, data: { file: filepath, filename: file.name, hash, status: Status.DRAFT } });
+	const contribution = await db.contribution.update({ where: { id: contributionId }, data: { filepath, filename: file.name, hash, status: Status.DRAFT } });
 
 	// reset poll
 	await db.poll.update({
@@ -178,7 +217,7 @@ export async function updateDraftContribution({
 	contributionId: string;
 	coAuthors: string[];
 	resolution: Resolution;
-	textureId: string;
+	textureId: number;
 	mcmeta: TextureMCMETA;
 }): Promise<ContributionWithCoAuthors> {
 	await canAccess(UserRole.ADMIN, ownerId);
@@ -287,7 +326,7 @@ export async function deleteContributions(
 
 		// Base case: owner wants to delete the contribution
 		if (contribution.ownerId === ownerId) {
-			await remove(contribution.file as `/files/${string}`);
+			await remove(contribution.filepath as `/files/${string}`);
 			await db.contribution.delete({ where: { id: contribution.id } });
 		}
 	}

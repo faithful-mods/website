@@ -22,7 +22,7 @@ interface TextureRelationsProps {
 
 export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 	const [relatedTextures, setRelatedTextures] = useState<Texture[]>([]);
-	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<string[]>([]);
+	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<number[]>([]);
 
 	const [windowWidth] = useDeviceSize();
 
@@ -46,13 +46,13 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 			.then((res) => setRelatedTextures(res.sort(sortByName)));
 	};
 
-	const handleRelationRemove = async (id: string) => {
+	const handleRelationRemove = async (id: number) => {
 		removeRelationFromTexture(texture.id, id)
 			.then((res) => setRelatedTextures(res.sort(sortByName)));
 	};
 
 	const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({ option }) => {
-		const texture = textures.find((u) => u.id === option.value)!;
+		const texture = textures.find((u) => u.id === parseInt(option.value, 10))!;
 
 		return (
 			<Group gap="sm" wrap="nowrap">
@@ -84,11 +84,15 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 					placeholder="Select or search textures..."
 					data={textures
 						.filter((t) => t.id !== texture.id)
-						.map((t) => ({ value: t.id, label: t.name ?? 'Unknown', disabled: relatedTextures.map((t) => t.id).includes(t.id) }))
+						.map((t) => ({
+							value: t.id.toString(),
+							label: t.name ?? 'Unknown',
+							disabled: relatedTextures.map((t) => t.id).includes(t.id),
+						}))
 					}
 					renderOption={renderMultiSelectOption}
 					defaultValue={[]}
-					onChange={setNewRelatedTexturesIds}
+					onChange={(e) => setNewRelatedTexturesIds(e.map((t) => parseInt(t, 10)))}
 					hidePickedOptions
 					searchable
 					clearable
