@@ -52,7 +52,7 @@ export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps)
 				<FileInput label="Picture" required accept="image/*" {...form.getInputProps('image')} valueComponent={filename} />
 				<TextInput label="Page URL" {...form.getInputProps('url')} />
 				<MultiSelect data={MODS_LOADERS} label="Mod loader(s)" required {...form.getInputProps('loaders')} />
-				<TextInput label="Forge Mod ID" required {...form.getInputProps('forgeId')} />
+				<TextInput label="Mod ID" required {...form.getInputProps('forgeId')} />
 			</Stack>
 		</Group>
 	);
