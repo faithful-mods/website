@@ -114,6 +114,7 @@ export function CouncilContributionItem({ disabled, contribution, isLightBackgro
 							<Button
 								p={0}
 								fullWidth
+								color="teal"
 								disabled={disabled}
 								className={disabled ? 'button-disabled-with-bg' : undefined}
 								leftSection={<LuArrowUp/>}
@@ -125,6 +126,7 @@ export function CouncilContributionItem({ disabled, contribution, isLightBackgro
 							<Button
 								p={0}
 								fullWidth
+								color="red"
 								disabled={disabled}
 								className={disabled ? 'button-disabled-with-bg' : undefined}
 								leftSection={<LuArrowDown/>}
@@ -136,6 +138,7 @@ export function CouncilContributionItem({ disabled, contribution, isLightBackgro
 							<Button
 								p={0}
 								fullWidth
+								color="gray"
 								disabled={disabled}
 								className={disabled ? 'button-disabled-with-bg' : undefined}
 								leftSection={<LuArrowUpDown/>}
@@ -145,6 +148,11 @@ export function CouncilContributionItem({ disabled, contribution, isLightBackgro
 								{counselors.length - (contribution.poll.upvotes.length + contribution.poll.downvotes.length)}
 							</Button>
 						</Group>
+					)}
+					{!texture && (
+						<Button mt="sm" color="red" variant="light">
+							No texture selected
+						</Button>
 					)}
 				</Stack>
 			</Group>
