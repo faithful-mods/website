@@ -45,8 +45,8 @@ const ContributeAboutPage = () => {
 				</Text>
 			</ul>
 			<Text size="sm">
-				When your submissions are in <Badge component="span" color={COLORS.DRAFT}>draft</Badge> or <Badge component="span" color={COLORS.PENDING}>pending</Badge> status,
-				you can edit them as many times as you like. <br/> Note that if you edit your contribution (even when rejected), its status will be reset to <Badge component="span" color={COLORS.DRAFT}>draft</Badge> and will need to be re-submitted and re-voted on.
+				You can edit your submissions as many times as you like. <br/>
+				Note that if you edit your contribution (even when rejected), its status will be reset to <Badge component="span" color={COLORS.DRAFT}>draft</Badge> and will need to be re-submitted and re-voted on.
 			</Text>
 			{windowWidth <= BREAKPOINT_MOBILE_LARGE && <Button mt="sm" disabled>Apply for Council</Button>}
 
