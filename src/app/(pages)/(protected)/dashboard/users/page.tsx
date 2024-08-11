@@ -76,7 +76,7 @@ const UsersPanel = () => {
 						<Group key={index} justify="space-between" align="center">
 							<Group gap="sm">
 								<Avatar
-									className="navbar-icon-fix image-background"
+									className="navbar-icon-fix solid-background"
 									variant="outline"
 									radius={4}
 									src={user?.image}

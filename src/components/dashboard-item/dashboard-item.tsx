@@ -39,7 +39,7 @@ export function DashboardItem({ image, title, description, onClick, warning }: I
 		>
 			<Image
 				radius="sm"
-				className="cursor-pointer image-background"
+				className="cursor-pointer solid-background"
 				src={image ?? '/icon.png'}
 				alt=""
 				width={90}
