@@ -6,7 +6,7 @@ import { Resolution } from '@prisma/client';
 
 import { TextureImage } from '~/components/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient } from '~/lib/utils';
+import { GRADIENT } from '~/lib/constants';
 import { getTextureStatus, getVanillaTextures, updateTexture } from '~/server/data/texture';
 
 import type { MultiSelectProps } from '@mantine/core';
@@ -135,7 +135,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 						<Switch
 							label="Contributions enabled"
 							disabled={vanillaTexture !== null}
-							color={gradient.to}
+							color="blue"
 							onLabel="ON"
 							offLabel="OFF"
 							checked={contributionsStatus.find((s) => s.resolution === null)?.status}
@@ -151,7 +151,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 							<Switch
 								key={res}
 								label={res}
-								color={gradient.to}
+								color="blue"
 								onLabel="ON"
 								offLabel="OFF"
 								disabled={!contributionsStatus.find((s) => s.resolution === null)?.status}
@@ -171,7 +171,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 			>
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					onClick={() => handleSave()}
 					disabled={loading || !form.isValid()}
 					loading={loading}

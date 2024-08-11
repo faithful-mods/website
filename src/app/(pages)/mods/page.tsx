@@ -18,7 +18,7 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
-import { gradientDanger, searchFilter, sortByName, sortBySemver } from '~/lib/utils';
+import { searchFilter, sortByName, sortBySemver } from '~/lib/utils';
 import { getModsOfModsPage } from '~/server/data/mods';
 import { getSupportedMinecraftVersions } from '~/server/data/mods-version';
 
@@ -161,7 +161,7 @@ export default function Mods() {
 						onChange={(e) => setShowModsNoTextures(e.target.checked)}
 					/>
 
-					<Button variant="transparent" c={gradientDanger.to}>
+					<Button variant="transparent" c="red">
 						Reset
 					</Button>
 				</Stack>

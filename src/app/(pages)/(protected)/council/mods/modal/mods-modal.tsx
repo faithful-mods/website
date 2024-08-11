@@ -5,8 +5,8 @@ import { useForm } from '@mantine/form';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
-import { gradient, gradientDanger, notify } from '~/lib/utils';
+import { BREAKPOINT_DESKTOP_LARGE, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { notify } from '~/lib/utils';
 import { createMod, deleteMod, updateMod, updateModPicture } from '~/server/data/mods';
 
 import { ModVersions } from './mod-versions/mod-version';
@@ -123,7 +123,7 @@ export function ModModal({ mod, onClose }: {mod: Mod, onClose: (editedMod: Mod |
 			<Group justify="end" mt="lg">
 				<Button
 					variant="gradient"
-					gradient={gradientDanger}
+					gradient={GRADIENT_DANGER}
 					onClick={() => onDelete(mod.id)}
 					disabled={isPending}
 					loading={isPending}
@@ -133,7 +133,7 @@ export function ModModal({ mod, onClose }: {mod: Mod, onClose: (editedMod: Mod |
 				</Button>
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					onClick={() => onSubmit(form.values)}
 					disabled={isPending || !form.isValid()}
 					loading={isPending}

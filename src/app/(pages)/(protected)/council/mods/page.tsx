@@ -14,8 +14,8 @@ import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
-import { gradientDanger, searchFilter, sortByName } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
+import { searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
 import { ModModal } from './modal/mods-modal';
@@ -215,7 +215,7 @@ const ModsPanel = () => {
 					<Group justify="flex-end" mt="md">
 						<Button
 							variant="gradient"
-							gradient={gradientDanger}
+							gradient={GRADIENT_DANGER}
 							onClick={() => handleVoid()}
 							loading={isPending}
 							disabled={isPending}

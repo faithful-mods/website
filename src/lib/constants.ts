@@ -1,8 +1,8 @@
 import { join } from 'path';
 
-import { Resolution } from '@prisma/client';
+import { Resolution, Status } from '@prisma/client';
 
-import type { MantineColor } from '@mantine/core';
+import type { MantineColor, MantineGradient } from '@mantine/core';
 import type { Progression } from '~/types';
 
 export const MAX_NAME_LENGTH = 32;
@@ -78,3 +78,31 @@ export const EMPTY_PROGRESSION: Progression = {
 	linkedTextures: 0,
 	textures: { done: EMPTY_PROGRESSION_RES, todo: 0 },
 } as const;
+
+export const GRADIENT: MantineGradient = {
+	from: 'cyan',
+	to: 'blue',
+	deg: 69,
+};
+
+export const GRADIENT_DANGER: MantineGradient = {
+	from: 'red',
+	to: 'pink',
+	deg: 69,
+};
+
+export const GRADIENT_WARNING: MantineGradient = {
+	from: 'orange',
+	to: 'red',
+	deg: 69,
+};
+
+export const COLORS: Record<Status, MantineColor> = {
+	[Status.DRAFT]: 'gray',
+	[Status.PENDING]: GRADIENT_WARNING.from,
+	[Status.ACCEPTED]: GRADIENT.from,
+	[Status.REJECTED]: GRADIENT_DANGER.from,
+};
+
+// export const DRAFT_COLOR: MantineColor = 'gray';
+// export const PENDING

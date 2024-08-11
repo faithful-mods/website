@@ -11,8 +11,8 @@ import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { useWebsocket } from '~/hooks/use-websocket';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, gradientDanger, sortByName } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { sortByName } from '~/lib/utils';
 import { createModpackVersion, deleteModpackVersion, updateModpackVersion, addModsToModpackVersion, removeModFromModpackVersion } from '~/server/data/modpacks-version';
 import { getModsFromIds } from '~/server/data/mods';
 
@@ -202,7 +202,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 								</Group>
 								<Button
 									variant="light"
-									color={gradientDanger.to}
+									color="red"
 									onClick={() => deleteModFromMV(modVersions.find((v) => v.modId === mod.id)!.id)}
 								>
 									Remove
@@ -218,7 +218,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				{(modpackVersion || mods.length > 0) &&
 					<Button
 						variant="gradient"
-						gradient={gradientDanger}
+						gradient={GRADIENT_DANGER}
 						style={{ width: 'calc((100% - var(--mantine-spacing-sm)) / 2)' }}
 						onClick={() => deleteMV()}
 						disabled={isPending}
@@ -229,7 +229,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 				}
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					style={{ width: (modpackVersion || mods.length > 0) ? 'calc((100% - var(--mantine-spacing-sm)) / 2)' : '100%' }}
 					onClick={() => saveMV()}
 					disabled={isPending || !form.isValid() || !_modpackVersion}

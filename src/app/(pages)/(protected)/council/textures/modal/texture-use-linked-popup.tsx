@@ -7,8 +7,7 @@ import { Group, Text, TextInput, Select, Button, Stack } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT } from '~/lib/constants';
 import { getModsOfModsPage } from '~/server/data/mods';
 import { getModVersions } from '~/server/data/mods-version';
 import { getResources, linkTextureToResource } from '~/server/data/resource';
@@ -133,7 +132,7 @@ export function TextureUsesLinkedPopup({ textureId, onUpdate }: TextureUsesLinke
 			<Button
 				variant="gradient"
 				className="w-full"
-				gradient={gradient}
+				gradient={GRADIENT}
 				disabled={assetPath === ''}
 				onClick={() => addLinkedTexture()}
 			>

@@ -10,8 +10,8 @@ import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, gradientDanger, gradientWarning, notify } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, COLORS } from '~/lib/constants';
+import { notify } from '~/lib/utils';
 import { createRawContributions, getCoSubmittedContributions, getDraftContributions, getSubmittedContributions } from '~/server/data/contributions';
 
 import { CoAuthorsSelector } from './co-authors-select';
@@ -159,9 +159,9 @@ const SubmitPage = () => {
 						<>
 							<Accordion.Control icon={
 								<Group gap="sm">
-									<Badge color={gradient.to} variant="filled">{draftContributions.length}</Badge>
-									<Badge color={gradientWarning.from} variant="filled">{counts[0]}</Badge>
-									<Badge color={gradientDanger.from} variant="filled">{counts[1]}</Badge>
+									<Badge color={COLORS.DRAFT} variant="filled">{draftContributions.length}</Badge>
+									<Badge color={COLORS.PENDING} variant="filled">{counts[0]}</Badge>
+									<Badge color={COLORS.REJECTED} variant="filled">{counts[1]}</Badge>
 									<Badge color="teal" variant="filled">{counts[2]}</Badge>
 								</Group>
 							}>

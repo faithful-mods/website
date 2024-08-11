@@ -7,8 +7,7 @@ import { Button, Badge, Text, Checkbox } from '@mantine/core';
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradientDanger, gradient, gradientWarning } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, COLORS } from '~/lib/constants';
 
 const ContributeAboutPage = () => {
 	const [windowWidth] = useDeviceSize();
@@ -42,12 +41,12 @@ const ContributeAboutPage = () => {
 					If the contribution has more upvotes than downvotes, it will be <Badge component="span" color="teal">accepted</Badge>
 				</Text>
 				<Text size="sm" component="li">
-					If there is more downvotes or the same amount of upvotes and downvotes, it will be <Badge component="span" color={gradientDanger.from}>rejected</Badge> and deleted after a 6-month period.
+					If there is more downvotes or the same amount of upvotes and downvotes, it will be <Badge component="span" color={COLORS.REJECTED}>rejected</Badge> and deleted after a 6-month period.
 				</Text>
 			</ul>
 			<Text size="sm">
-				When your submissions are in <Badge component="span" color={gradient.to}>draft</Badge> or <Badge component="span" color={gradientWarning.from}>pending</Badge> status,
-				you can edit them as many times as you like. <br/> Note that if you edit your contribution (even when rejected), its status will be reset to <Badge component="span" color={gradient.to}>draft</Badge> and will need to be re-submitted and re-voted on.
+				When your submissions are in <Badge component="span" color={COLORS.DRAFT}>draft</Badge> or <Badge component="span" color={COLORS.PENDING}>pending</Badge> status,
+				you can edit them as many times as you like. <br/> Note that if you edit your contribution (even when rejected), its status will be reset to <Badge component="span" color={COLORS.DRAFT}>draft</Badge> and will need to be re-submitted and re-voted on.
 			</Text>
 			{windowWidth <= BREAKPOINT_MOBILE_LARGE && <Button mt="sm" disabled>Apply for Council</Button>}
 

@@ -6,7 +6,6 @@ import { Tabs } from '@mantine/core';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient } from '~/lib/utils';
 
 interface TabsLayoutProps<T extends string[]> {
 	children: React.ReactNode;
@@ -39,7 +38,7 @@ export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, i
 
 	return (
 		<Tabs
-			color={gradient.to}
+			color="blue"
 			value={currentTab}
 			onChange={(value) => {
 				const tab = tabs.find((tab) => tab.value === value);

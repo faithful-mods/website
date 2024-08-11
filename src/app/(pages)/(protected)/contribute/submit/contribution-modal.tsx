@@ -10,8 +10,7 @@ import { TextureImage } from '~/components/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, gradientDanger } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { getContributionsOfTexture, updateContributionPicture, updateDraftContribution } from '~/server/data/contributions';
 
 import { CoAuthorsSelector } from './co-authors-select';
@@ -209,7 +208,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 							{(props) => (
 								<Button
 									variant="light"
-									color={gradient.to}
+									color="blue"
 									p={0}
 									className="navbar-icon-fix"
 									loading={isPending}
@@ -251,7 +250,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 					<Group wrap="nowrap">
 						<Button
 							variant="light"
-							color={gradient.to}
+							color="blue"
 							p={0}
 							className="navbar-icon-fix"
 							loading={isPending}
@@ -434,7 +433,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 					maw="200px"
 					loading={isPending}
 					variant="gradient"
-					gradient={gradientDanger}
+					gradient={GRADIENT_DANGER}
 					onClick={handleCancel}
 				>
 					Cancel
@@ -445,7 +444,7 @@ export function ContributionModal({ contribution, textures, onClose }: Contribut
 					loading={isPending}
 					disabled={!selectedTexture || disabledResolution.length === Object.keys(Resolution).length || disabledResolution.includes(null)}
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					onClick={handleDraftUpdate}
 				>
 					Save
