@@ -260,6 +260,7 @@ export default function Mods() {
 							<Stack gap="xs">
 								<Group align="start" wrap="nowrap">
 									<TextureImage
+										solidBackground
 										src={m.image ?? './icon.png'}
 										alt={m.name}
 										size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { RefObject } from 'react';
 
-import { GoHash, GoPeople } from 'react-icons/go';
+import { GoHash, GoPeople, GoPerson } from 'react-icons/go';
 import { PiApproximateEquals } from 'react-icons/pi';
 
 import { Avatar, Group, Stack, Text } from '@mantine/core';
@@ -78,7 +78,7 @@ export function GalleryTextureWithContribution({
 			}}
 		>
 			<Stack gap={2} align="start" miw={400} maw={400}>
-				<SmallTile>
+				<SmallTile color="gray">
 					<Text fw={500} ta="center">{texture.name}</Text>
 				</SmallTile>
 				{resolution !== 'x16' && (contribution || vanillaContribution) && (
@@ -90,7 +90,7 @@ export function GalleryTextureWithContribution({
 							size="xs"
 							radius={5}
 						/>
-						<SmallTile>
+						<SmallTile color="gray">
 							<Group gap={3.3}>
 								<Text component="span" size="xs">{contribution ? contribution.owner.name : vanillaContribution?.owner.name}</Text>
 							</Group>
@@ -99,21 +99,33 @@ export function GalleryTextureWithContribution({
 				)}
 				{resolution !== 'x16' && (contribution && contribution.coAuthors.length > 0) || (vanillaContribution && vanillaContribution.coAuthors.length > 0) && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<GoPeople />
 						</SmallTile>
-						<SmallTile>
+						<SmallTile color="gray">
 							<Text size="xs">
 								{contribution ? contribution.coAuthors.map((ca) => ca.name).join(', ') : vanillaContribution?.coAuthors.map((ca) => ca.name).join(', ')}
 							</Text>
 						</SmallTile>
 					</Group>
 				)}
+				{resolution !== 'x16' && !contribution && !vanillaContribution && (
+					<Group gap={2} w="100%" wrap="nowrap" align="start">
+						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+							<GoPerson />
+						</SmallTile>
+						<SmallTile color="gray">
+							<Text size="xs" c="dimmed">
+								No contribution
+							</Text>
+						</SmallTile>
+					</Group>
+				)}
 				<Group gap={2} w="100%" wrap="nowrap" align="start">
-					<SmallTile className="navbar-icon-fix" style={{ '--size': '28px' }}>
+					<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
 						<GoHash />
 					</SmallTile>
-					<SmallTile>
+					<SmallTile color="gray">
 						<Text size="xs" c="dimmed">
 							ID: {texture.id}
 						</Text>
@@ -121,10 +133,10 @@ export function GalleryTextureWithContribution({
 				</Group>
 				{texture.aliases.length > 0 && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<PiApproximateEquals />
 						</SmallTile>
-						<SmallTile>
+						<SmallTile color="gray">
 							<Text size="xs" c="dimmed">
 								{texture.aliases.join(', ')}
 							</Text>

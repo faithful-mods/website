@@ -87,6 +87,9 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 						size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 						styles={{
 							borderRadius: 5,
+							backgroundImage: 'none',
+							minHeight: 'auto',
+							height: 'auto',
 						}}
 					/>
 					<Stack

@@ -8,6 +8,7 @@ import { useMCMETA } from '~/hooks/use-mcmeta';
 import type { TextureMCMETA } from '~/types';
 
 interface TextureImageProps {
+	solidBackground?: boolean;
 	isTransparent?: boolean;
 	src: string;
 	alt: string;
@@ -25,6 +26,7 @@ interface TextureImageProps {
 }
 
 export function TextureImage({
+	solidBackground,
 	isTransparent,
 	src,
 	alt,
@@ -36,7 +38,6 @@ export function TextureImage({
 	notPixelated,
 	children,
 	fallback,
-	withArrow,
 	onClick,
 	onPopupClick,
 }: TextureImageProps) {
@@ -55,7 +56,8 @@ export function TextureImage({
 		minHeight: trueSize,
 		height: trueSize,
 		width: trueSize,
-		opacity: isTransparent ? 0.05 : 1,
+		opacity: isTransparent ? 0.4 : 1,
+		filter: isTransparent ? 'grayscale(.6)' : 'none',
 	};
 
 	const containerStyle = {
@@ -77,8 +79,8 @@ export function TextureImage({
 						src={_src}
 						alt={alt}
 						fit="contain"
-						style={imageStyle}
-						className={`${!notPixelated && 'image-pixelated'} ${className ?? ''} ${onClick && 'cursor-pointer'}`}
+						style={{ ...imageStyle, ...styles }}
+						className={`${!notPixelated && 'image-pixelated'} ${solidBackground && 'solid-background'} ${className ?? ''} ${onClick && 'cursor-pointer'}`}
 						onError={() => setSource(fallback ?? defaultFallback)}
 					/>
 				)}
@@ -86,7 +88,7 @@ export function TextureImage({
 					<canvas
 						ref={canvasRef}
 						onClick={onClick}
-						className={`${onClick && 'cursor-pointer'} ${className ?? ''}`}
+						className={`${onClick && 'cursor-pointer'} ${solidBackground && 'solid-background'} ${className ?? ''}`}
 						style={imageStyle}
 					/>
 				)}

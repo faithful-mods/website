@@ -167,7 +167,7 @@ export const Navbar = () => {
 									className="navbar-icon-fix"
 								>
 									<Avatar
-										className="cursor-pointer image-background"
+										className="cursor-pointer solid-background"
 										radius={4}
 										src={userPicture}
 										onError={() => setUserPicture(undefined)}
