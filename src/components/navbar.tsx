@@ -20,8 +20,7 @@ import { signOut } from 'next-auth/react';
 import { GitHubLogin } from '~/components/github-login';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
-import { BREAKPOINT_TABLET } from '~/lib/constants';
-import { gradient } from '~/lib/utils';
+import { BREAKPOINT_TABLET, GRADIENT } from '~/lib/constants';
 
 import { ThemeSwitch } from './theme-switch';
 import { Tile } from './tile';
@@ -85,7 +84,7 @@ export const Navbar = () => {
 								<Menu.Target>
 									<Button
 										variant="transparent"
-										color={gradient.to}
+										color="blue"
 										className="navbar-icon-fix"
 									>
 										<HiOutlineMenu className="w-5 h-5" />
@@ -105,7 +104,7 @@ export const Navbar = () => {
 											href={link.href}
 											disabled={link.disabled}
 											leftSection={link.icon}
-											c={(pathname.startsWith(link.href) && link.href !== '/') || link.href === pathname ? gradient.to : undefined}
+											c={(pathname.startsWith(link.href) && link.href !== '/') || link.href === pathname ? 'blue' : undefined}
 										>
 											{link.label}
 										</Menu.Item>
@@ -121,8 +120,8 @@ export const Navbar = () => {
 								<Button
 									autoContrast
 									variant={pathname.startsWith(link.href) ? 'gradient' : 'transparent'}
-									gradient={gradient}
-									color={gradient.to}
+									gradient={GRADIENT}
+									color="blue"
 									disabled={link.disabled}
 									className={link.disabled ? 'button-disabled' : ''}
 								>
@@ -181,7 +180,7 @@ export const Navbar = () => {
 						{user && user.role === UserRole.BANNED &&
 							<Button
 								variant="transparent"
-								color={gradient.to}
+								color="blue"
 								onClick={() => signOut({ callbackUrl: '/' })}
 								className="navbar-icon-fix"
 							>

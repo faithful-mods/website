@@ -7,7 +7,8 @@ import { useForm } from '@mantine/form';
 
 import { TextureImage } from '~/components/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
+import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { extractSemver } from '~/lib/utils';
 import { deleteModVersion, removeModpackFromModVersion, updateModVersion } from '~/server/data/mods-version';
 
 import type { Mod, Modpack } from '@prisma/client';
@@ -116,7 +117,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 							</Group>
 							<Button
 								variant="light"
-								color={gradientDanger.to}
+								color="red"
 								onClick={() => deleteModpackFromMV(modpack.id)}
 								mr={modVersionModpacks.length > 5 ? 'sm' : 0}
 							>
@@ -131,7 +132,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 				{modVersion &&
 					<Button
 						variant="gradient"
-						gradient={gradientDanger}
+						gradient={GRADIENT_DANGER}
 						style={{ width: 'calc((100% - var(--mantine-spacing-sm)) / 2)' }}
 						onClick={() => deleteMV()}
 						disabled={isPending}
@@ -142,7 +143,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 				}
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					style={{ width: modVersion ? 'calc((100% - var(--mantine-spacing-sm)) / 2)' : '100%' }}
 					onClick={() => saveMV()}
 					disabled={isPending || !form.isValid()}

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { Button, Group, JsonInput, Stack } from '@mantine/core';
 
-import { gradient, gradientDanger } from '~/lib/utils';
+import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { updateMCMETA } from '~/server/data/texture';
 
 import type { Texture } from '@prisma/client';
@@ -60,8 +60,24 @@ export function TextureMCMETAEdition({ texture, onUpdate }: TextureUsesProps) {
 			/>
 
 			<Group gap="md">
-				<Button w={'calc(50% - (var(--mantine-spacing-md) / 2))'} disabled={!texture.mcmeta} onClick={handleDelete} variant="gradient" gradient={gradientDanger}>Delete</Button>
-				<Button w={'calc(50% - (var(--mantine-spacing-md) / 2))'} disabled={!isValid} onClick={handleUpdate} variant="gradient" gradient={gradient}>Save</Button>
+				<Button
+					w={'calc(50% - (var(--mantine-spacing-md) / 2))'}
+					disabled={!texture.mcmeta}
+					onClick={handleDelete}
+					variant="gradient"
+					gradient={GRADIENT_DANGER}
+				>
+					Delete
+				</Button>
+				<Button
+					w={'calc(50% - (var(--mantine-spacing-md) / 2))'}
+					disabled={!isValid}
+					onClick={handleUpdate}
+					variant="gradient"
+					gradient={GRADIENT}
+				>
+					Save
+				</Button>
 			</Group>
 		</Stack>
 	);

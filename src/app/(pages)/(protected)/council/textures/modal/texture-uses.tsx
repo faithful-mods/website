@@ -12,7 +12,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { Modal } from '~/components/modal';
 import { Tile } from '~/components/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
+import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { extractSemver } from '~/lib/utils';
 import { deleteLinkedTexture, getLinkedTexturesFrom } from '~/server/data/linked-textures';
 import { getModsFromIds } from '~/server/data/mods';
 import { getModsVersionsFromResources } from '~/server/data/mods-version';
@@ -102,7 +103,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 															w={32}
 															h={22}
 															disabled={linkedTextures.length === 1}
-															gradient={gradientDanger}
+															gradient={GRADIENT_DANGER}
 															variant="gradient"
 															onClick={() => {
 																handleLinkedTextureDelete(lt.id);
@@ -129,7 +130,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 			))}
 			<Button
 				variant="gradient"
-				gradient={gradient}
+				gradient={GRADIENT}
 				onClick={() => openModal()}
 			>
 				Add a linked Texture

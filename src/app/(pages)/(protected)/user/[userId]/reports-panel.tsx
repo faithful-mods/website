@@ -13,8 +13,8 @@ import { UserRole, Status } from '@prisma/client';
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradientDanger, gradientWarning, notify } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT_DANGER, GRADIENT_WARNING } from '~/lib/constants';
+import { notify } from '~/lib/utils';
 import { getReportsReasons, reportSomeone, updateReportStatus } from '~/server/data/reports';
 import { getPublicUsers, updateUserRole } from '~/server/data/user';
 
@@ -195,7 +195,7 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 						<Group>
 							<Button
 								variant="gradient"
-								gradient={gradientDanger}
+								gradient={GRADIENT_DANGER}
 								className={!form.isValid() ? 'button-disabled-with-bg' : ''}
 								disabled={!form.isValid()}
 								fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
@@ -348,7 +348,7 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 									<Button
 										mt="sm"
 										variant="gradient"
-										gradient={gradientDanger}
+										gradient={GRADIENT_DANGER}
 										disabled={localReports.length === 0}
 										className={localReports.length === 0 ? 'button-disabled-with-bg' : ''}
 										onClick={ban}
@@ -361,7 +361,7 @@ export function UserReportsPanel({ user, self, reports }: { user: User, reports:
 									<Button
 										mt="sm"
 										variant="gradient"
-										gradient={gradientWarning}
+										gradient={GRADIENT_WARNING}
 										disabled={localUser.role !== UserRole.BANNED}
 										className={localUser.role !== UserRole.BANNED ? 'button-disabled-with-bg' : ''}
 										onClick={pardon}

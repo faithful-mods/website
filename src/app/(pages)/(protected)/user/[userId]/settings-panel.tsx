@@ -10,8 +10,8 @@ import { useSession } from 'next-auth/react';
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
-import { BREAKPOINT_MOBILE_LARGE, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
-import { gradient, notify } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
+import { notify } from '~/lib/utils';
 import { updateUser } from '~/server/data/user';
 
 import type { User } from '@prisma/client';
@@ -100,7 +100,7 @@ export function UserSettingsPanel({ user, self }: { user: User, self: boolean })
 
 			<Button
 				variant="gradient"
-				gradient={gradient}
+				gradient={GRADIENT}
 				onClick={() => onSubmit(form.values)}
 				disabled={isPending || !form.isValid() || user === undefined}
 				loading={isPending}

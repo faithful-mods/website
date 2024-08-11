@@ -8,8 +8,8 @@ import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, gradientDanger, notify, sortByName } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { notify, sortByName } from '~/lib/utils';
 import { submitContributions } from '~/server/data/contributions';
 import { getTexturesWithUsePaths } from '~/server/data/texture';
 
@@ -144,7 +144,7 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 				>
 					<Button
 						variant="gradient"
-						gradient={gradient}
+						gradient={GRADIENT}
 						disabled={ready.length === 0 || isDeletionMode}
 						className={(ready.length === 0 || isDeletionMode) ? 'button-disabled-with-bg' : undefined}
 						fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
@@ -162,7 +162,7 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 
 					<Button
 						variant="gradient"
-						gradient={gradient}
+						gradient={GRADIENT}
 						fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
 						disabled={drafts.length === 0 && submitted.length === 0}
 						className={drafts.length === 0 && submitted.length === 0 ? 'button-disabled-with-bg' : undefined}
@@ -183,7 +183,7 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 					>
 						<Button
 							variant="gradient"
-							gradient={gradientDanger}
+							gradient={GRADIENT_DANGER}
 							disabled={!isDeletionMode || contributionToDelete.length === 0}
 							className={(!isDeletionMode || contributionToDelete.length === 0) ? 'w-full button-disabled-with-bg' : 'w-full'}
 							onClick={openDeleteModal}
@@ -192,7 +192,7 @@ export function ContributionPanel({ drafts, submitted, onUpdate }: ContributionP
 						</Button>
 						<Checkbox
 							label="Delete mode"
-							color={gradientDanger.to}
+							color="red"
 							checked={isDeletionMode}
 							className="w-full"
 							onChange={(e) => setDeletionMode(e.target.checked)}

@@ -5,31 +5,13 @@ import { twMerge } from 'tailwind-merge';
 
 import { NOTIFICATIONS_DURATION_MS, PACK_FORMAT_VERSIONS } from './constants';
 
-import type { MantineColor, MantineGradient } from '@mantine/core';
+import type { MantineColor } from '@mantine/core';
 import type { Resolution } from '@prisma/client';
 import type { ClassValue } from 'clsx';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
-
-export const gradient: MantineGradient = {
-	from: 'cyan',
-	to: 'blue',
-	deg: 69,
-};
-
-export const gradientDanger: MantineGradient = {
-	from: 'red',
-	to: 'pink',
-	deg: 69,
-};
-
-export const gradientWarning: MantineGradient = {
-	from: 'orange',
-	to: 'red',
-	deg: 69,
-};
 
 export function capitalize(str: string) {
 	if (str.length === 0) return str;

@@ -8,8 +8,8 @@ import { Button, Group, MultiSelect, Stack, Text } from '@mantine/core';
 import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
-import { gradient, gradientDanger, sortByName } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { sortByName } from '~/lib/utils';
 import { addRelationsToTexture, getRelatedTextures, removeRelationFromTexture } from '~/server/data/texture';
 
 import type { MultiSelectProps } from '@mantine/core';
@@ -100,7 +100,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 				/>
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					className="navbar-icon-fix"
 					onClick={handleRelationAdd}
 				>
@@ -126,7 +126,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 
 							<Button
 								variant="gradient"
-								gradient={gradientDanger}
+								gradient={GRADIENT_DANGER}
 								onClick={() => handleRelationRemove(t.id)}
 							>
 								Delete relation

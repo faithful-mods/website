@@ -13,8 +13,8 @@ import { UserRole } from '@prisma/client';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { MINIMUM_CARD_WIDTH } from '~/lib/constants';
-import { gradient, notify } from '~/lib/utils';
+import { GRADIENT, MINIMUM_CARD_WIDTH } from '~/lib/constants';
+import { notify } from '~/lib/utils';
 import { getUsers, updateUserRole } from '~/server/data/user';
 
 import type { UserWithReports } from '~/types';
@@ -107,7 +107,7 @@ const UsersPanel = () => {
 								<Link href={'/user/' + user.id}>
 									<Button
 										variant='gradient'
-										gradient={gradient}
+										gradient={GRADIENT}
 										className="navbar-icon-fix"
 									>
 										<FaArrowRight />

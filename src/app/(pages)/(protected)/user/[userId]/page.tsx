@@ -10,7 +10,7 @@ import { signOut } from 'next-auth/react';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { gradient, gradientDanger, notify } from '~/lib/utils';
+import { notify } from '~/lib/utils';
 import { getReportsOfUser } from '~/server/data/reports';
 import { getUserById } from '~/server/data/user';
 
@@ -50,7 +50,7 @@ const UserPage = () => {
 	});
 
 	return (displayedUser && (
-		<Tabs defaultValue="1" variant="pills" color={gradient.to} >
+		<Tabs defaultValue="1" variant="pills" color="blue" >
 			<Tile mb="sm">
 				<Group justify="space-between">
 					<Tabs.List>
@@ -62,7 +62,7 @@ const UserPage = () => {
 					{self && (
 						<Button
 							variant="transparent"
-							color={gradientDanger.from}
+							color="red"
 							onClick={() => signOut({ callbackUrl: '/' })}
 						>
 							Logout

@@ -9,7 +9,7 @@ import { Modal } from '~/components/modal';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, notify } from '~/lib/utils';
+import { notify } from '~/lib/utils';
 import { getModpackVersions } from '~/server/data/modpacks-version';
 
 import { ModpackVersionModal } from './modpack-version-modal';
@@ -81,7 +81,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 
 				<Button
 					variant="light"
-					color={gradient.to}
+					color="blue"
 					fullWidth
 					onClick={() => openModpackVersionModal()}
 				>

@@ -6,8 +6,8 @@ import { useForm } from '@mantine/form';
 
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
-import { gradient, gradientDanger, notify } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT, GRADIENT_DANGER, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
+import { notify } from '~/lib/utils';
 import { createModpack, deleteModpack, updateModpack, updateModpackPicture } from '~/server/data/modpacks';
 
 import { ModpackModalGeneral } from './modpack-general';
@@ -117,7 +117,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 				{modpack &&
 					<Button
 						variant="gradient"
-						gradient={gradientDanger}
+						gradient={GRADIENT_DANGER}
 						onClick={() => onDelete(modpack.id)}
 						disabled={isPending}
 						loading={isPending}
@@ -128,7 +128,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 				}
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					onClick={() => onSubmit(form.values)}
 					disabled={isPending || !form.isValid()}
 					loading={isPending}

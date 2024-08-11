@@ -14,8 +14,8 @@ import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
-import { gradient, gradientDanger, notify, searchFilter, sortByName } from '~/lib/utils';
+import { GRADIENT, GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
+import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
 
 import { ModpackModal } from './modal/modpack-modal';
@@ -126,7 +126,7 @@ const ModpacksPanel = () => {
 				<Group align="center" mt="md" gap="sm" wrap="nowrap">
 					<Button
 						variant='gradient'
-						gradient={gradient}
+						gradient={GRADIENT}
 						className="navbar-icon-fix"
 						onClick={() => handleModalOpen()}
 					>
@@ -180,7 +180,7 @@ const ModpacksPanel = () => {
 					<Group justify="flex-end" mt="md">
 						<Button
 							variant="gradient"
-							gradient={gradientDanger}
+							gradient={GRADIENT_DANGER}
 							onClick={() => handleVoid()}
 							loading={isPending}
 							disabled={isPending}

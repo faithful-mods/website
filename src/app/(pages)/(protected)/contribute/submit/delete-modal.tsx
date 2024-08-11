@@ -1,7 +1,7 @@
 import { Button, Group, Stack, Text } from '@mantine/core';
 
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { gradient, gradientDanger } from '~/lib/utils';
+import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { deleteContributions } from '~/server/data/contributions';
 
 import { ContributionPanelItem } from './contribution-item';
@@ -26,7 +26,7 @@ export function ContributionDeleteModal({ contributionsAndDrafts, contributionTo
 		<Stack gap="md">
 			<Stack gap={0}>
 				<Text size="sm">Are you sure you want to delete {contributionToDelete.length} contribution{contributionToDelete.length > 1 ? 's' : ''} ?</Text>
-				<Text size="sm" c={gradientDanger.from}>
+				<Text size="sm" c="red">
 					Please note that this action is irreversible and the contribution{contributionToDelete.length > 1 ? 's' : ''} will be permanently deleted.
 				</Text>
 			</Stack>
@@ -46,7 +46,7 @@ export function ContributionDeleteModal({ contributionsAndDrafts, contributionTo
 			<Group gap="sm" wrap="nowrap">
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					onClick={() => closeModal('no')}
 					fullWidth
 				>
@@ -54,7 +54,7 @@ export function ContributionDeleteModal({ contributionsAndDrafts, contributionTo
 				</Button>
 				<Button
 					variant="gradient"
-					gradient={gradientDanger}
+					gradient={GRADIENT_DANGER}
 					onClick={handleContributionsDelete}
 					fullWidth
 				>
