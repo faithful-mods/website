@@ -1,9 +1,0 @@
-.texture-item {
-	width: calc((100% - ((var(--item-per-row) - 1) * var(--mantine-spacing-md))) / var(--item-per-row));
-	border: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-dark-4);
-	border-radius: var(--mantine-radius-default);
-}
-
-:where([data-mantine-color-scheme='light']) .texture-item {
-	border-color: var(--mantine-color-gray-4);
-}

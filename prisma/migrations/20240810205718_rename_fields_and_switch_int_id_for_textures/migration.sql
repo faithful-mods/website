@@ -34,10 +34,6 @@ DROP COLUMN "B",
 ADD COLUMN     "B" INTEGER NOT NULL;
 
 -- AlterTable
-ALTER TABLE "resources"
-RENAME COLUMN "textures" TO "linkedTextures";
-
--- AlterTable
 ALTER TABLE "contributions"
 RENAME COLUMN "file" TO "filepath";
 

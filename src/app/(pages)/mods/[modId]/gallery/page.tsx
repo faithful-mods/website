@@ -8,14 +8,14 @@ import { CloseButton, Group, Loader, Pagination, Select, Stack, Text, TextInput 
 import { usePrevious } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
+import { GalleryTextureWithContribution } from '~/components/texture-contribution';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
+import { searchFilter } from '~/lib/utils';
 import { getLatestContributionsOfModVersion } from '~/server/data/contributions';
 import { getModVersionFromMod } from '~/server/data/mods-version';
 import { getTexturesFromModVersion } from '~/server/data/texture';
-
-import { GalleryTexture } from './texture';
 
 import type { ModVersion, Texture } from '@prisma/client';
 import type { ContributionWithCoAuthors } from '~/types';
@@ -78,12 +78,7 @@ export default function ModGalleryPage() {
 				return;
 			}
 
-			setTexturesFiltered(
-				textures.filter((texture) =>
-					 texture.name.toLowerCase().includes(search.toLowerCase())
-				|| texture.aliases.some((alias) => alias.toLowerCase().includes(search.toLowerCase()))
-				)
-			);
+			setTexturesFiltered(textures.filter(searchFilter(search)));
 		});
 	}, [textures, search]);
 
@@ -193,7 +188,7 @@ export default function ModGalleryPage() {
 				<>
 					<Group gap={10} h="100%">
 						{texturesShown[activePage - 1]?.map((texture) => (
-							<GalleryTexture
+							<GalleryTextureWithContribution
 								key={texture.id}
 								container={texturesGroupRef}
 								rowItemsGap={10}

@@ -1,19 +1,22 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { RefObject } from 'react';
 
-import { GoFileDiff, GoHash, GoPeople } from 'react-icons/go';
+import { GoHash, GoPeople } from 'react-icons/go';
 import { PiApproximateEquals } from 'react-icons/pi';
 
 import { Avatar, Group, Stack, Text } from '@mantine/core';
 
+import { SmallTile } from '~/components/small-tile';
 import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
+import { useEffectOnce } from '~/hooks/use-effect-once';
+import { getVanillaTextureSrc } from '~/lib/utils';
+import { getVanillaTextureContribution } from '~/server/data/texture';
 
-import type { CardProps, PolymorphicComponentProps } from '@mantine/core';
 import type { Resolution, Texture } from '@prisma/client';
+import type { VanillaTextureContribution } from '~/server/data/texture';
 import type { ContributionWithCoAuthors } from '~/types';
 
-export interface GalleryTextureProps {
+export interface GalleryTextureWithContributionProps {
 	container: RefObject<HTMLDivElement>;
 	rowItemsGap: number;
 	rowItemsLength: number;
@@ -22,34 +25,23 @@ export interface GalleryTextureProps {
 	contribution?: ContributionWithCoAuthors;
 }
 
-function SmallTile({ children, style, ...props }: PolymorphicComponentProps<'div', CardProps>) {
-	return (
-		<Tile
-			w="100%"
-			mih={28}
-			style={{
-				padding: '5px 8px 6px 8px',
-				borderRadius: 5,
-				...style,
-			}}
-			{...props}
-		>
-			{children}
-		</Tile>
-	);
-}
-
-export function GalleryTexture({
+export function GalleryTextureWithContribution({
 	container,
 	rowItemsGap,
 	rowItemsLength,
 	resolution,
 	texture,
 	contribution,
-}: GalleryTextureProps) {
+}: GalleryTextureWithContributionProps) {
 
 	const src = useMemo(() => {
-		if (!contribution || resolution === 'x16') return texture.filepath;
+		if (resolution === 'x16') return texture.filepath;
+
+		if (texture.vanillaTexture)
+			return getVanillaTextureSrc(texture.vanillaTexture, resolution);
+
+		if (!contribution) return texture.filepath;
+
 		return contribution.filepath;
 	}, [texture, resolution, contribution]);
 
@@ -62,12 +54,21 @@ export function GalleryTexture({
 		[container, rowItemsGap, rowItemsLength]
 	);
 
+	const [vanillaContribution, setVanillaContribution] = useState<VanillaTextureContribution | null>(null);
+
+	useEffectOnce(() => {
+		if (!texture.vanillaTexture || resolution === 'x16') return;
+
+		getVanillaTextureContribution(texture.vanillaTexture, resolution)
+			.then(setVanillaContribution);
+	});
+
 	return (
 		<TextureImage
 			alt={texture.name}
 			src={src}
 			mcmeta={mcmeta}
-			isTransparent={resolution !== 'x16' && !contribution}
+			isTransparent={resolution !== 'x16' && !contribution && !texture.vanillaTexture}
 			size={size}
 			popupStyles={{
 				backgroundColor: 'transparent',
@@ -80,27 +81,30 @@ export function GalleryTexture({
 				<SmallTile>
 					<Text fw={500} ta="center">{texture.name}</Text>
 				</SmallTile>
-				{resolution !== 'x16' && contribution && (
+				{resolution !== 'x16' && (contribution || vanillaContribution) && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile className="navbar-icon-fix" style={{ '--size': '28px' }}>
-							<GoFileDiff />
-						</SmallTile>
+						<Avatar
+							className="navbar-icon-fix"
+							style={{ '--size': '28px', imageRendering: 'pixelated' }}
+							src={contribution ? contribution.owner.image : vanillaContribution?.owner.image}
+							size="xs"
+							radius={5}
+						/>
 						<SmallTile>
 							<Group gap={3.3}>
-								<Avatar mt={1} src={contribution.owner.image} size="xs" mr={3} />
-								<Text component="span" size="xs">{contribution.owner.name}</Text>
+								<Text component="span" size="xs">{contribution ? contribution.owner.name : vanillaContribution?.owner.name}</Text>
 							</Group>
 						</SmallTile>
 					</Group>
 				)}
-				{resolution !== 'x16' && contribution && contribution.coAuthors.length > 0 && (
+				{resolution !== 'x16' && (contribution && contribution.coAuthors.length > 0) || (vanillaContribution && vanillaContribution.coAuthors.length > 0) && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
 						<SmallTile className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<GoPeople />
 						</SmallTile>
 						<SmallTile>
 							<Text size="xs">
-								{contribution.coAuthors.map((ca) => ca.name).join(', ')}
+								{contribution ? contribution.coAuthors.map((ca) => ca.name).join(', ') : vanillaContribution?.coAuthors.map((ca) => ca.name).join(', ')}
 							</Text>
 						</SmallTile>
 					</Group>

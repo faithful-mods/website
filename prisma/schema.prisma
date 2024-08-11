@@ -154,6 +154,7 @@ model Texture {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   disabledContributions ContributionDeactivation[]
+  vanillaTexture String? @map("vanilla_texture")
 
   relations  Texture[] @relation("relations")
   relationOf Texture[] @relation("relations")

@@ -5,7 +5,7 @@ import JSZip from 'jszip';
 
 import { FILE_DIR, FILE_PATH, PUBLIC_PATH } from '~/lib/constants';
 import { db } from '~/lib/db';
-import { getPackFormatVersion, sortBySemver } from '~/lib/utils';
+import { getPackFormatVersion, getVanillaTextureSrc, sortBySemver } from '~/lib/utils';
 import { getModVersionProgression } from '~/server/data/mods-version';
 
 interface Params {
@@ -75,25 +75,40 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 	const zip = new JSZip();
 
 	for (const linkedTexture of linkedTextures) {
-		if (linkedTexture.texture.contributions.length === 0) continue;
+		if (linkedTexture.texture.contributions.length === 0 && linkedTexture.texture.vanillaTexture === null) continue;
+
 		const contribution = linkedTexture.texture.contributions[0]!;
-
-		zip.file<'stream'>(
-			`${linkedTexture.assetPath}`,
-			createReadStream(`${FILE_PATH}/${contribution.filepath.replace('/files', '/').replace(FILE_DIR, '')}`)
-		);
-
-		if (contribution.mcmeta) {
-			zip.file<'text'>(
-				`${linkedTexture.assetPath}.mcmeta`,
-				JSON.stringify(contribution.mcmeta, null, 2)
+		if (contribution) {
+			zip.file<'stream'>(
+				`${linkedTexture.assetPath}`,
+				createReadStream(`${FILE_PATH}/${contribution.filepath.replace('/files', '/').replace(FILE_DIR, '')}`)
 			);
+
+			if (contribution.mcmeta) {
+				zip.file<'text'>(
+					`${linkedTexture.assetPath}.mcmeta`,
+					JSON.stringify(contribution.mcmeta, null, 2)
+				);
+			}
+			else if (linkedTexture.texture.mcmeta) {
+				zip.file<'text'>(
+					`${linkedTexture.assetPath}.mcmeta`,
+					JSON.stringify(linkedTexture.texture.mcmeta, null, 2)
+				);
+			}
 		}
-		else if (linkedTexture.texture.mcmeta) {
-			zip.file<'text'>(
-				`${linkedTexture.assetPath}.mcmeta`,
-				JSON.stringify(linkedTexture.texture.mcmeta, null, 2)
-			);
+
+		const vanillaTextureId = linkedTexture.texture.vanillaTexture;
+		if (vanillaTextureId) {
+			const vanillaTexture = (await fetch(getVanillaTextureSrc(vanillaTextureId, res))).arrayBuffer();
+			zip.file<'arraybuffer'>(`${linkedTexture.assetPath}`, vanillaTexture);
+
+			if (linkedTexture.texture.mcmeta) {
+				zip.file<'text'>(
+					`${linkedTexture.assetPath}.mcmeta`,
+					JSON.stringify(linkedTexture.texture.mcmeta, null, 2)
+				);
+			}
 		}
 	}
 
