@@ -316,3 +316,28 @@ export interface MCModInfo {
 	 */
 	dependants?: string[];
 }
+
+export type FPTexturesRaw = Record<string, FPTextureRaw>
+
+export type FPTextureRaw = {
+	/** The texture's name */
+	name: string;
+	/** The texture's tags & edition */
+	tags: string[];
+	/** The texture's id */
+	id: string;
+}
+
+export type FPTextureContribution = {
+	date: number;
+	pack: `faithful_${number}x` | `classic_faithful_${number}x`;
+	authors: string[];
+	texture: string;
+	id: string;
+}
+
+export type FPUser = {
+	id: string;
+	username?: string;
+	uuid?: string;
+}

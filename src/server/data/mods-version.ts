@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { Status, UserRole } from '@prisma/client';
+import { Resolution, Status, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { EMPTY_PROGRESSION_RES } from '~/lib/constants';
@@ -11,6 +11,7 @@ import { sortBySemver } from '~/lib/utils';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
+import { doesVanillaTextureHasContribution } from './texture';
 import { extractModVersionsFromJAR } from '../actions/files';
 
 import type { ModVersion, Modpack } from '@prisma/client';
@@ -86,7 +87,12 @@ export async function getModVersionProgression(modVersionId: string): Promise<Pr
 	if (!modVersion) return null;
 
 	// get all textures uses for the mod version
-	const linkedTexturesIds = await db.linkedTexture.findMany({ where: { resourceId: { in: modVersion.resources.map((r) => r.id) } }, select: { textureId: true } });
+	const linkedTexturesIds = await db.linkedTexture.findMany({
+		where: {
+			resourceId: { in: modVersion.resources.map((r) => r.id) },
+		},
+		include: { texture: true },
+	});
 
 	// filter duplicates
 	const uniqueTextures = linkedTexturesIds.filter((lt, i, arr) => arr.findIndex((lt2) => lt2.textureId === lt.textureId) === i);
@@ -120,6 +126,18 @@ export async function getModVersionProgression(modVersionId: string): Promise<Pr
 
 	for (const contribution of contributions) {
 		progression.textures.done[contribution.resolution] += 1;
+	}
+
+	const vanillaTextures = uniqueTextures
+		.map((t) => t.texture.vanillaTexture)
+		.filter((vt) => vt !== null)
+		.unique();
+
+	for (const vanillaId of vanillaTextures) {
+		for (const res of Object.keys(Resolution) as Resolution[]) {
+			const contribution = await doesVanillaTextureHasContribution(vanillaId, res);
+			if (contribution) progression.textures.done[res] += 1;
+		}
 	}
 
 	return progression;
