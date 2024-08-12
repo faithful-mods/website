@@ -83,13 +83,14 @@ export function GalleryTextureWithContribution({
 				</SmallTile>
 				{resolution !== 'x16' && (contribution || vanillaContribution) && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<Avatar
-							className="navbar-icon-fix"
-							style={{ '--size': '28px', imageRendering: 'pixelated' }}
-							src={contribution ? contribution.owner.image : vanillaContribution?.owner.image}
-							size="xs"
-							radius={5}
-						/>
+						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+							<Avatar
+								className="navbar-icon-fix"
+								src={contribution ? contribution.owner.image : vanillaContribution?.owner.image}
+								size="xs"
+								radius={5}
+							/>
+						</SmallTile>
 						<SmallTile color="gray">
 							<Group gap={3.3}>
 								<Text component="span" size="xs">{contribution ? contribution.owner.name : vanillaContribution?.owner.name}</Text>
