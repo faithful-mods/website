@@ -10,7 +10,7 @@ import { GalleryTexture } from '~/components/texture';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
-import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, ITEMS_PER_ROW } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
 
@@ -34,7 +34,7 @@ const CouncilTexturesPage = () => {
 
 	const [texturesShown, setTexturesShown] = useState<Texture[][]>([[]]);
 	const [activePage, setActivePage] = useState(1);
-	const [texturesShownPerPage, setTexturesShownPerPage] = useState<string>(ITEMS_PER_PAGE_DEFAULT);
+	const [texturesShownPerPage, setTexturesShownPerPage] = useState<string>('96');
 	const [texturesShownPerRow, setTexturesShownPerRow] = useState<number>(12);
 
 	const prevSearchedTextures = usePrevious(texturesFiltered);
@@ -152,6 +152,7 @@ const CouncilTexturesPage = () => {
 						align="center"
 						justify="center"
 						h="100px"
+						w="100%"
 						gap="md"
 						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 					>
@@ -171,7 +172,7 @@ const CouncilTexturesPage = () => {
 					</Group>
 				)}
 
-				{texturesShown[activePage - 1] && texturesShown[activePage - 1]?.map((t) => (
+				{!isLoading && texturesShown[activePage - 1] && texturesShown[activePage - 1]?.map((t) => (
 					<GalleryTexture
 						key={t.id}
 						texture={t}
@@ -185,9 +186,11 @@ const CouncilTexturesPage = () => {
 				))}
 			</Group>
 
-			<Group mt="md" justify="center">
-				<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
-			</Group>
+			{!isLoading && (
+				<Group mt="md" justify="center">
+					<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
+				</Group>
+			)}
 		</Stack>
 	);
 };
