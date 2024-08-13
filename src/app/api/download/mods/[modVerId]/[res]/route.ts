@@ -75,7 +75,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 	const zip = new JSZip();
 
 	for (const linkedTexture of linkedTextures) {
-		if (linkedTexture.texture.contributions.length === 0 && linkedTexture.texture.vanillaTexture === null) continue;
+		if (linkedTexture.texture.contributions.length === 0 && linkedTexture.texture.vanillaTextureId === null) continue;
 
 		const contribution = linkedTexture.texture.contributions[0]!;
 		if (contribution) {
@@ -98,7 +98,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 			}
 		}
 
-		const vanillaTextureId = linkedTexture.texture.vanillaTexture;
+		const vanillaTextureId = linkedTexture.texture.vanillaTextureId;
 		if (vanillaTextureId) {
 			const vanillaTexture = (await fetch(getVanillaTextureSrc(vanillaTextureId, res))).arrayBuffer();
 			zip.file<'arraybuffer'>(`${linkedTexture.assetPath}`, vanillaTexture);

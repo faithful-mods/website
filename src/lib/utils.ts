@@ -120,6 +120,6 @@ export function getVanillaResolution(resolution: Resolution) {
 	return `faithful_${resolution.replace('x', '') as `${number}`}x` as const;
 }
 
-export const getVanillaUserUrl = (discordId: string) => `https://api.faithfulpack.net/v2/users/${discordId}/name`;
-export const getVanillaContributionsUrl = (vanillaId: string) => `https://api.faithfulpack.net/v2/contributions/search?search=${vanillaId}`;
-export const getVanillaTextureSrc = (vanillaId: string, resolution: Resolution) => `https://api.faithfulpack.net/v2/textures/${vanillaId}/url/faithful_${resolution.replace('x', '')}x/latest`;
+export function getVanillaTextureSrc(vanillaId: string, resolution: Resolution) {
+	return `https://api.faithfulpack.net/v2/textures/${vanillaId}/url/${getVanillaResolution(resolution)}/latest`;
+}

@@ -11,7 +11,7 @@ import { sortBySemver } from '~/lib/utils';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
-import { doesVanillaTextureHasContribution } from './texture';
+import { isVanillaTextureContributed } from '../actions/faithful-pack';
 import { extractModVersionsFromJAR } from '../actions/files';
 
 import type { ModVersion, Modpack } from '@prisma/client';
@@ -129,13 +129,13 @@ export async function getModVersionProgression(modVersionId: string): Promise<Pr
 	}
 
 	const vanillaTextures = uniqueTextures
-		.map((t) => t.texture.vanillaTexture)
+		.map((t) => t.texture.vanillaTextureId)
 		.filter((vt) => vt !== null)
 		.unique();
 
 	for (const vanillaId of vanillaTextures) {
 		for (const res of Object.keys(Resolution) as Resolution[]) {
-			const contribution = await doesVanillaTextureHasContribution(vanillaId, res);
+			const contribution = await isVanillaTextureContributed(vanillaId, res);
 			if (contribution) progression.textures.done[res] += 1;
 		}
 	}
