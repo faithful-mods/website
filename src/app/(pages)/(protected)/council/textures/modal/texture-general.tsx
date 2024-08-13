@@ -7,11 +7,12 @@ import { Resolution } from '@prisma/client';
 import { TextureImage } from '~/components/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { GRADIENT } from '~/lib/constants';
-import { getTextureStatus, getVanillaTextures, updateTexture } from '~/server/data/texture';
+import { getVanillaTextures } from '~/server/actions/faithful-pack';
+import { getTextureStatus, updateTexture } from '~/server/data/texture';
 
 import type { MultiSelectProps } from '@mantine/core';
-import type { Texture } from '@prisma/client';
-import type { ContributionActivationStatus, FPTextureRaw } from '~/types';
+import type { FaithfulCached, Texture } from '@prisma/client';
+import type { ContributionActivationStatus } from '~/types';
 
 export interface TextureGeneralProps {
 	texture: Texture;
@@ -27,8 +28,8 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 
 	const [contributionsStatus, setContributionsStatus] = useState<ContributionActivationStatus[]>([]);
 
-	const [vanillaTexture, setVanillaTexture] = useState<string | null>(texture.vanillaTexture);
-	const [vanillaTextures, setVanillaTextures] = useState<FPTextureRaw[]>([]);
+	const [vanillaTexture, setVanillaTexture] = useState<string | null>(texture.vanillaTextureId);
+	const [vanillaTextures, setVanillaTextures] = useState<FaithfulCached[]>([]);
 
 	useEffectOnce(() => {
 		getTextureStatus(texture.id)
@@ -78,7 +79,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 				name: form.values.name,
 				aliases: form.values.aliases.split(',').map((a) => a.trim()).filter((a) => !!a),
 				contributions: contributionsStatus,
-				vanillaTexture,
+				vanillaTextureId: vanillaTexture,
 			});
 		});
 	};
@@ -105,14 +106,14 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 				<Stack gap="sm" w="100%">
 					<Select
 						w="100%"
-						limit={5}
+						limit={25}
 						label="Vanilla texture"
 						placeholder="Type to search or select a vanilla texture"
 						description="If this texture is a vanilla texture, select the corresponding vanilla texture, contributions will be disabled"
 						clearable
 						searchable
 						value={vanillaTexture}
-						data={vanillaTextures.map((vt) => ({ value: vt.id, label: vt.name }))}
+						data={vanillaTextures.map((vt) => ({ value: vt.textureId, label: vt.textureName }))}
 						renderOption={renderMultiSelectOption}
 						onChange={(vanillaTexture) => {
 							setVanillaTexture(vanillaTexture);

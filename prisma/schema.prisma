@@ -154,7 +154,8 @@ model Texture {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   disabledContributions ContributionDeactivation[]
-  vanillaTexture String? @map("vanilla_texture")
+  vanillaTextureId      String? @map("vanillaTexture")
+  vanillaTexture        FaithfulCached? @relation(fields: [vanillaTextureId], references: [textureId])
 
   relations  Texture[] @relation("relations")
   relationOf Texture[] @relation("relations")
@@ -333,3 +334,21 @@ model Poll {
 
   @@map("polls")
 }
+
+model FaithfulCached {
+  id        String @id @default(cuid())
+
+  textureId   String   @map("texture_id") @unique
+  textureName String   @map("texture_name")
+  tags        String[]
+
+  Texture Texture[]
+
+  /// [FaithfulCachedContributionsType]
+  contributions Json
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("faithful_cached")
+}
+

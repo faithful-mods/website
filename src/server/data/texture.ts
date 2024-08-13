@@ -5,12 +5,13 @@ import { Resolution, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import { getVanillaContributionsUrl, getVanillaResolution, getVanillaTextureSrc, getVanillaUserUrl } from '~/lib/utils';
 
 import { remove } from '../actions/files';
 
 import type { ContributionDeactivation, Texture } from '@prisma/client';
-import type { ContributionActivationStatus, FPTextureContribution, FPTextureRaw, FPTexturesRaw, FPUser, Progression, TextureMCMETA } from '~/types';
+import type { ContributionActivationStatus, Progression, TextureMCMETA } from '~/types';
+
+import '~/lib/polyfills';
 
 // GET
 
@@ -163,10 +164,10 @@ interface UpdateTextureParams {
 	name: string;
 	aliases: string[];
 	contributions: ContributionActivationStatus[];
-	vanillaTexture: string | null;
+	vanillaTextureId: string | null;
 }
 
-export async function updateTexture({ id, name, aliases, contributions, vanillaTexture }: UpdateTextureParams): Promise<Texture> {
+export async function updateTexture({ id, name, aliases, contributions, vanillaTextureId }: UpdateTextureParams): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	const editedGeneral = contributions.find(cs => cs.resolution === null);
@@ -189,7 +190,7 @@ export async function updateTexture({ id, name, aliases, contributions, vanillaT
 		data: {
 			name,
 			aliases: aliases.length > 0 ? aliases : undefined,
-			vanillaTexture,
+			vanillaTextureId,
 		},
 	});
 };
@@ -242,55 +243,4 @@ export async function removeRelationFromTexture(textureId: number, relatedTextur
 			include: { relations: true, relationOf: true },
 		})
 		.then((res) => [...res.relations, ...res.relationOf].unique((a, b) => a.id === b.id));
-}
-
-export async function getVanillaTextures(): Promise<FPTextureRaw[]> {
-	await canAccess(UserRole.COUNCIL);
-
-	return fetch('https://api.faithfulpack.net/v2/textures/raw', { method: 'GET' })
-		.then((res) => res.json())
-		.then((json: FPTexturesRaw) =>
-			Object
-				.entries(json)
-				.map(([id, texture]) => texture)
-		);
-}
-
-export interface VanillaTextureContribution {
-	owner: { name: string; image?: string };
-	coAuthors: { name: string; image?: string }[];
-	updatedAt: Date;
-}
-
-export async function doesVanillaTextureHasContribution(vanillaId: string, res: Resolution): Promise<boolean> {
-	return fetch(getVanillaTextureSrc(vanillaId, res), { method: 'GET' })
-		.then((res) => res.status === 200);
-}
-
-export async function getVanillaTextureContribution(vanillaId: string, resolution: Resolution): Promise<VanillaTextureContribution | null> {
-	const contributions = await fetch(getVanillaContributionsUrl(vanillaId), { method: 'GET' })
-		.then((res) => res.json()) as FPTextureContribution[];
-
-	const latestContribution = contributions
-		.filter((c) => c.pack === getVanillaResolution(resolution))
-		.sort((a, b) => b.date - a.date)
-		.shift();
-
-	if (!latestContribution) return null;
-
-	const authors = await Promise.all(
-		latestContribution.authors.map((discordId) =>
-			fetch(getVanillaUserUrl(discordId), { method: 'GET' })
-				.then((res) => res.json())
-				.then((user: FPUser) => ({
-					name: user.username ?? 'Unknown User',
-					image: user.uuid ? `https://visage.surgeplay.com/face/512/${user.uuid}` : undefined,
-				}))
-		));
-
-	return {
-		owner: authors[0]!,
-		coAuthors: authors.slice(1),
-		updatedAt: new Date(latestContribution.date),
-	};
 }

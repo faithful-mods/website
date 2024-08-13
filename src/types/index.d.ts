@@ -317,9 +317,10 @@ export interface MCModInfo {
 	dependants?: string[];
 }
 
-export type FPTexturesRaw = Record<string, FPTextureRaw>
+//* FP stands for Faithful Pack
 
-export type FPTextureRaw = {
+export type FPTexturesRaw = Record<FPTexture['id'], FPTexture>
+export type FPTexture = {
 	/** The texture's name */
 	name: string;
 	/** The texture's tags & edition */
@@ -328,7 +329,9 @@ export type FPTextureRaw = {
 	id: string;
 }
 
-export type FPTextureContribution = {
+export type FPContributionsRaw = Record<FPContribution['id'], FPContribution>;
+export type FPContributions = Array<FPContribution>;
+export type FPContribution = {
 	date: number;
 	pack: `faithful_${number}x` | `classic_faithful_${number}x`;
 	authors: string[];
@@ -336,6 +339,17 @@ export type FPTextureContribution = {
 	id: string;
 }
 
+export type FPStoredContributions = Array<FPStoredContribution>;
+export type FPStoredContribution = Omit<FPContribution, 'authors'> & {
+	owner: FPStoredUser;
+	coAuthors: FPStoredUser[];
+}
+
+export type FPStoredUser = FPUser & {
+	image: string | null;
+}
+
+export type FPUsersRaw = Array<FPUser>;
 export type FPUser = {
 	id: string;
 	username?: string;

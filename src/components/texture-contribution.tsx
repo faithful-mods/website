@@ -10,11 +10,10 @@ import { SmallTile } from '~/components/small-tile';
 import { TextureImage } from '~/components/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { getVanillaTextureSrc } from '~/lib/utils';
-import { getVanillaTextureContribution } from '~/server/data/texture';
+import { getLatestVanillaTextureContribution } from '~/server/actions/faithful-pack';
 
 import type { Resolution, Texture } from '@prisma/client';
-import type { VanillaTextureContribution } from '~/server/data/texture';
-import type { ContributionWithCoAuthors } from '~/types';
+import type { ContributionWithCoAuthors, FPStoredContribution } from '~/types';
 
 export interface GalleryTextureWithContributionProps {
 	container: RefObject<HTMLDivElement>;
@@ -37,8 +36,8 @@ export function GalleryTextureWithContribution({
 	const src = useMemo(() => {
 		if (resolution === 'x16') return texture.filepath;
 
-		if (texture.vanillaTexture)
-			return getVanillaTextureSrc(texture.vanillaTexture, resolution);
+		if (texture.vanillaTextureId)
+			return getVanillaTextureSrc(texture.vanillaTextureId, resolution);
 
 		if (!contribution) return texture.filepath;
 
@@ -54,12 +53,12 @@ export function GalleryTextureWithContribution({
 		[container, rowItemsGap, rowItemsLength]
 	);
 
-	const [vanillaContribution, setVanillaContribution] = useState<VanillaTextureContribution | null>(null);
+	const [vanillaContribution, setVanillaContribution] = useState<FPStoredContribution | null>(null);
 
 	useEffectOnce(() => {
-		if (!texture.vanillaTexture || resolution === 'x16') return;
+		if (!texture.vanillaTextureId || resolution === 'x16') return;
 
-		getVanillaTextureContribution(texture.vanillaTexture, resolution)
+		getLatestVanillaTextureContribution(texture.vanillaTextureId, resolution)
 			.then(setVanillaContribution);
 	});
 
@@ -68,7 +67,7 @@ export function GalleryTextureWithContribution({
 			alt={texture.name}
 			src={src}
 			mcmeta={mcmeta}
-			isTransparent={resolution !== 'x16' && !contribution && !texture.vanillaTexture}
+			isTransparent={resolution !== 'x16' && !contribution && !texture.vanillaTextureId}
 			size={size}
 			popupStyles={{
 				backgroundColor: 'transparent',
@@ -93,7 +92,7 @@ export function GalleryTextureWithContribution({
 						</SmallTile>
 						<SmallTile color="gray">
 							<Group gap={3.3}>
-								<Text component="span" size="xs">{contribution ? contribution.owner.name : vanillaContribution?.owner.name}</Text>
+								<Text component="span" size="xs">{contribution ? contribution.owner.name : vanillaContribution?.owner.username}</Text>
 							</Group>
 						</SmallTile>
 					</Group>
@@ -105,7 +104,7 @@ export function GalleryTextureWithContribution({
 						</SmallTile>
 						<SmallTile color="gray">
 							<Text size="xs">
-								{contribution ? contribution.coAuthors.map((ca) => ca.name).join(', ') : vanillaContribution?.coAuthors.map((ca) => ca.name).join(', ')}
+								{contribution ? contribution.coAuthors.map((ca) => ca.name).join(', ') : vanillaContribution?.coAuthors.map((ca) => ca.username).join(', ')}
 							</Text>
 						</SmallTile>
 					</Group>
