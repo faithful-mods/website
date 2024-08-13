@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
-import { Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Badge, Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
 import { Modal } from '~/components/modal';
@@ -120,7 +120,20 @@ const CouncilTexturesPage = () => {
 			>
 				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>
-			<Group align="center" mt="md" gap="sm" wrap="nowrap">
+
+			<Stack gap={0}>
+				<Group justify="space-between">
+					<Text size="md" fw={700}>Textures</Text>
+					<Badge color="teal" variant="filled">
+						{search === '' ? textures.length : `${texturesFiltered.length} / ${textures.length}`}
+					</Badge>
+				</Group>
+				<Text c="dimmed" size="sm">
+					On this page you can view and manage all textures.
+				</Text>
+			</Stack>
+
+			<Group align="center" gap="sm" wrap="nowrap">
 				<TextInput
 					label="Search"
 					placeholder="Search for a texture name..."

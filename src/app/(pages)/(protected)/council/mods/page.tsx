@@ -9,7 +9,6 @@ import { UserRole } from '@prisma/client';
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
 import { ModUpload } from '~/components/mods-upload';
-import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -129,89 +128,101 @@ const ModsPanel = () => {
 					<ModModal mod={modalMod} onClose={handleModalClose} />
 				</Modal>
 			)}
-			<Tile>
-				<Stack gap="sm">
-
-					<Stack gap={0}>
-						<Group justify="space-between">
-							<Text size="md" fw={700}>Mods</Text>
-							<Badge color="teal" variant="filled">
-								{search === '' ? mods.length : `${searchedMods.length} / ${mods.length}`}
-							</Badge>
-						</Group>
-						<Text c="dimmed" size="sm">
-						Here you can manage mods and their versions. Click on a mod to view or edit it.
-						</Text>
-					</Stack>
-
-					<ModUpload onUpload={handleOnUpload} />
-
-					<Group
-						align="center"
-						gap="sm"
-						wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
-					>
-						<Group align="center" gap="sm" wrap="nowrap" className="w-full">
-							<Select
-								data={itemsPerPage}
-								value={modsShownPerPage}
-								onChange={(e) => e ? setModsShownPerPage(e) : null}
-								label="Results per page"
-								withCheckIcon={false}
-								w={250}
-							/>
-							<TextInput
-								className="w-full"
-								placeholder="Search mods..."
-								label="Search"
-								onChange={(e) => setSearch(e.currentTarget.value)}
-							/>
-						</Group>
-
-						<Switch
-							label="Only show mods with unknown MC version"
-							mt={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 0 : 22}
-							className="w-full"
-							checked={showUnknown}
-							onChange={(e) =>{
-								setShowUnknown(e.currentTarget.checked);
-							}}
-						/>
+			<Stack gap="sm">
+				<Stack gap={0}>
+					<Group justify="space-between">
+						<Text size="md" fw={700}>Mods</Text>
+						<Badge color="teal" variant="filled">
+							{search === '' ? mods.length : `${searchedMods.length} / ${mods.length}`}
+						</Badge>
 					</Group>
+					<Text c="dimmed" size="sm">
+						On this page you can view and manage all mods.
+					</Text>
 				</Stack>
 
-				{mods.length === 0 && (
-					<Group justify="center">
-						<Text mt="md" size="sm" c="dimmed">No mods created yet!</Text>
-					</Group>
-				)}
+				<ModUpload onUpload={handleOnUpload} />
 
-				{mods.length !== 0 && searchedMods.length === 0 && (
-					<Group justify="center">
-						<Text mt="md" size="sm" c="dimmed">No results found!</Text>
+				<Group
+					align="center"
+					gap="sm"
+					wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+				>
+					<Group align="center" gap="sm" wrap="nowrap" className="w-full">
+						<Select
+							data={itemsPerPage}
+							value={modsShownPerPage}
+							onChange={(e) => e ? setModsShownPerPage(e) : null}
+							label="Items per page"
+							withCheckIcon={false}
+							w={250}
+						/>
+						<TextInput
+							className="w-full"
+							placeholder="Search mods..."
+							label="Search"
+							onChange={(e) => setSearch(e.currentTarget.value)}
+						/>
 					</Group>
-				)}
 
-				{searchedMods.length > 0 && (
-					<Group mt="md" align="start">
-						{modsShown[activePage - 1] && modsShown[activePage - 1]?.map((mod, index) => (
-							<DashboardItem
-								key={index}
-								image={mod.image}
-								title={mod.name}
-								description={mod.description}
-								onClick={() => handleModalOpen(mod)}
-								warning={mod.unknownVersion ? true : undefined}
-							/>
-						))}
-					</Group>
-				)}
-
-				<Group mt="md" justify="center">
-					<Pagination total={modsShown.length} value={activePage} onChange={setActivePage} />
+					<Switch
+						label="Only show mods with unknown MC version"
+						mt={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 0 : 22}
+						className="w-full"
+						checked={showUnknown}
+						onChange={(e) =>{
+							setShowUnknown(e.currentTarget.checked);
+						}}
+					/>
 				</Group>
+			</Stack>
 
-				{mods.length > 0 && user.role === UserRole.ADMIN &&
+			{mods.length === 0 && (
+				<Group
+					align="center"
+					justify="center"
+					h="100px"
+					w="100%"
+					gap="md"
+					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+				>
+					<Text c="dimmed">No mods to show :(</Text>
+				</Group>
+			)}
+
+			{mods.length !== 0 && searchedMods.length === 0 && (
+				<Group
+					align="center"
+					justify="center"
+					h="100px"
+					w="100%"
+					gap="md"
+					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+				>
+					<Text c="dimmed">No results for &quot;{search}&quot;</Text>
+				</Group>
+			)}
+
+			{searchedMods.length > 0 && (
+				<Group mt="md" align="start">
+					{modsShown[activePage - 1] && modsShown[activePage - 1]?.map((mod, index) => (
+						<DashboardItem
+							key={index}
+							image={mod.image}
+							title={mod.name}
+							description={mod.description}
+							onClick={() => handleModalOpen(mod)}
+							warning={mod.unknownVersion ? true : undefined}
+						/>
+					))}
+				</Group>
+			)}
+
+			<Group mt="md" justify="center">
+				<Pagination total={modsShown.length} value={activePage} onChange={setActivePage} />
+			</Group>
+
+			{mods.length > 0 && user.role === UserRole.ADMIN &&
 					<Group justify="flex-end" mt="md">
 						<Button
 							variant="gradient"
@@ -223,8 +234,7 @@ const ModsPanel = () => {
 							Delete All Mods
 						</Button>
 					</Group>
-				}
-			</Tile>
+			}
 		</>
 	);
 };
