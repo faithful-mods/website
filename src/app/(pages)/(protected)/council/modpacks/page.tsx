@@ -2,15 +2,12 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
 
-import { TbPlus } from 'react-icons/tb';
-
-import { Badge, Group, Text, TextInput, Button, Select, Pagination } from '@mantine/core';
+import { Badge, Group, Text, TextInput, Button, Select, Pagination, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/modal';
-import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
@@ -116,45 +113,68 @@ const ModpacksPanel = () => {
 			>
 				<ModpackModal modpack={modalModpack} onClose={handleModalClose} />
 			</Modal>
-			<Tile>
-				<Group justify="space-between">
-					<Text size="md" fw={700}>Modpacks</Text>
-					<Badge color="teal" variant="filled">
-						{search === '' ? modpacks.length : `${searchedModpacks.length} / ${modpacks.length}`}
-					</Badge>
-				</Group>
-				<Group align="center" mt="md" gap="sm" wrap="nowrap">
-					<Button
-						variant='gradient'
-						gradient={GRADIENT}
-						className="navbar-icon-fix"
-						onClick={() => handleModalOpen()}
-					>
-						<TbPlus />
-					</Button>
+
+			<Stack gap="sm">
+				<Stack gap={0}>
+					<Group justify="space-between">
+						<Text size="md" fw={700}>Modpacks</Text>
+						<Badge color="teal" variant="filled">
+							{search === '' ? modpacks.length : `${searchedModpacks.length} / ${modpacks.length}`}
+						</Badge>
+					</Group>
+					<Text c="dimmed" size="sm">
+						On this page you can view and manage all modpacks.
+					</Text>
+				</Stack>
+
+				<Group align="end" gap="sm" wrap="nowrap">
 					<TextInput
+						label="Search"
 						className="w-full"
 						placeholder="Search modpacks..."
 						onChange={(e) => setSearch(e.currentTarget.value)}
 					/>
 					<Select
+						label="Items per page"
 						data={itemsPerPage}
 						value={modpacksShownPerPage}
 						onChange={(e) => e ? setModpacksShownPerPage(e) : null}
 						withCheckIcon={false}
 						w={120}
 					/>
+					<Button
+						variant='gradient'
+						gradient={GRADIENT}
+						onClick={() => handleModalOpen()}
+						w={200}
+					>
+						Add Modpack
+					</Button>
 				</Group>
 
 				{modpacks.length === 0 && (
-					<Group justify="center">
-						<Text mt="md" size="sm" c="dimmed">No modpacks created yet!</Text>
+					<Group
+						align="center"
+						justify="center"
+						h="100px"
+						w="100%"
+						gap="md"
+						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+					>
+						<Text c="dimmed">No modpacks to show :(</Text>
 					</Group>
 				)}
 
 				{modpacks.length !== 0 && searchedModpacks.length === 0 && (
-					<Group justify="center">
-						<Text mt="md" size="sm" c="dimmed">No results found!</Text>
+					<Group
+						align="center"
+						justify="center"
+						h="100px"
+						w="100%"
+						gap="md"
+						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+					>
+						<Text c="dimmed">No results for &quot;{search}&quot;</Text>
 					</Group>
 				)}
 
@@ -189,7 +209,7 @@ const ModpacksPanel = () => {
 						</Button>
 					</Group>
 				}
-			</Tile>
+			</Stack>
 		</>
 	);
 };
