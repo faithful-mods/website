@@ -160,11 +160,12 @@ const CouncilTexturesPage = () => {
 					</Group>
 				)}
 
-				{!isLoading && texturesFiltered.length === 0 && (
+				{!isLoading && search !== '' && texturesFiltered.length === 0 && (
 					<Group
 						align="center"
 						justify="center"
 						h="100px"
+						w="100%"
 						gap="md"
 						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 					>
