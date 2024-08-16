@@ -256,6 +256,17 @@ const SubmitPage = () => {
 									/>
 								))
 							}
+							{coContributions.filter((c) => c.status === Object
+								.values(Status)[activeTab])
+								.map((contribution) => (
+									<ContributionPanelItem
+										key={contribution.id}
+										contribution={contribution}
+										onClick={handleContributionClick}
+										styles={getBorderStyles(contribution)}
+									/>
+								))
+							}
 						</Group>
 					</Stack>
 				</Group>
