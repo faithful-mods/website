@@ -10,7 +10,7 @@ import { LuFilter } from 'react-icons/lu';
 import { SiMojangstudios } from 'react-icons/si';
 import { TfiWorld } from 'react-icons/tfi';
 
-import { ActionIcon, Badge, Button, Checkbox, Group, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Checkbox, Group, InputLabel, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
@@ -111,57 +111,70 @@ export default function Mods() {
 
 	const filter = () => {
 		return (
-			<Tile w={windowWidth <= BREAKPOINT_TABLET ? '100%' : 300}>
-				<Group justify="space-between">
-					<Text size="md" fw={700}>Filters</Text>
-					<Badge color="teal">{filteredMods.length} mod{filteredMods.length > 1 ? 's' : ''}</Badge>
-				</Group>
-
+			<Tile
+				w={windowWidth <= BREAKPOINT_TABLET ? '100%' : 300}
+				mt={windowWidth <= BREAKPOINT_TABLET ? 0 : 24}
+				pt="xs"
+			>
 				<Stack gap="sm">
-
-					<Text size="sm" fw={700}>Minecraft Version</Text>
 					<MultiSelect
+						label="Minecraft Version"
 						data={MCVersions.toReversed()}
+						value={versions}
 						onChange={setVersions}
 						placeholder={versions.length > 0 ? '' : 'Choose versions...'}
 						nothingFoundMessage="No versions found"
 						hidePickedOptions
 					/>
 
-					<Text size="sm" fw={700}>Categories</Text>
-					<Checkbox.Group>
-						<Stack gap={5}>
-							<Radio size="xs" label="All" disabled checked />
-							<Checkbox size="xs" label="Adventure" disabled />
-							<Checkbox size="xs" label="Magic" disabled />
-						</Stack>
-					</Checkbox.Group>
+					<Stack gap={5}>
+						<InputLabel>Categories</InputLabel>
+						<Checkbox.Group>
+							<Stack gap={5}>
+								<Radio size="xs" label="All" disabled checked />
+								<Checkbox size="xs" label="Adventure" disabled />
+								<Checkbox size="xs" label="Magic" disabled />
+							</Stack>
+						</Checkbox.Group>
+					</Stack>
 
-					<Text size="sm" fw={700}>Loaders</Text>
-					<Checkbox.Group value={loaders}>
-						<Stack gap={5}>
-							<Radio
-								size="xs"
-								label="All"
-								onChange={() => void 0}
-								checked={loaders.length === MODS_LOADERS.length}
-								onClick={() => loaders.length === MODS_LOADERS.length ? setLoaders([]) : setLoaders(MODS_LOADERS as Writable<typeof MODS_LOADERS>)}
-							/>
-							{MODS_LOADERS.toSorted().map((l) => (
-								<Checkbox key={l} size="xs" value={l} onChange={() => editLoaders(l)} label={l} />
-							))}
-						</Stack>
-					</Checkbox.Group>
+					<Stack gap={5}>
+						<InputLabel>Loaders</InputLabel>
+						<Checkbox.Group value={loaders}>
+							<Stack gap={5}>
+								<Radio
+									size="xs"
+									label="All"
+									onChange={() => void 0}
+									checked={loaders.length === MODS_LOADERS.length}
+									onClick={() => loaders.length === MODS_LOADERS.length ? setLoaders([]) : setLoaders(MODS_LOADERS as Writable<typeof MODS_LOADERS>)}
+								/>
+								{MODS_LOADERS.toSorted().map((l) => (
+									<Checkbox key={l} size="xs" value={l} onChange={() => editLoaders(l)} label={l} />
+								))}
+							</Stack>
+						</Checkbox.Group>
+					</Stack>
 
-					<Text size="sm" fw={700}>Others</Text>
-					<Checkbox
-						size="xs"
-						label="Show mods with no textures"
-						checked={showModsNoTextures}
-						onChange={(e) => setShowModsNoTextures(e.target.checked)}
-					/>
+					<Stack gap={5}>
+						<InputLabel>Other</InputLabel>
+						<Checkbox
+							size="xs"
+							label="Show mods with no textures"
+							checked={showModsNoTextures}
+							onChange={(e) => setShowModsNoTextures(e.target.checked)}
+						/>
+					</Stack>
 
-					<Button variant="transparent" c="red">
+					<Button
+						variant="transparent"
+						c="red"
+						onClick={() => {
+							setLoaders(MODS_LOADERS as Writable<typeof MODS_LOADERS>);
+							setVersions([]);
+							setShowModsNoTextures(false);
+						}}
+					>
 						Reset
 					</Button>
 				</Stack>
@@ -222,33 +235,46 @@ export default function Mods() {
 			{windowWidth > BREAKPOINT_TABLET && filter()}
 
 			<Stack w="100%" gap="sm">
-				<Tile w="100%">
-					<Group align="center" gap="sm" wrap="nowrap">
-						{windowWidth <= BREAKPOINT_TABLET && (
-							<ActionIcon
-								variant="outline"
-								className="navbar-icon-fix filter-icon"
-								onClick={() => setShowFilters(!showFilters)}
-							>
-								<LuFilter color="var(--mantine-color-text)" />
-							</ActionIcon>
-						)}
-						<TextInput
-							className="w-full"
-							placeholder="Search mods..."
-							onChange={(e) => setSearch(e.currentTarget.value)}
-						/>
-						<Select
-							data={itemsPerPage}
-							value={modsShownPerPage}
-							onChange={(e) => e ? setModsShownPerPage(e) : null}
-							withCheckIcon={false}
-							w={120}
-						/>
-					</Group>
-				</Tile>
+				<Group align="end" gap="sm" wrap="nowrap">
+					{windowWidth <= BREAKPOINT_TABLET && (
+						<ActionIcon
+							variant="default"
+							className="navbar-icon-fix filter-icon"
+							onClick={() => setShowFilters(!showFilters)}
+						>
+							<LuFilter color="var(--mantine-color-text)" />
+						</ActionIcon>
+					)}
+					<TextInput
+						w="calc(100% - 120px)"
+						label="Search"
+						placeholder="Search mods..."
+						onChange={(e) => setSearch(e.currentTarget.value)}
+					/>
+					<Select
+						label="Mods per page"
+						data={itemsPerPage}
+						value={modsShownPerPage}
+						onChange={(e) => e ? setModsShownPerPage(e) : null}
+						withCheckIcon={false}
+						w={120}
+					/>
+				</Group>
 
 				{windowWidth <= BREAKPOINT_TABLET && showFilters && filter()}
+
+				{filteredMods.length === 0 && (
+					<Group
+						align="center"
+						justify="center"
+						h="100px"
+						gap="md"
+						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+					>
+						<Text c="dimmed">No results for &quot;{search}&quot;</Text>
+					</Group>
+				)}
+
 				{
 					(windowWidth > BREAKPOINT_TABLET || (windowWidth <= BREAKPOINT_TABLET && !showFilters)) &&
 					modsShown[activePage - 1] && modsShown[activePage - 1]?.map((m) => (
