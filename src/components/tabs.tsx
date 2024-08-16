@@ -8,6 +8,7 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 interface TabsLayoutProps<T extends string[]> {
+	noMargin?: boolean;
 	children: React.ReactNode;
 	defaultValue?: T[number];
 	isLayout?: boolean;
@@ -19,7 +20,7 @@ interface TabsLayoutProps<T extends string[]> {
 	}[];
 };
 
-export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, isLayout, variant }: TabsLayoutProps<T>) => {
+export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, isLayout, variant, noMargin }: TabsLayoutProps<T>) => {
 	const [windowWidth] = useDeviceSize();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -57,7 +58,7 @@ export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, i
 			defaultValue={defaultValue}
 		>
 			<Tabs.List
-				mt={tabsStyle === 'filled' && windowWidth > BREAKPOINT_MOBILE_LARGE ? 26 : 0}
+				mt={tabsStyle === 'filled' && windowWidth > BREAKPOINT_MOBILE_LARGE && !noMargin ? 26 : 0}
 				mah={tabsStyle === 'default' ? tabs.length * 34 : undefined}
 				w={windowWidth > BREAKPOINT_MOBILE_LARGE ? (tabsStyle === 'default' ? 200 : 120) : undefined}
 			>

@@ -6,15 +6,15 @@ import { deleteContributions } from '~/server/data/contributions';
 
 import { ContributionPanelItem } from './contribution-item';
 
-import type { ContributionWithCoAuthors } from '~/types';
+import type { ContributionWithCoAuthorsAndPoll } from '~/types';
 
 export interface ContributionDeleteModalProps {
-	contributionsAndDrafts: ContributionWithCoAuthors[];
+	contributions: ContributionWithCoAuthorsAndPoll[];
 	contributionToDelete: string[];
 	closeModal: (decision: 'yes' | 'no') => void;
 }
 
-export function ContributionDeleteModal({ contributionsAndDrafts, contributionToDelete, closeModal }: ContributionDeleteModalProps) {
+export function ContributionDeleteModal({ contributions, contributionToDelete, closeModal }: ContributionDeleteModalProps) {
 	const userId = useCurrentUser()!.id!;
 
 	const handleContributionsDelete = async () => {
@@ -38,7 +38,7 @@ export function ContributionDeleteModal({ contributionsAndDrafts, contributionTo
 					{contributionToDelete.map((id) =>
 						<ContributionPanelItem
 							key={id}
-							contribution={contributionsAndDrafts.find((c) => c.id === id)!}
+							contribution={contributions.find((c) => c.id === id)!}
 						/>
 					)}
 				</Group>

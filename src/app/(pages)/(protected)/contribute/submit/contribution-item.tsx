@@ -16,12 +16,12 @@ import { removeCoAuthor } from '~/server/data/contributions';
 import { getPollResult } from '~/server/data/polls';
 
 import type { CSSProperties } from '@mantine/core';
-import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PollResults } from '~/types';
+import type { ContributionWithCoAuthorsAndPoll, PollResults } from '~/types';
 
 export interface ContributionPanelItemProps {
-	contribution: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll;
+	contribution: ContributionWithCoAuthorsAndPoll;
 	isCoAuthorContribution?: boolean;
-	onClick?: (c: ContributionWithCoAuthors | ContributionWithCoAuthorsAndPoll) => void;
+	onClick?: (c: ContributionWithCoAuthorsAndPoll) => void;
 	onUpdate?: () => void;
 	styles?: CSSProperties;
 }
