@@ -138,6 +138,19 @@ export default function ModPage() {
 							w={120}
 						/>
 					</Group>
+
+					{filteredVersions.length === 0 && (
+						<Group
+							align="center"
+							justify="center"
+							h="100px"
+							gap="md"
+							style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+						>
+							<Text c="dimmed">No results for &quot;{search}&quot;</Text>
+						</Group>
+					)}
+
 					{versionsShown[activePage - 1] && versionsShown[activePage - 1]?.map((ver) =>
 						<Tile key={ver.id}>
 							<Stack gap="md">
