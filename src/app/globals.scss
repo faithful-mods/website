@@ -20,6 +20,7 @@ body {
 
 :where([data-mantine-color-scheme='light']) body {
 	--mantine-color-body: #eee;
+
 	background-image: radial-gradient(rgba(0 0 0 / 12%) .25px, var(--mantine-color-body) 1px);
 }
 
