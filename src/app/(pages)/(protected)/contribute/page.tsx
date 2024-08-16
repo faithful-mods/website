@@ -2,17 +2,17 @@
 
 import { redirect } from 'next/navigation';
 
+import { useLocalStorage } from '@mantine/hooks';
+
 const CouncilPage = () => {
-	let value: boolean = false;
+	const [isAboutShown] = useLocalStorage({
+		key: 'faithful-modded-show-contribute-about-page',
+		defaultValue: true,
+		getInitialValueInEffect: false,
+	});
 
-	try {
-		value = JSON.parse(localStorage.getItem('faithful-mods-contribute-about') ?? 'false');
-	} catch (e) {
-		console.error(e);
-	}
-
-	if (value) redirect('/contribute/submit');
-	redirect('/contribute/about');
+	if (isAboutShown) redirect('/contribute/about');
+	redirect('/contribute/submit');
 };
 
 export default CouncilPage;

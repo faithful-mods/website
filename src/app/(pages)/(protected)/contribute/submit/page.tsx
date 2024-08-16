@@ -1,210 +1,265 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
-import { Accordion, Badge, Code, Group, Select, Stack, Text } from '@mantine/core';
+import { Button, Code, FloatingIndicator, Group, Indicator, Select, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
+import { useDisclosure } from '@mantine/hooks';
 import { Resolution, Status } from '@prisma/client';
 
-import { Tile } from '~/components/tile';
+import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, COLORS } from '~/lib/constants';
-import { notify } from '~/lib/utils';
-import { createRawContributions, getCoSubmittedContributions, getDraftContributions, getSubmittedContributions } from '~/server/data/contributions';
+import { createRawContributions, getContributionsOfUser, getCoSubmittedContributions } from '~/server/data/contributions';
+import { getTexturesWithUsePaths } from '~/server/data/texture';
 
 import { CoAuthorsSelector } from './co-authors-select';
 import { ContributionPanelItem } from './contribution-item';
-import { ContributionPanel } from './contribution-panel';
+import { ContributionModal } from './contribution-modal';
+import { ContributionTools } from './contribution-tools';
 
-import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
+import type { GetTexturesWithUsePaths } from '~/server/data/texture';
+import type { ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
+
+import './submit.scss';
 
 const SubmitPage = () => {
+	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
+
 	const [isPending, startTransition] = useTransition();
 	const [windowWidth] = useDeviceSize();
 
 	const [resolution, setResolution] = useState<Resolution>(Resolution.x32);
 	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>([]);
 
-	const [contributions, setContributions] = useState<ContributionWithCoAuthorsAndPoll[] | undefined>();
-	const [draftContributions, setDraftContributions] = useState<ContributionWithCoAuthors[] | undefined>();
-	const [coContributions, setCoContributions] = useState<ContributionWithCoAuthorsAndPoll[] | undefined>();
+	const [contributions, setContributions] = useState<ContributionWithCoAuthorsAndPoll[]>([]);
+	const [coContributions, setCoContributions] = useState<ContributionWithCoAuthorsAndPoll[]>([]);
 
-	const [counts, setCounts] = useState<[number, number, number]>([0, 0, 0]);
+	const [isModalContributionOpened, { open: openContributionModal, close: closeContributionModal }] = useDisclosure(false);
+	const [modalContribution, setModalContribution] = useState<ContributionWithCoAuthorsAndPoll | null>(null);
 
-	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
+	const [isHoveringSubmit, setHoveringSubmit] = useState(false);
+	const [isDeletionMode, setDeletionMode] = useState(false);
+
+	const [contributionToDelete, setContributionToDelete] = useState<string[]>([]);
+
+	const [textures, setTextures] = useState<GetTexturesWithUsePaths[]>([]);
 
 	useEffectOnce(() => {
 		reload();
 	});
 
-	useEffect(() => {
-		if (contributions && contributions.length > 0) {
-			const pending = contributions.filter((c) => c.status === Status.PENDING).length;
-			const accepted = contributions.filter((c) => c.status === Status.ACCEPTED).length;
-			const rejected = contributions.filter((c) => c.status === Status.REJECTED).length;
-
-			setCounts([pending, rejected, accepted]);
-		}
-	}, [contributions]);
-
 	const reload = () => {
 		startTransition(() => {
-			getDraftContributions(user.id!)
-				.then((res) => setDraftContributions(res.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())))
-				.catch((err) => {
-					console.error(err);
-					notify('Error', 'Failed to fetch draft contributions', 'red');
-				});
-
-			getCoSubmittedContributions(user.id!)
-				.then(setCoContributions)
-				.catch((err) => {
-					console.error(err);
-					notify('Error', 'Failed to fetch submitted contributions', 'red');
-				});
-
-			getSubmittedContributions(user.id!)
-				.then((res) => setContributions(res.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())))
-				.catch((err) => {
-					console.error(err);
-					notify('Error', 'Failed to fetch contributions', 'red');
-				});
+			getContributionsOfUser(user.id!).then(setContributions);
+			getCoSubmittedContributions(user.id!).then(setCoContributions);
+			getTexturesWithUsePaths().then(setTextures);
 		});
 	};
 
-	const filesDrop = (files: File[]) => {
+	const handleFilesDrop = (files: File[]) => {
 		startTransition(async () => {
 			const data = new FormData();
 			files.forEach((file) => data.append('files', file));
 
 			await createRawContributions(user.id!, selectedCoAuthors.map((u) => u.id), resolution, data)
-				.then(() => {
-					getDraftContributions(user.id!).then(setDraftContributions);
-				})
-				.catch((err) => {
-					console.error(err);
-					notify('Error', err.message, 'red');
+				.then((duplicates) => {
+					if (duplicates.length > 0) console.error(duplicates.join('\n'));
+
+					getContributionsOfUser(user.id!).then(setContributions);
+					setActiveTab(0);
 				});
 		});
 	};
 
+	const handleContributionClick = (c: ContributionWithCoAuthorsAndPoll) => {
+		if (isDeletionMode) {
+			if (contributionToDelete.includes(c.id)) setContributionToDelete(contributionToDelete.filter((id) => id !== c.id));
+			else setContributionToDelete([...contributionToDelete, c.id]);
+		}
+		else {
+			setModalContribution(c);
+			openContributionModal();
+		}
+	};
+
+	const getBorderStyles = (c: ContributionWithCoAuthorsAndPoll) => {
+		if (contributionToDelete.includes(c.id))
+			return { boxShadow: '0 0 0 2px var(--mantine-color-red-filled)' };
+
+		if (c.textureId !== null && isHoveringSubmit && c.status === Status.DRAFT)
+			return { boxShadow: '0 0 0 2px var(--mantine-color-teal-filled)' };
+	};
+
+	const [groupRef, setGroupRef] = useState<HTMLDivElement | null>(null);
+	const [controlsRefs, setControlsRefs] = useState<Record<string, HTMLButtonElement | null>>({});
+	const [activeTab, setActiveTab] = useState(0);
+
+	const setControlRef = (index: number) => (node: HTMLButtonElement) => {
+		controlsRefs[index] = node;
+		setControlsRefs(controlsRefs);
+	};
+
+	const controls = Object.entries(Status).map(([key, value], index) => {
+		const isLast = index === Object.keys(Status).length - 1;
+
+		return (
+			<Button
+				key={key}
+				ref={setControlRef(index)}
+				onClick={() => setActiveTab(index)}
+				mod={{ active: activeTab === index }}
+
+				pl="md"
+				pr="sm"
+				fullWidth
+				variant="filled"
+				leftSection={<>
+					<Indicator color={COLORS[value]} mr="md" />
+					{value === Status.DRAFT
+						? 'Drafted'
+						: value === Status.PENDING
+							? 'Reviewed'
+							: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+					}
+				</>}
+				rightSection={contributions?.filter((c) => c.status === value).length ?? 0}
+				justify="space-between"
+				className="slider-button"
+				style={windowWidth > BREAKPOINT_MOBILE_LARGE
+					? {
+						borderRight: !isLast && activeTab !== index + 1 && activeTab !== index
+							? 'calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)'
+							: undefined,
+						borderRadius: isLast ? '0 calc(0.25rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale)) 0' : undefined,
+					}
+					: undefined
+				}
+			/>
+		);
+	});
+
 	return (
-		<Stack gap="sm">
-			<Tile>
-				<Stack gap="sm">
-					<Stack gap={0}>
-						<Text size="md" fw={700} mb="sm">New contribution(s)</Text>
-						<Text size="sm">
-							By contributing to the platform, you agree to the <Text component="a" href="/docs/tos" c="blue" target="_blank">Terms of Service</Text>.<br />
-							<Text component="span" size="sm" c="dimmed" fs="italic">Please do not submit textures for unsupported mod/modpack. Ask the council to add it first.</Text>
-						</Text>
-					</Stack>
-					<Group gap="md">
-						<Select
-							label="Resolution"
-							data={Object.keys(Resolution)}
-							allowDeselect={false}
-							defaultValue={Resolution.x32}
-							onChange={(value) => setResolution(value as Resolution)}
-							style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
-							required
-						/>
-						<CoAuthorsSelector
-							author={user}
-							onCoAuthorsSelect={setSelectedCoAuthors}
-							mb={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : '0'}
-							style={windowWidth <= BREAKPOINT_MOBILE_LARGE
-								? { width: '100%' }
-								: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
-							}
-						/>
-					</Group>
-					<Stack gap="2">
-						<Text size="sm" fw={500}>Files</Text>
-						<Dropzone
-							onDrop={filesDrop}
-							accept={['image/png']}
-							loading={isPending}
-							mt="0"
-						>
-							<div>
-								<Text size="l" inline>
+		<Stack gap="md">
+			<Modal
+				forceFullScreen
+				opened={isModalContributionOpened}
+				onClose={closeContributionModal}
+			>
+				{modalContribution && (
+					<ContributionModal
+						contribution={modalContribution}
+						textures={textures}
+						onClose={reload}
+					/>
+				)}
+			</Modal>
+
+			<Stack gap="md">
+				<Group gap="sm">
+					<Select
+						label="Resolution"
+						data={Object.keys(Resolution)}
+						checkIconPosition="right"
+						allowDeselect={false}
+						defaultValue={Resolution.x32}
+						onChange={(value) => setResolution(value as Resolution)}
+						style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
+						required
+					/>
+					<CoAuthorsSelector
+						author={user}
+						onCoAuthorsSelect={setSelectedCoAuthors}
+						mb={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : '0'}
+						style={windowWidth <= BREAKPOINT_MOBILE_LARGE
+							? { width: '100%' }
+							: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
+						}
+					/>
+				</Group>
+				<Stack gap="2">
+					 <Text size="sm" fw={500}>Files</Text>
+					<Dropzone
+						onDrop={handleFilesDrop}
+						accept={['image/png']}
+						loading={isPending}
+						mt="0"
+					>
+						<div>
+							<Text size="l" inline>
 								Drag <Code>.PNG</Code> files here or click to select files
-								</Text>
-								<Text size="sm" c="dimmed" inline mt={7}>
+							</Text>
+							<Text size="sm" c="dimmed" inline mt={7}>
 								Attach as many files as you like, each file will be added as a separate contribution
 								based on the settings above.
-								</Text>
-							</div>
-						</Dropzone>
-						<Text size="xs" c="dimmed" fs="italic">
-						You can always edit them later on.
-						</Text>
-					</Stack>
-
+							</Text>
+						</div>
+					</Dropzone>
+					<Text size="xs" c="dimmed" fs="italic">
+						Please do not submit textures for unsupported mod/modpack. Ask a council member to add them first.
+					</Text>
 				</Stack>
-			</Tile>
+			</Stack>
 
-			<Accordion
-				variant="separated"
-				chevronPosition="left"
-				defaultValue="owned"
-				radius="md"
-				mb="sm"
-			>
-				<Accordion.Item value="owned">
-					{draftContributions && contributions && (
-						<>
-							<Accordion.Control icon={
-								<Group gap="sm">
-									<Badge color={COLORS.DRAFT} variant="filled">{draftContributions.length}</Badge>
-									<Badge color={COLORS.PENDING} variant="filled">{counts[0]}</Badge>
-									<Badge color={COLORS.REJECTED} variant="filled">{counts[1]}</Badge>
-									<Badge color="teal" variant="filled">{counts[2]}</Badge>
-								</Group>
-							}>
-								<Text size="md" fw={700}>Your contributions</Text>
-							</Accordion.Control>
+			<Group wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'} align="start">
+				<ContributionTools
+					activeTab={activeTab}
+					contributions={contributions}
+					onUpdate={reload}
+					onSubmitHover={setHoveringSubmit}
+					onDeleteMode={setDeletionMode}
 
-							<Accordion.Panel>
-								<ContributionPanel
-									drafts={draftContributions}
-									submitted={contributions}
-									onUpdate={reload}
-								/>
-							</Accordion.Panel>
-						</>
-					)
-					}
-				</Accordion.Item>
+					contributionToDelete={contributionToDelete}
+					setContributionToDelete={setContributionToDelete}
+				/>
 
-				{coContributions &&
-					<Accordion.Item value="coSubmitted" mt="sm">
-						<Accordion.Control icon={
-							<Group gap="sm">
-								<Badge color="teal" variant="filled">{coContributions?.length ?? '?'}</Badge>
-							</Group>
-						}>
-							<Text size="md" fw={700}>Co-Submitted</Text>
-						</Accordion.Control>
-						<Accordion.Panel>
-							<Text mb="sm" size="sm">Contributions where you appear as a co-author.</Text>
-							<Group gap="sm">
-								{coContributions.map((coContribution) => (
+				<Group w="100%">
+					<Stack w="100%">
+						<Button.Group
+							ref={setGroupRef}
+							style={{
+								position: 'relative',
+							}}
+							orientation={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'vertical' : 'horizontal'}
+						>
+							{controls}
+
+							<FloatingIndicator
+								target={controlsRefs[activeTab]}
+								parent={groupRef}
+								style={{
+									border: 'calc(0.0625rem * var(--mantine-scale)) solid #fff3',
+									borderRadius: (() => {
+										if (activeTab === 0) return 'calc(0.25rem * var(--mantine-scale)) 0 0 calc(0.25rem * var(--mantine-scale))';
+										if (activeTab === Object.keys(Status).length - 1) return '0 calc(0.25rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale)) 0';
+										return '0';
+									})(),
+									backgroundColor: '#0002',
+									cursor: 'pointer',
+									zIndex: 200,
+								}}
+							/>
+
+						</Button.Group>
+
+						<Group mb="sm">
+							{contributions.filter((c) => c.status === Object
+								.values(Status)[activeTab])
+								.map((contribution) => (
 									<ContributionPanelItem
-										key={coContribution.id}
-										contribution={coContribution}
-										isCoAuthorContribution
-										onUpdate={reload}
+										key={contribution.id}
+										contribution={contribution}
+										onClick={handleContributionClick}
+										styles={getBorderStyles(contribution)}
 									/>
-								))}
-							</Group>
-						</Accordion.Panel>
-					</Accordion.Item>
-				}
-			</Accordion>
+								))
+							}
+						</Group>
+					</Stack>
+				</Group>
+			</Group>
 		</Stack>
 	);
 };

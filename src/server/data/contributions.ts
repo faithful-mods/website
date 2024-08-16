@@ -20,13 +20,11 @@ import type {
 
 // GET
 
-export async function getSubmittedContributions(
-	ownerId: string
-): Promise<ContributionWithCoAuthorsAndPoll[]> {
+export async function getContributionsOfUser(ownerId: string): Promise<ContributionWithCoAuthorsAndPoll[]> {
 	await canAccess(UserRole.ADMIN, ownerId);
 
 	return await db.contribution.findMany({
-		where: { ownerId, status: { not: Status.DRAFT } },
+		where: { ownerId },
 		include: {
 			coAuthors: { select: { id: true, name: true, image: true } },
 			owner: { select: { id: true, name: true, image: true } },
@@ -56,18 +54,6 @@ export async function getCoSubmittedContributions(coAuthorId: string): Promise<C
 			coAuthors: { select: { id: true, name: true, image: true } },
 			owner: { select: { id: true, name: true, image: true } },
 			poll: true,
-		},
-	});
-}
-
-export async function getDraftContributions(ownerId: string): Promise<ContributionWithCoAuthors[]> {
-	await canAccess(UserRole.ADMIN, ownerId);
-
-	return await db.contribution.findMany({
-		where: { ownerId, status: Status.DRAFT },
-		include: {
-			coAuthors: { select: { id: true, name: true, image: true } },
-			owner: { select: { id: true, name: true, image: true } },
 		},
 	});
 }
@@ -145,8 +131,10 @@ export async function createRawContributions(
 	coAuthors: string[],
 	resolution: Resolution,
 	data: FormData
-): Promise<Contribution[]> {
+): Promise<string[]> {
 	await canAccess(UserRole.ADMIN, ownerId);
+
+	const duplicates: string[] = [];
 	const files = data.getAll('files') as File[];
 
 	const contributions: Contribution[] = [];
@@ -154,7 +142,11 @@ export async function createRawContributions(
 		const buffer = await file.arrayBuffer();
 		const hash = calculateHash(Buffer.from(buffer));
 
-		if (await findContribution(hash)) throw new Error(`Contribution "${file.name}" has already been submitted`);
+		if (await findContribution(hash)) {
+			duplicates.push(`Contribution "${file.name}" has already been submitted`);
+			continue;
+		}
+
 		const filepath = await upload(file, `textures/contributions/${ownerId}/`);
 
 		const poll = await db.poll.create({ data: {} });
@@ -173,9 +165,7 @@ export async function createRawContributions(
 		contributions.push(contribution);
 	}
 
-	return contributions.sort(
-		(a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-	);
+	return duplicates;
 }
 
 export async function updateContributionPicture(ownerId: string, contributionId: string, formData: FormData) {
