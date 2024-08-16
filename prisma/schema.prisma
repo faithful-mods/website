@@ -29,6 +29,7 @@ enum Status {
   PENDING
   ACCEPTED
   REJECTED
+  ARCHIVED
 }
 
 model Account {

@@ -102,6 +102,7 @@ export const COLORS: Record<Status, MantineColor> = {
 	[Status.PENDING]: GRADIENT_WARNING.from,
 	[Status.ACCEPTED]: GRADIENT.from,
 	[Status.REJECTED]: GRADIENT_DANGER.from,
+	[Status.ARCHIVED]: 'gainsboro',
 };
 
 // export const DRAFT_COLOR: MantineColor = 'gray';
