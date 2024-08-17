@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { Resolution, UserRole } from '@prisma/client';
+import { Resolution, Status, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -220,11 +220,16 @@ export async function deleteTexture(id: number): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	// Delete on disk
+	// @deprecated (moved to git repository)
 	const textureFile = await db.texture.findUnique({ where: { id } }).then((texture) => texture?.filepath);
 	if (textureFile) await remove(textureFile as `/files/${string}`);
 
 	// Contributions
 	await db.contributionDeactivation.deleteMany({ where: { textureId: id } });
+	await db.contribution.updateMany({
+		where: { textureId: id },
+		data: { textureId: null, status: Status.ARCHIVED },
+	});
 
 	// Delete in database
 	return db.texture.delete({ where: { id } });
