@@ -355,3 +355,5 @@ export type FPUser = {
 	username?: string;
 	uuid?: string;
 }
+
+export type base64 = `base64:${string}`;

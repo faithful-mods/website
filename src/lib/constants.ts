@@ -105,5 +105,6 @@ export const COLORS: Record<Status, MantineColor> = {
 	[Status.ARCHIVED]: 'gainsboro',
 };
 
-// export const DRAFT_COLOR: MantineColor = 'gray';
-// export const PENDING
+export const GITHUB_ORG_NAME = 'faithful-mods';
+export const GITHUB_DEFAULT_REPO_NAME = 'resources-default';
+export const FILE_GIT = `https://raw.githubusercontent.com/${GITHUB_ORG_NAME}/${GITHUB_DEFAULT_REPO_NAME}/${process.env.NODE_ENV === 'production' ? 'main' : 'dev'}`;
