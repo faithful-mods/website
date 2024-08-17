@@ -1,5 +1,4 @@
 import type {
-	Contribution,
 	Mod,
 	Modpack,
 	ModpackVersion,
@@ -38,8 +37,8 @@ export interface SocketModUpload {
 	};
 }
 
-export type ModpackVersionWithMods = ModpackVersion & { mods: ModVersion[] };
-export type ModVersionExtended = ModVersion & { modpacks: Modpack[], textures: number, linked: number };
+export type ModpackVersionWithMods = Prettify<ModpackVersion & { mods: ModVersion[] }>;
+export type ModVersionExtended = Prettify<ModVersion & { modpacks: Modpack[], textures: number, linked: number }>;
 
 export type PublicUser = {
 	id: string;
@@ -47,14 +46,10 @@ export type PublicUser = {
 	image: string | null;
 };
 
-export type FullPoll = Poll & {
+export type FullPoll = Prettify<Poll & {
 	downvotes: PublicUser[];
 	upvotes: PublicUser[];
-}
-
-export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[], owner: PublicUser };
-export type ContributionWithCoAuthorsAndPoll = ContributionWithCoAuthors & { poll: Poll };
-export type ContributionWithCoAuthorsAndFullPoll = ContributionWithCoAuthors & { poll: FullPoll };
+}>
 
 export type ContributionActivationStatus = {
 	/** null means any resolution */

@@ -12,7 +12,7 @@ const CouncilPage = () => {
 	});
 
 	if (isAboutShown) redirect('/contribute/about');
-	redirect('/contribute/submit');
+	redirect('/contribute/submissions');
 };
 
 export default CouncilPage;

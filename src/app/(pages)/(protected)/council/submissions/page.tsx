@@ -17,7 +17,8 @@ import { getCounselors } from '~/server/data/user';
 import { CouncilContributionItem } from './contribution-item';
 
 import type { Texture } from '@prisma/client';
-import type { ContributionWithCoAuthorsAndFullPoll, PublicUser } from '~/types';
+import type { GetPendingContributions } from '~/server/data/contributions';
+import type { PublicUser } from '~/types';
 
 const CouncilContributionsPanel = () => {
 	const [textures, setTextures] = useState<Texture[]>([]);
@@ -27,8 +28,8 @@ const CouncilContributionsPanel = () => {
 	const [showVoted, setShowVoted] = useState(false);
 
 	const [counselors, setCounselors] = useState<PublicUser[]>([]);
-	const [counselorVoted, setCounselorVoted] = useState<ContributionWithCoAuthorsAndFullPoll[]>([]);
-	const [counselorUnvoted, setCounselorUnvoted] = useState<ContributionWithCoAuthorsAndFullPoll[]>([]);
+	const [counselorVoted, setCounselorVoted] = useState<GetPendingContributions[]>([]);
+	const [counselorUnvoted, setCounselorUnvoted] = useState<GetPendingContributions[]>([]);
 
 	const counselor = useCurrentUser()!;
 
@@ -50,8 +51,8 @@ const CouncilContributionsPanel = () => {
 	const loadContributions = () => {
 		getPendingContributions()
 			.then((res) => {
-				const unvoted: ContributionWithCoAuthorsAndFullPoll[] = [];
-				const voted: ContributionWithCoAuthorsAndFullPoll[] = [];
+				const unvoted: GetPendingContributions[] = [];
+				const voted: GetPendingContributions[] = [];
 
 				res.forEach((c) => {
 					if (c.poll.downvotes.find((dv) => dv.id === counselor.id) || c.poll.upvotes.find((uv) => uv.id === counselor.id))

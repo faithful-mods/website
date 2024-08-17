@@ -8,7 +8,7 @@ import { join } from 'path';
 import TOML from '@ltd/j-toml';
 import unzipper from 'unzipper';
 
-import { FILE_DIR, FILE_GIT, FILE_PATH } from '~/lib/constants';
+import { FILE_DIR, gitRawUrl, FILE_PATH, GITHUB_ORG_NAME, GITHUB_DEFAULT_REPO_NAME } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
 import { socket } from '~/lib/serversocket';
@@ -345,7 +345,7 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 				mcmeta,
 			});
 
-			const filepath = `${FILE_GIT}/${texture.id}.png` as const;
+			const filepath = `${gitRawUrl({ orgOrUser: GITHUB_ORG_NAME, repository: GITHUB_DEFAULT_REPO_NAME })}/${texture.id}.png` as const;
 			await db.texture.update({ where: { id: texture.id }, data: { filepath } });
 
 			filesToCommit.push(buffer.toString('base64') as base64);

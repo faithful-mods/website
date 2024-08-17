@@ -12,16 +12,16 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { getVanillaTextureSrc } from '~/lib/utils';
 import { getLatestVanillaTextureContribution } from '~/server/actions/faithful-pack';
 
-import type { Resolution, Texture } from '@prisma/client';
-import type { ContributionWithCoAuthors, FPStoredContribution } from '~/types';
+import type { Contribution, Resolution, Texture } from '@prisma/client';
+import type { FPStoredContribution, Prettify, PublicUser } from '~/types';
 
-export interface GalleryTextureWithContributionProps {
+interface Props {
 	container: RefObject<HTMLDivElement>;
 	rowItemsGap: number;
 	rowItemsLength: number;
 	texture: Texture;
 	resolution: Resolution | 'x16';
-	contribution?: ContributionWithCoAuthors;
+	contribution?: Prettify<Contribution & { owner: PublicUser, coAuthors: PublicUser[] }>;
 }
 
 export function GalleryTextureWithContribution({
@@ -31,7 +31,7 @@ export function GalleryTextureWithContribution({
 	resolution,
 	texture,
 	contribution,
-}: GalleryTextureWithContributionProps) {
+}: Props) {
 
 	const src = useMemo(() => {
 		if (resolution === 'x16') return texture.filepath;
