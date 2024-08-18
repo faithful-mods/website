@@ -117,6 +117,15 @@ export async function getLatestContributionsOfModVersion(modVersionId: string, r
 
 // POST
 
+export async function submitContributions(ownerId: string, contributionsIds: string[]) {
+	await canAccess(UserRole.USER, ownerId);
+
+	await db.contribution.updateMany({
+		where: { id: { in: contributionsIds }, ownerId },
+		data: { status: Status.PENDING },
+	});
+}
+
 export async function checkContributionStatus(contributionId: string) {
 	await canAccess(UserRole.COUNCIL);
 
