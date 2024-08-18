@@ -35,7 +35,7 @@ export default function ContributeSubmissionsPage() {
 
 	const [loading, startTransition] = useTransition();
 	const [hasFork, setHasFork] = useState<string | null>(null);
-	const [showHelp, helpShown] = useState(true);
+	const [showHelp, helpShown] = useState(false);
 
 	const [selectedContributions, setSelectedContributions] = useState<string[]>([]);
 
