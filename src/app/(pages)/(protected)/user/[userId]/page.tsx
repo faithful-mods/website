@@ -1,11 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
 import { useState, useTransition } from 'react';
-
-import { GoCheckCircle, GoStop } from 'react-icons/go';
 
 import { Button, Text, TextInput, Group, Stack, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -13,6 +10,7 @@ import { UserRole } from '@prisma/client';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 
+import ForkInfo from '~/components/fork';
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -20,7 +18,7 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { notify } from '~/lib/utils';
-import { deleteFork, forkRepository, getFork } from '~/server/actions/git';
+import { deleteFork } from '~/server/actions/git';
 import { getUserById } from '~/server/data/user';
 import { updateUser } from '~/server/data/user';
 
@@ -30,6 +28,7 @@ const UserPage = () => {
 	const params = useParams();
 	const user = useCurrentUser()!;
 	const self = params.userId === 'me';
+	const [forkUrl, setForkUrl] = useState<string | null>(null);
 
 	const [displayedUser, setDisplayedUser] = useState<User>();
 	const router = useRouter();
@@ -37,8 +36,6 @@ const UserPage = () => {
 	const { update } = useSession();
 	const [loading, startTransition] = useTransition();
 	const [windowWidth] = useDeviceSize();
-
-	const [hasFork, setHasFork] = useState<string | null>(null);
 
 	const form = useForm<Pick<User, 'name' | 'image'>>({
 		initialValues: { name: user.name!, image: user.image! },
@@ -80,7 +77,6 @@ const UserPage = () => {
 			if (params.userId === user?.id) router.push('/user/me');
 			const userId = self ? user?.id! : params.userId as string;
 
-			getFork().then(setHasFork);
 			getUserById(userId).then(setDisplayedUser);
 		});
 	};
@@ -88,64 +84,13 @@ const UserPage = () => {
 	const handleForkDelete = async () => {
 		startTransition(async () => {
 			await deleteFork();
-			await reload();
+			setForkUrl(null);
 		});
 	};
 
 	useEffectOnce(() => {
 		reload();
 	});
-
-	const handleSetupForkedRepository = async () => {
-		startTransition(async () => {
-			await forkRepository();
-			await reload();
-		});
-	};
-
-	const forkedInfo = () => {
-		if (hasFork) {
-			return (
-				<Tile p="xs" pl={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="teal" mih={56}>
-					<Group gap="sm" mt="auto" mb="auto">
-						<GoCheckCircle size={20} color="white" />
-						<Group gap={3}>
-							<Text size="sm" c="white">Default textures repository forked: </Text>
-							<Text size="sm" c="white">
-								<Link href={hasFork} style={{ color: 'white' }}>
-									{windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'link' : hasFork}
-								</Link>
-							</Text>
-						</Group>
-					</Group>
-				</Tile>
-			);
-		}
-
-		return (
-			<Tile p="xs" pl={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="yellow">
-				<Group justify="space-between" gap="xs">
-					<Group gap="sm">
-						<GoStop color="black" size={20} />
-						<Group gap="xs">
-							<Text size="sm" c="black">Default textures repository not forked</Text>
-						</Group>
-					</Group>
-
-					<Button
-						variant="outline"
-						color="black"
-						onClick={handleSetupForkedRepository}
-						disabled={!!hasFork}
-						loading={loading}
-						fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
-					>
-						Create Fork
-					</Button>
-				</Group>
-			</Tile>
-		);
-	};
 
 	return (displayedUser && (
 		<Stack gap="xl">
@@ -232,7 +177,7 @@ const UserPage = () => {
 
 			<Stack gap="xs">
 				<Text fw={700}>Contributions Repository</Text>
-				{forkedInfo()}
+				<ForkInfo onUrlUpdate={setForkUrl} forkUrl={forkUrl} />
 			</Stack>
 
 			<Stack gap="xs" mb="sm">
@@ -246,7 +191,7 @@ const UserPage = () => {
 						borderColor: 'var(--mantine-color-red-filled)',
 					}}
 				>
-					<Group justify="space-between" style={{ opacity: hasFork ? 1 : .5 }}>
+					<Group justify="space-between" style={{ opacity: forkUrl ? 1 : .5 }}>
 						<Stack gap={0}>
 							<Text>Delete the forked repository</Text>
 							<Text c="dimmed" size="xs">This action is irreversible, all contributions will be lost.</Text>
@@ -255,7 +200,7 @@ const UserPage = () => {
 							variant="default"
 							style={{ color: 'var(--mantine-color-red-text)' }}
 							onClick={handleForkDelete}
-							disabled={!hasFork}
+							disabled={!forkUrl}
 							loading={loading}
 							fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
 						>

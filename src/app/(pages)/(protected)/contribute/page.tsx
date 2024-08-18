@@ -12,6 +12,7 @@ import { ActionIcon, Badge, Button, FloatingIndicator, Group, Indicator, Kbd, Li
 import { useHotkeys, useOs, usePrevious } from '@mantine/hooks';
 import { Resolution, Status } from '@prisma/client';
 
+import ForkInfo from '~/components/fork';
 import { SmallTile } from '~/components/small-tile';
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
@@ -19,7 +20,7 @@ import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
-import { getContributionsOfFork, getFork } from '~/server/actions/git';
+import { getContributionsOfFork } from '~/server/actions/git';
 import { archiveContributions, createContributionsFromGitFiles, deleteContributions, deleteContributionsOrArchive, getContributionsOfUser, submitContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
 
@@ -34,7 +35,7 @@ export default function ContributeSubmissionsPage() {
 	const os = useOs();
 
 	const [loading, startTransition] = useTransition();
-	const [hasFork, setHasFork] = useState<string | null>(null);
+	const [forkUrl, setForkUrl] = useState<string | null>(null);
 	const [showHelp, helpShown] = useState(false);
 
 	const [selectedContributions, setSelectedContributions] = useState<string[]>([]);
@@ -61,10 +62,8 @@ export default function ContributeSubmissionsPage() {
 
 	const reload = async () => {
 		startTransition(async () => {
-			const fork = await getFork();
-			if (!fork) return;
+			if (!forkUrl) return;
 
-			setHasFork(fork);
 			getContributionsOfFork(resolution).then(updateForkContributions);
 		});
 	};
@@ -147,6 +146,12 @@ export default function ContributeSubmissionsPage() {
 
 	return (
 		<Stack gap="xs">
+
+			<ForkInfo
+				onUrlUpdate={setForkUrl}
+				forkUrl={forkUrl}
+			/>
+
 			<Group
 				wrap="nowrap"
 				gap="xs"
@@ -262,7 +267,7 @@ export default function ContributeSubmissionsPage() {
 						To contribute, you need to:
 					</Text>
 					<List ml="sm">
-						<List.Item><Text fw={360}>Fork the default repository using the specified area in your <Link href='/user/me'>user page</Link>;</Text></List.Item>
+						<List.Item><Text fw={360}>If not already, fork the default textures repository using the &quot;Create Fork&quot; button;</Text></List.Item>
 						<List.Item><Text fw={360}>Clone it to your local machine using <Link href="https://git-scm.com/" target="_blank">Git</Link> or <Link href="https://desktop.github.com/download/" target="_blank">GitHub Desktop</Link>;</Text></List.Item>
 						<List.Item><Text fw={360}>Switch to the branch corresponding to the resolution you want to contribute to;</Text></List.Item>
 						<List.Item><Text fw={360}>Add textures to the repository, <Text component="span" fw={700}>each texture should have the same name as the contributed texture name in the <Link href="https://github.com/faithful-mods/resources-default" target="_blank">default repository</Link></Text>;</Text></List.Item>
@@ -290,18 +295,6 @@ export default function ContributeSubmissionsPage() {
 				</Tile>
 			)}
 
-			{hasFork === null && (
-				<Group
-					align="center"
-					justify="center"
-					h="100px"
-					w="100%"
-					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
-				>
-					<Text c="dimmed">You need to fork the default repository first</Text>
-				</Group>
-			)}
-
 			{contributions.length !== 0 && contributions.filter((c) => c.status === Object.keys(Status)[activeTab]).length === 0 && (
 				<Group
 					align="center"
@@ -326,7 +319,7 @@ export default function ContributeSubmissionsPage() {
 				</Group>
 			)}
 
-			{hasFork && (
+			{forkUrl && (
 				<Group gap="xs">
 					{contributions.filter((c) => c.status === Object.keys(Status)[activeTab]).map((contribution, index) => {
 						const texture = textures.find((t) => t.id === contribution.textureId);
