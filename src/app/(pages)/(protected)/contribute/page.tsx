@@ -20,7 +20,7 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { getContributionsOfFork, getFork } from '~/server/actions/git';
-import { createContributionsFromGitFiles, deleteContributionsOrArchive, getContributionsOfUser, submitContributions } from '~/server/data/contributions';
+import { archiveContributions, createContributionsFromGitFiles, deleteContributions, deleteContributionsOrArchive, getContributionsOfUser, submitContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
 
 import type { Texture } from '@prisma/client';
@@ -145,13 +145,6 @@ export default function ContributeSubmissionsPage() {
 		);
 	});
 
-	const handleSubmitSelectedDraftContribution = () => {
-		startTransition(async () => {
-			await submitContributions(user.id!, selectedContributions);
-			await reload();
-		});
-	};
-
 	return (
 		<Stack gap="xs">
 			<Group
@@ -216,7 +209,12 @@ export default function ContributeSubmissionsPage() {
 						variant="gradient"
 						gradient={GRADIENT}
 						disabled={selectedContributions.length === 0}
-						onClick={handleSubmitSelectedDraftContribution}
+						onClick={() => {
+							startTransition(async () => {
+								await submitContributions(user.id!, selectedContributions);
+								await reload();
+							});
+						}}
 					>
 						Submit {selectedContributions.length} draft{selectedContributions.length > 1 ? 's' : ''}
 					</Button>
@@ -228,8 +226,14 @@ export default function ContributeSubmissionsPage() {
 						variant="gradient"
 						gradient={GRADIENT_DANGER}
 						disabled={selectedContributions.length === 0}
+						onClick={() => {
+							startTransition(async () => {
+								await archiveContributions(user.id!, selectedContributions);
+								await reload();
+							});
+						}}
 					>
-						Unlist {selectedContributions.length} contribution{selectedContributions.length > 1 ? 's' : ''}
+						Archive {selectedContributions.length} contribution{selectedContributions.length > 1 ? 's' : ''}
 					</Button>
 				)}
 
@@ -239,6 +243,12 @@ export default function ContributeSubmissionsPage() {
 						variant="gradient"
 						gradient={GRADIENT_DANGER}
 						disabled={selectedContributions.length === 0}
+						onClick={() => {
+							startTransition(async () => {
+								await deleteContributions(user.id!, selectedContributions);
+								await reload();
+							});
+						}}
 					>
 						Delete {selectedContributions.length} contribution{selectedContributions.length > 1 ? 's' : ''}
 					</Button>
@@ -273,8 +283,9 @@ export default function ContributeSubmissionsPage() {
 						A few tips:
 					</Text>
 					<List ml="sm">
-						<List.Item>You have to click on contributions before submitting/unlisting/deleting them.</List.Item>
+						<List.Item>You have to click on contributions before submitting/archiving/deleting them.</List.Item>
 						<List.Item>You can hit <Kbd component="span">{os === 'macos' ? '⌘' : 'Ctrl'}</Kbd> + <Kbd component="span">A</Kbd> to select them all</List.Item>
+						<List.Item>If you delete an archived contribution, make sure to delete it from your fork first, otherwise it will be re-added to the database as a draft.</List.Item>
 					</List>
 				</Tile>
 			)}

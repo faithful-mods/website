@@ -118,11 +118,20 @@ export async function getLatestContributionsOfModVersion(modVersionId: string, r
 // POST
 
 export async function submitContributions(ownerId: string, contributionsIds: string[]) {
-	await canAccess(UserRole.USER, ownerId);
+	await canAccess(UserRole.ADMIN, ownerId);
 
 	await db.contribution.updateMany({
 		where: { id: { in: contributionsIds }, ownerId },
 		data: { status: Status.PENDING },
+	});
+}
+
+export async function archiveContributions(ownerId: string, contributionsIds: string[]) {
+	await canAccess(UserRole.ADMIN, ownerId);
+
+	await db.contribution.updateMany({
+		where: { id: { in: contributionsIds }, ownerId },
+		data: { status: Status.ARCHIVED },
 	});
 }
 
@@ -226,5 +235,19 @@ export async function deleteContributionsOrArchive(
 				data: { status: Status.ARCHIVED },
 			});
 		}
+	}
+}
+
+export async function deleteContributions(ownerId: string, ids: string[]) {
+	await canAccess(UserRole.ADMIN, ownerId);
+
+	const contributions = await db.contribution.findMany({
+		where: { id: { in: ids } },
+		include: { coAuthors: { select: { id: true } } },
+	});
+
+	for (const contribution of contributions) {
+		await db.contribution.delete({ where: { id: contribution.id } });
+		await db.poll.delete({ where: { id: contribution.pollId } });
 	}
 }
