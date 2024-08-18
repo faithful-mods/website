@@ -101,10 +101,23 @@ export async function forkRepository() {
 
 	// create empty branches for each resolution
 	const resolutions = Object.keys(Resolution) as Resolution[];
-	const firstCommitSha = await getFirstCommit(username, GITHUB_DEFAULT_REPO_NAME);
+	const SHA1_EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'; // see https://github.com/orgs/community/discussions/24699
+
+	const res = await octokit.request('POST /repos/{owner}/{repo}/git/commits', {
+		owner: username,
+		repo: GITHUB_DEFAULT_REPO_NAME,
+		message: 'initial commit',
+		tree: SHA1_EMPTY_TREE,
+		parents: [],
+	});
 
 	for (const resolution of resolutions) {
-		await createBranchFromCommit(username, GITHUB_DEFAULT_REPO_NAME, resolution, firstCommitSha);
+		await octokit.request('POST /repos/{owner}/{repo}/git/refs', {
+			owner: username,
+			repo: GITHUB_DEFAULT_REPO_NAME,
+			ref: `refs/heads/${resolution}`,
+			sha: res.data.sha,
+		});
 	}
 
 	// set x32 as default branch and delete main (x16) as it's not needed
