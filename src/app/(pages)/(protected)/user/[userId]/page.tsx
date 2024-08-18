@@ -107,26 +107,16 @@ const UserPage = () => {
 		if (hasFork) {
 			return (
 				<Tile p="xs" pl={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="teal">
-					<Group justify="space-between" gap="xs">
-						<Group gap="sm">
-							<GoCheckCircle size={20} color="white" />
-							<Group gap={3}>
-								<Text size="sm" c="white">Default textures repository forked: </Text>
-								<Text size="sm" c="white">
-									<Link href={hasFork} style={{ color: 'white' }}>
-										{windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'link' : hasFork}
-									</Link>
-								</Text>
-							</Group>
+					<Group gap="sm">
+						<GoCheckCircle size={20} color="white" />
+						<Group gap={3}>
+							<Text size="sm" c="white">Default textures repository forked: </Text>
+							<Text size="sm" c="white">
+								<Link href={hasFork} style={{ color: 'white' }}>
+									{windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'link' : hasFork}
+								</Link>
+							</Text>
 						</Group>
-
-						<Button
-							variant="outline"
-							color="white"
-							fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
-						>
-								Sync Fork
-						</Button>
 					</Group>
 				</Tile>
 			);
