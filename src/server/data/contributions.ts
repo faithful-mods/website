@@ -174,16 +174,10 @@ export async function createContributionsFromGitFiles(ownerId: string, resolutio
 		const existingContribution = await db.contribution.findFirst({ where: { hash: file.sha } });
 		if (existingContribution) continue;
 
-		let textureId: number;
+		const hash = (file.path.includes('/') ? file.path.split('/')[1] : file.path)?.replace('.png', '');
+		const texture = await db.texture.findFirst({ where: { hash } });
 
-		try {
-			const filename = file.path.includes('/') ? file.path.split('/')[1] : file.path;
-			textureId = parseInt(filename?.replace('.png', '') ?? '', 10);
-			if (isNaN(textureId)) continue;
-		} catch (e) {
-			console.error(e);
-			continue;
-		}
+		if (!texture) continue;
 
 		const poll = await db.poll.create({ data: {} });
 		const contribution = await db.contribution.create({
@@ -195,7 +189,7 @@ export async function createContributionsFromGitFiles(ownerId: string, resolutio
 				pollId: poll.id,
 				filename: file.path,
 				resolution,
-				textureId,
+				textureId: texture.id,
 			},
 		});
 

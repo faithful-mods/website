@@ -345,11 +345,11 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 				mcmeta,
 			});
 
-			const filepath = `${gitRawUrl({ orgOrUser: GITHUB_ORG_NAME, repository: GITHUB_DEFAULT_REPO_NAME })}/${texture.id}.png` as const;
+			const filepath = gitRawUrl({ orgOrUser: GITHUB_ORG_NAME, repository: GITHUB_DEFAULT_REPO_NAME, path: `${hash}.png` });
 			await db.texture.update({ where: { id: texture.id }, data: { filepath } });
 
 			filesToCommit.push(buffer.toString('base64') as base64);
-			filesNamesOnGit.push(`${texture.id}.png`);
+			filesNamesOnGit.push(`${hash}.png`);
 		}
 		else {
 			if (texture.name !== textureName && !texture.aliases.includes(textureName)) {
