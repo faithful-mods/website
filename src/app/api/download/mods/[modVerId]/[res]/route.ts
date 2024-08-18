@@ -3,7 +3,7 @@ import { createReadStream } from 'fs';
 import { Resolution, Status } from '@prisma/client';
 import JSZip from 'jszip';
 
-import { FILE_DIR, FILE_PATH, PUBLIC_PATH } from '~/lib/constants';
+import { PUBLIC_PATH } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { getPackFormatVersion, getVanillaTextureSrc, sortBySemver } from '~/lib/utils';
 import { getModVersionProgression } from '~/server/data/mods-version';
@@ -79,10 +79,8 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 
 		const contribution = linkedTexture.texture.contributions[0]!;
 		if (contribution) {
-			zip.file<'stream'>(
-				`${linkedTexture.assetPath}`,
-				createReadStream(`${FILE_PATH}/${contribution.filepath.replace('/files', '/').replace(FILE_DIR, '')}`)
-			);
+			const contributionTexture = await fetch(contribution.filepath);
+			zip.file<'arraybuffer'>(`${linkedTexture.assetPath}`, contributionTexture.arrayBuffer());
 
 			if (contribution.mcmeta) {
 				zip.file<'text'>(
@@ -100,8 +98,8 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 
 		const vanillaTextureId = linkedTexture.texture.vanillaTextureId;
 		if (vanillaTextureId) {
-			const vanillaTexture = (await fetch(getVanillaTextureSrc(vanillaTextureId, res))).arrayBuffer();
-			zip.file<'arraybuffer'>(`${linkedTexture.assetPath}`, vanillaTexture);
+			const vanillaTexture = await fetch(getVanillaTextureSrc(vanillaTextureId, res));
+			zip.file<'arraybuffer'>(`${linkedTexture.assetPath}`, vanillaTexture.arrayBuffer());
 
 			if (linkedTexture.texture.mcmeta) {
 				zip.file<'text'>(
