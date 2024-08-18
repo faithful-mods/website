@@ -259,13 +259,13 @@ export default function ContributeSubmissionsPage() {
 			{showHelp && (
 				<Tile style={{ borderRadius: 'var(--mantine-radius-default)' }}>
 					<Text>
-						To contribute to the resource pack, you need to:
+						To contribute, you need to:
 					</Text>
 					<List ml="sm">
-						<List.Item><Text fw={360}>Fork the default repository using the settings in your <Link href='/user/me'>account page</Link>;</Text></List.Item>
+						<List.Item><Text fw={360}>Fork the default repository using the specified area in your <Link href='/user/me'>user page</Link>;</Text></List.Item>
 						<List.Item><Text fw={360}>Clone it to your local machine using <Link href="https://git-scm.com/" target="_blank">Git</Link> or <Link href="https://desktop.github.com/download/" target="_blank">GitHub Desktop</Link>;</Text></List.Item>
 						<List.Item><Text fw={360}>Switch to the branch corresponding to the resolution you want to contribute to;</Text></List.Item>
-						<List.Item><Text fw={360}>Add textures to the repository, <Text component="span" fw={700}>each texture should have the same name as the contributed texture ID</Text>;</Text></List.Item>
+						<List.Item><Text fw={360}>Add textures to the repository, <Text component="span" fw={700}>each texture should have the same name as the contributed texture name in the <Link href="https://github.com/faithful-mods/resources-default" target="_blank">default repository</Link></Text>;</Text></List.Item>
 						<List.Item><Text fw={360}>Commit your changes and push them to your fork;</Text></List.Item>
 						<List.Item><Text fw={360}>Click the reload button to see your contributions here.</Text></List.Item>
 					</List>
