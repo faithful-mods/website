@@ -293,17 +293,6 @@ async function createCommit({ message, treeSha, parentCommitSha, owner, repo }: 
 	return data;
 }
 
-async function createEmptyTree(owner = GITHUB_ORG_NAME, repo = GITHUB_DEFAULT_REPO_NAME) {
-	const octokit = await getOctokit();
-	const { data } = await octokit.git.createTree({
-		owner,
-		repo,
-		tree: [],
-	});
-
-	return data.sha;
-}
-
 interface CreateNewTreeOptions {
 	filenames: string[],
 	blobs: { url: string, sha: string }[],
