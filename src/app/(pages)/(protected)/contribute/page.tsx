@@ -302,6 +302,30 @@ export default function ContributeSubmissionsPage() {
 				</Group>
 			)}
 
+			{contributions.length !== 0 && contributions.filter((c) => c.status === Object.keys(Status)[activeTab]).length === 0 && (
+				<Group
+					align="center"
+					justify="center"
+					h="100px"
+					w="100%"
+					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+				>
+					<Text c="dimmed">No contributions to show</Text>
+				</Group>
+			)}
+
+			{contributions.length === 0 && (
+				<Group
+					align="center"
+					justify="center"
+					h="100px"
+					w="100%"
+					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+				>
+					<Text c="dimmed">No contributions, you need to push some textures to your fork first!</Text>
+				</Group>
+			)}
+
 			{hasFork && (
 				<Group gap="xs">
 					{contributions.filter((c) => c.status === Object.keys(Status)[activeTab]).map((contribution, index) => {
@@ -422,7 +446,6 @@ export default function ContributeSubmissionsPage() {
 					})}
 				</Group>
 			)}
-
 		</Stack>
 	);
 }
