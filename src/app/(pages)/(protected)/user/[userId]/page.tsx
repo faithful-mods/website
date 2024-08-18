@@ -106,8 +106,8 @@ const UserPage = () => {
 	const forkedInfo = () => {
 		if (hasFork) {
 			return (
-				<Tile p="xs" pl={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="teal">
-					<Group gap="sm">
+				<Tile p="xs" pl={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="teal" mih={56}>
+					<Group gap="sm" mt="auto" mb="auto">
 						<GoCheckCircle size={20} color="white" />
 						<Group gap={3}>
 							<Text size="sm" c="white">Default textures repository forked: </Text>
@@ -208,6 +208,7 @@ const UserPage = () => {
 						>
 							<Button
 								justify={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'center' : 'right'}
+								fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
 								variant="transparent"
 								color="red"
 								onClick={() => signOut({ callbackUrl: '/' })}
@@ -219,6 +220,7 @@ const UserPage = () => {
 								gradient={GRADIENT}
 								onClick={() => onSubmit(form.values)}
 								disabled={loading || !form.isValid() || user === undefined}
+								fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
 								loading={loading}
 							>
 								Save
@@ -244,7 +246,7 @@ const UserPage = () => {
 						borderColor: 'var(--mantine-color-red-filled)',
 					}}
 				>
-					<Group justify="space-between">
+					<Group justify="space-between" style={{ opacity: hasFork ? 1 : .5 }}>
 						<Stack gap={0}>
 							<Text>Delete the forked repository</Text>
 							<Text c="dimmed" size="xs">This action is irreversible, all contributions will be lost.</Text>
