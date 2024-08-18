@@ -107,16 +107,9 @@ export async function forkRepository() {
 		await createBranchFromCommit(username, GITHUB_DEFAULT_REPO_NAME, resolution, firstCommitSha);
 	}
 
-	// rename the dev/main branch to x16 (if prod => main => x16 and DEL dev, if dev => dev => x16 and DEL main)
-	if (process.env.NODE_ENV !== 'production') {
-		await setDefaultBranch(username, GITHUB_DEFAULT_REPO_NAME, 'dev');
-		await deleteBranch(username, GITHUB_DEFAULT_REPO_NAME, 'main');
-		await renameBranch(username, GITHUB_DEFAULT_REPO_NAME, 'dev', 'x16');
-	}
-	else {
-		await deleteBranch(username, GITHUB_DEFAULT_REPO_NAME, 'dev');
-		await renameBranch(username, GITHUB_DEFAULT_REPO_NAME, 'main', 'x16');
-	}
+	// set x32 as default branch and delete main (x16) as it's not needed
+	await setDefaultBranch(username, GITHUB_DEFAULT_REPO_NAME, 'x32');
+	await deleteBranch(username, GITHUB_DEFAULT_REPO_NAME, 'main');
 }
 
 /**
@@ -128,10 +121,8 @@ export async function forkRepository() {
 export async function uploadToRepository(files: base64[], filenames: string[], commitMessage: string): Promise<void> {
 	await canAccess(UserRole.COUNCIL);
 
-	const branch = process.env.NODE_ENV === 'production' ? 'main' : 'dev';
-
 	// get latest commit
-	const currentCommit = await getCurrentCommit(branch);
+	const currentCommit = await getCurrentCommit('main');
 
 	// create blobs for each file
 	const blobs = await Promise.all(files.map((file) => createBlobFile(file)));
@@ -143,7 +134,7 @@ export async function uploadToRepository(files: base64[], filenames: string[], c
 	const newCommit = await createCommit({ message: commitMessage, treeSha: newTree.sha, parentCommitSha: currentCommit.commit_sha });
 
 	// update the branch to point to the new commit
-	await setBranchToCommit(newCommit.sha, branch);
+	await setBranchToCommit(newCommit.sha, 'main');
 }
 
 export interface GitFile {
@@ -158,7 +149,6 @@ export interface GitFile {
 export async function getContributionsOfFork(resolution: Resolution): Promise<GitFile[]> {
 	const username = await getUserGitHubUsername();
 	const files = await listFilesInBranch(username, GITHUB_DEFAULT_REPO_NAME, resolution);
-	console.log(files, resolution);
 
 	return files as GitFile[];
 }

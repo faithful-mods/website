@@ -106,7 +106,7 @@ export const COLORS: Record<Status, MantineColor> = {
 };
 
 export const GITHUB_ORG_NAME = 'faithful-mods';
-export const GITHUB_DEFAULT_REPO_NAME = 'resources-default';
+export const GITHUB_DEFAULT_REPO_NAME = process.env.NODE_ENV === 'production' ? 'resources-default' : 'resources-default-dev';
 
 export type RawUrl =
  | `https://raw.githubusercontent.com/${string}/${string}/${string}`
@@ -121,9 +121,7 @@ export type FileGitParams = {
 
 export const gitRawUrl = ({ orgOrUser, repository, branchOrCommit, path }: FileGitParams): RawUrl => {
 	if (branchOrCommit) return `https://raw.githubusercontent.com/${orgOrUser}/${repository}/${branchOrCommit}/${path}`;
-	const branch = process.env.NODE_ENV === 'production' ? 'main' : 'dev';
-
-	return `https://raw.githubusercontent.com/${orgOrUser}/${repository}/${branch}/${path}`;
+	return `https://raw.githubusercontent.com/${orgOrUser}/${repository}/main/${path}`;
 };
 
 export type CommitUrl = `https://github.com/${string}/${string}/commit/${string}`;
