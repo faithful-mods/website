@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 
-import { GoCommit, GoHash, GoHourglass, GoQuestion, GoRelFilePath } from 'react-icons/go';
+import { GoAlert, GoCommit, GoHash, GoHourglass, GoQuestion, GoRelFilePath } from 'react-icons/go';
 import { IoReload } from 'react-icons/io5';
 import { LuArrowUpDown } from 'react-icons/lu';
 
@@ -24,9 +24,9 @@ import { getContributionsOfFork } from '~/server/actions/git';
 import { archiveContributions, createContributionsFromGitFiles, deleteContributions, deleteContributionsOrArchive, getContributionsOfUser, submitContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
 
-import type { Texture } from '@prisma/client';
 import type { GitFile } from '~/server/actions/git';
 import type { GetContributionsOfUser } from '~/server/data/contributions';
+import type { GetTextures } from '~/server/data/texture';
 
 import './styles.scss';
 
@@ -44,7 +44,7 @@ export default function ContributeSubmissionsPage() {
 	const prevRes = usePrevious(resolution);
 
 	const [contributions, setContributions] = useState<GetContributionsOfUser[]>([]);
-	const [textures, setTextures] = useState<Texture[]>([]);
+	const [textures, setTextures] = useState<GetTextures[]>([]);
 
 	const [groupRef, setGroupRef] = useState<HTMLDivElement | null>(null);
 	const [controlsRefs, setControlsRefs] = useState<Record<string, HTMLButtonElement | null>>({});
@@ -52,8 +52,23 @@ export default function ContributeSubmissionsPage() {
 	const [windowWidth] = useDeviceSize();
 
 	useHotkeys([
-		['mod+a', () => setSelectedContributions(contributions.filter((c) => c.status === Object.keys(Status)[activeTab]).map((c) => c.id))],
+		[
+			'mod+a',
+			() => setSelectedContributions(contributions
+				.filter(canContributionBeSubmitted)
+				.filter((c) => c.status === Object.keys(Status)[activeTab]).map((c) => c.id)),
+		],
 	]);
+
+	const canContributionBeSubmitted = useCallback((contribution: GetContributionsOfUser) => {
+		const texture = textures.find((t) => t.id === contribution.textureId);
+		if (!texture) return false;
+
+		const disabledResolution = texture.disabledContributions.find((dc) => dc.resolution === resolution);
+		const allResolutionsDisabled = texture.disabledContributions.find((dc) => dc.resolution === null);
+
+		return !disabledResolution && !allResolutionsDisabled;
+	}, [resolution, textures]);
 
 	const setControlRef = (index: number) => (node: HTMLButtonElement) => {
 		controlsRefs[index] = node;
@@ -268,7 +283,7 @@ export default function ContributeSubmissionsPage() {
 					</Text>
 					<List ml="sm">
 						<List.Item><Text fw={360}>If not already, fork the default textures repository using the &quot;Create Fork&quot; button;</Text></List.Item>
-						<List.Item><Text fw={360}>Clone it to your local machine using <Link href="https://git-scm.com/" target="_blank">Git</Link> or <Link href="https://desktop.github.com/download/" target="_blank">GitHub Desktop</Link>;</Text></List.Item>
+						<List.Item><Text fw={360}>Clone it to your local machine using <Link href="https://git-scm.com/" target="_blank">Git</Link> or <Link href="https://desktop.github.com/download/" target="_blank">GitHub Desktop</Link> (recommended);</Text></List.Item>
 						<List.Item><Text fw={360}>Switch to the branch corresponding to the resolution you want to contribute to;</Text></List.Item>
 						<List.Item><Text fw={360}>Add textures to the repository, <Text component="span" fw={700}>each texture should have the same name as the contributed texture name in the <Link href="https://github.com/faithful-mods/resources-default" target="_blank">default repository</Link></Text>;</Text></List.Item>
 						<List.Item><Text fw={360}>Commit your changes and push them to your fork;</Text></List.Item>
@@ -327,19 +342,29 @@ export default function ContributeSubmissionsPage() {
 						const repository = contribution.filepath.split('/')[4]!;
 						const commitSha = contribution.filepath.split('/')[5]!;
 
+						const disabledResolution = texture?.disabledContributions.find((dc) => dc.resolution === resolution);
+						const allResolutionsDisabled = texture?.disabledContributions.find((dc) => dc.resolution === null);
+
 						return (
 							(
 								<TextureImage
 									key={index}
 									src={contribution.filepath}
 									alt={contribution.filename}
-									onClick={() => setSelectedContributions((prev) => {
-										if (prev.includes(contribution.id)) return prev.filter((id) => id !== contribution.id);
-										return [...prev, contribution.id];
-									})}
+									onClick={() => {
+										if (!canContributionBeSubmitted(contribution)) return;
+
+										setSelectedContributions((prev) => {
+											if (prev.includes(contribution.id)) return prev.filter((id) => id !== contribution.id);
+											return [...prev, contribution.id];
+										});
+									}}
+
 									styles={{
 										boxShadow: selectedContributions.includes(contribution.id) ? '0 0 0 2px var(--mantine-color-teal-filled)' : 'none',
+										cursor: canContributionBeSubmitted(contribution) ? 'pointer' : 'not-allowed',
 									}}
+
 									popupStyles={{
 										backgroundColor: 'transparent',
 										padding: 0,
@@ -347,92 +372,133 @@ export default function ContributeSubmissionsPage() {
 										boxShadow: 'none',
 									}}
 								>
-									<Group gap={2}>
-										{texture && (
-											<SmallTile color="gray" w={125} h="100%">
-												<Group w="100%" h="100%" justify="center" align="center">
-													<TextureImage
-														src={texture.filepath}
-														alt={texture.name}
-														mcmeta={texture.mcmeta}
-														size={115}
-													/>
+									<Stack gap={2}>
+										<Group gap={2}>
+											{texture && (
+												<SmallTile color="gray" w={125} h="100%">
+													<Group w="100%" h="100%" justify="center" align="center">
+														<TextureImage
+															src={texture.filepath}
+															alt={texture.name}
+															mcmeta={texture.mcmeta}
+															size={115}
+														/>
+													</Group>
+												</SmallTile>
+											)}
+											<Stack gap={2} align="start" miw={468} maw={468}>
+												<SmallTile color="gray">
+													<Text fw={500} ta="center">{texture?.name}</Text>
+												</SmallTile>
+
+												<Group gap={2} w="100%" wrap="nowrap" align="start">
+													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+														<GoCommit />
+													</SmallTile>
+													<SmallTile color="gray">
+														<Text size="xs">
+															<a
+																href={gitCommitUrl({ orgOrUser, repository, commitSha })}
+																target="_blank"
+																rel="noreferrer"
+															>
+																{commitSha}
+															</a>
+														</Text>
+													</SmallTile>
 												</Group>
-											</SmallTile>
+
+												<Group gap={2} w="100%" wrap="nowrap" align="start">
+													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+														<GoRelFilePath />
+													</SmallTile>
+													<SmallTile color="gray">
+														<Text size="xs">
+															<a
+																href={gitBlobUrl({ orgOrUser, repository, branchOrCommit: commitSha, path: contribution.filename })}
+																target="_blank"
+																rel="noreferrer"
+															>
+																{contribution.filename}
+															</a>
+														</Text>
+													</SmallTile>
+												</Group>
+
+												<Group gap={2} w="100%">
+													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
+														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+															<LuArrowUpDown />
+														</SmallTile>
+														<SmallTile color="gray">
+															<Text size="xs">
+																{contribution.poll.upvotes.length - contribution.poll.downvotes.length}
+															</Text>
+														</SmallTile>
+													</Group>
+													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
+														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+															<GoHash />
+														</SmallTile>
+														<SmallTile color="gray">
+															<Text size="xs">
+																{contribution.textureId}
+															</Text>
+														</SmallTile>
+													</Group>
+													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
+														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+															<GoHourglass />
+														</SmallTile>
+														<SmallTile color="gray">
+															<Text size="xs">
+																{contribution.status}
+															</Text>
+														</SmallTile>
+													</Group>
+												</Group>
+											</Stack>
+										</Group>
+
+										{texture && texture.vanillaTextureId && (
+											<Group gap={2} w="100%" wrap="nowrap" align="start">
+												<SmallTile color="yellow" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<GoAlert color="black" />
+												</SmallTile>
+												<SmallTile color="yellow">
+													<Text size="xs" c="black">
+														This texture is a vanilla texture, contributions should be done from the officials Discords channels.
+													</Text>
+												</SmallTile>
+											</Group>
 										)}
-										<Stack gap={2} align="start" miw={400} maw={400}>
-											<SmallTile color="gray">
-												<Text fw={500} ta="center">{texture?.name}</Text>
-											</SmallTile>
 
+										{texture && !texture.vanillaTextureId && disabledResolution && !allResolutionsDisabled && (
 											<Group gap={2} w="100%" wrap="nowrap" align="start">
-												<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
-													<GoCommit />
+												<SmallTile color="red" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<GoAlert color="black" />
 												</SmallTile>
-												<SmallTile color="gray">
-													<Text size="xs">
-														<a
-															href={gitCommitUrl({ orgOrUser, repository, commitSha })}
-															target="_blank"
-															rel="noreferrer"
-														>
-															{commitSha}
-														</a>
+												<SmallTile color="red">
+													<Text size="xs" c="black">
+														This texture does not accept contributions for the {resolution} resolution.
 													</Text>
 												</SmallTile>
 											</Group>
+										)}
 
+										{texture && !texture.vanillaTextureId && allResolutionsDisabled && (
 											<Group gap={2} w="100%" wrap="nowrap" align="start">
-												<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
-													<GoRelFilePath />
+												<SmallTile color="red" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<GoAlert color="black" />
 												</SmallTile>
-												<SmallTile color="gray">
-													<Text size="xs">
-														<a
-															href={gitBlobUrl({ orgOrUser, repository, branchOrCommit: commitSha, path: contribution.filename })}
-															target="_blank"
-															rel="noreferrer"
-														>
-															{contribution.filename}
-														</a>
+												<SmallTile color="red">
+													<Text size="xs" c="black">
+														This texture does not accept contributions for any resolution.
 													</Text>
 												</SmallTile>
 											</Group>
-
-											<Group gap={2} w="100%">
-												<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
-													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
-														<LuArrowUpDown />
-													</SmallTile>
-													<SmallTile color="gray">
-														<Text size="xs">
-															{contribution.poll.upvotes.length - contribution.poll.downvotes.length}
-														</Text>
-													</SmallTile>
-												</Group>
-												<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
-													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
-														<GoHash />
-													</SmallTile>
-													<SmallTile color="gray">
-														<Text size="xs">
-															{contribution.textureId}
-														</Text>
-													</SmallTile>
-												</Group>
-												<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
-													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
-														<GoHourglass />
-													</SmallTile>
-													<SmallTile color="gray">
-														<Text size="xs">
-															{contribution.status}
-														</Text>
-													</SmallTile>
-												</Group>
-											</Group>
-										</Stack>
-									</Group>
+										)}
+									</Stack>
 								</TextureImage>
 							)
 						);

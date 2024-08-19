@@ -9,13 +9,17 @@ import { db } from '~/lib/db';
 import { remove } from '../actions/files';
 
 import type { ContributionDeactivation, Texture } from '@prisma/client';
-import type { ContributionActivationStatus, Progression, TextureMCMETA } from '~/types';
+import type { ContributionActivationStatus, Prettify, Progression, TextureMCMETA } from '~/types';
 
 import '~/lib/polyfills';
 
 // GET
 
-export async function getTextures(): Promise<(Texture & { disabledContributions: ContributionDeactivation[] })[]> {
+export type GetTextures = Prettify<Texture & {
+	disabledContributions: ContributionDeactivation[];
+}>;
+
+export async function getTextures(): Promise<GetTextures[]> {
 	return db.texture.findMany({ include: { disabledContributions: true } });
 }
 
