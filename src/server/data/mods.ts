@@ -16,6 +16,10 @@ import type { Downloads } from '~/types';
 
 // GET
 
+export async function getModFromForgeId(forgeId: string): Promise<Mod | null> {
+	return db.mod.findFirst({ where: { forgeId } });
+}
+
 export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 	return db.mod.findMany({ where: { id: { in: ids } } });
 }

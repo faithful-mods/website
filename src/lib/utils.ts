@@ -35,13 +35,14 @@ export function sortByName<T extends { name: string, id?: string | number }>(a: 
 	return a.name.localeCompare(b.name) || `${a.id}`.localeCompare(`${b.id}` ?? '') || 0;
 }
 
-export function searchFilter<T extends { name: string, aliases?: string[] }>(search: string) {
+export function searchFilter<T extends { id: string | number; name: string, aliases?: string[] }>(search: string) {
 	return (item: T) => {
 		const searchLower = search.toLowerCase();
 		const name = item.name.toLowerCase();
+		const id = `${item.id}`.toLowerCase();
 		const aliases = item.aliases?.map((alias) => alias.toLowerCase()) ?? [];
 
-		return name.includes(searchLower) || aliases.some((alias) => alias.includes(searchLower));
+		return id === searchLower || name.includes(searchLower) || aliases.some((alias) => alias.includes(searchLower));
 	};
 }
 

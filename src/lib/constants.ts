@@ -105,5 +105,39 @@ export const COLORS: Record<Status, MantineColor> = {
 	[Status.ARCHIVED]: 'gainsboro',
 };
 
-// export const DRAFT_COLOR: MantineColor = 'gray';
-// export const PENDING
+export const GITHUB_ORG_NAME = 'faithful-mods';
+export const GITHUB_DEFAULT_REPO_NAME = process.env.NODE_ENV === 'production' ? 'resources-default' : 'resources-default-dev';
+
+export type RawUrl =
+ | `https://raw.githubusercontent.com/${string}/${string}/${string}`
+ | `https://raw.githubusercontent.com/${string}/${string}/${string}/${string}`
+
+export type FileGitParams = {
+	orgOrUser: string;
+	repository: string;
+	branchOrCommit?: string;
+	path?: string;
+}
+
+export const gitRawUrl = ({ orgOrUser, repository, branchOrCommit, path }: FileGitParams): RawUrl => {
+	if (branchOrCommit) return `https://raw.githubusercontent.com/${orgOrUser}/${repository}/${branchOrCommit}/${path}`;
+	return `https://raw.githubusercontent.com/${orgOrUser}/${repository}/main/${path}`;
+};
+
+export type CommitUrl = `https://github.com/${string}/${string}/commit/${string}`;
+
+export type GitCommitUrlParams = {
+	orgOrUser: string;
+	repository: string;
+	commitSha: string;
+}
+
+export const gitCommitUrl = ({ orgOrUser, repository, commitSha }: GitCommitUrlParams): CommitUrl => {
+	return `https://github.com/${orgOrUser}/${repository}/commit/${commitSha}`;
+};
+
+export type BlobUrl = `https://github.com/${string}/${string}/blob/${string}/${string}`;
+
+export const gitBlobUrl = ({ orgOrUser, repository, branchOrCommit, path }: FileGitParams): BlobUrl => {
+	return `https://github.com/${orgOrUser}/${repository}/blob/${branchOrCommit}/${path}`;
+};

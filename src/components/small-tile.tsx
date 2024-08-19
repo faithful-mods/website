@@ -9,7 +9,7 @@ export function SmallTile({ children, style, ...props }: PolymorphicComponentPro
 			mih={28}
 			style={{
 				padding: '5px 8px 6px 8px',
-				borderRadius: 5,
+				borderRadius: 0,
 				...style,
 			}}
 			{...props}

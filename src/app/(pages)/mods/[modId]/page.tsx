@@ -14,8 +14,8 @@ import { Tile } from '~/components/tile';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, RESOLUTIONS_COLORS, EMPTY_PROGRESSION, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
-import { getModsFromIds } from '~/server/data/mods';
-import { getModVersionFromMod, getModVersionProgressionFromMod } from '~/server/data/mods-version';
+import { getModFromForgeId } from '~/server/data/mods';
+import { getModVersionFromModForgeId, getModVersionProgressionFromModForgeId } from '~/server/data/mods-version';
 
 import type { Mod, ModVersion } from '@prisma/client';
 import type { Progression } from '~/types';
@@ -107,9 +107,9 @@ export default function ModPage() {
 	}, [search, versions]);
 
 	useEffectOnce(() => {
-		getModsFromIds([modId]).then((mod) => setMod(mod[0] ?? null));
-		getModVersionProgressionFromMod(modId).then(setProgressions);
-		getModVersionFromMod(modId).then((versions) => {
+		getModFromForgeId(modId).then(setMod);
+		getModVersionProgressionFromModForgeId(modId).then(setProgressions);
+		getModVersionFromModForgeId(modId).then((versions) => {
 			setVersions(versions);
 			setFilteredVersions(versions);
 		});

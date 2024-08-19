@@ -14,11 +14,11 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { searchFilter } from '~/lib/utils';
 import { getLatestContributionsOfModVersion } from '~/server/data/contributions';
-import { getModVersionFromMod } from '~/server/data/mods-version';
+import { getModVersionFromModForgeId } from '~/server/data/mods-version';
 import { getTexturesFromModVersion } from '~/server/data/texture';
 
 import type { ModVersion, Texture } from '@prisma/client';
-import type { ContributionWithCoAuthors } from '~/types';
+import type { GetLatestContributionsOfModVersion } from '~/server/data/contributions';
 
 export default function ModGalleryPage() {
 	const [resolution, setResolution] = useState<Resolution | 'x16'>(Resolution['x32']);
@@ -32,7 +32,7 @@ export default function ModGalleryPage() {
 	const [texturesFiltered, setTexturesFiltered] = useState<Texture[]>([]);
 	const [texturesShown, setTexturesShown] = useState<Texture[][]>([[]]);
 
-	const [contributions, setContributions] = useState<ContributionWithCoAuthors[]>([]);
+	const [contributions, setContributions] = useState<GetLatestContributionsOfModVersion[]>([]);
 
 	const [texturesShownPerPage, setTexturesShownPerPage] = useState<string>('96');
 	const [texturesShownPerRow, setTexturesShownPerRow] = useState<number>(12);
@@ -48,7 +48,7 @@ export default function ModGalleryPage() {
 	const texturesGroupRef = useRef<HTMLDivElement>(null);
 
 	useEffectOnce(() => {
-		getModVersionFromMod(modId).then((versions) => {
+		getModVersionFromModForgeId(modId).then((versions) => {
 			setModVersions(versions);
 			setModVersionShown(versions[0]?.id ?? null);
 		});

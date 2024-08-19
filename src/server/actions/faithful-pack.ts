@@ -110,6 +110,7 @@ export async function updateCachedFP(): Promise<void> {
 				})(),
 
 				coAuthors: c.authors
+					.slice(1)
 					.map((id) => users.find((u) => u.id === id))
 					.filter((u) => !!u)
 					.map((u) => ({

@@ -8,12 +8,13 @@ import { join } from 'path';
 import TOML from '@ltd/j-toml';
 import unzipper from 'unzipper';
 
-import { FILE_DIR, FILE_PATH } from '~/lib/constants';
+import { FILE_DIR, gitRawUrl, FILE_PATH, GITHUB_ORG_NAME, GITHUB_DEFAULT_REPO_NAME } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { calculateHash } from '~/lib/hash';
 import { socket } from '~/lib/serversocket';
-import { bufferToFile, sortBySemver } from '~/lib/utils';
+import { sortBySemver } from '~/lib/utils';
 
+import { uploadToRepository } from './git';
 import { createMod, updateModPicture } from '../data/mods';
 import { createModVersion } from '../data/mods-version';
 import { linkTextureToResource, createResource, getResource } from '../data/resource';
@@ -21,7 +22,7 @@ import { createTexture, findTexture } from '../data/texture';
 
 import type { ModVersion } from '@prisma/client';
 import type { CentralDirectory } from 'unzipper';
-import type { MCModInfoData, ModData, ModFabricJson, ModFabricJsonPerson, ModsToml, SocketModUpload } from '~/types';
+import type { base64, MCModInfoData, ModData, ModFabricJson, ModFabricJsonPerson, ModsToml, SocketModUpload } from '~/types';
 
 /**
  * Uploads a file to the server
@@ -245,7 +246,6 @@ export async function extractModVersionsFromJAR(jar: File, socketId: string, sta
 			});
 		}
 
-		console.log(modInfo.picture, mod.image);
 		if (modInfo.picture && !mod.image) {
 			const formData = new FormData();
 			formData.append('file', new Blob([modInfo.picture]), 'picture.png');
@@ -305,7 +305,10 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 	const fileDirPrv = join(FILE_PATH, 'textures', 'default');
 	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
 
-	// Check if the extracted file already exists in the public dir
+	const filesToCommit: base64[] = [];
+	const filesNamesOnGit: string[] = [];
+
+	// Check if the extracted file already exists in the database
 	for (const textureAsset of textureAssets) {
 		const textureName = textureAsset.path.split('/').pop()!.split('.')[0] ?? 'unknown';
 		const asset = textureAsset.path.split('/')[1] ?? 'unknown';
@@ -316,7 +319,6 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 		let texture = await findTexture({ hash });
 
 		if (!texture) {
-			const filepath = await upload(bufferToFile(buffer, `${textureName}.png`, 'image/png'), 'textures/default/');
 			const mcmetaFile = mcmetaAssets.find((mcmeta) => `${textureAsset.path}.mcmeta` === mcmeta.path);
 
 			let mcmeta = undefined;
@@ -337,11 +339,17 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 			}
 
 			texture = await createTexture({
-				filepath,
+				filepath: '',
 				hash,
 				name: textureName,
 				mcmeta,
 			});
+
+			const filepath = gitRawUrl({ orgOrUser: GITHUB_ORG_NAME, repository: GITHUB_DEFAULT_REPO_NAME, path: `${hash}.png` });
+			await db.texture.update({ where: { id: texture.id }, data: { filepath } });
+
+			filesToCommit.push(buffer.toString('base64') as base64);
+			filesNamesOnGit.push(`${hash}.png`);
 		}
 		else {
 			if (texture.name !== textureName && !texture.aliases.includes(textureName)) {
@@ -359,6 +367,15 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 		status.textures.done += 1;
 		socket?.emit(socketId, status);
 	}
+
+	const mod = await db.mod.findFirstOrThrow({ where: { id: modVersion.modId } });
+
+	// push new files to git
+	await uploadToRepository(
+		filesToCommit,
+		filesNamesOnGit,
+		`textures: add default textures for ${mod.name} \`${modVersion.version}\``
+	);
 
 	return status;
 }
