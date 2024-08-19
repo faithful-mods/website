@@ -216,24 +216,6 @@ async function setDefaultBranch(owner: string, repo: string, branch: string) {
 	});
 }
 
-async function renameBranch(owner: string, repo: string, oldBranch: string, newBranch: string) {
-	const octokit = await getOctokit();
-	const { data } = await octokit.git.getRef({
-		owner,
-		repo,
-		ref: `heads/${oldBranch}`,
-	});
-
-	await octokit.git.createRef({
-		owner,
-		repo,
-		ref: `refs/heads/${newBranch}`,
-		sha: data.object.sha,
-	});
-
-	await deleteBranch(owner, repo, oldBranch);
-}
-
 async function deleteBranch(owner: string, repo: string, branch: string) {
 	const octokit = await getOctokit();
 	await octokit.git.deleteRef({
@@ -241,28 +223,6 @@ async function deleteBranch(owner: string, repo: string, branch: string) {
 		repo,
 		ref: `heads/${branch}`,
 	});
-}
-
-async function createBranchFromCommit(owner: string, repo: string, branch: string, commitSha: string) {
-	const octokit = await getOctokit();
-	await octokit.git.createRef({
-		owner,
-		repo,
-		ref: `refs/heads/${branch}`,
-		sha: commitSha,
-	});
-}
-
-async function getFirstCommit(owner: string, repo: string) {
-	const octokit = await getOctokit();
-	const { data } = await octokit.repos.listCommits({
-		owner, repo,
-		sha: 'main',
-		per_page: 1,
-		page: 1,
-	});
-
-	return data[0]!.sha;
 }
 
 async function setBranchToCommit(commitSha: string, branch: string) {
