@@ -15,11 +15,12 @@ import { checkContributionStatus } from '~/server/data/contributions';
 import { editPollChoice } from '~/server/data/polls';
 
 import type { Texture } from '@prisma/client';
-import type { PublicUser, ContributionWithCoAuthorsAndFullPoll } from '~/types';
+import type { GetPendingContributions } from '~/server/data/contributions';
+import type { PublicUser } from '~/types';
 
 export interface CouncilContributionItemProps {
 	counselors: PublicUser[];
-	contribution: ContributionWithCoAuthorsAndFullPoll;
+	contribution: GetPendingContributions;
 	disabled: boolean;
 	isLightBackground: boolean;
 	hasBorder: boolean;
