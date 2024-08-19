@@ -42,8 +42,11 @@ export async function getModVersionsWithModpacks(modId: string): Promise<ModVers
 	return res;
 }
 
-export async function getModVersionFromMod(modId: string): Promise<ModVersion[]> {
-	return db.modVersion.findMany({ where: { modId } }).then((res) => res.sort((a, b) => sortBySemver(a.version, b.version)));
+export async function getModVersionFromModForgeId(forgeId: string): Promise<ModVersion[]> {
+	const mod = await db.mod.findFirst({ where: { forgeId }	});
+	if (!mod) return [];
+
+	return db.modVersion.findMany({ where: { modId: mod.id } });
 }
 
 export async function getModVersions(): Promise<ModVersion[]> {
@@ -69,8 +72,8 @@ export async function getModsVersionsFromResources(resourceIds: string[]): Promi
 		.then((res) => res.map((modVer) => ({ ...modVer, resources: modVer.resources.map((r) => r.id) })));
 }
 
-export async function getModVersionProgressionFromMod(modId: string): Promise<Record<string, Progression>> {
-	const modVersions = await db.modVersion.findMany({ where: { modId }, select: { id: true } });
+export async function getModVersionProgressionFromModForgeId(forgeId: string): Promise<Record<string, Progression>> {
+	const modVersions = await getModVersionFromModForgeId(forgeId);
 	const modVersionsIds = modVersions.map((mv) => mv.id);
 
 	const progressions: Record<string, Progression> = {};

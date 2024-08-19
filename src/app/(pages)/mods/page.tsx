@@ -280,7 +280,7 @@ export default function Mods() {
 					modsShown[activePage - 1] && modsShown[activePage - 1]?.map((m) => (
 						<Tile
 							key={m.id}
-							onClick={() => router.push(`/mods/${m.id}`)}
+							onClick={() => router.push(`/mods/${m.forgeId}`)}
 							className="cursor-pointer mod-card"
 						>
 							<Stack gap="xs">

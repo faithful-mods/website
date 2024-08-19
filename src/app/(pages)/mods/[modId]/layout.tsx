@@ -16,7 +16,7 @@ import { TextureImage } from '~/components/texture-img';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { getModsFromIds, getModDownloads } from '~/server/data/mods';
+import { getModDownloads, getModFromForgeId } from '~/server/data/mods';
 
 import type { Mod } from '@prisma/client';
 import type { Downloads } from '~/types';
@@ -35,8 +35,8 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 	useEffectOnce(() => {
 		if (!modId) return;
 
-		getModsFromIds([modId])
-			.then((mod) => setMod(mod[0] ?? null))
+		getModFromForgeId(modId)
+			.then(setMod)
 			.then(() => getModDownloads(modId).then(setDownloads))
 			.finally(() => setLoading(false));
 	});

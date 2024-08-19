@@ -14,7 +14,7 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { searchFilter } from '~/lib/utils';
 import { getLatestContributionsOfModVersion } from '~/server/data/contributions';
-import { getModVersionFromMod } from '~/server/data/mods-version';
+import { getModVersionFromModForgeId } from '~/server/data/mods-version';
 import { getTexturesFromModVersion } from '~/server/data/texture';
 
 import type { ModVersion, Texture } from '@prisma/client';
@@ -48,7 +48,7 @@ export default function ModGalleryPage() {
 	const texturesGroupRef = useRef<HTMLDivElement>(null);
 
 	useEffectOnce(() => {
-		getModVersionFromMod(modId).then((versions) => {
+		getModVersionFromModForgeId(modId).then((versions) => {
 			setModVersions(versions);
 			setModVersionShown(versions[0]?.id ?? null);
 		});
