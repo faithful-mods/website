@@ -1,12 +1,16 @@
 import { useState, useTransition } from 'react';
 
-import { Stack, Switch, TextInput, Text, Textarea, Button, Group, Select } from '@mantine/core';
+import { PiMagicWandBold } from 'react-icons/pi';
+
+import { Stack, Switch, TextInput, Text, Textarea, Button, Group, Select, ActionIcon } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { Resolution } from '@prisma/client';
 
+import { FakeInputLabel } from '~/components/fakeInputLabel';
 import { TextureImage } from '~/components/texture-img';
+import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { GRADIENT } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, GRADIENT } from '~/lib/constants';
 import { getVanillaTextures } from '~/server/actions/faithful-pack';
 import { getTextureStatus, updateTexture } from '~/server/data/texture';
 
@@ -25,9 +29,11 @@ export interface TextureGeneralForm {
 
 export function TextureGeneral({ texture }: TextureGeneralProps) {
 	const [loading, startTransition] = useTransition();
+	const [windowWidth] = useDeviceSize();
 
 	const [contributionsStatus, setContributionsStatus] = useState<ContributionActivationStatus[]>([]);
 
+	const [vanillaTextureSearch, setVanillaTextureSearch] = useState<string>('');
 	const [vanillaTexture, setVanillaTexture] = useState<string | null>(texture.vanillaTextureId);
 	const [vanillaTextures, setVanillaTextures] = useState<FaithfulCached[]>([]);
 
@@ -86,8 +92,8 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 
 	return (
 		<Stack>
-			<Group mt="md" wrap="nowrap" align="start">
-				<Stack gap="sm" w="100%">
+			<Group mt="md" wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'} align="start">
+				<Stack w="100%">
 					<TextInput
 						w="100%"
 						required
@@ -103,83 +109,117 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 						{...form.getInputProps('aliases')}
 					/>
 				</Stack>
-				<Stack gap="sm" w="100%">
-					<Select
-						w="100%"
-						limit={25}
-						label="Vanilla texture"
-						placeholder="Type to search or select a vanilla texture"
+				<Stack w="100%" gap="md">
+					<FakeInputLabel
+						label="Vanilla Texture"
 						description="If this texture is a vanilla texture, select the corresponding vanilla texture, contributions will be disabled"
-						clearable
-						searchable
-						value={vanillaTexture}
-						data={vanillaTextures.map((vt) => ({ value: vt.textureId, label: vt.textureName }))}
-						renderOption={renderMultiSelectOption}
-						onChange={(vanillaTexture) => {
-							setVanillaTexture(vanillaTexture);
-							setContributionsStatus([
-								{ resolution: null, status: vanillaTexture === null },
-								...Object.keys(Resolution).flatMap((res) => ({ resolution: res as Resolution, status: vanillaTexture === null })),
-							]);
-						}}
-					/>
+					>
+						<Group gap="xs" wrap="nowrap">
+							<ActionIcon
+								variant="light"
+								className="navbar-icon-fix"
+								onClick={() => {
+									const name = form.getValues().name;
+									const vanillaTexture = vanillaTextures.find((vt) => vt.textureName === name)?.textureId ?? null;
 
-					<Stack gap="xs">
-						<Stack gap={5}>
-							<Text size="var(--input-label-size, var(--mantine-font-size-sm))">
-							Contributions
-							</Text>
-							<Text c="dimmed" size="var(--input-description-size, calc(var(--mantine-font-size-sm)  - calc(.125rem * var(--mantine-scale))))">
-							Users will not be able to contribute to this texture on the unselected resolutions
-							</Text>
-						</Stack>
-						<Switch
-							label="Contributions enabled"
-							disabled={vanillaTexture !== null}
-							color="blue"
-							onLabel="ON"
-							offLabel="OFF"
-							checked={contributionsStatus.find((s) => s.resolution === null)?.status}
-							onChange={(e) => {
-								setContributionsStatus([
-									{ resolution: null, status: e.currentTarget.checked },
-									...Object.keys(Resolution).flatMap((res) => ({ resolution: res as Resolution, status: e.currentTarget.checked })),
-								]);
-							}}
-						/>
+									setVanillaTexture(vanillaTexture);
+									setVanillaTextureSearch(name ?? '');
+									setContributionsStatus([
+										{ resolution: null, status: vanillaTexture === null },
+										...Object.keys(Resolution).flatMap((res) => ({ resolution: res as Resolution, status: vanillaTexture === null })),
+									]);
+								}}
+							>
+								<PiMagicWandBold />
+							</ActionIcon>
+							<Select
+								w="100%"
 
-						{(Object.keys(Resolution) as Resolution[]).map((res) =>
+								placeholder="Type to search or select a vanilla texture"
+								limit={25}
+
+								clearable
+
+								data={vanillaTextures.map((vt) => ({ value: vt.textureId, label: vt.textureName }))}
+								value={vanillaTexture}
+								defaultValue={vanillaTextures.find((vt) => vt.textureId === vanillaTexture)?.textureName}
+								renderOption={renderMultiSelectOption}
+
+								onChange={(vanillaTexture) => {
+									setVanillaTexture(vanillaTexture);
+									setVanillaTextureSearch(vanillaTextures.find((vt) => vt.textureId === vanillaTexture)?.textureName ?? '');
+									setContributionsStatus([
+										{ resolution: null, status: vanillaTexture === null },
+										...Object.keys(Resolution).flatMap((res) => ({ resolution: res as Resolution, status: vanillaTexture === null })),
+									]);
+								}}
+
+								searchable
+								searchValue={vanillaTextureSearch}
+								onSearchChange={setVanillaTextureSearch}
+							/>
+						</Group>
+					</FakeInputLabel>
+
+					<FakeInputLabel
+						label="Contributions"
+						description="Users will not be able to contribute to this texture"
+						gap="var(--mantine-spacing-xs)"
+					>
+						<Stack>
 							<Switch
-								key={res}
-								label={res}
+								label="Enable contributions"
+								disabled={vanillaTexture !== null}
 								color="blue"
 								onLabel="ON"
 								offLabel="OFF"
-								disabled={!contributionsStatus.find((s) => s.resolution === null)?.status}
-								checked={contributionsStatus.find((s) => s.resolution === res)?.status}
+								checked={contributionsStatus.find((s) => s.resolution === null)?.status}
 								onChange={(e) => {
-									setContributionsStatus(contributionsStatus.map((s) => s.resolution === res ? { resolution: res, status: e.currentTarget.checked } : s));
+									setContributionsStatus([
+										{ resolution: null, status: e.currentTarget.checked },
+										...Object.keys(Resolution).flatMap((res) => ({ resolution: res as Resolution, status: e.currentTarget.checked })),
+									]);
 								}}
 							/>
-						)}
 
-					</Stack>
+							<Stack gap="xs">
+								<Text c="dimmed" size="var(--input-description-size, calc(var(--mantine-font-size-sm)  - calc(.125rem * var(--mantine-scale))))">
+									Enable/disable contributions for specific resolutions
+								</Text>
+
+								<Group>
+									{(Object.keys(Resolution) as Resolution[]).map((res) =>
+										<Switch
+											key={res}
+											label={res}
+											color="blue"
+											onLabel="ON"
+											offLabel="OFF"
+											disabled={!contributionsStatus.find((s) => s.resolution === null)?.status}
+											checked={contributionsStatus.find((s) => s.resolution === res)?.status}
+											onChange={(e) => {
+												setContributionsStatus(contributionsStatus.map((s) => s.resolution === res ? { resolution: res, status: e.currentTarget.checked } : s));
+											}}
+										/>
+									)}
+								</Group>
+							</Stack>
+						</Stack>
+					</FakeInputLabel>
 				</Stack>
 			</Group>
 
-			<Group
-				justify='end'
+			<Button
+				mt="md"
+				fullWidth
+				variant="gradient"
+				gradient={GRADIENT}
+				onClick={() => handleSave()}
+				disabled={loading || !form.isValid()}
+				loading={loading}
 			>
-				<Button
-					variant="gradient"
-					gradient={GRADIENT}
-					onClick={() => handleSave()}
-					disabled={loading || !form.isValid()}
-					loading={loading}
-				>
-					Save
-				</Button>
-			</Group>
+				Save
+			</Button>
 		</Stack>
 	);
 }
