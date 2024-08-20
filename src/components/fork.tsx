@@ -9,7 +9,7 @@ import { Button, Group, Text } from '@mantine/core';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { forkRepository, getFork } from '~/server/actions/git';
+import { forkRepository, getFork } from '~/server/actions/octokit';
 
 import { Tile } from './tile';
 

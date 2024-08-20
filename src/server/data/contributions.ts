@@ -8,7 +8,7 @@ import { db } from '~/lib/db';
 
 import { getCounselors } from './user';
 
-import type { GitFile } from '../actions/git';
+import type { GitFile } from '../actions/octokit';
 import type { Contribution, Poll, Resolution } from '@prisma/client';
 import type { Prettify, PublicUser } from '~/types';
 

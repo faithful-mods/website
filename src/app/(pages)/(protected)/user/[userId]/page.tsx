@@ -18,7 +18,7 @@ import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { notify } from '~/lib/utils';
-import { deleteFork } from '~/server/actions/git';
+import { deleteFork } from '~/server/actions/octokit';
 import { getUserById } from '~/server/data/user';
 import { updateUser } from '~/server/data/user';
 

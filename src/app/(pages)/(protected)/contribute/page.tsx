@@ -20,11 +20,11 @@ import { useCurrentUser } from '~/hooks/use-current-user';
 import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
-import { getContributionsOfFork } from '~/server/actions/git';
+import { getContributionsOfFork } from '~/server/actions/octokit';
 import { archiveContributions, createContributionsFromGitFiles, deleteContributions, deleteContributionsOrArchive, getContributionsOfUser, submitContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
 
-import type { GitFile } from '~/server/actions/git';
+import type { GitFile } from '~/server/actions/octokit';
 import type { GetContributionsOfUser } from '~/server/data/contributions';
 import type { GetTextures } from '~/server/data/texture';
 
