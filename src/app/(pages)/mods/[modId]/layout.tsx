@@ -13,7 +13,7 @@ import { Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
 
 import { TabsLayout } from '~/components/tabs';
 import { TextureImage } from '~/components/texture-img';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { getModDownloads, getModFromForgeId } from '~/server/data/mods';
@@ -27,8 +27,8 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 	const modId = useParams().modId as string;
 	const [mod, setMod] = useState<Mod | null>(null);
 
-	const [windowWidth] = useDeviceSize();
-	const slice = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
+	const { width } = useViewportSize();
+	const slice = width <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
 
 	const [downloads, setDownloads] = useState<Downloads | null>(null);
 
@@ -84,7 +84,7 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 					<TextureImage
 						src={mod.image ?? './icon.png'}
 						alt={mod.name}
-						size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
+						size={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 						styles={{
 							borderRadius: 5,
 							backgroundImage: 'none',
@@ -95,7 +95,7 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 					<Stack
 						align="start"
 						gap="xs"
-						mih={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 85 : 120}
+						mih={width <= BREAKPOINT_MOBILE_LARGE ? 85 : 120}
 						w="100%"
 					>
 						<Stack gap={0}>
@@ -108,7 +108,7 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 									</Text>
 								)}
 							</Group>
-							{mod.description && (<Text size="sm" lineClamp={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 1 : 2}>{mod.description}</Text>)}
+							{mod.description && (<Text size="sm" lineClamp={width <= BREAKPOINT_MOBILE_LARGE ? 1 : 2}>{mod.description}</Text>)}
 							{!mod.description && (<Text size="sm" c="dimmed">No description</Text>)}
 						</Stack>
 

@@ -4,12 +4,12 @@ import { useMemo, useTransition } from 'react';
 import { LuArrowDown, LuArrowUp, LuArrowUpDown } from 'react-icons/lu';
 
 import { Button, Group, Stack, Text, Tooltip } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 import { ReactCompareSlider } from 'react-compare-slider';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { checkContributionStatus } from '~/server/data/contributions';
 import { editPollChoice } from '~/server/data/polls';
@@ -30,16 +30,16 @@ export interface CouncilContributionItemProps {
 
 export function CouncilContributionItem({ disabled, contribution, isLightBackground, hasBorder, texture, counselors, onVote }: CouncilContributionItemProps) {
 	const [, startTransition] = useTransition();
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 	const counselor = useCurrentUser()!;
 
 	const itemsPerRow = useMemo(() => {
-		if (windowWidth <= BREAKPOINT_MOBILE_LARGE) return 1;
-		if (windowWidth <= BREAKPOINT_TABLET) return 3;
-		if (windowWidth <= BREAKPOINT_DESKTOP_MEDIUM) return 4;
+		if (width <= BREAKPOINT_MOBILE_LARGE) return 1;
+		if (width <= BREAKPOINT_TABLET) return 3;
+		if (width <= BREAKPOINT_DESKTOP_MEDIUM) return 4;
 
 		return 6;
-	}, [windowWidth]);
+	}, [width]);
 
 	const switchVote = (kind: 'up' | 'down' | 'none') => {
 		if (disabled) return;
@@ -56,7 +56,7 @@ export function CouncilContributionItem({ disabled, contribution, isLightBackgro
 	return (
 		<Tile w={`calc((100% - (${itemsPerRow - 1} * var(--mantine-spacing-sm))) / ${itemsPerRow})`}>
 			<Group
-				gap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'sm' : 'md'}
+				gap={width <= BREAKPOINT_MOBILE_LARGE ? 'sm' : 'md'}
 				justify="center"
 				align="start"
 			>

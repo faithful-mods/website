@@ -19,7 +19,7 @@ import { signOut } from 'next-auth/react';
 
 import { GitHubLogin } from '~/components/github-login';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { BREAKPOINT_TABLET, GRADIENT } from '~/lib/constants';
 
 import { ThemeSwitch } from './theme-switch';
@@ -28,7 +28,7 @@ import { Tile } from './tile';
 export const Navbar = () => {
 	const pathname = usePathname();
 	const user = useCurrentUser();
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 	const [userPicture, setUserPicture] = useState<string | undefined>(user?.image ?? undefined);
 
 	const links = [
@@ -53,7 +53,7 @@ export const Navbar = () => {
 		icon: <IoMdCloudUpload />,
 	});
 
-	if (windowWidth < BREAKPOINT_TABLET) links.unshift({
+	if (width < BREAKPOINT_TABLET) links.unshift({
 		href: '/',
 		label: 'Home',
 		disabled: false,
@@ -62,7 +62,7 @@ export const Navbar = () => {
 
 	return (
 		<Group gap="sm" mb="sm" mt="sm" wrap="nowrap" align="center" justify="center">
-			{windowWidth >= BREAKPOINT_TABLET && (
+			{width >= BREAKPOINT_TABLET && (
 				<>
 					<Tile padding="sm" radius="md" shadowless transparent style={{ minWidth: '62px' }}>
 						<Link href="/" className="navbar-icon-fix">
@@ -73,13 +73,13 @@ export const Navbar = () => {
 				</>
 			)}
 			<Tile padding="sm" radius="md" className="w-full" shadowless transparent>
-				<Group justify="space-between" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
-					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
-						{windowWidth < BREAKPOINT_TABLET &&
+				<Group justify="space-between" wrap={width >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+					<Group gap="sm" wrap={width >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+						{width < BREAKPOINT_TABLET &&
 							<Menu
 								shadow="md"
 								position="bottom-start"
-								width={`calc(${windowWidth}px - (2 * var(--mantine-spacing-sm))`}
+								width={`calc(${width}px - (2 * var(--mantine-spacing-sm))`}
 							>
 								<Menu.Target>
 									<Button
@@ -112,10 +112,10 @@ export const Navbar = () => {
 								</Menu.Dropdown>
 							</Menu>
 						}
-						{user && user.role === UserRole.BANNED && windowWidth < BREAKPOINT_TABLET &&
+						{user && user.role === UserRole.BANNED && width < BREAKPOINT_TABLET &&
 							<Badge color="red" variant="light">banned</Badge>
 						}
-						{windowWidth >= BREAKPOINT_TABLET && links.map((link, index) => (
+						{width >= BREAKPOINT_TABLET && links.map((link, index) => (
 							<Link href={link.href} key={index}>
 								<Button
 									autoContrast
@@ -130,8 +130,8 @@ export const Navbar = () => {
 							</Link>
 						))}
 					</Group>
-					<Group gap="sm" wrap={windowWidth >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
-						{user && user.role === UserRole.BANNED && windowWidth >= BREAKPOINT_TABLET &&
+					<Group gap="sm" wrap={width >= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+						{user && user.role === UserRole.BANNED && width >= BREAKPOINT_TABLET &&
 							<Badge color="red" variant="light">banned</Badge>
 						}
 

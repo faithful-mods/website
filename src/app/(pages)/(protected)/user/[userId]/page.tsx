@@ -14,7 +14,7 @@ import ForkInfo from '~/components/fork';
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { notify } from '~/lib/utils';
@@ -35,7 +35,7 @@ const UserPage = () => {
 
 	const { update } = useSession();
 	const [loading, startTransition] = useTransition();
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	const form = useForm<Pick<User, 'name' | 'image'>>({
 		initialValues: { name: user.name!, image: user.image! },
@@ -95,7 +95,7 @@ const UserPage = () => {
 	return (displayedUser && (
 		<Stack gap="xl">
 			<Group
-				wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+				wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
 				gap="xs"
 				align="start"
 				justify="center"
@@ -118,11 +118,11 @@ const UserPage = () => {
 					</Badge>
 				</Stack>
 
-				<Tile w="100%" p="sm" h={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'auto' : 160}>
+				<Tile w="100%" p="sm" h={width <= BREAKPOINT_MOBILE_LARGE ? 'auto' : 160}>
 					<Group
 						h="100%"
 						justify="space-between"
-						wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+						wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
 					>
 						<Stack
 							h="100%"
@@ -148,12 +148,12 @@ const UserPage = () => {
 							justify="space-between"
 							align="flex-end"
 							style={{
-								flexDirection: windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'column-reverse' : 'column',
+								flexDirection: width <= BREAKPOINT_MOBILE_LARGE ? 'column-reverse' : 'column',
 							}}
 						>
 							<Button
-								justify={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'center' : 'right'}
-								fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+								justify={width <= BREAKPOINT_MOBILE_LARGE ? 'center' : 'right'}
+								fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
 								variant="transparent"
 								color="red"
 								onClick={() => signOut({ callbackUrl: '/' })}
@@ -165,7 +165,7 @@ const UserPage = () => {
 								gradient={GRADIENT}
 								onClick={() => onSubmit(form.values)}
 								disabled={loading || !form.isValid() || user === undefined}
-								fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+								fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
 								loading={loading}
 							>
 								Save
@@ -202,7 +202,7 @@ const UserPage = () => {
 							onClick={handleForkDelete}
 							disabled={!forkUrl}
 							loading={loading}
-							fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+							fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
 						>
 							Delete Fork
 						</Button>

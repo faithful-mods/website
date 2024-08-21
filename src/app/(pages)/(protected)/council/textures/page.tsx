@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import { Badge, Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useViewportSize } from '@mantine/hooks';
 
 import { Modal } from '~/components/modal';
 import { GalleryTexture } from '~/components/texture';
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
@@ -20,7 +19,7 @@ import type { Texture } from '@prisma/client';
 
 const CouncilTexturesPage = () => {
 	const [isLoading, startTransition] = useTransition();
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
@@ -147,7 +146,7 @@ const CouncilTexturesPage = () => {
 					value={texturesShownPerPage}
 					onChange={(e) => e ? setTexturesShownPerPage(e) : null}
 					checkIconPosition="right"
-					w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+					w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
 				/>
 				<Select
 					label="Textures per row"
@@ -155,7 +154,7 @@ const CouncilTexturesPage = () => {
 					value={texturesShownPerRow.toString()}
 					onChange={(e) => e ? setTexturesShownPerRow(parseInt(e)) : null}
 					checkIconPosition="right"
-					w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+					w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
 				/>
 			</Group>
 

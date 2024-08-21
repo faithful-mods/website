@@ -6,7 +6,7 @@ import { GoCheckCircle, GoStop } from 'react-icons/go';
 
 import { Button, Group, Image, Text } from '@mantine/core';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { forkRepository, getFork } from '~/server/actions/octokit';
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) {
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 	const [loading, startTransition] = useTransition();
 
 	const handleSetupForkedRepository = async () => {
@@ -41,7 +41,7 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 
 	if (forkUrl) {
 		return (
-			<Tile p="xs" pl={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="teal" mih={56}>
+			<Tile p="xs" pl={width <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="teal" mih={56}>
 				<Group justify="space-between" gap="sm" mt="auto" mb="auto">
 					<Group gap="sm">
 						<GoCheckCircle size={20} color="white" />
@@ -49,7 +49,7 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 							<Text size="sm" c="white">Default textures repository forked: </Text>
 							<Text size="sm" c="white">
 								<Link href={forkUrl} style={{ color: 'white' }} target="_blank">
-									{windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'link' : forkUrl}
+									{width <= BREAKPOINT_MOBILE_LARGE ? 'link' : forkUrl}
 								</Link>
 							</Text>
 						</Group>
@@ -61,7 +61,7 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 							color="white"
 							onClick={() => window.location.href = `x-github-client://openRepo/${forkUrl}`}
 							loading={loading}
-							fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+							fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
 							rightSection={<Image src="/gh_desktop.png" alt="" h={20} />}
 						>
 							Open with GitHub Desktop
@@ -73,7 +73,7 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 	}
 
 	return (
-		<Tile p="xs" pl={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="yellow">
+		<Tile p="xs" pl={width <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="yellow">
 			<Group justify="space-between" gap="xs">
 				<Group gap="sm">
 					<GoStop color="black" size={20} />
@@ -88,7 +88,7 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 					onClick={handleSetupForkedRepository}
 					disabled={!!forkUrl}
 					loading={loading}
-					fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+					fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
 				>
 					Create Fork
 				</Button>

@@ -9,7 +9,7 @@ import { IoReload } from 'react-icons/io5';
 import { LuArrowUpDown } from 'react-icons/lu';
 
 import { ActionIcon, Badge, Button, FloatingIndicator, Group, Indicator, Kbd, List, Select, Stack, Text } from '@mantine/core';
-import { useHotkeys, useOs, usePrevious } from '@mantine/hooks';
+import { useHotkeys, useOs, usePrevious, useViewportSize } from '@mantine/hooks';
 import { Resolution, Status } from '@prisma/client';
 
 import ForkInfo from '~/components/fork';
@@ -17,7 +17,6 @@ import { SmallTile } from '~/components/small-tile';
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { getContributionsOfFork } from '~/server/actions/octokit';
@@ -49,7 +48,7 @@ export default function ContributeSubmissionsPage() {
 	const [groupRef, setGroupRef] = useState<HTMLDivElement | null>(null);
 	const [controlsRefs, setControlsRefs] = useState<Record<string, HTMLButtonElement | null>>({});
 	const [activeTab, setActiveTab] = useState(0);
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	useHotkeys([
 		[
@@ -146,7 +145,7 @@ export default function ContributeSubmissionsPage() {
 				rightSection={contributions.filter((c) => c.status === Object.keys(Status)[index]).length ?? 0}
 				justify="space-between"
 				className="slider-button"
-				style={windowWidth > BREAKPOINT_MOBILE_LARGE
+				style={width > BREAKPOINT_MOBILE_LARGE
 					? {
 						borderRight: !isLast && activeTab !== index + 1 && activeTab !== index
 							? 'calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)'
@@ -203,7 +202,7 @@ export default function ContributeSubmissionsPage() {
 					style={{
 						position: 'relative',
 					}}
-					orientation={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'vertical' : 'horizontal'}
+					orientation={width <= BREAKPOINT_MOBILE_LARGE ? 'vertical' : 'horizontal'}
 				>
 					{controls}
 					<FloatingIndicator

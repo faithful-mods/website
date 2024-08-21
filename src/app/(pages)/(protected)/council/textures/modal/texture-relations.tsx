@@ -6,7 +6,7 @@ import { TbPlus } from 'react-icons/tb';
 import { Button, Group, MultiSelect, Stack, Text } from '@mantine/core';
 
 import { TextureImage } from '~/components/texture-img';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { sortByName } from '~/lib/utils';
@@ -24,12 +24,12 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 	const [relatedTextures, setRelatedTextures] = useState<Texture[]>([]);
 	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<number[]>([]);
 
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
-	const texturePerRow = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : windowWidth <= BREAKPOINT_TABLET ? 4 : 6;
-	const parentWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE
-		? `${windowWidth}px`
-		: `calc(${windowWidth}px - (2 * var(--modal-inner-x-offset, var(--modal-x-offset))))`;
+	const texturePerRow = width <= BREAKPOINT_MOBILE_LARGE ? 2 : width <= BREAKPOINT_TABLET ? 4 : 6;
+	const parentWidth = width <= BREAKPOINT_MOBILE_LARGE
+		? `${width}px`
+		: `calc(${width}px - (2 * var(--modal-inner-x-offset, var(--modal-x-offset))))`;
 
 	// texture width = (parent width - side padding - gap) / items per row
 	const textureWidth = `calc((${parentWidth} - (2 * var(--mantine-spacing-md)) - (${texturePerRow - 1} * var(--mantine-spacing-md))) / ${texturePerRow})`;

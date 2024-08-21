@@ -1,7 +1,7 @@
 
 import { Group, Image, Stack, Text } from '@mantine/core';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 import { Tile } from '../tile';
@@ -18,18 +18,18 @@ export interface ItemDisplayProps {
 }
 
 export function DashboardItem({ image, title, description, onClick, warning }: ItemDisplayProps) {
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	return (
 		<Tile
 			p={0}
 			className='dashboard-item'
 			style={{
-				'--dashboard-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
+				'--dashboard-item-count': width <= BREAKPOINT_MOBILE_LARGE
 					? 1
-					: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
+					: width <= BREAKPOINT_DESKTOP_MEDIUM
 						? 2
-						: windowWidth <= BREAKPOINT_DESKTOP_LARGE
+						: width <= BREAKPOINT_DESKTOP_LARGE
 							? 3
 							: 4,
 			}}

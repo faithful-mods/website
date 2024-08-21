@@ -1,6 +1,6 @@
 import { Modal as MantineModal, Title } from '@mantine/core';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 interface ModalProps {
@@ -14,7 +14,7 @@ interface ModalProps {
 }
 
 export function Modal({ opened, onClose, title, children, popup, forceFullScreen }: ModalProps) {
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	return (
 		<MantineModal
@@ -26,7 +26,7 @@ export function Modal({ opened, onClose, title, children, popup, forceFullScreen
 			trapFocus
 			closeOnClickOutside={false}
 			closeOnEscape={false}
-			fullScreen={!popup && windowWidth <= BREAKPOINT_MOBILE_LARGE || forceFullScreen}
+			fullScreen={!popup && width <= BREAKPOINT_MOBILE_LARGE || forceFullScreen}
 		>
 			{children}
 		</MantineModal>

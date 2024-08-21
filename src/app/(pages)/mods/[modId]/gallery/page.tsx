@@ -9,7 +9,7 @@ import { usePrevious } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
 import { GalleryTextureWithContribution } from '~/components/texture-contribution';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { searchFilter } from '~/lib/utils';
@@ -44,7 +44,7 @@ export default function ModGalleryPage() {
 	const [search, setSearch] = useState('');
 	const prevSearchedTextures = usePrevious(texturesFiltered);
 
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 	const texturesGroupRef = useRef<HTMLDivElement>(null);
 
 	useEffectOnce(() => {
@@ -97,9 +97,9 @@ export default function ModGalleryPage() {
 
 	return (
 		<Stack gap="sm" mb="sm" ref={texturesGroupRef} maw="1384">
-			<Group gap="sm" wrap={windowWidth <= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
+			<Group gap="sm" wrap={width <= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 				<Group
-					w={windowWidth <= BREAKPOINT_TABLET ? '100%' : '30%'}
+					w={width <= BREAKPOINT_TABLET ? '100%' : '30%'}
 					gap="sm"
 					wrap="nowrap"
 				>
@@ -123,13 +123,13 @@ export default function ModGalleryPage() {
 					/>
 				</Group>
 				<Group
-					w={windowWidth <= BREAKPOINT_TABLET ? '100%' : '70%'}
+					w={width <= BREAKPOINT_TABLET ? '100%' : '70%'}
 					gap="sm"
-					wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+					wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
 				>
 					<TextInput
 						w="100%"
-						maw={windowWidth > BREAKPOINT_MOBILE_LARGE ? 'calc(100% - 240px - var(--mantine-spacing-sm))' : undefined}
+						maw={width > BREAKPOINT_MOBILE_LARGE ? 'calc(100% - 240px - var(--mantine-spacing-sm))' : undefined}
 						label="Search"
 						value={search}
 						onChange={(e) => setSearch(e.currentTarget.value)}
@@ -147,7 +147,7 @@ export default function ModGalleryPage() {
 						value={texturesShownPerPage}
 						onChange={(e) => e ? setTexturesShownPerPage(e) : null}
 						checkIconPosition="right"
-						w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+						w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
 					/>
 					<Select
 						label="Textures per row"
@@ -155,7 +155,7 @@ export default function ModGalleryPage() {
 						value={texturesShownPerRow.toString()}
 						onChange={(e) => e ? setTexturesShownPerRow(parseInt(e)) : null}
 						checkIconPosition="right"
-						w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+						w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
 					/>
 				</Group>
 			</Group>

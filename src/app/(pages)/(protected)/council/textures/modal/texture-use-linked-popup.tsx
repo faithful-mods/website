@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { Group, Text, TextInput, Select, Button, Stack } from '@mantine/core';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT } from '~/lib/constants';
 import { getModsOfModsPage } from '~/server/data/mods';
@@ -20,7 +20,7 @@ interface TextureUsesLinkedPopupProps {
 }
 
 export function TextureUsesLinkedPopup({ textureId, onUpdate }: TextureUsesLinkedPopupProps) {
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	const [mods, setMods] = useState<(Mod & { versions: string[] })[]>([]);
 	const [modsVersions, setModsVersions] = useState<ModVersion[]>([]);
@@ -82,7 +82,7 @@ export function TextureUsesLinkedPopup({ textureId, onUpdate }: TextureUsesLinke
 				This allows you to have multiple uses of the same texture without duplicating the image file on the server.
 				This is useful for textures that are used in multiple mods or multiple versions of the same mod or even multiple times in the same mod version.
 			</Text>
-			<Group gap="sm" wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'} className="w-full" align="end">
+			<Group gap="sm" wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'} className="w-full" align="end">
 				<Select
 					description={<Text c="dimmed" size="xs">Select an existing mod or <Link href="/council/mods">create a new one</Link></Text>}
 					label="Mod"

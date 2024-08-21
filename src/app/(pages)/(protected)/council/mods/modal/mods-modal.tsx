@@ -2,8 +2,8 @@ import { useState, useTransition } from 'react';
 
 import { Button, Group, Tabs } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useViewportSize } from '@mantine/hooks';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_DESKTOP_LARGE, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { notify } from '~/lib/utils';
@@ -28,7 +28,7 @@ export interface ModModalFormValues {
 export function ModModal({ mod, onClose }: {mod: Mod, onClose: (editedMod: Mod | string) => void }) {
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(mod?.image || '');
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	const form = useForm<ModModalFormValues>({
 		initialValues: {
@@ -127,7 +127,7 @@ export function ModModal({ mod, onClose }: {mod: Mod, onClose: (editedMod: Mod |
 					onClick={() => onDelete(mod.id)}
 					disabled={isPending}
 					loading={isPending}
-					fullWidth={windowWidth <= BREAKPOINT_DESKTOP_LARGE}
+					fullWidth={width <= BREAKPOINT_DESKTOP_LARGE}
 				>
 					Delete Mod
 				</Button>
@@ -137,7 +137,7 @@ export function ModModal({ mod, onClose }: {mod: Mod, onClose: (editedMod: Mod |
 					onClick={() => onSubmit(form.values)}
 					disabled={isPending || !form.isValid()}
 					loading={isPending}
-					fullWidth={windowWidth <= BREAKPOINT_DESKTOP_LARGE}
+					fullWidth={width <= BREAKPOINT_DESKTOP_LARGE}
 				>
 					Update Mod
 				</Button>
