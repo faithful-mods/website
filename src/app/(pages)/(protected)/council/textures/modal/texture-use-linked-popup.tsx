@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { Group, Text, TextInput, Select, Button, Stack } from '@mantine/core';
-
 import { useViewportSize } from '@mantine/hooks';
+
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT } from '~/lib/constants';
 import { getModsOfModsPage } from '~/server/data/mods';

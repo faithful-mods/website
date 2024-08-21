@@ -1,6 +1,6 @@
 import { Modal as MantineModal, Title } from '@mantine/core';
-
 import { useViewportSize } from '@mantine/hooks';
+
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 interface ModalProps {

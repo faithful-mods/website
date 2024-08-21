@@ -3,8 +3,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
 import { Tabs } from '@mantine/core';
-
 import { useViewportSize } from '@mantine/hooks';
+
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 interface TabsLayoutProps<T extends string[]> {

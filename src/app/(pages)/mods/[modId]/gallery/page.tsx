@@ -6,10 +6,10 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import { CloseButton, Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { usePrevious } from '@mantine/hooks';
+import { useViewportSize } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
 import { GalleryTextureWithContribution } from '~/components/texture-contribution';
-import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { searchFilter } from '~/lib/utils';

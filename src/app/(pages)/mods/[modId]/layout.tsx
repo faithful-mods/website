@@ -10,10 +10,10 @@ import { IoChevronBackOutline } from 'react-icons/io5';
 import { TfiWorld } from 'react-icons/tfi';
 
 import { Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 
 import { TabsLayout } from '~/components/tabs';
 import { TextureImage } from '~/components/texture-img';
-import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { getModDownloads, getModFromForgeId } from '~/server/data/mods';

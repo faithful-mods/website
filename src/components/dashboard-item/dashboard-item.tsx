@@ -1,7 +1,7 @@
 
 import { Group, Image, Stack, Text } from '@mantine/core';
-
 import { useViewportSize } from '@mantine/hooks';
+
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 import { Tile } from '../tile';

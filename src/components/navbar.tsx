@@ -14,12 +14,12 @@ import { MdDashboard } from 'react-icons/md';
 import { TbPackage, TbPackages } from 'react-icons/tb';
 
 import { ActionIcon, Avatar, Badge, Button, Divider, Group, Image, Menu } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 import { signOut } from 'next-auth/react';
 
 import { GitHubLogin } from '~/components/github-login';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useViewportSize } from '@mantine/hooks';
 import { BREAKPOINT_TABLET, GRADIENT } from '~/lib/constants';
 
 import { ThemeSwitch } from './theme-switch';
