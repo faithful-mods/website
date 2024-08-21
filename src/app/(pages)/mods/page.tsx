@@ -11,12 +11,11 @@ import { SiMojangstudios } from 'react-icons/si';
 import { TfiWorld } from 'react-icons/tfi';
 
 import { ActionIcon, Button, Checkbox, Group, InputLabel, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
+import { useViewportSize, usePrevious } from '@mantine/hooks';
 
 import { TextureImage } from '~/components/texture-img';
 import { Tile } from '~/components/tile';
-import { useViewportSize } from '@mantine/hooks';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
 import { searchFilter, sortByName, sortBySemver } from '~/lib/utils';
 import { getModsOfModsPage } from '~/server/data/mods';

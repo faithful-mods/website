@@ -3,12 +3,11 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import { Badge, Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
-import { useDisclosure, useViewportSize } from '@mantine/hooks';
+import { useDisclosure, useViewportSize, usePrevious } from '@mantine/hooks';
 
 import { Modal } from '~/components/modal';
 import { GalleryTexture } from '~/components/texture';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
