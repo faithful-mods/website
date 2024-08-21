@@ -11,9 +11,9 @@ import { UserRole } from '@prisma/client';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 
+import { Tile } from '~/components/base/tile';
 import ForkInfo from '~/components/fork';
 import { TextureImage } from '~/components/textures/texture-img';
-import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
@@ -24,7 +24,7 @@ import { updateUser } from '~/server/data/user';
 
 import type { User } from '@prisma/client';
 
-const UserPage = () => {
+export default function UserPage() {
 	const params = useParams();
 	const user = useCurrentUser()!;
 	const self = params.userId === 'me';
@@ -212,5 +212,3 @@ const UserPage = () => {
 		</Stack>
 	));
 };
-
-export default UserPage;

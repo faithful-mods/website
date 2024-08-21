@@ -28,7 +28,7 @@ import type { Writable } from '~/types';
 import './mods.scss';
 import '~/lib/polyfills';
 
-export default function Mods() {
+export default function ModsPage() {
 	const { width } = useViewportSize();
 
 	const [activePage, setActivePage] = useState(1);

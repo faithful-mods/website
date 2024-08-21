@@ -6,12 +6,10 @@ interface ProtectedLayoutProps {
   children: React.ReactNode;
 };
 
-const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
+export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
 	return (
 		<RoleGate allowedRoles={[UserRole.USER]}>
 			{children}
 		</RoleGate>
 	);
 };
-
-export default ProtectedLayout;

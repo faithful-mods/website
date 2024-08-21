@@ -16,7 +16,7 @@ import { TextureModal } from './modal/texture-modal';
 
 import type { Texture } from '@prisma/client';
 
-const CouncilTexturesPage = () => {
+export default function CouncilTexturesPage() {
 	const [isLoading, startTransition] = useTransition();
 	const { width } = useViewportSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -205,36 +205,4 @@ const CouncilTexturesPage = () => {
 			)}
 		</Stack>
 	);
-};
-
-export default CouncilTexturesPage;
-
-// <Group
-// 	key={t.id}
-// 	align="start"
-// 	gap="sm"
-// 	wrap="nowrap"
-// 	style={{
-// 		position: 'relative',
-// 		'--item-per-row': itemsPerRow,
-// 	}}
-// >
-// 	<TextureImage
-// 		className="cursor-pointer"
-// 		src={t.filepath ?? '/icon.png'}
-// 		alt={t.name}
-// 		mcmeta={t.mcmeta}
-// 		size={90}
-// 	/>
-// 	<Stack
-// 		gap="0"
-// 		align="flex-start"
-// 		mt="sm"
-// 		pr="sm"
-// 		style={{
-// 			overflow: 'hidden',
-// 		}}
-// 	>
-// 		<Text size="sm" fw={700}>{t.name}</Text>
-// 		<Text size="xs" lineClamp={2}>{t.aliases.join(', ')}</Text>
-// 	</Stack>
+}

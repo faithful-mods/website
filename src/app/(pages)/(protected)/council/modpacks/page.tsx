@@ -6,8 +6,8 @@ import { Badge, Group, Text, TextInput, Button, Select, Pagination, Stack } from
 import { useDisclosure, usePrevious } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
-import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/base/modal';
+import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { GRADIENT, GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
@@ -18,7 +18,7 @@ import { ModpackModal } from './modal/modpack-modal';
 
 import type { Modpack } from '@prisma/client';
 
-const ModpacksPanel = () => {
+export default function ModpacksPage() {
 	const user = useCurrentUser()!;
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 
@@ -212,5 +212,3 @@ const ModpacksPanel = () => {
 		</>
 	);
 };
-
-export default ModpacksPanel;

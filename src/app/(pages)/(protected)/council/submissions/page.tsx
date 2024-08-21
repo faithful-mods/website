@@ -20,7 +20,7 @@ import type { Texture } from '@prisma/client';
 import type { GetPendingContributions } from '~/server/data/contributions';
 import type { PublicUser } from '~/types';
 
-const CouncilContributionsPanel = () => {
+export default function CouncilSubmissionsPage() {
 	const [textures, setTextures] = useState<Texture[]>([]);
 
 	const [isLightBackground, setLightBackground] = useState(false);
@@ -191,5 +191,3 @@ const CouncilContributionsPanel = () => {
 		</Stack>
 	);
 };
-
-export default CouncilContributionsPanel;

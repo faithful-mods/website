@@ -19,7 +19,7 @@ import { getUsers, updateUserRole } from '~/server/data/user';
 
 import type { UserWithReports } from '~/types';
 
-const UsersPanel = () => {
+export default function DashboardUsersPage() {
 	const [users, setUsers] = useState<UserWithReports[] | undefined>();
 	const [filteredUsers, setFilteredUsers] = useState<UserWithReports[] | undefined>();
 	const loggedUser = useCurrentUser()!;
@@ -121,5 +121,3 @@ const UsersPanel = () => {
 		</Tile>
 	);
 };
-
-export default UsersPanel;

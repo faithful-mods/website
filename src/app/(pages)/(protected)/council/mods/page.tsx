@@ -6,8 +6,8 @@ import { Badge, Button, Group, Pagination, Select, Stack, Switch, Text, TextInpu
 import { useDisclosure, usePrevious, useViewportSize } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
-import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { Modal } from '~/components/base/modal';
+import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { ModUpload } from '~/components/mods-upload';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -21,7 +21,7 @@ import type { Mod } from '@prisma/client';
 
 type ModWVer = Mod & { unknownVersion: boolean };
 
-const ModsPanel = () => {
+export default function ModsPage() {
 	const user = useCurrentUser()!;
 	const { width } = useViewportSize();
 
@@ -236,5 +236,3 @@ const ModsPanel = () => {
 		</>
 	);
 };
-
-export default ModsPanel;

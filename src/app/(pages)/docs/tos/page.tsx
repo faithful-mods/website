@@ -4,7 +4,7 @@ import { List, Text } from '@mantine/core';
 
 import { Tile } from '~/components/base/tile';
 
-export default function RulesPage() {
+export default function TOSPage() {
 
 	const mantineTextWidthFix = {
 		width: 'calc(100% - var(--mantine-spacing-lg))',

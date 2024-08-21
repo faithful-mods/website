@@ -5,11 +5,11 @@ import { UserRole } from '@prisma/client';
 import { RoleGate } from '~/components/base/role-gate';
 import { TabsLayout } from '~/components/base/tabs-layout';
 
-interface ProtectedLayoutProps {
+interface Props {
   children: React.ReactNode;
 };
 
-const DashboardPage = ({ children }: ProtectedLayoutProps) => {
+export default function DashboardLayout({ children }: Props) {
 	const tabs = [
 		{ value: 'users', label: 'Users' },
 	];
@@ -26,4 +26,3 @@ const DashboardPage = ({ children }: ProtectedLayoutProps) => {
 	);
 };
 
-export default DashboardPage;

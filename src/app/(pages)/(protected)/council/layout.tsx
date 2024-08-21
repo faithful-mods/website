@@ -9,7 +9,7 @@ interface ProtectedLayoutProps {
   children: React.ReactNode;
 };
 
-const CouncilPage = ({ children }: ProtectedLayoutProps) => {
+export default function CouncilLayout({ children }: ProtectedLayoutProps) {
 	const tabs = [
 		{ value: 'submissions', label: 'Submissions' },
 		{ value: 'modpacks', label: 'Modpacks' },
@@ -28,5 +28,3 @@ const CouncilPage = ({ children }: ProtectedLayoutProps) => {
 		</RoleGate>
 	);
 };
-
-export default CouncilPage;
