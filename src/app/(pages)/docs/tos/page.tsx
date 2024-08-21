@@ -2,7 +2,7 @@
 
 import { List, Text } from '@mantine/core';
 
-import { Tile } from '~/components/tile';
+import { Tile } from '~/components/base/tile';
 
 export default function RulesPage() {
 

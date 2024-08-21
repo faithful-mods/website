@@ -1,17 +1,17 @@
 import { useMemo } from 'react';
-import type { RefObject } from 'react';
+import type { FC, RefObject } from 'react';
 
 import { GoAlert, GoHash, GoLog } from 'react-icons/go';
 import { PiApproximateEquals } from 'react-icons/pi';
 
 import { Group, Stack, Text } from '@mantine/core';
 
-import { SmallTile } from '~/components/small-tile';
-import { TextureImage } from '~/components/texture-img';
+import { SmallTile } from '~/components/base/small-tile';
+import { TextureImage } from '~/components/textures/texture-img';
 
 import type { Texture } from '@prisma/client';
 
-export interface GalleryTextureProps {
+interface Props {
 	container: RefObject<HTMLDivElement>;
 	rowItemsGap: number;
 	rowItemsLength: number;
@@ -20,14 +20,14 @@ export interface GalleryTextureProps {
 	onClick?: () => void;
 }
 
-export function GalleryTexture({
+export const GalleryTexture: FC<Props> = ({
 	container,
 	className,
 	rowItemsGap,
 	rowItemsLength,
 	texture,
 	onClick,
-}: GalleryTextureProps) {
+}) => {
 
 	const size = useMemo(() => ((container.current?.clientWidth ?? 1) - (rowItemsGap * (rowItemsLength - 1))) / rowItemsLength,
 		[container, rowItemsGap, rowItemsLength]
@@ -99,4 +99,4 @@ export function GalleryTexture({
 			</Stack>
 		</TextureImage>
 	);
-}
+};

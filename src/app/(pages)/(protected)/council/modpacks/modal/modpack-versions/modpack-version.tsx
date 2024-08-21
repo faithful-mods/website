@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button, Group, Table, Text } from '@mantine/core';
 import { useDisclosure, useViewportSize } from '@mantine/hooks';
 
-import { Modal } from '~/components/modal';
+import { Modal } from '~/components/base/modal';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { notify } from '~/lib/utils';

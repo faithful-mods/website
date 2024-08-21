@@ -11,7 +11,7 @@ import { usePrevious } from '@mantine/hooks';
 import { useViewportSize } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
-import { Tile } from '~/components/tile';
+import { Tile } from '~/components/base/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, RESOLUTIONS_COLORS, EMPTY_PROGRESSION, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { getModFromForgeId } from '~/server/data/mods';

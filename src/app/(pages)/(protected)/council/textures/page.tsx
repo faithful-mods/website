@@ -5,8 +5,8 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { Badge, Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure, useViewportSize, usePrevious } from '@mantine/hooks';
 
-import { Modal } from '~/components/modal';
-import { GalleryTexture } from '~/components/texture';
+import { Modal } from '~/components/base/modal';
+import { GalleryTexture } from '~/components/textures/texture-gallery';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';

@@ -7,8 +7,8 @@ import { Button, Group, Stack, Text, Tooltip } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { ReactCompareSlider } from 'react-compare-slider';
 
-import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
+import { TextureImage } from '~/components/textures/texture-img';
+import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { checkContributionStatus } from '~/server/data/contributions';

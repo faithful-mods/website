@@ -13,8 +13,8 @@ import { TfiWorld } from 'react-icons/tfi';
 import { ActionIcon, Button, Checkbox, Group, InputLabel, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useViewportSize, usePrevious } from '@mantine/hooks';
 
-import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
+import { Tile } from '~/components/base/tile';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
 import { searchFilter, sortByName, sortBySemver } from '~/lib/utils';

@@ -13,9 +13,9 @@ import { useHotkeys, useOs, usePrevious, useViewportSize } from '@mantine/hooks'
 import { Resolution, Status } from '@prisma/client';
 
 import ForkInfo from '~/components/fork';
-import { SmallTile } from '~/components/small-tile';
-import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
+import { SmallTile } from '~/components/base/small-tile';
+import { TextureImage } from '~/components/textures/texture-img';
+import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';

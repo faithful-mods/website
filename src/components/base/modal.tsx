@@ -1,9 +1,11 @@
+import type { FC } from 'react';
+
 import { Modal as MantineModal, Title } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
-interface ModalProps {
+interface Props {
 	opened: boolean;
 	onClose: () => void;
 	title?: React.ReactNode;
@@ -13,7 +15,7 @@ interface ModalProps {
 	children?: React.ReactNode;
 }
 
-export function Modal({ opened, onClose, title, children, popup, forceFullScreen }: ModalProps) {
+export const Modal: FC<Props> = ({ opened, onClose, title, children, popup, forceFullScreen }) => {
 	const { width } = useViewportSize();
 
 	return (
@@ -31,4 +33,4 @@ export function Modal({ opened, onClose, title, children, popup, forceFullScreen
 			{children}
 		</MantineModal>
 	);
-}
+};

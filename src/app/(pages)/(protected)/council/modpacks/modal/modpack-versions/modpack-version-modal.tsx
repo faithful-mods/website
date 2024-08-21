@@ -7,7 +7,7 @@ import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 
-import { TextureImage } from '~/components/texture-img';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { useWebsocket } from '~/hooks/use-websocket';

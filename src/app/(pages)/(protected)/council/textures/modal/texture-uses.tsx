@@ -9,8 +9,8 @@ import { TbHttpDelete } from 'react-icons/tb';
 import { Stack, Group, Divider, Code, Image, Text, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
-import { Modal } from '~/components/modal';
-import { Tile } from '~/components/tile';
+import { Modal } from '~/components/base/modal';
+import { Tile } from '~/components/base/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { extractSemver } from '~/lib/utils';

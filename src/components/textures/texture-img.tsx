@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, FC } from 'react';
 
 import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
 
@@ -7,7 +7,7 @@ import { useMCMETA } from '~/hooks/use-mcmeta';
 
 import type { TextureMCMETA } from '~/types';
 
-interface TextureImageProps {
+interface Props {
 	solidBackground?: boolean;
 	isTransparent?: boolean;
 	src: string;
@@ -25,7 +25,7 @@ interface TextureImageProps {
 	onClick?: () => void;
 }
 
-export function TextureImage({
+export const TextureImage: FC<Props> = ({
 	solidBackground,
 	isTransparent,
 	src,
@@ -40,7 +40,7 @@ export function TextureImage({
 	fallback,
 	onClick,
 	onPopupClick,
-}: TextureImageProps) {
+}) => {
 	const [_src, setSource] = useState(src);
 	const { canvasRef, isMCMETAValid } = useMCMETA(src, mcmeta);
 
@@ -115,4 +115,4 @@ export function TextureImage({
 			</HoverCard.Dropdown>
 		</HoverCard>
 	);
-}
+};

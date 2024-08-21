@@ -7,7 +7,7 @@ import { useDisclosure, usePrevious } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
-import { Modal } from '~/components/modal';
+import { Modal } from '~/components/base/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { GRADIENT, GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';

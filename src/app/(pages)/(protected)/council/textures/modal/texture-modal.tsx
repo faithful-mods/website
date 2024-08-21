@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Stack, Tabs } from '@mantine/core';
 
-import { TextureImage } from '~/components/texture-img';
+import { TextureImage } from '~/components/textures/texture-img';
 
 import { TextureGeneral } from './texture-general';
 import { TextureMCMETAEdition } from './texture-mcmeta';

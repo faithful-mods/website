@@ -22,8 +22,8 @@ import { GitHubLogin } from '~/components/github-login';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { BREAKPOINT_TABLET, GRADIENT } from '~/lib/constants';
 
-import { ThemeSwitch } from './theme-switch';
-import { Tile } from './tile';
+import { ThemeSwitch } from './base/theme-switch';
+import { Tile } from './base/tile';
 
 export const Navbar = () => {
 	const pathname = usePathname();

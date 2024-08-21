@@ -7,7 +7,7 @@ import { useDisclosure, usePrevious, useViewportSize } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
-import { Modal } from '~/components/modal';
+import { Modal } from '~/components/base/modal';
 import { ModUpload } from '~/components/mods-upload';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';

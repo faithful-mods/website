@@ -2,7 +2,7 @@
 import { Group, FileInput, TextInput, Badge, Stack, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 
-import { TextureImage } from '~/components/texture-img';
+import { TextureImage } from '~/components/textures/texture-img';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
 import type { ModpackModalFormValues } from './modpack-modal';

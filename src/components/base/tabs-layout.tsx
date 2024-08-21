@@ -7,7 +7,7 @@ import { useViewportSize } from '@mantine/hooks';
 
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
-interface TabsLayoutProps<T extends string[]> {
+interface Props<T extends string[]> {
 	noMargin?: boolean;
 	children: React.ReactNode;
 	defaultValue?: T[number];
@@ -20,7 +20,7 @@ interface TabsLayoutProps<T extends string[]> {
 	}[];
 };
 
-export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, isLayout, variant, noMargin }: TabsLayoutProps<T>) => {
+export const TabsLayout = <T extends string[]>({ children, tabs, defaultValue, isLayout, variant, noMargin }: Props<T>) => {
 	const { width } = useViewportSize();
 	const router = useRouter();
 	const pathname = usePathname();

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Group, Table, Text } from '@mantine/core';
 import { useDisclosure, useViewportSize } from '@mantine/hooks';
 
-import { Modal } from '~/components/modal';
+import { Modal } from '~/components/base/modal';
 import { ModUpload } from '~/components/mods-upload';
 import { WarningIcon } from '~/components/warning-icon';
 import { useEffectOnce } from '~/hooks/use-effect-once';

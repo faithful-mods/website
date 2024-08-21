@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react';
 import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
-import { TextureImage } from '~/components/texture-img';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { extractSemver } from '~/lib/utils';

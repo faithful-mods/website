@@ -12,8 +12,8 @@ import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 
 import ForkInfo from '~/components/fork';
-import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
+import { TextureImage } from '~/components/textures/texture-img';
+import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';

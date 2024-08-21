@@ -7,7 +7,7 @@ import { GoAlert, GoCheckCircle, GoCircleSlash } from 'react-icons/go';
 import { Accordion, Badge, Group, Select, Stack, Switch, Text } from '@mantine/core';
 import { Resolution, UserRole } from '@prisma/client';
 
-import { Tile } from '~/components/tile';
+import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { getPendingContributions } from '~/server/data/contributions';

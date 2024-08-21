@@ -1,15 +1,17 @@
 
+import type { FC } from 'react';
+
 import { Group, Image, Stack, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
-import { Tile } from '../tile';
+import { Tile } from '../base/tile';
 import { WarningIcon } from '../warning-icon';
 
 import './dashboard.scss';
 
-export interface ItemDisplayProps {
+interface Props {
 	image?: string | null,
 	title: string,
 	description?: string | null,
@@ -17,7 +19,7 @@ export interface ItemDisplayProps {
 	onClick: () => void
 }
 
-export function DashboardItem({ image, title, description, onClick, warning }: ItemDisplayProps) {
+export const DashboardItem: FC<Props> = ({ image, title, description, onClick, warning }) => {
 	const { width } = useViewportSize();
 
 	return (
@@ -71,4 +73,4 @@ export function DashboardItem({ image, title, description, onClick, warning }: I
 			</Group>
 		</Tile>
 	);
-}
+};

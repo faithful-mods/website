@@ -7,8 +7,8 @@ import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
-import { FakeInputLabel } from '~/components/fakeInputLabel';
-import { TextureImage } from '~/components/texture-img';
+import { FakeInputLabel } from '~/components/base/fake-input-label';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT } from '~/lib/constants';
 import { getVanillaTextures } from '~/server/actions/faithful-pack';

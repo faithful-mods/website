@@ -11,12 +11,12 @@ import { addModVersionsFromJAR } from '~/server/data/mods-version';
 
 import type { SocketModUpload } from '~/types';
 
-interface ModUploadProps {
+interface Props {
 	onUpload: () => void;
 	socketIdSuffix?: string;
 }
 
-export const ModUpload = ({ socketIdSuffix, onUpload }: ModUploadProps) => {
+export const ModUpload = ({ socketIdSuffix, onUpload }: Props) => {
 	const [status, setStatus] = useState<SocketModUpload | null>(null);
 	const userId = (socketIdSuffix ?? '') + useCurrentUser()!.id!;
 

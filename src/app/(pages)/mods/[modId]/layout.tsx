@@ -12,8 +12,8 @@ import { TfiWorld } from 'react-icons/tfi';
 import { Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 
-import { TabsLayout } from '~/components/tabs';
-import { TextureImage } from '~/components/texture-img';
+import { TabsLayout } from '~/components/base/tabs-layout';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { getModDownloads, getModFromForgeId } from '~/server/data/mods';

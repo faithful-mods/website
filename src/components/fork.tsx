@@ -11,7 +11,7 @@ import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { forkRepository, getFork } from '~/server/actions/octokit';
 
-import { Tile } from './tile';
+import { Tile } from './base/tile';
 
 interface Props {
 	onUrlUpdate: (url: string | null) => void;

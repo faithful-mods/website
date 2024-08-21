@@ -2,8 +2,8 @@
 
 import { UserRole } from '@prisma/client';
 
-import { RoleGate } from '~/components/role-gate';
-import { TabsLayout } from '~/components/tabs';
+import { RoleGate } from '~/components/base/role-gate';
+import { TabsLayout } from '~/components/base/tabs-layout';
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;

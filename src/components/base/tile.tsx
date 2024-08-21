@@ -1,14 +1,22 @@
+import type { FC } from 'react';
+
 import { Card } from '@mantine/core';
 
 import type { CardProps, MantineColor, PolymorphicComponentProps } from '@mantine/core';
 
-interface TileProps {
+interface Props {
 	shadowless?: boolean;
 	transparent?: boolean;
 	color?: MantineColor;
 }
 
-export function Tile({ children, shadowless, transparent, color, ...props }: PolymorphicComponentProps<'div', CardProps> & TileProps) {
+export const Tile: FC<PolymorphicComponentProps<'div', CardProps> & Props> = ({
+	children,
+	shadowless,
+	transparent,
+	color,
+	...props
+}) => {
 	return (
 		<Card
 			shadow={!shadowless ? 'sm' : 'none'}
@@ -24,4 +32,4 @@ export function Tile({ children, shadowless, transparent, color, ...props }: Pol
 			{children}
 		</Card>
 	);
-}
+};

@@ -10,7 +10,7 @@ import { Avatar, Badge, Button, Group, Select, Stack, Text, TextInput } from '@m
 import { useForm } from '@mantine/form';
 import { UserRole } from '@prisma/client';
 
-import { Tile } from '~/components/tile';
+import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { GRADIENT, MINIMUM_CARD_WIDTH } from '~/lib/constants';

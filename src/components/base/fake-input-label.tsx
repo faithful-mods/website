@@ -1,3 +1,5 @@
+import type { FC } from 'react';
+
 import { Stack, Text } from '@mantine/core';
 
 interface Props {
@@ -7,7 +9,7 @@ interface Props {
 	gap?: number | string;
 }
 
-export function FakeInputLabel({ gap, label, description, children }: Props) {
+export const FakeInputLabel: FC<Props> = ({ gap, label, description, children }) => {
 	return (
 		<Stack gap={0} mt={2}>
 			<Stack gap={0}>
@@ -36,4 +38,4 @@ export function FakeInputLabel({ gap, label, description, children }: Props) {
 			</div>
 		</Stack>
 	);
-}
+};

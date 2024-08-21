@@ -9,7 +9,7 @@ import { usePrevious } from '@mantine/hooks';
 import { useViewportSize } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
-import { GalleryTextureWithContribution } from '~/components/texture-contribution';
+import { GalleryTextureWithContribution } from '~/components/textures/texture-gallery-contribution';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { searchFilter } from '~/lib/utils';
