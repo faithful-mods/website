@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import type { CSSProperties, FC } from 'react';
 
 import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
-
-import { useMCMETA } from '~/hooks/use-mcmeta';
+import { useAnimation } from 'react-minecraft';
 
 import type { TextureMCMETA } from '~/types';
 
@@ -42,7 +41,11 @@ export const TextureImage: FC<Props> = ({
 	onPopupClick,
 }) => {
 	const [_src, setSource] = useState(src);
-	const { canvasRef, isMCMETAValid } = useMCMETA(src, mcmeta);
+	const { canvasRef, isValid } = useAnimation({
+		src,
+		mcmeta: mcmeta ?? undefined,
+		isTiled: false,
+	});
 
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
 
@@ -73,7 +76,7 @@ export const TextureImage: FC<Props> = ({
 	const image = () => {
 		return (
 			<div className="texture-background" style={containerStyle}>
-				{(!mcmeta || !isMCMETAValid) && (
+				{(!mcmeta || !isValid) && (
 					<Image
 						onClick={onClick}
 						src={_src}
@@ -84,7 +87,7 @@ export const TextureImage: FC<Props> = ({
 						onError={() => setSource(fallback ?? defaultFallback)}
 					/>
 				)}
-				{mcmeta && isMCMETAValid && (
+				{mcmeta && isValid && (
 					<canvas
 						ref={canvasRef}
 						onClick={onClick}
