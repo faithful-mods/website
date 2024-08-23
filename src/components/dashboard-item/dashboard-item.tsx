@@ -1,69 +1,76 @@
-import { Badge, Group, Image, Stack, Text } from '@mantine/core';
-import { TiWarning } from 'react-icons/ti';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
+import type { FC } from 'react';
+
+import { Group, Image, Stack, Text } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
+
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import './dashboard.scss';
-import { gradientDanger } from '~/lib/utils';
 
-export interface ItemDisplayProps {
+import { Tile } from '../base/tile';
+import { WarningIcon } from '../warning-icon';
+
+import './dashboard.scss';
+
+interface Props {
 	image?: string | null,
 	title: string,
 	description?: string | null,
-	warning?: string,
+	warning?: boolean,
 	onClick: () => void
 }
 
-export function DashboardItem({ image, title, description, onClick, warning }: ItemDisplayProps) {
-	const [windowWidth, _] = useDeviceSize();
+export const DashboardItem: FC<Props> = ({ image, title, description, onClick, warning }) => {
+	const { width } = useViewportSize();
 
 	return (
-		<Group
-			onClick={onClick}
-			align="start"
-			gap="sm"
-			wrap="nowrap"
-			className="cursor-pointer dashboard-item"
+		<Tile
+			p={0}
+			className='dashboard-item'
 			style={{
-				position: 'relative',
-				'--dashboard-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
+				'--dashboard-item-count': width <= BREAKPOINT_MOBILE_LARGE
 					? 1
-					: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
+					: width <= BREAKPOINT_DESKTOP_MEDIUM
 						? 2
-						: windowWidth <= BREAKPOINT_DESKTOP_LARGE
+						: width <= BREAKPOINT_DESKTOP_LARGE
 							? 3
 							: 4,
 			}}
 		>
-			<Image
-				radius="sm"
-				className="cursor-pointer image-background"
-				src={image ?? '/icon.png'}
-				alt=""
-				width={90}
-				height={90}
-				fit="contain"
-				style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }}
-			/>
-			<Stack gap="0" align="flex-start" mt="sm" pr="sm">
-				<Text size="sm" fw={700}>{title}</Text>
-				<Text size="xs" lineClamp={2}>{description?.trim() ?? 'No description'}</Text>
-			</Stack>
-			{warning && (
-				<Badge
-					color={gradientDanger.from}
-					size="xs"
-					style={{
-						position:'absolute',
-						bottom: 'calc(var(--mantine-spacing-sm) / 2)',
-						right: 'calc(var(--mantine-spacing-sm) / 2)',
-					}}
-					leftSection={<TiWarning />}
-				>
-					{warning}
-				</Badge>
-			)}
+			<Group
+				onClick={onClick}
+				align="start"
+				gap="sm"
+				wrap="nowrap"
+				className="cursor-pointer"
+				style={{
+					position: 'relative',
+				}}
+			>
+				<Image
+					radius="sm"
+					className="cursor-pointer solid-background"
+					src={image ?? '/icon.png'}
+					alt=""
+					width={90}
+					height={90}
+					fit="contain"
+					style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }}
+				/>
+				<Stack gap="0" align="flex-start" mt="sm" pr="sm">
+					<Text size="sm" fw={700}>{title}</Text>
+					<Text size="xs" lineClamp={2}>{description?.trim() ?? 'No description'}</Text>
+				</Stack>
+				{warning && (
+					<WarningIcon
+						style={{
+							position:'absolute',
+							top: 'calc(var(--mantine-spacing-sm) / 2)',
+							left: 'calc(var(--mantine-spacing-sm) / 2)',
+						}}
+					/>
+				)}
 
-		</Group>
+			</Group>
+		</Tile>
 	);
-}
+};

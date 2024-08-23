@@ -1,214 +1,510 @@
 'use client';
 
-import { Accordion, Badge, Code, Group, Select, Stack, Text } from '@mantine/core';
-import { Dropzone } from '@mantine/dropzone';
-import { Resolution } from '@prisma/client';
-import { useState, useTransition } from 'react';
+import Link from 'next/link';
 
-import { Tile } from '~/components/tile';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+
+import { GoAlert, GoCommit, GoHash, GoHourglass, GoQuestion, GoRelFilePath } from 'react-icons/go';
+import { IoReload } from 'react-icons/io5';
+import { LuArrowUpDown } from 'react-icons/lu';
+
+import { ActionIcon, Badge, Button, FloatingIndicator, Group, Indicator, Kbd, List, Select, Stack, Text } from '@mantine/core';
+import { useHotkeys, useOs, usePrevious, useViewportSize } from '@mantine/hooks';
+import { Resolution, Status } from '@prisma/client';
+
+import { SmallTile } from '~/components/base/small-tile';
+import { Tile } from '~/components/base/tile';
+import ForkInfo from '~/components/fork';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
-import { gradient, notify } from '~/lib/utils';
-import { createRawContributions, getCoSubmittedContributions, getDraftContributions, getSubmittedContributions } from '~/server/data/contributions';
-import type { ContributionWithCoAuthors, ContributionWithCoAuthorsAndPoll, PublicUser } from '~/types';
+import { BREAKPOINT_MOBILE_LARGE, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { getContributionsOfFork } from '~/server/actions/octokit';
+import { archiveContributions, createContributionsFromGitFiles, deleteContributions, deleteContributionsOrArchive, getContributionsOfUser, submitContributions } from '~/server/data/contributions';
+import { getTextures } from '~/server/data/texture';
 
-import { CoAuthorsSelector } from './co-authors-select';
-import { ContributionDraftPanel } from './drafts/drafts-panel';
-import { ContributionSubmittedPanel } from './submitted/submitted-panel';
+import type { GitFile } from '~/server/actions/octokit';
+import type { GetContributionsOfUser } from '~/server/data/contributions';
+import type { GetTextures } from '~/server/data/texture';
 
-const ContributePage = () => {
-	const [isPending, startTransition] = useTransition();
-	const [windowWidth, _] = useDeviceSize();
+import './styles.scss';
+
+export default function ContributeSubmissionsPage() {
+	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
+	const os = useOs();
+
+	const [loading, startTransition] = useTransition();
+	const [forkUrl, setForkUrl] = useState<string | null>(null);
+	const [showHelp, helpShown] = useState(false);
+
+	const [selectedContributions, setSelectedContributions] = useState<string[]>([]);
 
 	const [resolution, setResolution] = useState<Resolution>(Resolution.x32);
-	const [selectedCoAuthors, setSelectedCoAuthors] = useState<PublicUser[]>([]);
+	const prevRes = usePrevious(resolution);
 
-	const [contributions, setContributions] = useState<ContributionWithCoAuthorsAndPoll[] | undefined>();
-	const [draftContributions, setDraftContributions] = useState<ContributionWithCoAuthors[] | undefined>();
-	const [coContributions, setCoContributions] = useState<ContributionWithCoAuthorsAndPoll[] | undefined>();
+	const [contributions, setContributions] = useState<GetContributionsOfUser[]>([]);
+	const [textures, setTextures] = useState<GetTextures[]>([]);
 
-	const user = useCurrentUser()!; // the user is guaranteed to be logged in (per the layout)
+	const [groupRef, setGroupRef] = useState<HTMLDivElement | null>(null);
+	const [controlsRefs, setControlsRefs] = useState<Record<string, HTMLButtonElement | null>>({});
+	const [activeTab, setActiveTab] = useState(0);
+	const { width } = useViewportSize();
+
+	useHotkeys([
+		[
+			'mod+a',
+			() => setSelectedContributions(contributions
+				.filter(canContributionBeSubmitted)
+				.filter((c) => c.status === Object.keys(Status)[activeTab]).map((c) => c.id)),
+		],
+	]);
+
+	const canContributionBeSubmitted = useCallback((contribution: GetContributionsOfUser) => {
+		const texture = textures.find((t) => t.id === contribution.textureId);
+		if (!texture) return false;
+
+		const disabledResolution = texture.disabledContributions.find((dc) => dc.resolution === resolution);
+		const allResolutionsDisabled = texture.disabledContributions.find((dc) => dc.resolution === null);
+
+		return !disabledResolution && !allResolutionsDisabled;
+	}, [resolution, textures]);
+
+	const setControlRef = (index: number) => (node: HTMLButtonElement) => {
+		controlsRefs[index] = node;
+		setControlsRefs(controlsRefs);
+	};
+
+	const reload = async () => {
+		startTransition(async () => {
+			if (!forkUrl) return;
+
+			getContributionsOfFork(resolution).then(updateForkContributions);
+		});
+	};
+
+	const updateForkContributions = useCallback(async (files: GitFile[]) => {
+		const contributions = await getContributionsOfUser(user.id!, resolution);
+		const contributedSha = contributions.map((contribution) => contribution.hash);
+
+		// delete contributions that are not in the fork but are in the database
+		const missingFiles = contributions.filter((contribution) => !files.some((file) => file.sha === contribution.hash));
+		await deleteContributionsOrArchive(user.id!, missingFiles.map((contribution) => contribution.id));
+
+		// add contributions that are not yet in the database
+		const newFiles = files.filter((file) => !contributedSha.includes(file.sha));
+		await createContributionsFromGitFiles(user.id!, resolution, newFiles);
+
+		const contributionsAfter = await getContributionsOfUser(user.id!, resolution);
+		setContributions(contributionsAfter);
+
+	}, [user, resolution]);
 
 	useEffectOnce(() => {
 		reload();
+		getTextures().then(setTextures);
 	});
 
-	const reload = () => {
+	useEffect(() => {
+		if (prevRes === resolution) return;
+
 		startTransition(() => {
-			getDraftContributions(user.id!)
-				.then(setDraftContributions)
-				.catch((err) => {
-					console.error(err);
-					notify('Error', 'Failed to fetch draft contributions', 'red');
-				});
-
-			getCoSubmittedContributions(user.id!)
-				.then(setCoContributions)
-				.catch((err) => {
-					console.error(err);
-					notify('Error', 'Failed to fetch submitted contributions', 'red');
-				});
-
-			getSubmittedContributions(user.id!)
-				.then(setContributions)
-				.catch((err) => {
-					console.error(err);
-					notify('Error', 'Failed to fetch contributions', 'red');
-				});
+			setSelectedContributions([]);
+			getContributionsOfFork(resolution).then(updateForkContributions);
 		});
-	};
+	}, [resolution, prevRes, updateForkContributions]);
 
-	const filesDrop = (files: File[]) => {
-		startTransition(async () => {
-			const data = new FormData();
-			files.forEach((file) => data.append('files', file));
+	useEffect(() => {
+		setSelectedContributions([]);
+	}, [activeTab]);
 
-			await createRawContributions(user.id!, selectedCoAuthors.map((u) => u.id), resolution, data)
-				.then(() => {
-					getDraftContributions(user.id!).then(setDraftContributions);
-				})
-				.catch((err) => {
-					console.error(err);
-					notify('Error', err.message, 'red');
-				});
-		});
-	};
+	const controls = Object.entries(Status).map(([key, value], index) => {
+		const isLast = index === Object.keys(Status).length - 1;
+
+		return (
+			<Button
+				key={key}
+				ref={setControlRef(index)}
+				onClick={() => setActiveTab(index)}
+				mod={{ active: activeTab === index }}
+
+				pl="md"
+				pr="sm"
+				fullWidth
+				variant="filled"
+				leftSection={
+					<>
+						<Indicator color={COLORS[value]} mr="md" />
+						{value === Status.DRAFT
+							? 'Drafted'
+							: value === Status.PENDING
+								? 'Reviewed'
+								: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+						}
+					</>
+				}
+				rightSection={contributions.filter((c) => c.status === Object.keys(Status)[index]).length ?? 0}
+				justify="space-between"
+				className="slider-button"
+				style={width > BREAKPOINT_MOBILE_LARGE
+					? {
+						borderRight: !isLast && activeTab !== index + 1 && activeTab !== index
+							? 'calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border)'
+							: undefined,
+						borderRadius: isLast ? '0 calc(0.25rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale)) 0' : undefined,
+					}
+					: undefined
+				}
+			/>
+		);
+	});
 
 	return (
-		<Stack gap="sm" pb="sm">
-			<Tile>
-				<Text size="md" fw={700}>Submission Process</Text>
-				<Text size="sm">
-					Once submitted, your submissions are subject to a voting process by the council and their decision is final.<br/>
-					When all counselors have voted, the following will happen:
-				</Text>
-				<ul>
-					<Text size="sm" component="li">
-						If the contribution has more upvotes than downvotes, it will be <Badge component="span" color="teal">accepted</Badge>
+		<Stack gap="xs">
+
+			<ForkInfo
+				onUrlUpdate={setForkUrl}
+				forkUrl={forkUrl}
+			/>
+
+			<Group
+				wrap="nowrap"
+				gap="xs"
+			>
+				<ActionIcon
+					variant="default"
+					className="navbar-icon-fix"
+					onClick={() => helpShown(!showHelp)}
+				>
+					<GoQuestion />
+				</ActionIcon>
+
+				<ActionIcon
+					variant="default"
+					className="navbar-icon-fix"
+					onClick={reload}
+					loading={loading}
+				>
+					<IoReload />
+				</ActionIcon>
+
+				<Select
+					w={120}
+					data={Object.keys(Resolution)}
+					checkIconPosition="right"
+					value={resolution}
+					onChange={(e) => e ? setResolution(e as Resolution) : null}
+					clearable={false}
+				/>
+
+				<Button.Group
+					w="calc(100% - 34px - 34px - 120px - 180px - (3 * var(--mantine-spacing-xs)))"
+					ref={setGroupRef}
+					style={{
+						position: 'relative',
+					}}
+					orientation={width <= BREAKPOINT_MOBILE_LARGE ? 'vertical' : 'horizontal'}
+				>
+					{controls}
+					<FloatingIndicator
+						target={controlsRefs[activeTab]}
+						parent={groupRef}
+						style={{
+							border: 'calc(0.0625rem * var(--mantine-scale)) solid #fff3',
+							borderRadius: (() => {
+								if (activeTab === 0) return 'calc(0.25rem * var(--mantine-scale)) 0 0 calc(0.25rem * var(--mantine-scale))';
+								if (activeTab === Object.keys(Status).length - 1) return '0 calc(0.25rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale)) 0';
+								return '0';
+							})(),
+							backgroundColor: '#0002',
+							cursor: 'pointer',
+							zIndex: 200,
+						}}
+					/>
+				</Button.Group>
+
+				{activeTab === 0 && (
+					<Button
+						w={180}
+						variant="gradient"
+						gradient={GRADIENT}
+						disabled={selectedContributions.length === 0}
+						onClick={() => {
+							startTransition(async () => {
+								await submitContributions(user.id!, selectedContributions);
+								await reload();
+							});
+						}}
+					>
+						Submit {selectedContributions.length} draft{selectedContributions.length > 1 ? 's' : ''}
+					</Button>
+				)}
+
+				{activeTab !== 0 && activeTab !== 4 && (
+					<Button
+						w={180}
+						variant="gradient"
+						gradient={GRADIENT_DANGER}
+						disabled={selectedContributions.length === 0}
+						onClick={() => {
+							startTransition(async () => {
+								await archiveContributions(user.id!, selectedContributions);
+								await reload();
+							});
+						}}
+					>
+						Archive {selectedContributions.length} contribution{selectedContributions.length > 1 ? 's' : ''}
+					</Button>
+				)}
+
+				{activeTab === 4 && (
+					<Button
+						w={180}
+						variant="gradient"
+						gradient={GRADIENT_DANGER}
+						disabled={selectedContributions.length === 0}
+						onClick={() => {
+							startTransition(async () => {
+								await deleteContributions(user.id!, selectedContributions);
+								await reload();
+							});
+						}}
+					>
+						Delete {selectedContributions.length} contribution{selectedContributions.length > 1 ? 's' : ''}
+					</Button>
+				)}
+
+			</Group>
+
+			{showHelp && (
+				<Tile style={{ borderRadius: 'var(--mantine-radius-default)' }}>
+					<Text>
+						To contribute, you need to:
 					</Text>
-					<Text size="sm" component="li">
-						If there is more downvotes or the same amount of upvotes and downvotes, it will be <Badge component="span" color="red">rejected</Badge>
+					<List ml="sm">
+						<List.Item><Text fw={360}>If not already, fork the default textures repository using the &quot;Create Fork&quot; button;</Text></List.Item>
+						<List.Item><Text fw={360}>Clone it to your local machine using <Link href="https://git-scm.com/" target="_blank">Git</Link> or <Link href="https://desktop.github.com/download/" target="_blank">GitHub Desktop</Link> (recommended);</Text></List.Item>
+						<List.Item><Text fw={360}>Switch to the branch corresponding to the resolution you want to contribute to;</Text></List.Item>
+						<List.Item><Text fw={360}>Add textures to the repository, <Text component="span" fw={700}>each texture should have the same name as the contributed texture name in the <Link href="https://github.com/faithful-mods/resources-default" target="_blank">default repository</Link></Text>;</Text></List.Item>
+						<List.Item><Text fw={360}>Commit your changes and push them to your fork;</Text></List.Item>
+						<List.Item><Text fw={360}>Click the reload button to see your contributions here.</Text></List.Item>
+					</List>
+
+					<Text mt="md">
+						When reloading:
 					</Text>
-				</ul>
-				<Text size="sm">
-					When your submissions are in <Badge component="span" color={gradient.to}>draft</Badge> status,
-					you can edit them as many times as you like. But if you want to switch the texture file, please reupload it and delete your draft.<br/>
-				</Text>
-				<Text size="sm" fs="italic" c="dimmed" mt="sm">You want to join the council ? Apply here (soon).</Text>
-			</Tile>
+					<List ml="sm">
+						<List.Item>New contributions will be added to the <Badge component="span" color={COLORS.DRAFT}>Drafted</Badge> tab;</List.Item>
+						<List.Item>Missing contributions that are either <Badge component="span" color={COLORS.PENDING}>Reviewed</Badge> or <Badge component="span" color={COLORS.REJECTED}>Rejected</Badge> will be deleted from the database;</List.Item>
+						<List.Item>Missing contributions that are <Badge component="span" color={COLORS.ACCEPTED}>Accepted</Badge> will be <Badge component="span" color={COLORS.ARCHIVED} style={{ color: 'black' }}>Archived</Badge>.</List.Item>
+					</List>
 
-			<Tile>
-				<Stack gap="sm">
-					<Group justify="space-between">
-						<Text size="md" fw={700}>New contribution(s)</Text>
-					</Group>
-					<Text size="sm">
-						By contributing to the platform, you agree to the <Text component="a" href="/docs/tos" c="blue" target="_blank">Terms of Service</Text>.<br />
-						<Text component="span" size="sm" c="dimmed" fs="italic">Please do not submit textures for unsupported mod/modpack. Ask the admins to add it first.</Text>
+					<Text mt="md">
+						A few tips:
 					</Text>
-					<Group gap="md">
-						<Select
-							label="Resolution"
-							data={Object.keys(Resolution)}
-							allowDeselect={false}
-							defaultValue={Resolution.x32}
-							onChange={(value) => setResolution(value as Resolution)}
-							style={windowWidth <= BREAKPOINT_MOBILE_LARGE ? { width: '100%' } : { width: 'calc((100% - var(--mantine-spacing-md)) * .2)' }}
-							required
-						/>
-						<CoAuthorsSelector
-							author={user}
-							onCoAuthorsSelect={setSelectedCoAuthors}
-							style={windowWidth <= BREAKPOINT_MOBILE_LARGE
-								? { width: '100%' }
-								: { width: 'calc((100% - var(--mantine-spacing-md)) * .8)' }
-							}
-						/>
-					</Group>
-					<Stack gap="2">
-						<Text size="sm" fw={500}>Files</Text>
-						<Dropzone
-							onDrop={filesDrop}
-							accept={['image/png']}
-							loading={isPending}
-							mt="0"
-						>
-							<div>
-								<Text size="l" inline>
-									Drag <Code>.PNG</Code> files here or click to select files
-								</Text>
-								<Text size="sm" c="dimmed" inline mt={7}>
-									Attach as many files as you like, each file will be added as a separate contribution
-									based on the settings above.
-								</Text>
-							</div>
-						</Dropzone>
-						<Text size="xs" c="dimmed" fs="italic">
-							You can always edit them when they are in draft status.
-						</Text>
-					</Stack>
-				</Stack>
-			</Tile>
+					<List ml="sm">
+						<List.Item>You have to click on contributions before submitting/archiving/deleting them.</List.Item>
+						<List.Item>You can hit <Kbd component="span">{os === 'macos' ? '⌘' : 'Ctrl'}</Kbd> + <Kbd component="span">A</Kbd> to select them all</List.Item>
+						<List.Item>If you delete an archived contribution, make sure to delete it from your fork first, otherwise it will be re-added to the database as a draft.</List.Item>
+					</List>
+				</Tile>
+			)}
 
-			<Accordion variant="separated" defaultValue={draftContributions?.length ? 'drafts' : 'submitted'} radius="md">
-				{draftContributions &&
-					<Accordion.Item value="drafts">
-						<Accordion.Control icon={
-							<Badge color="teal" variant="filled">{draftContributions.length}</Badge>
-						}>
-							<Text size="md" fw={700}>Drafts</Text>
-						</Accordion.Control>
-						<Accordion.Panel>
-							<ContributionDraftPanel
-								draftContributions={draftContributions}
-								key={draftContributions.map((c) => c.id).join('')}
-								onUpdate={reload}
-							/>
-						</Accordion.Panel>
-					</Accordion.Item>
-				}
+			{contributions.length !== 0 && contributions.filter((c) => c.status === Object.keys(Status)[activeTab]).length === 0 && (
+				<Group
+					align="center"
+					justify="center"
+					h="100px"
+					w="100%"
+					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+				>
+					<Text c="dimmed">No contributions to show</Text>
+				</Group>
+			)}
 
-				{contributions &&
-					<Accordion.Item value="submitted" mt="sm">
-						<Accordion.Control icon={
-							<Badge color="teal" variant="filled">{contributions.length}</Badge>
-						}>
-							<Text size="md" fw={700}>Submitted</Text>
-						</Accordion.Control>
-						<Accordion.Panel>
-							<Text mb="sm">Contributions you own and have submitted.</Text>
-							<ContributionSubmittedPanel
-								contributions={contributions}
-								key={contributions.map((c) => c.id).join('')}
-								onUpdate={reload}
-							/>
-						</Accordion.Panel>
-					</Accordion.Item>
-				}
+			{contributions.length === 0 && (
+				<Group
+					align="center"
+					justify="center"
+					h="100px"
+					w="100%"
+					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+				>
+					<Text c="dimmed">No contributions, you need to push some textures to your fork first!</Text>
+				</Group>
+			)}
 
-				{coContributions &&
-					<Accordion.Item value="coSubmitted" mt="sm">
-						<Accordion.Control icon={
-							<Badge color="teal" variant="filled">{coContributions.length}</Badge>
-						}>
-							<Text size="md" fw={700}>Co-Submitted</Text>
-						</Accordion.Control>
-						<Accordion.Panel>
-							<Text mb="sm">Contributions where you appear as a co-author.</Text>
-							<ContributionSubmittedPanel
-								coSubmitted
-								contributions={coContributions}
-								key={coContributions.map((c) => c.id).join('')}
-								onUpdate={reload}
-							/>
-						</Accordion.Panel>
-					</Accordion.Item>
-				}
-			</Accordion>
+			{forkUrl && (
+				<Group gap="xs">
+					{contributions.filter((c) => c.status === Object.keys(Status)[activeTab]).map((contribution, index) => {
+						const texture = textures.find((t) => t.id === contribution.textureId);
+						const orgOrUser = contribution.filepath.split('/')[3]!;
+						const repository = contribution.filepath.split('/')[4]!;
+						const commitSha = contribution.filepath.split('/')[5]!;
+
+						const disabledResolution = texture?.disabledContributions.find((dc) => dc.resolution === resolution);
+						const allResolutionsDisabled = texture?.disabledContributions.find((dc) => dc.resolution === null);
+
+						return (
+							(
+								<TextureImage
+									key={index}
+									src={contribution.filepath}
+									alt={contribution.filename}
+									onClick={() => {
+										if (!canContributionBeSubmitted(contribution)) return;
+
+										setSelectedContributions((prev) => {
+											if (prev.includes(contribution.id)) return prev.filter((id) => id !== contribution.id);
+											return [...prev, contribution.id];
+										});
+									}}
+
+									styles={{
+										boxShadow: selectedContributions.includes(contribution.id) ? '0 0 0 2px var(--mantine-color-teal-filled)' : 'none',
+										cursor: canContributionBeSubmitted(contribution) ? 'pointer' : 'not-allowed',
+									}}
+
+									popupStyles={{
+										backgroundColor: 'transparent',
+										padding: 0,
+										border: 'none',
+										boxShadow: 'none',
+									}}
+								>
+									<Stack gap={2}>
+										<Group gap={2}>
+											{texture && (
+												<SmallTile color="gray" w={125} h="100%">
+													<Group w="100%" h="100%" justify="center" align="center">
+														<TextureImage
+															src={texture.filepath}
+															alt={texture.name}
+															mcmeta={texture.mcmeta}
+															size={115}
+														/>
+													</Group>
+												</SmallTile>
+											)}
+											<Stack gap={2} align="start" miw={468} maw={468}>
+												<SmallTile color="gray">
+													<Text fw={500} ta="center">{texture?.name}</Text>
+												</SmallTile>
+
+												<Group gap={2} w="100%" wrap="nowrap" align="start">
+													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+														<GoCommit />
+													</SmallTile>
+													<SmallTile color="gray">
+														<Text size="xs">
+															<a
+																href={gitCommitUrl({ orgOrUser, repository, commitSha })}
+																target="_blank"
+																rel="noreferrer"
+															>
+																{commitSha}
+															</a>
+														</Text>
+													</SmallTile>
+												</Group>
+
+												<Group gap={2} w="100%" wrap="nowrap" align="start">
+													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+														<GoRelFilePath />
+													</SmallTile>
+													<SmallTile color="gray">
+														<Text size="xs">
+															<a
+																href={gitBlobUrl({ orgOrUser, repository, branchOrCommit: commitSha, path: contribution.filename })}
+																target="_blank"
+																rel="noreferrer"
+															>
+																{contribution.filename}
+															</a>
+														</Text>
+													</SmallTile>
+												</Group>
+
+												<Group gap={2} w="100%">
+													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
+														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+															<LuArrowUpDown />
+														</SmallTile>
+														<SmallTile color="gray">
+															<Text size="xs">
+																{contribution.poll.upvotes.length - contribution.poll.downvotes.length}
+															</Text>
+														</SmallTile>
+													</Group>
+													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
+														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+															<GoHash />
+														</SmallTile>
+														<SmallTile color="gray">
+															<Text size="xs">
+																{contribution.textureId}
+															</Text>
+														</SmallTile>
+													</Group>
+													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
+														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+															<GoHourglass />
+														</SmallTile>
+														<SmallTile color="gray">
+															<Text size="xs">
+																{contribution.status}
+															</Text>
+														</SmallTile>
+													</Group>
+												</Group>
+											</Stack>
+										</Group>
+
+										{texture && texture.vanillaTextureId && (
+											<Group gap={2} w="100%" wrap="nowrap" align="start">
+												<SmallTile color="yellow" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<GoAlert color="black" />
+												</SmallTile>
+												<SmallTile color="yellow">
+													<Text size="xs" c="black">
+														This texture is a vanilla texture, contributions should be done from the officials Discords channels.
+													</Text>
+												</SmallTile>
+											</Group>
+										)}
+
+										{texture && !texture.vanillaTextureId && disabledResolution && !allResolutionsDisabled && (
+											<Group gap={2} w="100%" wrap="nowrap" align="start">
+												<SmallTile color="red" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<GoAlert color="black" />
+												</SmallTile>
+												<SmallTile color="red">
+													<Text size="xs" c="black">
+														This texture does not accept contributions for the {resolution} resolution.
+													</Text>
+												</SmallTile>
+											</Group>
+										)}
+
+										{texture && !texture.vanillaTextureId && allResolutionsDisabled && (
+											<Group gap={2} w="100%" wrap="nowrap" align="start">
+												<SmallTile color="red" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<GoAlert color="black" />
+												</SmallTile>
+												<SmallTile color="red">
+													<Text size="xs" c="black">
+														This texture does not accept contributions for any resolution.
+													</Text>
+												</SmallTile>
+											</Group>
+										)}
+									</Stack>
+								</TextureImage>
+							)
+						);
+					})}
+				</Group>
+			)}
 		</Stack>
 	);
-};
+}
 
-export default ContributePage;

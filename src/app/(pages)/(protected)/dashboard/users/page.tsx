@@ -1,21 +1,25 @@
 'use client';
 
+import Link from 'next/link';
+
+import { useState } from 'react';
+
+import { FaArrowRight } from 'react-icons/fa';
+
 import { Avatar, Badge, Button, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { UserRole } from '@prisma/client';
-import Link from 'next/link';
-import { useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa';
 
-import { Tile } from '~/components/tile';
+import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { MINIMUM_CARD_WIDTH } from '~/lib/constants';
-import { gradient, notify } from '~/lib/utils';
+import { GRADIENT, MINIMUM_CARD_WIDTH } from '~/lib/constants';
+import { notify } from '~/lib/utils';
 import { getUsers, updateUserRole } from '~/server/data/user';
-import { UserWithReports } from '~/types';
 
-const UsersPanel = () => {
+import type { UserWithReports } from '~/types';
+
+export default function DashboardUsersPage() {
 	const [users, setUsers] = useState<UserWithReports[] | undefined>();
 	const [filteredUsers, setFilteredUsers] = useState<UserWithReports[] | undefined>();
 	const loggedUser = useCurrentUser()!;
@@ -72,7 +76,7 @@ const UsersPanel = () => {
 						<Group key={index} justify="space-between" align="center">
 							<Group gap="sm">
 								<Avatar
-									className="navbar-icon-fix image-background"
+									className="navbar-icon-fix solid-background"
 									variant="outline"
 									radius={4}
 									src={user?.image}
@@ -103,7 +107,7 @@ const UsersPanel = () => {
 								<Link href={'/user/' + user.id}>
 									<Button
 										variant='gradient'
-										gradient={gradient}
+										gradient={GRADIENT}
 										className="navbar-icon-fix"
 									>
 										<FaArrowRight />
@@ -117,5 +121,3 @@ const UsersPanel = () => {
 		</Tile>
 	);
 };
-
-export default UsersPanel;

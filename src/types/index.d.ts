@@ -1,5 +1,4 @@
 import type {
-	Contribution,
 	Mod,
 	Modpack,
 	ModpackVersion,
@@ -10,13 +9,36 @@ import type {
 	Resource,
 	User,
 } from '@prisma/client';
+import type { ModLoaders } from '~/lib/constants';
 
 export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
 
-export type ModpackVersionWithMods = ModpackVersion & { mods: ModVersion[] };
-export type ModVersionExtended = ModVersion & { modpacks: Modpack[], textures: number, linked: number };
+/**
+ * Remove readonly from all properties
+ */
+export type Writable<T> = {
+	-readonly [P in keyof T]: T[P];
+};
+
+export interface SocketModUpload {
+	mods: {
+		total: number;
+		done: number;
+	};
+	modInfos: {
+		total: number;
+		done: number;
+	};
+	textures: {
+		total: number;
+		done: number;
+	};
+}
+
+export type ModpackVersionWithMods = Prettify<ModpackVersion & { mods: ModVersion[] }>;
+export type ModVersionExtended = Prettify<ModVersion & { modpacks: Modpack[], textures: number, linked: number }>;
 
 export type PublicUser = {
 	id: string;
@@ -24,14 +46,10 @@ export type PublicUser = {
 	image: string | null;
 };
 
-export type FullPoll = Poll & {
+export type FullPoll = Prettify<Poll & {
 	downvotes: PublicUser[];
 	upvotes: PublicUser[];
-}
-
-export type ContributionWithCoAuthors = Contribution & { coAuthors: PublicUser[], owner: PublicUser };
-export type ContributionWithCoAuthorsAndPoll = ContributionWithCoAuthors & { poll: Poll };
-export type ContributionWithCoAuthorsAndFullPoll = ContributionWithCoAuthors & { poll: FullPoll };
+}>
 
 export type ContributionActivationStatus = {
 	/** null means any resolution */
@@ -49,17 +67,49 @@ export type Progression = {
 	};
 }
 
-export type TextureMCMETA = MCMETA | string | null | undefined;
-
-export interface MCMETA {
-	animation: {
-		frametime?: number;
-		interpolate?: boolean;
-		frames?: (number | { index: number; time: number })[];
-		height?: number;
-		width?: number;
-	};
+export interface AnimationMCMETA {
+	frametime?: number;
+	interpolate?: boolean;
+	frames?: (number | { index: number; time: number })[];
+	height?: number;
+	width?: number;
 }
+
+export interface PropertiesMCMETA {
+	blur?: boolean;
+	clamp?: boolean;
+	mipmaps?: number[];
+}
+
+export interface GuiMCMETA {
+	scaling?: {
+		type?: 'stretch' | 'tile' | 'nine_slice';
+		width?: number;
+		height?: number;
+		border?: number | {
+			left?: number;
+			top?: number;
+			right?: number;
+			bottom?: number;
+		}
+	}
+}
+
+export interface VillagerMCMETA {
+	hat?: 'full' | 'partial';
+}
+
+export type Downloads = Record<Resolution, number | undefined>;
+
+export interface TextureMCMETA {
+	animation?: AnimationMCMETA;
+	texture?: PropertiesMCMETA;
+	gui?: GuiMCMETA;
+	villager?: VillagerMCMETA;
+}
+
+// TODO: Add more properties
+export interface PackMCMETA {}
 
 export type ReportWithReporter = Report & { reporter: PublicUser };
 export type UserWithReports = Prettify<User & { reports: Report[] }>;
@@ -75,9 +125,117 @@ export type ModVersionWithProgression = Prettify<ModVersion & Progression & {
 	resources: ResourceWithProgression[];
 }>;
 
+export interface ModData {
+	name: string;
+	description?: string;
+	authors: string[];
+	modId: string;
+	mcVersion: string[];
+	version: string;
+	loaders: ModLoaders[];
+	url?: string;
+	picture?: Buffer;
+}
+
 export type MCModInfoData = MCModInfo[] | {
 	modListVersion: number;
 	modList: MCModInfo[];
+}
+
+export interface ModFabricJsonContact {
+	email?: string;
+	irc?: string;
+	homepage?: string;
+	issues?: string;
+	sources?: string;
+	[key: string]: string | undefined;
+}
+
+export type ModFabricJsonPerson = string | {
+	name: string;
+	contact?: ModFabricJsonContact;
+}
+
+/**
+ * @see https://fabricmc.net/wiki/documentation:fabric_mod_json
+ */
+export interface ModFabricJson {
+	// mandatory fields
+	schemaVersion: 1;
+	id: string;
+	version: string;
+
+	// optional fields
+	// > mod loading
+	provides?: string[];
+	environment?: 'client' | 'server' | '*';
+	entrypoints?: {
+		main?: string[];
+		client?: string[];
+		server?: string[];
+		[key: string]: string[] | undefined;
+	};
+	jars?: {
+		file: string;
+	};
+	languageAdapters?: {
+		[key: string]: string;
+	};
+	mixins?: (string | { config: string, environment: 'client' | 'server' | '*' })[];
+	// > dependency resolution
+	depends?: { [key: string]: string | string[]; };
+	recommends?: { [key: string]: string | string[]; };
+	suggests?: { [key: string]: string | string[]; };
+	breaks?: { [key: string]: string | string[]; };
+	conflicts?: { [key: string]: string | string[]; };
+	// > metadata
+	name?: string;
+	description?: string;
+	contact?: ModFabricJsonContact;
+	authors?: ModFabricJsonPerson[];
+	contributors?: ModFabricJsonPerson[];
+	license?: string | string[];
+	icon?: string | { [key: string]: string };
+
+	// custom fields
+	[key: string]: unknown;
+}
+
+/**
+ * @see https://forge.gemwire.uk/wiki/Mods.toml
+ */
+export interface ModsToml {
+	modLoader: string;
+	loaderVersion: string;
+	license: string;
+	showAsResourcePack?: boolean;
+	properties?: object;
+	logoFile?: string;
+	issueTrackerURL?: string;
+	mods: Array<{
+		modId: string;
+		namespace?: string;
+		version?: string;
+		displayName?: string;
+		description?: string;
+		logoFile?: string;
+		logoBlur?: boolean;
+		updateJSONURL?: string;
+		modproperties?: object;
+		credits?: string;
+		authors?: string;
+		displayURL?: string;
+		displayTest?: string;
+	}>
+	dependencies: {
+		[modId: string]: {
+			modId: string;
+			mandatory: boolean;
+			versionRange: string;
+			ordering: 'BEFORE' | 'AFTER' | 'NONE';
+			side: 'CLIENT' | 'SERVER' | 'BOTH';
+		}
+	}
 }
 
 /**
@@ -153,3 +311,44 @@ export interface MCModInfo {
 	 */
 	dependants?: string[];
 }
+
+//* FP stands for Faithful Pack
+
+export type FPTexturesRaw = Record<FPTexture['id'], FPTexture>
+export type FPTexture = {
+	/** The texture's name */
+	name: string;
+	/** The texture's tags & edition */
+	tags: string[];
+	/** The texture's id */
+	id: string;
+}
+
+export type FPContributionsRaw = Record<FPContribution['id'], FPContribution>;
+export type FPContributions = Array<FPContribution>;
+export type FPContribution = {
+	date: number;
+	pack: `faithful_${number}x` | `classic_faithful_${number}x`;
+	authors: string[];
+	texture: string;
+	id: string;
+}
+
+export type FPStoredContributions = Array<FPStoredContribution>;
+export type FPStoredContribution = Omit<FPContribution, 'authors'> & {
+	owner: FPStoredUser;
+	coAuthors: FPStoredUser[];
+}
+
+export type FPStoredUser = FPUser & {
+	image: string | null;
+}
+
+export type FPUsersRaw = Array<FPUser>;
+export type FPUser = {
+	id: string;
+	username?: string;
+	uuid?: string;
+}
+
+export type base64 = `base64:${string}`;

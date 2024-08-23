@@ -1,34 +1,17 @@
-import { MantineColor, MantineGradient } from '@mantine/core';
+
 import { showNotification } from '@mantine/notifications';
-import { Resolution } from '@prisma/client';
-import { type ClassValue, clsx } from 'clsx';
+import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-import { Progression } from '~/types';
+import { NOTIFICATIONS_DURATION_MS, PACK_FORMAT_VERSIONS } from './constants';
 
-import { NOTIFICATIONS_DURATION_MS } from './constants';
+import type { MantineColor } from '@mantine/core';
+import type { Resolution } from '@prisma/client';
+import type { ClassValue } from 'clsx';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
-
-export const gradient: MantineGradient = {
-	from: 'cyan',
-	to: 'blue',
-	deg: 69,
-};
-
-export const gradientDanger: MantineGradient = {
-	from: 'red',
-	to: 'pink',
-	deg: 69,
-};
-
-export const gradientWarning: MantineGradient = {
-	from: 'orange',
-	to: 'red',
-	deg: 69,
-};
 
 export function capitalize(str: string) {
 	if (str.length === 0) return str;
@@ -47,26 +30,21 @@ export function notify(title: string, message: React.ReactNode, color: MantineCo
 	});
 }
 
-export function sortByName<T extends { name: string, id?: string }>(a: T, b: T) {
+export function sortByName<T extends { name: string, id?: string | number }>(a: T, b: T) {
 	// If same name, sort by id to keep consistent order between reloads (since id is unique)
-	return a.name.localeCompare(b.name) || a.id?.localeCompare(b?.id ?? '') || 0;
+	return a.name.localeCompare(b.name) || `${a.id}`.localeCompare(`${b.id}` ?? '') || 0;
 }
 
-export function searchFilter<T extends { name: string, aliases?: string[] }>(search: string) {
+export function searchFilter<T extends { id: string | number; name: string, aliases?: string[] }>(search: string) {
 	return (item: T) => {
 		const searchLower = search.toLowerCase();
 		const name = item.name.toLowerCase();
+		const id = `${item.id}`.toLowerCase();
 		const aliases = item.aliases?.map((alias) => alias.toLowerCase()) ?? [];
 
-		return name.includes(searchLower) || aliases.some((alias) => alias.includes(searchLower));
+		return id === searchLower || name.includes(searchLower) || aliases.some((alias) => alias.includes(searchLower));
 	};
 }
-
-export const EMPTY_PROGRESSION_RES = Object.keys(Resolution).reduce((acc, res) => ({ ...acc, [res]: 0 }), {}) as Progression['textures']['done'];
-export const EMPTY_PROGRESSION: Progression = {
-	linkedTextures: 0,
-	textures: { done: EMPTY_PROGRESSION_RES, todo: 0 },
-} as const;
 
 export function bufferToFile(
 	buffer: Buffer,
@@ -87,7 +65,7 @@ export function extractSemver(version: string) {
 }
 
 /**
- * Sort Semver Version
+ * Sort Semver Version, lowest version first
  * @author [TheRolfFR](https://github.com/TheRolfFR)
  */
 export function sortBySemver(a: string, b: string) {
@@ -99,10 +77,11 @@ export function sortBySemver(a: string, b: string) {
 	}
 
 	const upper = Math.min(aSplit.length, bSplit.length);
+
 	let i = 0;
 	let result = 0;
 	while (i < upper && result == 0) {
-		result = aSplit[i] == bSplit[i] ? 0 : aSplit[i] < bSplit[i] ? -1 : 1; // each number
+		result = aSplit[i] == bSplit[i] ? 0 : aSplit[i]! < bSplit[i]! ? -1 : 1; // each number
 		++i;
 	}
 
@@ -111,4 +90,37 @@ export function sortBySemver(a: string, b: string) {
 	result = aSplit.length == bSplit.length ? 0 : aSplit.length < bSplit.length ? -1 : 1; // longer length wins
 
 	return result;
+}
+
+/**
+ * Get the pack format version for a given minecraft version
+ *
+ * @param minecraftVersion the minecraft version to get the pack format version for (e.g. '1.17.1')
+ * @returns the pack format version or null if not found
+ */
+export function getPackFormatVersion(minecraftVersion: string): number | null {
+	const compareVersions = (a: string, b: string) => {
+		const [majorA, minorA, patchA] = a.split('.').map((s) => parseInt(s, 10)) as [number, number, number?];
+		const [majorB, minorB, patchB] = b.split('.').map((s) => parseInt(s, 10)) as [number, number, number?];
+
+		if (majorA !== majorB) return majorA - majorB;
+		if (minorA !== minorB) return minorA - minorB;
+		return (patchA ?? 0) - (patchB ?? 0);
+	};
+
+	for (const [packFormat, { min, max }] of Object.entries(PACK_FORMAT_VERSIONS)) {
+		if (compareVersions(min, minecraftVersion) <= 0 && compareVersions(max, minecraftVersion) >= 0) {
+			return parseInt(packFormat);
+		}
+	}
+
+	return null;
+}
+
+export function getVanillaResolution(resolution: Resolution) {
+	return `faithful_${resolution.replace('x', '') as `${number}`}x` as const;
+}
+
+export function getVanillaTextureSrc(vanillaId: string, resolution: Resolution) {
+	return `https://api.faithfulpack.net/v2/textures/${vanillaId}/url/${getVanillaResolution(resolution)}/latest`;
 }

@@ -1,88 +1,89 @@
 'use client';
 
-import { Badge, Group, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { Texture } from '@prisma/client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
-import { Modal } from '~/components/modal';
-import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Badge, Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
+import { useDisclosure, useViewportSize, usePrevious } from '@mantine/hooks';
+
+import { Modal } from '~/components/base/modal';
+import { GalleryTexture } from '~/components/textures/texture-gallery';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_TABLET, ITEMS_PER_PAGE } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
 
 import { TextureModal } from './modal/texture-modal';
 
-import './page.scss';
+import type { Texture } from '@prisma/client';
 
-const CouncilTexturesPage = () => {
-	const [windowWidth, _] = useDeviceSize();
+export default function CouncilTexturesPage() {
+	const [isLoading, startTransition] = useTransition();
+	const { width } = useViewportSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
-	const itemsPerRow =  windowWidth <= BREAKPOINT_MOBILE_LARGE
-		? 1
-		: windowWidth <= BREAKPOINT_TABLET
-			? 2
-			: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
-				? 3
-				: 4;
+	const itemsPerRow = useMemo(() => ITEMS_PER_ROW, []);
 
 	const [search, setSearch] = useState('');
 
 	const [textures, setTextures] = useState<Texture[]>([]);
-	const [searchedTextures, setSearchedTextures] = useState<Texture[]>([]);
+	const [texturesFiltered, setTexturesFiltered] = useState<Texture[]>([]);
 	const [textureModal, setTextureModal] = useState<Texture>();
 
 	const [texturesShown, setTexturesShown] = useState<Texture[][]>([[]]);
 	const [activePage, setActivePage] = useState(1);
-	const [texturesShownPerPage, setTexturesShowPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [texturesShownPerPage, setTexturesShownPerPage] = useState<string>('96');
+	const [texturesShownPerRow, setTexturesShownPerRow] = useState<number>(12);
 
-	const prevSearchedTextures = usePrevious(searchedTextures);
+	const prevSearchedTextures = usePrevious(texturesFiltered);
+
+	const texturesGroupRef = useRef<HTMLDivElement>(null);
 
 	useEffectOnce(() => {
-		getTextures()
-			.then((res) => {
-				const sorted = res.sort(sortByName);
-				setTextures(sorted);
-				setSearchedTextures(sorted);
-			})
-			.catch((err) => {
-				console.error(err);
-				notify('Error', err.message, 'red');
-			});
+		startTransition(() => {
+			getTextures()
+				.then((res) => {
+					const sorted = res.sort(sortByName);
+					setTextures(sorted);
+					setTexturesFiltered(sorted);
+				})
+				.catch((err) => {
+					console.error(err);
+					notify('Error', err.message, 'red');
+				});
+		});
 	});
 
 	useEffect(() => {
-		const chunks: Texture[][] = [];
-		const int = parseInt(texturesShownPerPage ?? itemsPerPage[0]);
+		startTransition(() => {
+			const chunks: Texture[][] = [];
+			const int = parseInt(texturesShownPerPage ?? itemsPerPage[0]);
 
-		for (let i = 0; i < searchedTextures.length; i += int) {
-			chunks.push(searchedTextures.slice(i, i + int));
-		}
+			for (let i = 0; i < texturesFiltered.length; i += int) {
+				chunks.push(texturesFiltered.slice(i, i + int));
+			}
 
-		if (!prevSearchedTextures || searchedTextures.length !== prevSearchedTextures.length) {
-			setActivePage(1);
-		}
+			if (!prevSearchedTextures || texturesFiltered.length !== prevSearchedTextures.length) {
+				setActivePage(1);
+			}
 
-		setTexturesShown(chunks);
-	}, [searchedTextures, texturesShownPerPage, prevSearchedTextures, activePage, itemsPerPage]);
+			setTexturesShown(chunks);
+		});
+	}, [texturesFiltered, texturesShownPerPage, prevSearchedTextures, activePage, itemsPerPage]);
 
 	useEffect(() => {
-		if (!search) {
-			setSearchedTextures(textures);
-			return;
-		}
+		startTransition(() => {
+			if (!search) {
+				setTexturesFiltered(textures);
+				return;
+			}
 
-		setSearchedTextures(
-			textures
-				.filter(searchFilter(search))
-				.sort(sortByName)
-		);
+			setTexturesFiltered(
+				textures
+					.filter(searchFilter(search))
+					.sort(sortByName)
+			);
+		});
 	}, [search, textures]);
 
 	const handleModalOpen = (t: Texture) => {
@@ -108,8 +109,9 @@ const CouncilTexturesPage = () => {
 	};
 
 	return (
-		<>
+		<Stack gap="sm">
 			<Modal
+				forceFullScreen
 				opened={modalOpened}
 				onClose={() => handleModalClose(textureModal!)}
 				title={textureModal?.name}
@@ -117,70 +119,90 @@ const CouncilTexturesPage = () => {
 				<TextureModal texture={textureModal!} textures={textures} />
 			</Modal>
 
-			<Tile>
+			<Stack gap={0}>
 				<Group justify="space-between">
 					<Text size="md" fw={700}>Textures</Text>
 					<Badge color="teal" variant="filled">
-						{search === '' ? textures.length : `${searchedTextures.length} / ${textures.length}`}
+						{search === '' ? textures.length : `${texturesFiltered.length} / ${textures.length}`}
 					</Badge>
 				</Group>
-				<Group align="center" mt="md" mb="md" gap="sm" wrap="nowrap">
-					<TextInput
-						className="w-full"
-						placeholder="Search textures..."
-						onChange={(e) => setSearch(e.currentTarget.value)}
-					/>
-					<Select
-						data={itemsPerPage}
-						value={texturesShownPerPage}
-						onChange={setTexturesShowPerPage}
-						withCheckIcon={false}
-						w={120}
-					/>
-				</Group>
-				<Group wrap="wrap">
-					{texturesShown[activePage - 1] && texturesShown[activePage - 1].map((t) => (
-						<Group
-							key={t.id}
-							align="start"
-							gap="sm"
-							wrap="nowrap"
-							className="texture-item cursor-pointer"
-							onClick={() => handleModalOpen(t)}
-							style={{
-								position: 'relative',
-								'--item-per-row': itemsPerRow,
-							}}
-						>
-							<TextureImage
-								className="cursor-pointer"
-								src={t.filepath ?? '/icon.png'}
-								alt={t.name}
-								mcmeta={t.mcmeta as unknown as string}
-								size={90}
-							/>
-							<Stack
-								gap="0"
-								align="flex-start"
-								mt="sm"
-								pr="sm"
-								style={{
-									overflow: 'hidden',
-								}}
-							>
-								<Text size="sm" fw={700}>{t.name}</Text>
-								<Text size="xs" lineClamp={2}>{t.aliases.join(', ')}</Text>
-							</Stack>
-						</Group>
-					))}
-				</Group>
+				<Text c="dimmed" size="sm">
+					On this page you can view and manage all textures.
+				</Text>
+			</Stack>
 
+			<Group align="center" gap="sm" wrap="nowrap">
+				<TextInput
+					label="Search"
+					placeholder="Search for a texture name..."
+					w="100%"
+					maw="calc(100% - var(--mantine-spacing-sm) - 240px)"
+					onChange={(e) => setSearch(e.currentTarget.value)}
+				/>
+				<Select
+					label="Textures per page"
+					data={itemsPerPage}
+					value={texturesShownPerPage}
+					onChange={(e) => e ? setTexturesShownPerPage(e) : null}
+					checkIconPosition="right"
+					w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+				/>
+				<Select
+					label="Textures per row"
+					data={itemsPerRow}
+					value={texturesShownPerRow.toString()}
+					onChange={(e) => e ? setTexturesShownPerRow(parseInt(e)) : null}
+					checkIconPosition="right"
+					w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+				/>
+			</Group>
+
+			<Group w="100%" gap={10} ref={texturesGroupRef} maw="1417">
+				{isLoading && (
+					<Group
+						align="center"
+						justify="center"
+						h="100px"
+						w="100%"
+						gap="md"
+						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+					>
+						<Loader color="blue" mt={5} />
+					</Group>
+				)}
+
+				{!isLoading && search !== '' && texturesFiltered.length === 0 && (
+					<Group
+						align="center"
+						justify="center"
+						h="100px"
+						w="100%"
+						gap="md"
+						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+					>
+						<Text c="dimmed">No results for &quot;{search}&quot;</Text>
+					</Group>
+				)}
+
+				{!isLoading && texturesShown[activePage - 1] && texturesShown[activePage - 1]?.map((t) => (
+					<GalleryTexture
+						key={t.id}
+						texture={t}
+						rowItemsGap={10}
+						rowItemsLength={texturesShownPerRow}
+						container={texturesGroupRef}
+
+						className="cursor-pointer"
+						onClick={() => handleModalOpen(t)}
+					/>
+				))}
+			</Group>
+
+			{!isLoading && (
 				<Group mt="md" justify="center">
 					<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
 				</Group>
-			</Tile>
-		</>
+			)}
+		</Stack>
 	);
-};
-
-export default CouncilTexturesPage;
+}

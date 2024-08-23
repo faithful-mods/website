@@ -10,7 +10,11 @@
 	box-shadow: var(--mantine-shadow-sm);
 	border: calc(0.0625rem * var(--mantine-scale)) solid;
 	border-radius: var(--accordion-radius);
-	border-color: var(--item-border-color);
+	border-color: transparent;
+}
+
+:where([data-active='true']).mantine-Accordion-item {
+	border-color: transparent !important;
 }
 
 :where([data-mantine-color-scheme='light']) .mantine-Accordion-item {
@@ -19,4 +23,25 @@
 
 :where([data-mantine-color-scheme="dark"]) .mantine-Checkbox-input:disabled {
 	border-color: var(--mantine-color-dark-4);
+}
+
+.mantine-Card-root.transparent {
+	background-color: transparent;
+}
+
+:where([data-mantine-color-scheme='dark']) * {
+	--mantine-color-body: var(--mantine-color-dark-8);
+}
+
+:where([data-mantine-color-scheme='light']) * {
+	--mantine-color-body: #f9f9f9;
+}
+
+.hover-card-popup {
+	background-color: var(--mantine-color-dark-7);
+	box-shadow: var(--mantine-shadow-sm);
+}
+
+:where([data-mantine-color-scheme='light']) .hover-card-popup {
+	background-color: var(--mantine-color-white);
 }

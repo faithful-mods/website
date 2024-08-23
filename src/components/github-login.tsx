@@ -1,9 +1,11 @@
 'use client';
 
-import { Button } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+
 import { FaGithub } from 'react-icons/fa';
+
+import { Button } from '@mantine/core';
+import { signIn } from 'next-auth/react';
 
 import { DEFAULT_LOGIN_REDIRECT } from '~/routes';
 

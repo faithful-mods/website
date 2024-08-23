@@ -1,14 +1,21 @@
 'use server';
 import 'server-only';
 
-import { UserRole, type Resource } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 
+import { deleteLinkedTexture } from './linked-textures';
 import { deleteTexture } from './texture';
 
+import type { Resource } from '@prisma/client';
+
 // GET
+
+export async function getResources(): Promise<Resource[]> {
+	return db.resource.findMany();
+}
 
 export async function getResource({
 	asset,
@@ -37,7 +44,7 @@ export async function linkTextureToResource({
 	assetPath,
 }: {
 	resource: { id: string };
-	texture: { id: string };
+	texture: { id: number };
 	assetPath: string;
 }) {
 	await canAccess(UserRole.COUNCIL);
@@ -73,12 +80,13 @@ export async function deleteResource(id: string): Promise<Resource> {
 
 	const linkedTextures = await db.linkedTexture.findMany({ where: { resourceId: id } });
 	for (const linkedTexture of linkedTextures) {
-		await db.linkedTexture.delete({ where: { id: linkedTexture.id } });
+		await deleteLinkedTexture(linkedTexture.id);
 
 		const texture = await db.texture.findUnique({
 			where: { id: linkedTexture.textureId },
 			include: { linkedTextures: true },
 		});
+
 		if (texture && texture.linkedTextures.length === 0) await deleteTexture(texture.id);
 	}
 

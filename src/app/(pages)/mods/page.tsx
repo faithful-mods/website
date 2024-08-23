@@ -1,64 +1,73 @@
 'use client';
 
-import { ActionIcon, Badge, Button, Checkbox, Group, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
-import { Mod } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+
 import { useEffect, useMemo, useState } from 'react';
+
 import { HiDownload } from 'react-icons/hi';
 import { IoExtensionPuzzleOutline } from 'react-icons/io5';
 import { LuFilter } from 'react-icons/lu';
 import { SiMojangstudios } from 'react-icons/si';
 import { TfiWorld } from 'react-icons/tfi';
 
-import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { ActionIcon, Button, Checkbox, Group, InputLabel, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
+import { useViewportSize, usePrevious } from '@mantine/hooks';
+
+import { Tile } from '~/components/base/tile';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, MODS_LOADERS } from '~/lib/constants';
-import { gradientDanger, searchFilter, sortByName, sortBySemver } from '~/lib/utils';
-import { getModsWithVersions } from '~/server/data/mods';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
+import { searchFilter, sortByName, sortBySemver } from '~/lib/utils';
+import { getModsOfModsPage } from '~/server/data/mods';
 import { getSupportedMinecraftVersions } from '~/server/data/mods-version';
+
+import type { ModLoaders } from '~/lib/constants';
+import type { ModOfModsPage } from '~/server/data/mods';
+import type { Writable } from '~/types';
 
 import './mods.scss';
 import '~/lib/polyfills';
 
-type ModWithVersions = Mod & { versions: string[] };
-
-export default function Mods() {
-	const [windowWidth, _] = useDeviceSize();
+export default function ModsPage() {
+	const { width } = useViewportSize();
 
 	const [activePage, setActivePage] = useState(1);
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
+	const slice = width <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
 
-	const [mods, setMods] = useState<ModWithVersions[]>([]);
-	const [modsShown, setModsShown] = useState<ModWithVersions[][]>([[]]);
-	const [modsShownPerPage, setModsShownPerPage] = useState<string | null>(itemsPerPage[0]);
+	const [mods, setMods] = useState<ModOfModsPage[]>([]);
+	const [modsShown, setModsShown] = useState<ModOfModsPage[][]>([[]]);
+	const [modsShownPerPage, setModsShownPerPage] = useState<string>(ITEMS_PER_PAGE_DEFAULT);
 
 	const [search, setSearch] = useState<string>('');
-	const [filteredMods, setFilteredMods] = useState<ModWithVersions[]>([]);
+	const [filteredMods, setFilteredMods] = useState<ModOfModsPage[]>([]);
 	const prevSearchedMods = usePrevious(filteredMods);
 
 	const [MCVersions, setMCVersions] = useState<string[]>([]);
 
-	const [loaders, setLoaders] = useState<string[]>(MODS_LOADERS);
+	const [loaders, setLoaders] = useState<ModLoaders[]>(MODS_LOADERS as Writable<typeof MODS_LOADERS>);
 	const [versions, setVersions] = useState<string[]>([]);
 
 	const [showFilters, setShowFilters] = useState(false);
+	const [showModsNoTextures, setShowModsNoTextures] = useState(false);
 
 	const router = useRouter();
-	const maxOptionsShown = windowWidth > BREAKPOINT_TABLET ? 2 : 1;
+	const maxOptionsShown = width > BREAKPOINT_TABLET ? 2 : 1;
 
 	useEffectOnce(() => {
-		getModsWithVersions().then(setMods);
+		getModsOfModsPage().then(setMods);
 		getSupportedMinecraftVersions().then(setMCVersions);
 	});
 
 	useEffect(() => {
-		let filteredMods = mods.filter((m) => m.loaders.some((l) => loaders.includes(l)));
+		let filteredMods = mods.filter((m) => (m.loaders as ModLoaders[]).some((l) => loaders.includes(l)));
 
 		if (search) {
 			filteredMods = filteredMods.filter(searchFilter(search));
+		}
+
+		if (!showModsNoTextures) {
+			filteredMods = filteredMods.filter((m) => m.textures > 0);
 		}
 
 		if (versions.length > 0) {
@@ -66,10 +75,10 @@ export default function Mods() {
 		}
 
 		setFilteredMods(filteredMods.sort(sortByName));
-	}, [search, versions, mods, loaders]);
+	}, [search, versions, mods, loaders, showModsNoTextures]);
 
 	useEffect(() => {
-		const chunks: ModWithVersions[][] = [];
+		const chunks: ModOfModsPage[][] = [];
 		const int = parseInt(modsShownPerPage ?? itemsPerPage[0]);
 
 		for (let i = 0; i < filteredMods.length; i += int) {
@@ -91,7 +100,7 @@ export default function Mods() {
 		loaders,
 	]);
 
-	const editLoaders = (l: string) => {
+	const editLoaders = (l: ModLoaders) => {
 		const newLoaders = loaders.includes(l)
 			? loaders.filter((loader) => loader !== l)
 			: [...loaders, l];
@@ -101,49 +110,70 @@ export default function Mods() {
 
 	const filter = () => {
 		return (
-			<Tile w={windowWidth <= BREAKPOINT_TABLET ? '100%' : 300}>
-				<Group justify="space-between">
-					<Text size="md" fw={700}>Filters</Text>
-					<Badge color="teal">{filteredMods.length} mod{filteredMods.length > 1 ? 's' : ''}</Badge>
-				</Group>
-
+			<Tile
+				w={width <= BREAKPOINT_TABLET ? '100%' : 300}
+				mt={width <= BREAKPOINT_TABLET ? 0 : 24}
+				pt="xs"
+			>
 				<Stack gap="sm">
-
-					<Text size="sm" fw={700}>Minecraft Version</Text>
 					<MultiSelect
+						label="Minecraft Version"
 						data={MCVersions.toReversed()}
+						value={versions}
 						onChange={setVersions}
 						placeholder={versions.length > 0 ? '' : 'Choose versions...'}
 						nothingFoundMessage="No versions found"
 						hidePickedOptions
 					/>
 
-					<Text size="sm" fw={700}>Categories</Text>
-					<Checkbox.Group>
-						<Stack gap={5}>
-							<Radio size="xs" label="All" disabled checked />
-							<Checkbox size="xs" label="Adventure" disabled />
-							<Checkbox size="xs" label="Magic" disabled />
-						</Stack>
-					</Checkbox.Group>
+					<Stack gap={5}>
+						<InputLabel>Categories</InputLabel>
+						<Checkbox.Group>
+							<Stack gap={5}>
+								<Radio size="xs" label="All" disabled checked />
+								<Checkbox size="xs" label="Adventure" disabled />
+								<Checkbox size="xs" label="Magic" disabled />
+							</Stack>
+						</Checkbox.Group>
+					</Stack>
 
-					<Text size="sm" fw={700}>Loaders</Text>
-					<Checkbox.Group value={loaders}>
-						<Stack gap={5}>
-							<Radio
-								size="xs"
-								label="All"
-								onChange={() => void 0}
-								checked={loaders.length === MODS_LOADERS.length}
-								onClick={() => loaders.length === MODS_LOADERS.length ? setLoaders([]) : setLoaders(MODS_LOADERS)}
-							/>
-							{MODS_LOADERS.sort().map((l) => (
-								<Checkbox key={l} size="xs" value={l} onChange={() => editLoaders(l)} label={l} />
-							))}
-						</Stack>
-					</Checkbox.Group>
+					<Stack gap={5}>
+						<InputLabel>Loaders</InputLabel>
+						<Checkbox.Group value={loaders}>
+							<Stack gap={5}>
+								<Radio
+									size="xs"
+									label="All"
+									onChange={() => void 0}
+									checked={loaders.length === MODS_LOADERS.length}
+									onClick={() => loaders.length === MODS_LOADERS.length ? setLoaders([]) : setLoaders(MODS_LOADERS as Writable<typeof MODS_LOADERS>)}
+								/>
+								{MODS_LOADERS.toSorted().map((l) => (
+									<Checkbox key={l} size="xs" value={l} onChange={() => editLoaders(l)} label={l} />
+								))}
+							</Stack>
+						</Checkbox.Group>
+					</Stack>
 
-					<Button variant="transparent" c={gradientDanger.to}>
+					<Stack gap={5}>
+						<InputLabel>Other</InputLabel>
+						<Checkbox
+							size="xs"
+							label="Show mods with no textures"
+							checked={showModsNoTextures}
+							onChange={(e) => setShowModsNoTextures(e.target.checked)}
+						/>
+					</Stack>
+
+					<Button
+						variant="transparent"
+						c="red"
+						onClick={() => {
+							setLoaders(MODS_LOADERS as Writable<typeof MODS_LOADERS>);
+							setVersions([]);
+							setShowModsNoTextures(false);
+						}}
+					>
 						Reset
 					</Button>
 				</Stack>
@@ -151,12 +181,12 @@ export default function Mods() {
 		);
 	};
 
-	const details = (m: ModWithVersions) => {
+	const details = (m: ModOfModsPage) => {
 		return (
 			<Group
-				gap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 0 : 'md'}
-				justify={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'space-between' : 'start'}
-				mb={windowWidth <= BREAKPOINT_MOBILE_LARGE ? -10 : 0}
+				gap={width <= BREAKPOINT_MOBILE_LARGE ? 0 : 'md'}
+				justify={width <= BREAKPOINT_MOBILE_LARGE ? 'space-between' : 'start'}
+				mb={width <= BREAKPOINT_MOBILE_LARGE ? -10 : 0}
 			>
 				{m.url && (
 					<Button
@@ -166,7 +196,7 @@ export default function Mods() {
 						leftSection={<TfiWorld />}
 						p={0}
 					>
-						{windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'Website' : 'Mod Website'}
+						{width <= BREAKPOINT_MOBILE_LARGE ? 'Website' : 'Mod Website'}
 					</Button>
 				)}
 				<Group gap="xs" wrap="nowrap">
@@ -185,7 +215,9 @@ export default function Mods() {
 				</Group>
 				<Group gap="xs" wrap="nowrap" >
 					<HiDownload color="var(--mantine-color-dimmed)" />
-					<Text size="sm" c="dimmed">-</Text>
+					<Text size="sm" c="dimmed">
+						{Object.values(m.downloads).reduce<number>((acc, curr) => acc + (curr ?? 0), 0)}
+					</Text>
 				</Group>
 			</Group>
 		);
@@ -199,70 +231,89 @@ export default function Mods() {
 
 			wrap="nowrap"
 		>
-			{windowWidth > BREAKPOINT_TABLET && filter()}
+			{width > BREAKPOINT_TABLET && filter()}
 
 			<Stack w="100%" gap="sm">
-				<Tile w="100%">
-					<Group align="center" gap="sm" wrap="nowrap">
-						{windowWidth <= BREAKPOINT_TABLET && (
-							<ActionIcon
-								variant="outline"
-								className="navbar-icon-fix filter-icon"
-								onClick={() => setShowFilters(!showFilters)}
-							>
-								<LuFilter color="var(--mantine-color-text)" />
-							</ActionIcon>
-						)}
-						<TextInput
-							className="w-full"
-							placeholder="Search mods..."
-							onChange={(e) => setSearch(e.currentTarget.value)}
-						/>
-						<Select
-							data={itemsPerPage}
-							value={modsShownPerPage}
-							onChange={setModsShownPerPage}
-							withCheckIcon={false}
-							w={120}
-						/>
-					</Group>
-				</Tile>
+				<Group align="end" gap="sm" wrap="nowrap">
+					{width <= BREAKPOINT_TABLET && (
+						<ActionIcon
+							variant="default"
+							className="navbar-icon-fix filter-icon"
+							onClick={() => setShowFilters(!showFilters)}
+						>
+							<LuFilter color="var(--mantine-color-text)" />
+						</ActionIcon>
+					)}
+					<TextInput
+						w="calc(100% - 120px)"
+						label="Search"
+						placeholder="Search mods..."
+						onChange={(e) => setSearch(e.currentTarget.value)}
+					/>
+					<Select
+						label="Mods per page"
+						data={itemsPerPage}
+						value={modsShownPerPage}
+						onChange={(e) => e ? setModsShownPerPage(e) : null}
+						withCheckIcon={false}
+						w={120}
+					/>
+				</Group>
 
-				{windowWidth <= BREAKPOINT_TABLET && showFilters && filter()}
+				{width <= BREAKPOINT_TABLET && showFilters && filter()}
+
+				{filteredMods.length === 0 && (
+					<Group
+						align="center"
+						justify="center"
+						h="100px"
+						gap="md"
+						style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
+					>
+						<Text c="dimmed">No results for &quot;{search}&quot;</Text>
+					</Group>
+				)}
+
 				{
-					(windowWidth > BREAKPOINT_TABLET || (windowWidth <= BREAKPOINT_TABLET && !showFilters)) &&
-					modsShown[activePage - 1] && modsShown[activePage - 1].map((m) => (
+					(width > BREAKPOINT_TABLET || (width <= BREAKPOINT_TABLET && !showFilters)) &&
+					modsShown[activePage - 1] && modsShown[activePage - 1]?.map((m) => (
 						<Tile
 							key={m.id}
-							onClick={() => router.push(`/mods/${m.id}`)}
+							onClick={() => router.push(`/mods/${m.forgeId}`)}
 							className="cursor-pointer mod-card"
 						>
 							<Stack gap="xs">
 								<Group align="start" wrap="nowrap">
 									<TextureImage
+										solidBackground
 										src={m.image ?? './icon.png'}
 										alt={m.name}
-										size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
+										size={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 									/>
 									<Stack
 										justify="space-between"
 										w="100%"
-										h={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
+										h={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 									>
 										<Stack gap={0}>
 											<Group gap={5} align="baseline">
 												<Text fw={700} size="md">{m.name}</Text>
-												{m.authors.length > 0 && (<Text size="xs" c="dimmed">by {m.authors.join(', ')}</Text>)}
+												{m.authors.length > 0 && (
+													<Text size="xs" c="dimmed">
+														by {m.authors.slice(0, slice).join(', ')}
+														{m.authors.length > (slice - 1) && ` and ${m.authors.length - (slice - 1)} more...`}
+													</Text>
+												)}
 											</Group>
 											{m.description && (<Text size="sm" lineClamp={2}>{m.description}</Text>)}
 											{!m.description && (<Text size="sm" c="dimmed">No description</Text>)}
 										</Stack>
 
-										{windowWidth > BREAKPOINT_MOBILE_LARGE && details(m)}
+										{width > BREAKPOINT_MOBILE_LARGE && details(m)}
 									</Stack>
 								</Group>
 
-								{windowWidth <= BREAKPOINT_MOBILE_LARGE && details(m)}
+								{width <= BREAKPOINT_MOBILE_LARGE && details(m)}
 							</Stack>
 						</Tile>
 					))}

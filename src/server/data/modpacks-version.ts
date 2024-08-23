@@ -5,9 +5,11 @@ import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import type { ModpackVersionWithMods } from '~/types';
+import { socket } from '~/lib/serversocket';
 
 import { extractModVersionsFromJAR } from '../actions/files';
+
+import type { ModpackVersionWithMods, SocketModUpload } from '~/types';
 
 // GET
 
@@ -34,21 +36,37 @@ export async function updateModpackVersion({ id, version }: { id: string; versio
  * Create mod version if first time
  *
  * @param id Modpack version id
- * @param data FormData with JAR files
+ * @param jars FormData with JAR files
+ * @param socketId Socket ID to send progress
  * @returns Updated modpack version
  */
-export async function addModsToModpackVersion(id: string, data: FormData): Promise<ModpackVersionWithMods> {
+export async function addModsToModpackVersion(id: string, jars: FormData, socketId: string): Promise<ModpackVersionWithMods> {
 	await canAccess(UserRole.COUNCIL);
 
-	const files = data.getAll('file') as File[];
+	let status: SocketModUpload = {
+		mods: { total: 0, done: 0 },
+		modInfos: { total: 0, done: 0 },
+		textures: { total: 0, done: 0 },
+	};
+
+	const files = jars.getAll('files') as File[];
+
+	status.mods.total = files.length;
+	socket?.emit(socketId, status);
+
 	for (const file of files) {
 		// Create all mod versions from the JAR file, can be multiple mods in one file
-		const modVersions = await extractModVersionsFromJAR(file);
-		for (const modVersion of modVersions) {
+		const extracted = await extractModVersionsFromJAR(file, socketId, status);
+		status = extracted[1];
+
+		for (const modVersion of extracted[0]) {
 			await db.modpackVersion.update({
 				where: { id },
 				data: { mods: { connect: { id: modVersion.id } } },
 			});
+
+			status.mods.done += 1;
+			socket?.emit(socketId, status);
 		}
 	}
 

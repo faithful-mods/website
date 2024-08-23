@@ -1,18 +1,21 @@
 'use client';
 
-import { Button, Group, JsonInput, Stack } from '@mantine/core';
-import { Texture } from '@prisma/client';
 import { useEffect, useState } from 'react';
 
+import { Button, Group, JsonInput, Stack } from '@mantine/core';
+
+import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { updateMCMETA } from '~/server/data/texture';
-import type { MCMETA } from '~/types';
+
+import type { Texture } from '@prisma/client';
+import type { TextureMCMETA } from '~/types';
 
 export interface TextureUsesProps {
 	texture: Texture;
-	onUpdate: (mcmeta?: MCMETA) => void;
+	onUpdate: (mcmeta: TextureMCMETA | null) => void;
 }
 
-export function TextureMCMETA({ texture, onUpdate }: TextureUsesProps) {
+export function TextureMCMETAEdition({ texture, onUpdate }: TextureUsesProps) {
 	const [mcmeta, setMCMETA] = useState<string>(texture.mcmeta ? JSON.stringify(texture.mcmeta, null, 2) : '');
 	const [isValid, setValid] = useState(false);
 
@@ -32,15 +35,15 @@ export function TextureMCMETA({ texture, onUpdate }: TextureUsesProps) {
 	const handleUpdate = () => {
 		if (!isValid) return;
 
-		const parsed = JSON.parse(mcmeta);
+		const parsed: TextureMCMETA = JSON.parse(mcmeta);
 		updateMCMETA(texture.id, parsed)
 			.then(() => onUpdate(parsed));
 	};
 
 	const handleDelete = () => {
 		setMCMETA('');
-		updateMCMETA(texture.id, null)
-			.then(() => onUpdate());
+		updateMCMETA(texture.id, undefined)
+			.then(() => onUpdate(null));
 	};
 
 	return (
@@ -57,8 +60,24 @@ export function TextureMCMETA({ texture, onUpdate }: TextureUsesProps) {
 			/>
 
 			<Group gap="md">
-				<Button w={'calc(50% - (var(--mantine-spacing-md) / 2))'} disabled={!texture.mcmeta} onClick={handleDelete}>Delete</Button>
-				<Button w={'calc(50% - (var(--mantine-spacing-md) / 2))'} disabled={!isValid} onClick={handleUpdate}>Save</Button>
+				<Button
+					w={'calc(50% - (var(--mantine-spacing-md) / 2))'}
+					disabled={!texture.mcmeta}
+					onClick={handleDelete}
+					variant="gradient"
+					gradient={GRADIENT_DANGER}
+				>
+					Delete
+				</Button>
+				<Button
+					w={'calc(50% - (var(--mantine-spacing-md) / 2))'}
+					disabled={!isValid}
+					onClick={handleUpdate}
+					variant="gradient"
+					gradient={GRADIENT}
+				>
+					Save
+				</Button>
 			</Group>
 		</Stack>
 	);

@@ -1,33 +1,50 @@
 'use server';
 import 'server-only';
 
-import { ContributionDeactivation, Prisma, Resolution, Texture, UserRole } from '@prisma/client';
+import { Resolution, Status, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
-import type { ContributionActivationStatus, Progression, TextureMCMETA } from '~/types';
 
-import { remove } from '../actions/files';
+import { deleteFile } from '../actions/simple-git';
+
+import type { ContributionDeactivation, Texture } from '@prisma/client';
+import type { ContributionActivationStatus, Prettify, Progression, TextureMCMETA } from '~/types';
+
+import '~/lib/polyfills';
 
 // GET
 
-export async function getTextures(): Promise<(Texture & { disabledContributions: ContributionDeactivation[] })[]> {
+export type GetTextures = Prettify<Texture & {
+	disabledContributions: ContributionDeactivation[];
+}>;
+
+export async function getTextures(): Promise<GetTextures[]> {
 	return db.texture.findMany({ include: { disabledContributions: true } });
 }
 
-export async function getTexture(id: string): Promise<Texture | null> {
+export type GetTexturesWithUsePaths = Texture & {
+	disabledContributions: ContributionDeactivation[];
+	linkedTextures: { assetPath: string }[];
+};
+
+export async function getTexturesWithUsePaths(): Promise<GetTexturesWithUsePaths[]> {
+	return db.texture.findMany({ include: { disabledContributions: true, linkedTextures: { select: { assetPath: true } } } });
+}
+
+export async function getTexture(id: number): Promise<Texture | null> {
 	return db.texture.findUnique({ where: { id } });
 }
 
-export async function getRelatedTextures(id: string): Promise<Texture[]> {
-	return db.texture.findFirst({ where: { id }, include: { relations: true, relationOf: true }})
+export async function getRelatedTextures(id: number): Promise<Texture[]> {
+	return db.texture.findFirst({ where: { id }, include: { relations: true, relationOf: true } })
 		.then((res) => [...(res?.relations ?? []), ...(res?.relationOf ?? [])])
 		.then((res) => {
 			return res.unique((t1, t2) => t1.id === t2.id);
 		});
 }
 
-export async function getTextureStatus(textureId: string): Promise<ContributionActivationStatus[]> {
+export async function getTextureStatus(textureId: number): Promise<ContributionActivationStatus[]> {
 	return db.contributionDeactivation
 		.findMany({
 			where: {
@@ -92,6 +109,26 @@ export async function findTexture({ hash }: { hash: string }): Promise<Texture |
 	});
 }
 
+export async function getTexturesFromModVersion(modVersionId: string): Promise<Texture[]> {
+	return db.resource.findMany({
+		where: {
+			modVersionId,
+		},
+		include: {
+			linkedTextures: {
+				include: {
+					texture: true,
+				},
+			},
+		},
+	}).then((resources) =>
+		resources
+			.flatMap((r) => r.linkedTextures)
+			.map((linkedTexture) => linkedTexture.texture)
+			.unique((t1, t2) => t1.id === t2.id)
+	);
+}
+
 // POST
 
 export async function createTexture({
@@ -103,7 +140,7 @@ export async function createTexture({
 	name: string;
 	filepath: string;
 	hash: string;
-	mcmeta?: string;
+	mcmeta?: TextureMCMETA;
 }): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
@@ -117,23 +154,24 @@ export async function createTexture({
 	});
 }
 
-export async function updateMCMETA(id: string, mcmeta: TextureMCMETA): Promise<Texture> {
+export async function updateMCMETA(id: number, mcmeta: TextureMCMETA | undefined): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.texture.update({
 		where: { id },
-		data: { mcmeta: mcmeta as unknown ?? Prisma.JsonNull },
+		data: { mcmeta },
 	});
 }
 
 interface UpdateTextureParams {
-	id: string;
+	id: number;
 	name: string;
 	aliases: string[];
 	contributions: ContributionActivationStatus[];
+	vanillaTextureId: string | null;
 }
 
-export async function updateTexture({ id, name, aliases, contributions }: UpdateTextureParams): Promise<Texture> {
+export async function updateTexture({ id, name, aliases, contributions, vanillaTextureId }: UpdateTextureParams): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	const editedGeneral = contributions.find(cs => cs.resolution === null);
@@ -151,10 +189,17 @@ export async function updateTexture({ id, name, aliases, contributions }: Update
 	}
 
 	// update name & aliases and return the updated texture
-	return db.texture.update({ where: { id }, data: { name, aliases } });
+	return db.texture.update({
+		where: { id },
+		data: {
+			name,
+			aliases: aliases.length > 0 ? aliases : undefined,
+			vanillaTextureId,
+		},
+	});
 };
 
-export async function addRelationsToTexture(textureId: string, relatedTextures: string[]): Promise<Texture[]> {
+export async function addRelationsToTexture(textureId: number, relatedTextures: number[]): Promise<Texture[]> {
 	await canAccess(UserRole.COUNCIL);
 
 	// get current relations
@@ -175,21 +220,25 @@ export async function addRelationsToTexture(textureId: string, relatedTextures: 
 
 // DELETE
 
-export async function deleteTexture(id: string): Promise<Texture> {
+export async function deleteTexture(id: number): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	// Delete on disk
-	const textureFile = await db.texture.findUnique({ where: { id } }).then((texture) => texture?.filepath);
-	if (textureFile) await remove(textureFile as `/files/${string}`);
+	const texture = await db.texture.findUnique({ where: { id } });
+	if (texture) await deleteFile(`${texture.hash}.png`);
 
 	// Contributions
 	await db.contributionDeactivation.deleteMany({ where: { textureId: id } });
+	await db.contribution.updateMany({
+		where: { textureId: id },
+		data: { textureId: null, status: Status.ARCHIVED },
+	});
 
 	// Delete in database
 	return db.texture.delete({ where: { id } });
 }
 
-export async function removeRelationFromTexture(textureId: string, relatedTextureId: string) {
+export async function removeRelationFromTexture(textureId: number, relatedTextureId: number) {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.texture

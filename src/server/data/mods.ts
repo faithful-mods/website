@@ -1,16 +1,24 @@
 'use server';
 import 'server-only';
 
-import { ModVersion, UserRole, type Mod } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
+import { EMPTY_PROGRESSION_RES } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { extractSemver } from '~/lib/utils';
 
 import { deleteModVersion } from './mods-version';
 import { remove, upload } from '../actions/files';
 
+import type { Mod, Resolution } from '@prisma/client';
+import type { Downloads } from '~/types';
+
 // GET
+
+export async function getModFromForgeId(forgeId: string): Promise<Mod | null> {
+	return db.mod.findFirst({ where: { forgeId } });
+}
 
 export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 	return db.mod.findMany({ where: { id: { in: ids } } });
@@ -18,30 +26,104 @@ export async function getModsFromIds(ids: string[]): Promise<Mod[]> {
 
 export async function getMods(): Promise<(Mod & { unknownVersion: boolean })[]> {
 	return db.mod
-		.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' }})
+		.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } })
 		.then((mods) =>
 			mods.map((mod) => {
-				return { ...mod, unknownVersion: mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 };
+				return {
+					...mod,
+					unknownVersion: mod.versions
+						.map((mv) => mv.mcVersion.some((v) => extractSemver(v) === null) || mv.mcVersion.length === 0)
+						.filter((v) => !!v).length > 0
+					|| mod.versions.length === 0,
+				};
 			})
 		);
 }
 
-export async function getModsWithVersions(): Promise<(Mod & { versions: string[] })[]> {
-	return db.mod.findMany({ include: { versions: { select: { mcVersion: true } } }, orderBy: { name: 'asc' } })
-		.then((mods) =>
-			mods.map((mod) => {
-				return { ...mod, versions: mod.versions.map((v) => v.mcVersion) };
-			})
-		);
+export async function getModDownloads(id: string): Promise<Downloads | null> {
+	const results = await db.mod.findFirst({
+		where: { id },
+		include: {
+			versions: {
+				select: {
+					downloads: true,
+				},
+			},
+		},
+	});
+
+	if (!results) return null;
+
+	return results?.versions
+		.map((v) => v.downloads)
+		.reduce<Downloads>((acc, curr) => {
+			const resolutions = Object.keys(curr) as Resolution[];
+
+			for (const res of resolutions) {
+				if (!acc[res]) acc[res] = curr[res] ?? 0;
+				else acc[res] += curr[res] ?? 0;
+			}
+
+			return acc;
+		}, Object.assign({}, EMPTY_PROGRESSION_RES));
 }
 
-export async function getModWithModVersions(id: string): Promise<(Mod & { versions: ModVersion[] }) | null> {
-	return db.mod.findUnique({ where: { id }, include: { versions: { orderBy: { createdAt: 'desc' } } } });
+export type ModOfModsPage = Mod & {
+	versions: string[];
+	textures: number;
+	downloads: Downloads;
+};
+
+export async function getModsOfModsPage(): Promise<ModOfModsPage[]> {
+	return db.mod.findMany({
+		include: {
+			versions: {
+				include: {
+					resources: {
+						include: {
+							linkedTextures: true,
+						},
+					},
+				},
+			},
+		},
+		orderBy: {
+			name: 'asc',
+		},
+	})
+		.then((mods) =>
+			mods.map((mod) => {
+				return {
+					...mod,
+					versions: mod.versions
+						.map((v) => v.mcVersion)
+						.flat(),
+					textures: mod.versions
+						.map((v) => v.resources.map((r) => r.linkedTextures.length).flat())
+						.flat()
+						.reduce((a, b) => a + b, 0),
+					downloads: mod.versions
+						.map((v) => v.downloads)
+						.reduce<Downloads>((acc, curr) => {
+							const resolutions = Object.keys(curr) as Resolution[];
+
+							for (const res of resolutions) {
+								if (!acc[res]) acc[res] = curr[res] ?? 0;
+								else acc[res] += curr[res] ?? 0;
+							}
+
+							return acc;
+						}, Object.assign({}, EMPTY_PROGRESSION_RES)),
+				};
+			})
+		);
 }
 
 export async function modHasUnknownVersion(id: string): Promise<boolean> {
 	const mod = await db.mod.findUnique({ where: { id }, include: { versions: { select: { mcVersion: true } } } });
-	return mod ? mod.versions.map((v) => extractSemver(v.mcVersion)).filter((v) => v === null).length > 0 : false;
+	return mod
+		? mod.versions.map((mv) => mv.mcVersion.some((v) => extractSemver(v) === null) || mv.mcVersion.length === 0).filter((v) => !!v).length > 0
+		: false;
 }
 
 // POST

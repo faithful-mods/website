@@ -1,14 +1,17 @@
 'use client';
 
-import type { Mod, Modpack } from '@prisma/client';
+import { useState, useTransition } from 'react';
 
 import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useState, useTransition } from 'react';
 
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { extractSemver, gradient, gradientDanger } from '~/lib/utils';
+import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { extractSemver } from '~/lib/utils';
 import { deleteModVersion, removeModpackFromModVersion, updateModVersion } from '~/server/data/mods-version';
+
+import type { Mod, Modpack } from '@prisma/client';
 import type { ModVersionExtended } from '~/types';
 
 export interface ModVersionModalFormValues {
@@ -23,7 +26,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 	const form = useForm<ModVersionModalFormValues>({
 		initialValues: {
 			version: modVersion?.version ?? '',
-			mcVersion: modVersion?.mcVersion ?? '',
+			mcVersion: modVersion?.mcVersion.join(', ') ?? '',
 		},
 		validate: {
 			version: (value) => {
@@ -32,8 +35,12 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 			},
 			mcVersion: (value) => {
 				if (!value) return 'MC Version is required';
-				if (value === 'unknown') return 'Automatic version detection failed, please enter the version manually';
-				if (extractSemver(value) === null) return 'Invalid MC Version';
+				if (value.length === 0) return 'Automatic version detection failed, please enter the version manually';
+				if (value
+					.split(',')
+					.map((s) => s.trim())
+					.some((v) => extractSemver(v) === null)
+				) return 'Invalid MC Version';
 				return null;
 			},
 		},
@@ -50,7 +57,13 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 		startTransition(async () => {
 			if (!modVersion) return; // Should never happen as this component is only used for editing mod versions
 
-			await updateModVersion({ id: modVersion.id, version: form.values.version, mcVersion: form.values.mcVersion });
+			await updateModVersion({
+				id: modVersion.id,
+				version: form.values.version,
+				mcVersion: form.values.mcVersion
+					.split(',')
+					.map((s) => s.trim()),
+			});
 			onClose();
 		});
 	};
@@ -75,21 +88,36 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 
 	return (
 		<Stack gap="md">
-			<TextInput label="Version" placeholder="1.2.4" required {...form.getInputProps('version')} />
-			<TextInput label="MC Version" placeholder="1.7.10" required {...form.getInputProps('mcVersion')} />
+			<TextInput
+				label="Version"
+				placeholder="1.2.4"
+				description="The version number/name"
+				required
+				{...form.getInputProps('version')}
+			/>
+			<TextInput
+				label="MC Version(s)"
+				placeholder="1.7.10"
+				description="Separate multiple versions with a comma"
+				required
+				{...form.getInputProps('mcVersion')}
+			/>
 
 			{modVersionModpacks.length > 0 &&
 				<Stack gap="sm" style={{ maxHeight: '400px', overflowY: modVersionModpacks.length > 5 ? 'auto' : 'hidden' }}>
 					<Text fw={500} size="var(--input-label-size, var(--mantine-font-size-sm))">Modpacks attached</Text>
 					{modVersionModpacks.map((modpack, index) =>
 						<Group key={index} justify="space-between">
-							<Stack gap="0">
-								<Text size="sm">{modpack.name}</Text>
-								<Text size="xs" c="dimmed">{modpack.authors.join(', ')}</Text>
-							</Stack>
+							<Group gap="xs">
+								<TextureImage src={modpack.image ?? './icon.png'} alt={mod.name} size={36} />
+								<Stack gap="0">
+									<Text size="sm">{modpack.name}</Text>
+									<Text size="xs" c="dimmed">{modpack.authors.join(', ')}</Text>
+								</Stack>
+							</Group>
 							<Button
 								variant="light"
-								color={gradientDanger.to}
+								color="red"
 								onClick={() => deleteModpackFromMV(modpack.id)}
 								mr={modVersionModpacks.length > 5 ? 'sm' : 0}
 							>
@@ -104,7 +132,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 				{modVersion &&
 					<Button
 						variant="gradient"
-						gradient={gradientDanger}
+						gradient={GRADIENT_DANGER}
 						style={{ width: 'calc((100% - var(--mantine-spacing-sm)) / 2)' }}
 						onClick={() => deleteMV()}
 						disabled={isPending}
@@ -115,7 +143,7 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 				}
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					style={{ width: modVersion ? 'calc((100% - var(--mantine-spacing-sm)) / 2)' : '100%' }}
 					onClick={() => saveMV()}
 					disabled={isPending || !form.isValid()}

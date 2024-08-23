@@ -2,8 +2,7 @@
 
 import { redirect } from 'next/navigation';
 
-const CouncilPage = () => {
-	redirect('/council/contributions');
+export default function CouncilPage() {
+	redirect('/council/submissions');
 };
 
-export default CouncilPage;

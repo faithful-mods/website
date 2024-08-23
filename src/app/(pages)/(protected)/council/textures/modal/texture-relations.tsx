@@ -1,15 +1,19 @@
-import { Button, Group, MultiSelect, MultiSelectProps, Stack, Text } from '@mantine/core';
-import { Texture } from '@prisma/client';
+
 import { useState } from 'react';
+
 import { TbPlus } from 'react-icons/tb';
 
-import { TextureImage } from '~/components/texture-img';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Button, Group, MultiSelect, Stack, Text } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
+
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
-import { gradient, gradientDanger, sortByName } from '~/lib/utils';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { sortByName } from '~/lib/utils';
 import { addRelationsToTexture, getRelatedTextures, removeRelationFromTexture } from '~/server/data/texture';
-import { MCMETA } from '~/types';
+
+import type { MultiSelectProps } from '@mantine/core';
+import type{ Texture } from '@prisma/client';
 
 interface TextureRelationsProps {
 	texture: Texture;
@@ -18,14 +22,14 @@ interface TextureRelationsProps {
 
 export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 	const [relatedTextures, setRelatedTextures] = useState<Texture[]>([]);
-	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<string[]>([]);
+	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<number[]>([]);
 
-	const [windowWidth, _] = useDeviceSize();
+	const { width } = useViewportSize();
 
-	const texturePerRow = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : windowWidth <= BREAKPOINT_TABLET ? 4 : 6;
-	const parentWidth = windowWidth <= BREAKPOINT_MOBILE_LARGE
-		? `${windowWidth}px`
-		: `calc(${windowWidth}px - (2 * var(--modal-inner-x-offset, var(--modal-x-offset))))`;
+	const texturePerRow = width <= BREAKPOINT_MOBILE_LARGE ? 2 : width <= BREAKPOINT_TABLET ? 4 : 6;
+	const parentWidth = width <= BREAKPOINT_MOBILE_LARGE
+		? `${width}px`
+		: `calc(${width}px - (2 * var(--modal-inner-x-offset, var(--modal-x-offset))))`;
 
 	// texture width = (parent width - side padding - gap) / items per row
 	const textureWidth = `calc((${parentWidth} - (2 * var(--mantine-spacing-md)) - (${texturePerRow - 1} * var(--mantine-spacing-md))) / ${texturePerRow})`;
@@ -42,13 +46,13 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 			.then((res) => setRelatedTextures(res.sort(sortByName)));
 	};
 
-	const handleRelationRemove = async (id: string) => {
+	const handleRelationRemove = async (id: number) => {
 		removeRelationFromTexture(texture.id, id)
 			.then((res) => setRelatedTextures(res.sort(sortByName)));
 	};
 
 	const renderMultiSelectOption: MultiSelectProps['renderOption'] = ({ option }) => {
-		const texture = textures.find((u) => u.id === option.value)!;
+		const texture = textures.find((u) => u.id === parseInt(option.value, 10))!;
 
 		return (
 			<Group gap="sm" wrap="nowrap">
@@ -56,7 +60,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 					src={texture.filepath}
 					size={40}
 					alt={texture.name}
-					mcmeta={texture.mcmeta as unknown as MCMETA}
+					mcmeta={texture.mcmeta}
 				/>
 				<div>
 					<Text size="sm">{texture.name}</Text>
@@ -80,11 +84,15 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 					placeholder="Select or search textures..."
 					data={textures
 						.filter((t) => t.id !== texture.id)
-						.map((t) => ({ value: t.id, label: t.name ?? 'Unknown', disabled: relatedTextures.map((t) => t.id).includes(t.id) }))
+						.map((t) => ({
+							value: t.id.toString(),
+							label: t.name ?? 'Unknown',
+							disabled: relatedTextures.map((t) => t.id).includes(t.id),
+						}))
 					}
 					renderOption={renderMultiSelectOption}
 					defaultValue={[]}
-					onChange={setNewRelatedTexturesIds}
+					onChange={(e) => setNewRelatedTexturesIds(e.map((t) => parseInt(t, 10)))}
 					hidePickedOptions
 					searchable
 					clearable
@@ -92,7 +100,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 				/>
 				<Button
 					variant="gradient"
-					gradient={gradient}
+					gradient={GRADIENT}
 					className="navbar-icon-fix"
 					onClick={handleRelationAdd}
 				>
@@ -118,7 +126,7 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 
 							<Button
 								variant="gradient"
-								gradient={gradientDanger}
+								gradient={GRADIENT_DANGER}
 								onClick={() => handleRelationRemove(t.id)}
 							>
 								Delete relation
