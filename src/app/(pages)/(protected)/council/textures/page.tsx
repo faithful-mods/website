@@ -199,7 +199,7 @@ export default function CouncilTexturesPage() {
 			</Group>
 
 			{!isLoading && (
-				<Group mt="md" justify="center">
+				<Group mt="md" mb="sm" justify="center">
 					<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
 				</Group>
 			)}
