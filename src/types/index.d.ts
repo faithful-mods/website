@@ -67,49 +67,7 @@ export type Progression = {
 	};
 }
 
-export interface AnimationMCMETA {
-	frametime?: number;
-	interpolate?: boolean;
-	frames?: (number | { index: number; time: number })[];
-	height?: number;
-	width?: number;
-}
-
-export interface PropertiesMCMETA {
-	blur?: boolean;
-	clamp?: boolean;
-	mipmaps?: number[];
-}
-
-export interface GuiMCMETA {
-	scaling?: {
-		type?: 'stretch' | 'tile' | 'nine_slice';
-		width?: number;
-		height?: number;
-		border?: number | {
-			left?: number;
-			top?: number;
-			right?: number;
-			bottom?: number;
-		}
-	}
-}
-
-export interface VillagerMCMETA {
-	hat?: 'full' | 'partial';
-}
-
 export type Downloads = Record<Resolution, number | undefined>;
-
-export interface TextureMCMETA {
-	animation?: AnimationMCMETA;
-	texture?: PropertiesMCMETA;
-	gui?: GuiMCMETA;
-	villager?: VillagerMCMETA;
-}
-
-// TODO: Add more properties
-export interface PackMCMETA {}
 
 export type ReportWithReporter = Report & { reporter: PublicUser };
 export type UserWithReports = Prettify<User & { reports: Report[] }>;

@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react';
-import type { CSSProperties, FC } from 'react';
+import type { FC } from 'react';
 
-import { HoverCard, Image, useMantineColorScheme } from '@mantine/core';
-import { useAnimation } from 'react-minecraft';
+import { HoverCard, useMantineColorScheme } from '@mantine/core';
+import { Texture } from 'react-minecraft';
 
-import type { TextureMCMETA } from '~/types';
+import type { TextureMCMeta } from 'react-minecraft';
 
 interface Props {
-	solidBackground?: boolean;
 	isTransparent?: boolean;
+	isTiled?: boolean;
 	src: string;
 	alt: string;
 	className?: string;
@@ -17,7 +16,7 @@ interface Props {
 	popupStyles?: React.CSSProperties;
 	notPixelated?: boolean;
 	fallback?: string;
-	mcmeta?: TextureMCMETA | null;
+	mcmeta?: TextureMCMeta | null;
 	children?: React.ReactNode;
 	withArrow?: boolean;
 	onPopupClick?: () => void;
@@ -25,8 +24,8 @@ interface Props {
 }
 
 export const TextureImage: FC<Props> = ({
-	solidBackground,
 	isTransparent,
+	isTiled,
 	src,
 	alt,
 	className,
@@ -34,67 +33,38 @@ export const TextureImage: FC<Props> = ({
 	styles,
 	popupStyles,
 	mcmeta,
-	notPixelated,
 	children,
 	fallback,
 	onClick,
 	onPopupClick,
 }) => {
-	const [_src, setSource] = useState(src);
-	const { canvasRef, isValid } = useAnimation({
-		src,
-		mcmeta: mcmeta ?? undefined,
-		isTiled: false,
-	});
-
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
-
 	const { colorScheme } = useMantineColorScheme();
-	const defaultFallback = colorScheme === 'dark' ? '/transparent.png' : '/transparent_light.png';
-
-	const imageStyle: CSSProperties = {
-		maxWidth: trueSize,
-		maxHeight: trueSize,
-		minWidth: trueSize,
-		minHeight: trueSize,
-		height: trueSize,
-		width: trueSize,
-		opacity: isTransparent ? 0.4 : 1,
-		filter: isTransparent ? 'grayscale(.6)' : 'none',
-	};
-
-	const containerStyle = {
-		...imageStyle,
-		opacity: 1,
-		...styles,
-	};
-
-	useEffect(() => {
-		setSource(src);
-	}, [src]);
 
 	const image = () => {
 		return (
-			<div className="texture-background" style={containerStyle}>
-				{(!mcmeta || !isValid) && (
-					<Image
-						onClick={onClick}
-						src={_src}
-						alt={alt}
-						fit="contain"
-						style={{ ...imageStyle, ...styles }}
-						className={`${!notPixelated && 'image-pixelated'} ${solidBackground && 'solid-background'} ${className ?? ''} ${onClick && 'cursor-pointer'}`}
-						onError={() => setSource(fallback ?? defaultFallback)}
-					/>
-				)}
-				{mcmeta && isValid && (
-					<canvas
-						ref={canvasRef}
-						onClick={onClick}
-						className={`${onClick && 'cursor-pointer'} ${solidBackground && 'solid-background'} ${className ?? ''}`}
-						style={imageStyle}
-					/>
-				)}
+			<div onClick={onClick}>
+				<Texture
+					src={src}
+					alt={alt}
+					animation={mcmeta && mcmeta.animation
+						? {
+							mcmeta: { animation: mcmeta.animation },
+							tiled: isTiled,
+						}
+						: undefined
+					}
+					size={trueSize}
+					className={className}
+					background={{
+						url: fallback ?? colorScheme === 'dark' ? '/transparent.png' : '/transparent_light.png',
+					}}
+					style={{
+						opacity: isTransparent ? 0.4 : 1,
+						filter: isTransparent ? 'grayscale(0.6)' : 'none',
+						...styles,
+					}}
+				/>
 			</div>
 		);
 	};
