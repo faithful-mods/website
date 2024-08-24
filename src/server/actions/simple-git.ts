@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import simpleGit from 'simple-git';
@@ -42,9 +42,9 @@ async function remoteUrl() {
  * @param filename the name of the file
  */
 export async function addFile(file: Buffer, filename: string) {
-	if (!existsSync(LOCAL_REPOSITORY_PATH)) {
-		mkdirSync(LOCAL_REPOSITORY_PATH, { recursive: true });
+	if (readdirSync(LOCAL_REPOSITORY_PATH).length === 0) {
 		await git.clone(REMOTE_REPOSITORY_URL, LOCAL_REPOSITORY_PATH);
+		await git.pull();
 	}
 
 	const filepath = join(LOCAL_REPOSITORY_PATH, filename);
@@ -58,6 +58,11 @@ export async function addFile(file: Buffer, filename: string) {
  * @param filename the name of the file
  */
 export async function deleteFile(filename: string) {
+	if (readdirSync(LOCAL_REPOSITORY_PATH).length === 0) {
+		await git.clone(REMOTE_REPOSITORY_URL, LOCAL_REPOSITORY_PATH);
+		await git.pull();
+	}
+
 	const filepath = join(LOCAL_REPOSITORY_PATH, filename);
 	if (existsSync(filepath)) await git.rm(filepath);
 }
