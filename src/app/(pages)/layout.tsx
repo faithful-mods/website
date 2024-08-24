@@ -9,10 +9,11 @@ import { BREAKPOINT_DESKTOP_LARGE } from '~/lib/constants';
 
 import type { Metadata } from 'next';
 
-// Import styles of packages that you"ve installed.
+// Import styles of packages that you've installed.
 // All packages except `@mantine/hooks` require styles imports
 import '@mantine/core/styles.css';
 import '@mantine/dropzone/styles.css';
+import '@mantine/carousel/styles.css';
 import '../globals.scss';
 
 import '~/lib/polyfills';

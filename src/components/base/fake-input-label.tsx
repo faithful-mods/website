@@ -7,11 +7,12 @@ interface Props {
 	label: string;
 	description?: string;
 	gap?: number | string;
+	style?: React.CSSProperties;
 }
 
-export const FakeInputLabel: FC<Props> = ({ gap, label, description, children }) => {
+export const FakeInputLabel: FC<Props> = ({ gap, label, description, children, style }) => {
 	return (
-		<Stack gap={0} mt={2}>
+		<Stack gap={0} mt={2} style={style}>
 			<Stack gap={0}>
 				<Text
 					lh="var(--mantine-line-height)"
@@ -20,13 +21,7 @@ export const FakeInputLabel: FC<Props> = ({ gap, label, description, children })
 				>
 					{label}
 				</Text>
-				<Text
-					lh={1.2}
-					size="var(--input-description-size, calc(var(--mantine-font-size-sm) - calc(.125rem * var(--mantine-scale))))"
-					c="dimmed"
-				>
-					{description}
-				</Text>
+				<FakeInputDescription description={description} />
 			</Stack>
 
 			<div
@@ -37,5 +32,18 @@ export const FakeInputLabel: FC<Props> = ({ gap, label, description, children })
 				{children}
 			</div>
 		</Stack>
+	);
+};
+
+export const FakeInputDescription: FC<Pick<Props, 'description' | 'style'>> = ({ description, style }) => {
+	return (
+		<Text
+			lh={1.2}
+			size="var(--input-description-size, calc(var(--mantine-font-size-sm) - calc(.125rem * var(--mantine-scale))))"
+			style={style}
+			c="dimmed"
+		>
+			{description}
+		</Text>
 	);
 };
