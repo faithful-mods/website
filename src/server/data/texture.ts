@@ -9,7 +9,8 @@ import { db } from '~/lib/db';
 import { deleteFile } from '../actions/simple-git';
 
 import type { ContributionDeactivation, Texture } from '@prisma/client';
-import type { ContributionActivationStatus, Prettify, Progression, TextureMCMETA } from '~/types';
+import type { TextureMCMeta } from 'react-minecraft';
+import type { ContributionActivationStatus, Prettify, Progression } from '~/types';
 
 import '~/lib/polyfills';
 
@@ -140,7 +141,7 @@ export async function createTexture({
 	name: string;
 	filepath: string;
 	hash: string;
-	mcmeta?: TextureMCMETA;
+	mcmeta?: TextureMCMeta;
 }): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
@@ -154,7 +155,7 @@ export async function createTexture({
 	});
 }
 
-export async function updateMCMETA(id: number, mcmeta: TextureMCMETA | undefined): Promise<Texture> {
+export async function updateMCMETA(id: number, mcmeta: TextureMCMeta | undefined): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.texture.update({
