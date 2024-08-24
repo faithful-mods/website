@@ -6,7 +6,7 @@ import { Resolution, Status, UserRole } from '@prisma/client';
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 
-import { remove } from '../actions/files';
+import { deleteFile } from '../actions/simple-git';
 
 import type { ContributionDeactivation, Texture } from '@prisma/client';
 import type { ContributionActivationStatus, Prettify, Progression, TextureMCMETA } from '~/types';
@@ -224,9 +224,8 @@ export async function deleteTexture(id: number): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	// Delete on disk
-	// @deprecated (moved to git repository)
-	const textureFile = await db.texture.findUnique({ where: { id } }).then((texture) => texture?.filepath);
-	if (textureFile) await remove(textureFile as `/files/${string}`);
+	const texture = await db.texture.findUnique({ where: { id } });
+	if (texture) await deleteFile(`${texture.hash}.png`);
 
 	// Contributions
 	await db.contributionDeactivation.deleteMany({ where: { textureId: id } });

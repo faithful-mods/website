@@ -1,10 +1,10 @@
 import { Stack, Text, Title } from '@mantine/core';
 
-export default async function Home() {
+export default async function NotFoundPage() {
 	return (
-		<Stack 
-			align="center" 
-			justify="center" 
+		<Stack
+			align="center"
+			justify="center"
 			gap="md"
 			style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 		>

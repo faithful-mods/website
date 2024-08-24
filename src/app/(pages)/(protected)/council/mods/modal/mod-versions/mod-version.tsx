@@ -3,12 +3,11 @@
 import { useState } from 'react';
 
 import { Group, Table, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useViewportSize } from '@mantine/hooks';
 
-import { Modal } from '~/components/modal';
+import { Modal } from '~/components/base/modal';
 import { ModUpload } from '~/components/mods-upload';
 import { WarningIcon } from '~/components/warning-icon';
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { extractSemver, notify } from '~/lib/utils';
@@ -24,7 +23,7 @@ export function ModVersions({ mod }: { mod: Mod }) {
 	const [modVersions, setModVersions] = useState<ModVersionExtended[]>([]);
 	const [modalModVersion, setModalModVersion] = useState<ModVersionExtended | undefined>();
 
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	useEffectOnce(() => {
 		getModVersionsWithModpacks(mod.id)
@@ -78,8 +77,8 @@ export function ModVersions({ mod }: { mod: Mod }) {
 							<Table.Tr>
 								<Table.Th>Version</Table.Th>
 								<Table.Th>Minecraft</Table.Th>
-								{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Th>Modpacks</Table.Th>}
-								{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Th>Textures</Table.Th>}
+								{width > BREAKPOINT_MOBILE_LARGE && <Table.Th>Modpacks</Table.Th>}
+								{width > BREAKPOINT_MOBILE_LARGE && <Table.Th>Textures</Table.Th>}
 								<Table.Th>Created</Table.Th>
 								<Table.Th>Updated</Table.Th>
 							</Table.Tr>
@@ -100,10 +99,10 @@ export function ModVersions({ mod }: { mod: Mod }) {
 											/>
 										)}
 									</Table.Td>
-									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.modpacks.length}</Table.Td>}
-									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>linked: {version.linked}, unique: {version.textures}</Table.Td>}
-									<Table.Td>{windowWidth > BREAKPOINT_TABLET ? version.createdAt.toLocaleString() : version.createdAt.toLocaleDateString()}</Table.Td>
-									<Table.Td>{windowWidth > BREAKPOINT_TABLET ? version.updatedAt.toLocaleString() : version.updatedAt.toLocaleDateString()}</Table.Td>
+									{width > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.modpacks.length}</Table.Td>}
+									{width > BREAKPOINT_MOBILE_LARGE && <Table.Td>linked: {version.linked}, unique: {version.textures}</Table.Td>}
+									<Table.Td>{width > BREAKPOINT_TABLET ? version.createdAt.toLocaleString() : version.createdAt.toLocaleDateString()}</Table.Td>
+									<Table.Td>{width > BREAKPOINT_TABLET ? version.updatedAt.toLocaleString() : version.updatedAt.toLocaleDateString()}</Table.Td>
 								</Table.Tr>
 							))}
 						</Table.Tbody>

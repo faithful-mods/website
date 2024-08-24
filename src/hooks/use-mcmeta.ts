@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { TextureMCMETA } from '~/types';
+import type { MCMETA, TextureMCMETA } from '~/types';
 
 interface Frame {
 	index: number;
 	duration: number;
 }
 
-export interface MCMETAHookResult {
+interface useAnimationReturn {
 	/**
 	 * A ref to the canvas element used for the animation
 	 */
@@ -27,7 +27,7 @@ export interface MCMETAHookResult {
  *
  * @author [Even Torset](https://github.com/EvenTorset) for the original MCMETA to canvas code
  */
-export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCMETAHookResult {
+export function useMCMETA(mcmeta: TextureMCMETA, imageURL: string): useAnimationReturn {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const animationInterval = useRef<NodeJS.Timeout>();
 
@@ -41,15 +41,26 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 			animationInterval.current = undefined;
 		}
 
+		let __mcmeta: MCMETA;
+
 		// Short return if the mcmeta is not valid or not present
 		if (!mcmeta) return setValid(false);
-
-		setValid(true);
+		if (typeof mcmeta === 'string') {
+			try {
+				__mcmeta = JSON.parse(mcmeta);
+				setValid(true);
+			} catch {
+				return setValid(false);
+			}
+		} else {
+			__mcmeta = mcmeta;
+			setValid(true);
+		}
 
 		const image = new Image();
 		image.src = imageURL;
 
-		const tick = Math.max(mcmeta?.animation?.frametime || 1, 1);
+		const tick = Math.max(__mcmeta.animation.frametime || 1, 1);
 		const frames: Frame[] = [];
 
 		let interval: number;
@@ -60,41 +71,44 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 		const context = canvas.getContext('2d');
 		if (!context) return;
 
+		canvas.style.width = '100%';
+		canvas.width = canvas.offsetWidth;
+		canvas.height = canvas.offsetWidth;
+
 		const draw = (frame = 0, ticks = 0) => {
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.globalAlpha = 1;
 			context.imageSmoothingEnabled = false;
 			context.drawImage(
 				image,
-				0, image.width * (frames[frame]?.index ?? 1),
-				image.width, image.width,
-				0, 0,
+				0,            image.width * frames[frame].index,
+				image.width,  image.width,
+				0,            0,
 				canvas.width, canvas.height
 			);
 
-			if (mcmeta?.animation?.interpolate) {
-				context.globalAlpha = ticks / (frames[frame]?.duration ?? 1);
+			if (__mcmeta.animation.interpolate) {
+				context.globalAlpha = ticks / frames[frame].duration;
 				context.drawImage(
 					image,
-					0, image.width * (frames[(frame + 1) % frames.length]?.index ?? 1),
-					image.width, image.width,
-					0, 0,
+					0,            image.width * frames[(frame + 1) % frames.length].index,
+					image.width,  image.width,
+					0,            0,
 					canvas.width,	canvas.height
 				);
 			}
 		};
 
 		image.onload = () => {
-			if (mcmeta?.animation?.frames && mcmeta?.animation.frames.length > 0) {
+			if (__mcmeta.animation.frames && __mcmeta.animation.frames.length > 0) {
 				interval =
-					mcmeta?.animation.interpolate ||
-					mcmeta?.animation.frames.find((e) => typeof e === 'object' && e.time % tick !== 0)
+					__mcmeta.animation.interpolate ||
+					__mcmeta.animation.frames.find((e) => typeof e === 'object' && e.time % tick !== 0)
 						? 1
 						: tick;
 
-				for (let e = 0; e < mcmeta?.animation.frames.length; e++) {
-					const a = mcmeta?.animation.frames[e]!;
-
+				for (let e = 0; e < __mcmeta.animation.frames.length; e++) {
+					const a = __mcmeta.animation.frames[e];
 					if (typeof a === 'object')
 						frames.push({
 							index: a.index,
@@ -107,7 +121,7 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 						});
 				}
 			} else {
-				interval = mcmeta?.animation?.interpolate ? 1 : tick;
+				interval = __mcmeta.animation.interpolate ? 1 : tick;
 				const e = image.height / image.width;
 				for (let a = 0; a < e; a++) frames.push({ index: a, duration: tick / interval });
 			}
@@ -118,18 +132,12 @@ export function useMCMETA(imageURL: string, mcmeta?: TextureMCMETA | null): MCME
 			const update = () => {
 				ticks++;
 
-				// update canvas size each frame to match the container size
-				// >> this is required if the canvas is first hidden and then shown
-				canvas.style.width = '100%';
-				canvas.width = canvas.offsetWidth;
-				canvas.height = canvas.offsetWidth;
-
-				if (frames[currentFrame]!.duration <= ticks) {
+				if (frames[currentFrame].duration <= ticks) {
 					ticks = 0;
 					currentFrame++;
 					if (currentFrame >= frames.length) currentFrame = 0;
 					draw(currentFrame);
-				} else if (mcmeta?.animation?.interpolate) draw(currentFrame, ticks);
+				} else if (__mcmeta.animation.interpolate) draw(currentFrame, ticks);
 			};
 
 			if (!animationInterval.current) {

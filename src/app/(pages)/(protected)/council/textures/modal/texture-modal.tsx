@@ -3,15 +3,15 @@ import { useState } from 'react';
 
 import { Stack, Tabs } from '@mantine/core';
 
-import { TextureImage } from '~/components/texture-img';
+import { TextureImage } from '~/components/textures/texture-img';
 
 import { TextureGeneral } from './texture-general';
-import { TextureMCMETAEdition } from './texture-mcmeta';
+import { TextureMCMetaEdition } from './texture-mcmeta';
 import { TextureRelations } from './texture-relations';
 import { TextureUses } from './texture-uses';
 
 import type{ Texture } from '@prisma/client';
-import type { TextureMCMETA } from '~/types';
+import type { TextureMCMeta } from 'react-minecraft';
 
 export interface TextureModalProps {
 	texture: Texture;
@@ -19,7 +19,7 @@ export interface TextureModalProps {
 }
 
 export function TextureModal({ texture, textures }: TextureModalProps) {
-	const [mcmeta, setMCMETA] = useState<TextureMCMETA | null>(texture.mcmeta);
+	const [mcmeta, setMCMETA] = useState<TextureMCMeta | null>(texture.mcmeta);
 
 	return (
 		<Stack>
@@ -56,7 +56,7 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 					<TextureUses texture={texture} />
 				</Tabs.Panel>
 				<Tabs.Panel value="mcmeta">
-					<TextureMCMETAEdition texture={texture} onUpdate={setMCMETA} />
+					<TextureMCMetaEdition texture={texture} onUpdate={setMCMETA} />
 				</Tabs.Panel>
 			</Tabs>
 		</Stack>

@@ -3,14 +3,13 @@
 import { useEffect, useMemo, useState, useTransition } from 'react';
 
 import { Badge, Group, Text, TextInput, Button, Select, Pagination, Stack } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, usePrevious } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
+import { Modal } from '~/components/base/modal';
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
-import { Modal } from '~/components/modal';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
 import { GRADIENT, GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getModpacks, voidModpacks } from '~/server/data/modpacks';
@@ -19,7 +18,7 @@ import { ModpackModal } from './modal/modpack-modal';
 
 import type { Modpack } from '@prisma/client';
 
-const ModpacksPanel = () => {
+export default function ModpacksPage() {
 	const user = useCurrentUser()!;
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 
@@ -213,5 +212,3 @@ const ModpacksPanel = () => {
 		</>
 	);
 };
-
-export default ModpacksPanel;

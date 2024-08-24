@@ -1,15 +1,17 @@
 
-import { Group, Image, Stack, Text } from '@mantine/core';
+import type { FC } from 'react';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Group, Image, Stack, Text } from '@mantine/core';
+import { useViewportSize } from '@mantine/hooks';
+
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
-import { Tile } from '../tile';
+import { Tile } from '../base/tile';
 import { WarningIcon } from '../warning-icon';
 
 import './dashboard.scss';
 
-export interface ItemDisplayProps {
+interface Props {
 	image?: string | null,
 	title: string,
 	description?: string | null,
@@ -17,19 +19,19 @@ export interface ItemDisplayProps {
 	onClick: () => void
 }
 
-export function DashboardItem({ image, title, description, onClick, warning }: ItemDisplayProps) {
-	const [windowWidth] = useDeviceSize();
+export const DashboardItem: FC<Props> = ({ image, title, description, onClick, warning }) => {
+	const { width } = useViewportSize();
 
 	return (
 		<Tile
 			p={0}
 			className='dashboard-item'
 			style={{
-				'--dashboard-item-count': windowWidth <= BREAKPOINT_MOBILE_LARGE
+				'--dashboard-item-count': width <= BREAKPOINT_MOBILE_LARGE
 					? 1
-					: windowWidth <= BREAKPOINT_DESKTOP_MEDIUM
+					: width <= BREAKPOINT_DESKTOP_MEDIUM
 						? 2
-						: windowWidth <= BREAKPOINT_DESKTOP_LARGE
+						: width <= BREAKPOINT_DESKTOP_LARGE
 							? 3
 							: 4,
 			}}
@@ -71,4 +73,4 @@ export function DashboardItem({ image, title, description, onClick, warning }: I
 			</Group>
 		</Tile>
 	);
-}
+};

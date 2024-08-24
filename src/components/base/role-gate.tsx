@@ -1,19 +1,21 @@
 'use client';
 
+import type { FC } from 'react';
+
 import { Stack, Title, Text } from '@mantine/core';
 import { UserRole } from '@prisma/client';
 
 import { useCurrentUser } from '~/hooks/use-current-user';
 
-interface RoleGateProps {
+interface Props {
   children: React.ReactNode;
   allowedRoles: UserRole[];
 };
 
-export const RoleGate = ({
-	children,
-	allowedRoles,
-}: RoleGateProps) => {
+/**
+ * A component that gates access to children based on the logged user's role.
+ */
+export const RoleGate: FC<Props> = ({ children, allowedRoles }) => {
 	const user = useCurrentUser();
 	const role = user?.role;
 

@@ -3,16 +3,14 @@
 import { useEffect, useMemo, useState, useTransition } from 'react';
 
 import { Badge, Button, Group, Pagination, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, usePrevious, useViewportSize } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
+import { Modal } from '~/components/base/modal';
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
-import { Modal } from '~/components/modal';
 import { ModUpload } from '~/components/mods-upload';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
@@ -23,9 +21,9 @@ import type { Mod } from '@prisma/client';
 
 type ModWVer = Mod & { unknownVersion: boolean };
 
-const ModsPanel = () => {
+export default function ModsPage() {
 	const user = useCurrentUser()!;
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	const [isPending, startTransition] = useTransition();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -146,7 +144,7 @@ const ModsPanel = () => {
 				<Group
 					align="center"
 					gap="sm"
-					wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+					wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
 				>
 					<Group align="center" gap="sm" wrap="nowrap" className="w-full">
 						<Select
@@ -167,7 +165,7 @@ const ModsPanel = () => {
 
 					<Switch
 						label="Only show mods with unknown MC version"
-						mt={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 0 : 22}
+						mt={width <= BREAKPOINT_MOBILE_LARGE ? 0 : 22}
 						className="w-full"
 						checked={showUnknown}
 						onChange={(e) =>{
@@ -238,5 +236,3 @@ const ModsPanel = () => {
 		</>
 	);
 };
-
-export default ModsPanel;

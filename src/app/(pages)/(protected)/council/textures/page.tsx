@@ -3,13 +3,11 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import { Badge, Group, Loader, Pagination, Select, Stack, Text, TextInput } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useViewportSize, usePrevious } from '@mantine/hooks';
 
-import { Modal } from '~/components/modal';
-import { GalleryTexture } from '~/components/texture';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Modal } from '~/components/base/modal';
+import { GalleryTexture } from '~/components/textures/texture-gallery';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_ROW } from '~/lib/constants';
 import { notify, searchFilter, sortByName } from '~/lib/utils';
 import { getTexture, getTextures } from '~/server/data/texture';
@@ -18,9 +16,9 @@ import { TextureModal } from './modal/texture-modal';
 
 import type { Texture } from '@prisma/client';
 
-const CouncilTexturesPage = () => {
+export default function CouncilTexturesPage() {
 	const [isLoading, startTransition] = useTransition();
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 	const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
@@ -147,7 +145,7 @@ const CouncilTexturesPage = () => {
 					value={texturesShownPerPage}
 					onChange={(e) => e ? setTexturesShownPerPage(e) : null}
 					checkIconPosition="right"
-					w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+					w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
 				/>
 				<Select
 					label="Textures per row"
@@ -155,7 +153,7 @@ const CouncilTexturesPage = () => {
 					value={texturesShownPerRow.toString()}
 					onChange={(e) => e ? setTexturesShownPerRow(parseInt(e)) : null}
 					checkIconPosition="right"
-					w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+					w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
 				/>
 			</Group>
 
@@ -201,42 +199,10 @@ const CouncilTexturesPage = () => {
 			</Group>
 
 			{!isLoading && (
-				<Group mt="md" justify="center">
+				<Group mt="md" mb="sm" justify="center">
 					<Pagination total={texturesShown.length} value={activePage} onChange={setActivePage} />
 				</Group>
 			)}
 		</Stack>
 	);
-};
-
-export default CouncilTexturesPage;
-
-// <Group
-// 	key={t.id}
-// 	align="start"
-// 	gap="sm"
-// 	wrap="nowrap"
-// 	style={{
-// 		position: 'relative',
-// 		'--item-per-row': itemsPerRow,
-// 	}}
-// >
-// 	<TextureImage
-// 		className="cursor-pointer"
-// 		src={t.filepath ?? '/icon.png'}
-// 		alt={t.name}
-// 		mcmeta={t.mcmeta}
-// 		size={90}
-// 	/>
-// 	<Stack
-// 		gap="0"
-// 		align="flex-start"
-// 		mt="sm"
-// 		pr="sm"
-// 		style={{
-// 			overflow: 'hidden',
-// 		}}
-// 	>
-// 		<Text size="sm" fw={700}>{t.name}</Text>
-// 		<Text size="xs" lineClamp={2}>{t.aliases.join(', ')}</Text>
-// 	</Stack>
+}

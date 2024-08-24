@@ -1,6 +1,6 @@
 import { Image, Text, Stack } from '@mantine/core';
 
-export default async function Home() {
+export default async function HomePage() {
 	return (
 		<Stack mah="calc(100% - 120px)" gap="0" h="100%">
 			<Stack align="center" justify="center" gap="sm" h="100%">

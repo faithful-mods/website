@@ -13,6 +13,7 @@ import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
 import { isVanillaTextureContributed } from '../actions/faithful-pack';
 import { extractModVersionsFromJAR } from '../actions/files';
+import { commitAndPush } from '../actions/simple-git';
 
 import type { ModVersion, Modpack } from '@prisma/client';
 import type { ModVersionExtended, Progression, SocketModUpload } from '~/types';
@@ -224,6 +225,9 @@ export async function deleteModVersion(id: string): Promise<ModVersion> {
 	for (const resource of resources) {
 		await deleteResource(resource.id);
 	}
+
+	const modVersion = await db.modVersion.findFirstOrThrow({ where: { id }, include: { mod: true } });
+	await commitAndPush(`delete: default textures for ${modVersion?.mod.name} \`${modVersion.version}\``);
 
 	return db.modVersion.delete({ where: { id } });
 }

@@ -3,8 +3,8 @@ import { useState, useTransition } from 'react';
 
 import { Group, Button, Tabs } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useViewportSize } from '@mantine/hooks';
 
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT, GRADIENT_DANGER, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { notify } from '~/lib/utils';
@@ -26,7 +26,7 @@ export interface ModpackModalFormValues {
 export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefined, onClose: (editedModpack: Modpack | string) => void }) {
 	const [isPending, startTransition] = useTransition();
 	const [previewImg, setPreviewImg] = useState<string>(modpack?.image ?? '');
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	const form = useForm<ModpackModalFormValues>({
 		initialValues: {
@@ -121,7 +121,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 						onClick={() => onDelete(modpack.id)}
 						disabled={isPending}
 						loading={isPending}
-						fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+						fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
 					>
 						Delete Modpack
 					</Button>
@@ -132,7 +132,7 @@ export function ModpackModal({ modpack, onClose }: { modpack?: Modpack | undefin
 					onClick={() => onSubmit(form.values)}
 					disabled={isPending || !form.isValid()}
 					loading={isPending}
-					fullWidth={windowWidth <= BREAKPOINT_MOBILE_LARGE}
+					fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
 				>
 					{modpack ? 'Update' : 'Create'} Modpack
 				</Button>

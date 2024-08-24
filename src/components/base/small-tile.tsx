@@ -1,8 +1,10 @@
+import type { FC } from 'react';
+
 import { Tile } from './tile';
 
 import type { CardProps, PolymorphicComponentProps } from '@mantine/core';
 
-export function SmallTile({ children, style, ...props }: PolymorphicComponentProps<'div', CardProps>) {
+export const SmallTile: FC<PolymorphicComponentProps<'div', CardProps>> = ({ children, style, ...props }) => {
 	return (
 		<Tile
 			w="100%"
@@ -17,4 +19,4 @@ export function SmallTile({ children, style, ...props }: PolymorphicComponentPro
 			{children}
 		</Tile>
 	);
-}
+};

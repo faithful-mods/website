@@ -3,10 +3,9 @@
 import { useState } from 'react';
 
 import { Button, Group, Table, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useViewportSize } from '@mantine/hooks';
 
-import { Modal } from '~/components/modal';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Modal } from '~/components/base/modal';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { notify } from '~/lib/utils';
@@ -22,7 +21,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 	const [modalModpackVersion, setModalModpackVersion] = useState<ModpackVersionWithMods | undefined>();
 	const [modpackVersions, setModpackVersions] = useState<ModpackVersionWithMods[]>([]);
 
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	useEffectOnce(() => {
 		getModpackVersions(modpack.id)
@@ -61,7 +60,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 						<Table.Thead>
 							<Table.Tr>
 								<Table.Th>Version</Table.Th>
-								{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Th>Number of mods</Table.Th>}
+								{width > BREAKPOINT_MOBILE_LARGE && <Table.Th>Number of mods</Table.Th>}
 								<Table.Th>Created</Table.Th>
 								<Table.Th>Updated</Table.Th>
 							</Table.Tr>
@@ -70,7 +69,7 @@ export function ModpackVersions({ modpack }: { modpack: Modpack }) {
 							{modpackVersions.map((version) => (
 								<Table.Tr key={version.id} onClick={() => openModpackVersionModal(version)} className="cursor-pointer">
 									<Table.Td>{version.version}</Table.Td>
-									{windowWidth > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.mods.length}</Table.Td>}
+									{width > BREAKPOINT_MOBILE_LARGE && <Table.Td>{version.mods.length}</Table.Td>}
 									<Table.Td>{version.createdAt.toLocaleString()}</Table.Td>
 									<Table.Td>{version.updatedAt.toLocaleString()}</Table.Td>
 								</Table.Tr>

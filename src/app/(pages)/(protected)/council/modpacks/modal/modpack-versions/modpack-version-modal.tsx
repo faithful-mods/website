@@ -5,10 +5,10 @@ import { useEffect, useState, useTransition } from 'react';
 import { Button, Code, Group, Progress, Stack, Text, TextInput } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { useForm } from '@mantine/form';
+import { useViewportSize } from '@mantine/hooks';
 
-import { TextureImage } from '~/components/texture-img';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
-import { useDeviceSize } from '~/hooks/use-device-size';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { useWebsocket } from '~/hooks/use-websocket';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
@@ -29,7 +29,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 	const [search, setSearch] = useState<string>('');
 	const [displayedMods, setDisplayedMods] = useState<Mod[]>([]);
 
-	const [windowWidth, windowHeight] = useDeviceSize();
+	const { width, height } = useViewportSize();
 
 	const [status, setStatus] = useState<SocketModUpload | null>(null);
 	const socketId = modpack.id + '-' + useCurrentUser()!.id!;
@@ -129,7 +129,7 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 	};
 
 	return (
-		<Stack gap="md" style={{ maxHeight: `calc(${windowHeight - 60}px - var(--mantine-spacing-md))` }}>
+		<Stack gap="md" style={{ maxHeight: `calc(${height - 60}px - var(--mantine-spacing-md))` }}>
 			<TextInput label="Version" placeholder="1.2.4" required {...form.getInputProps('version')} />
 			<Stack justify="start" gap="0">
 				<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Add mods</Text>
@@ -190,13 +190,13 @@ export function ModpackVersionModal({ modpack, modpackVersion, onClose }: { modp
 						<Text mb={5} size="var(--input-label-size, var(--mantine-font-size-sm))" fw={500}>Current mods</Text>
 						<TextInput placeholder="Search mods" onChange={(e) => setSearch(e.currentTarget.value)} />
 					</Stack>
-					<Stack gap="sm" style={{ maxHeight: windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : '400px', overflowY: modVersions.length > 5 ? 'auto' : 'hidden' }}>
+					<Stack gap="sm" style={{ maxHeight: width <= BREAKPOINT_MOBILE_LARGE ? '100%' : '400px', overflowY: modVersions.length > 5 ? 'auto' : 'hidden' }}>
 						{displayedMods.map((mod, index) =>
 							<Group key={index} justify="space-between">
 								<Group gap="xs">
 									<TextureImage src={mod.image ?? './icon.png'} alt={mod.name} size={36} />
 									<Stack gap="0">
-										<Text size="sm" maw={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 230 : ''} truncate="end">{mod.name}</Text>
+										<Text size="sm" maw={width <= BREAKPOINT_MOBILE_LARGE ? 230 : ''} truncate="end">{mod.name}</Text>
 										<Text size="xs" c="dimmed">{modVersions.find((v) => v.modId === mod.id)?.version}</Text>
 									</Stack>
 								</Group>

@@ -4,11 +4,11 @@ import { PiMagicWandBold } from 'react-icons/pi';
 
 import { Stack, Switch, TextInput, Text, Textarea, Button, Group, Select, ActionIcon } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useViewportSize } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
-import { FakeInputLabel } from '~/components/fakeInputLabel';
-import { TextureImage } from '~/components/texture-img';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { FakeInputLabel } from '~/components/base/fake-input-label';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, GRADIENT } from '~/lib/constants';
 import { getVanillaTextures } from '~/server/actions/faithful-pack';
@@ -29,7 +29,7 @@ export interface TextureGeneralForm {
 
 export function TextureGeneral({ texture }: TextureGeneralProps) {
 	const [loading, startTransition] = useTransition();
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	const [contributionsStatus, setContributionsStatus] = useState<ContributionActivationStatus[]>([]);
 
@@ -92,7 +92,7 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 
 	return (
 		<Stack>
-			<Group mt="md" wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'} align="start">
+			<Group mt="md" wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'} align="start">
 				<Stack w="100%">
 					<TextInput
 						w="100%"

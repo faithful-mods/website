@@ -11,12 +11,11 @@ import { SiMojangstudios } from 'react-icons/si';
 import { TfiWorld } from 'react-icons/tfi';
 
 import { ActionIcon, Button, Checkbox, Group, InputLabel, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
+import { useViewportSize, usePrevious } from '@mantine/hooks';
 
-import { TextureImage } from '~/components/texture-img';
-import { Tile } from '~/components/tile';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Tile } from '~/components/base/tile';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { usePrevious } from '~/hooks/use-previous';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
 import { searchFilter, sortByName, sortBySemver } from '~/lib/utils';
 import { getModsOfModsPage } from '~/server/data/mods';
@@ -29,12 +28,12 @@ import type { Writable } from '~/types';
 import './mods.scss';
 import '~/lib/polyfills';
 
-export default function Mods() {
-	const [windowWidth] = useDeviceSize();
+export default function ModsPage() {
+	const { width } = useViewportSize();
 
 	const [activePage, setActivePage] = useState(1);
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
-	const slice = windowWidth <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
+	const slice = width <= BREAKPOINT_MOBILE_LARGE ? 2 : 5;
 
 	const [mods, setMods] = useState<ModOfModsPage[]>([]);
 	const [modsShown, setModsShown] = useState<ModOfModsPage[][]>([[]]);
@@ -53,7 +52,7 @@ export default function Mods() {
 	const [showModsNoTextures, setShowModsNoTextures] = useState(false);
 
 	const router = useRouter();
-	const maxOptionsShown = windowWidth > BREAKPOINT_TABLET ? 2 : 1;
+	const maxOptionsShown = width > BREAKPOINT_TABLET ? 2 : 1;
 
 	useEffectOnce(() => {
 		getModsOfModsPage().then(setMods);
@@ -112,8 +111,8 @@ export default function Mods() {
 	const filter = () => {
 		return (
 			<Tile
-				w={windowWidth <= BREAKPOINT_TABLET ? '100%' : 300}
-				mt={windowWidth <= BREAKPOINT_TABLET ? 0 : 24}
+				w={width <= BREAKPOINT_TABLET ? '100%' : 300}
+				mt={width <= BREAKPOINT_TABLET ? 0 : 24}
 				pt="xs"
 			>
 				<Stack gap="sm">
@@ -185,9 +184,9 @@ export default function Mods() {
 	const details = (m: ModOfModsPage) => {
 		return (
 			<Group
-				gap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 0 : 'md'}
-				justify={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'space-between' : 'start'}
-				mb={windowWidth <= BREAKPOINT_MOBILE_LARGE ? -10 : 0}
+				gap={width <= BREAKPOINT_MOBILE_LARGE ? 0 : 'md'}
+				justify={width <= BREAKPOINT_MOBILE_LARGE ? 'space-between' : 'start'}
+				mb={width <= BREAKPOINT_MOBILE_LARGE ? -10 : 0}
 			>
 				{m.url && (
 					<Button
@@ -197,7 +196,7 @@ export default function Mods() {
 						leftSection={<TfiWorld />}
 						p={0}
 					>
-						{windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'Website' : 'Mod Website'}
+						{width <= BREAKPOINT_MOBILE_LARGE ? 'Website' : 'Mod Website'}
 					</Button>
 				)}
 				<Group gap="xs" wrap="nowrap">
@@ -232,11 +231,11 @@ export default function Mods() {
 
 			wrap="nowrap"
 		>
-			{windowWidth > BREAKPOINT_TABLET && filter()}
+			{width > BREAKPOINT_TABLET && filter()}
 
 			<Stack w="100%" gap="sm">
 				<Group align="end" gap="sm" wrap="nowrap">
-					{windowWidth <= BREAKPOINT_TABLET && (
+					{width <= BREAKPOINT_TABLET && (
 						<ActionIcon
 							variant="default"
 							className="navbar-icon-fix filter-icon"
@@ -261,7 +260,7 @@ export default function Mods() {
 					/>
 				</Group>
 
-				{windowWidth <= BREAKPOINT_TABLET && showFilters && filter()}
+				{width <= BREAKPOINT_TABLET && showFilters && filter()}
 
 				{filteredMods.length === 0 && (
 					<Group
@@ -276,7 +275,7 @@ export default function Mods() {
 				)}
 
 				{
-					(windowWidth > BREAKPOINT_TABLET || (windowWidth <= BREAKPOINT_TABLET && !showFilters)) &&
+					(width > BREAKPOINT_TABLET || (width <= BREAKPOINT_TABLET && !showFilters)) &&
 					modsShown[activePage - 1] && modsShown[activePage - 1]?.map((m) => (
 						<Tile
 							key={m.id}
@@ -289,12 +288,12 @@ export default function Mods() {
 										solidBackground
 										src={m.image ?? './icon.png'}
 										alt={m.name}
-										size={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
+										size={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 									/>
 									<Stack
 										justify="space-between"
 										w="100%"
-										h={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
+										h={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 									>
 										<Stack gap={0}>
 											<Group gap={5} align="baseline">
@@ -310,11 +309,11 @@ export default function Mods() {
 											{!m.description && (<Text size="sm" c="dimmed">No description</Text>)}
 										</Stack>
 
-										{windowWidth > BREAKPOINT_MOBILE_LARGE && details(m)}
+										{width > BREAKPOINT_MOBILE_LARGE && details(m)}
 									</Stack>
 								</Group>
 
-								{windowWidth <= BREAKPOINT_MOBILE_LARGE && details(m)}
+								{width <= BREAKPOINT_MOBILE_LARGE && details(m)}
 							</Stack>
 						</Tile>
 					))}

@@ -1,15 +1,15 @@
 import Link from 'next/link';
 
 import { useMemo, useState } from 'react';
-import type { RefObject } from 'react';
+import type { FC, RefObject } from 'react';
 
 import { GoHash, GoLinkExternal, GoLog, GoPeople, GoPerson } from 'react-icons/go';
 import { PiApproximateEquals } from 'react-icons/pi';
 
 import { Avatar, Group, Stack, Text } from '@mantine/core';
 
-import { SmallTile } from '~/components/small-tile';
-import { TextureImage } from '~/components/texture-img';
+import { SmallTile } from '~/components/base/small-tile';
+import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { getVanillaResolution, getVanillaTextureSrc } from '~/lib/utils';
 import { getLatestVanillaTextureContribution } from '~/server/actions/faithful-pack';
@@ -26,14 +26,14 @@ interface Props {
 	contribution?: Prettify<Contribution & { owner: PublicUser, coAuthors: PublicUser[] }>;
 }
 
-export function GalleryTextureWithContribution({
+export const GalleryTextureWithContribution: FC<Props> = ({
 	container,
 	rowItemsGap,
 	rowItemsLength,
 	resolution,
 	texture,
 	contribution,
-}: Props) {
+}) => {
 
 	const src = useMemo(() => {
 		if (resolution === 'x16') return texture.filepath;
@@ -193,4 +193,4 @@ export function GalleryTextureWithContribution({
 			</Stack>
 		</TextureImage>
 	);
-}
+};

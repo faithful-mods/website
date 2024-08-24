@@ -8,8 +8,8 @@ import { db } from '~/lib/db';
 
 import { getCounselors } from './user';
 
-import type { GitFile } from '../actions/git';
-import type { Contribution, Resolution } from '@prisma/client';
+import type { GitFile } from '../actions/octokit';
+import type { Contribution, Poll, Resolution } from '@prisma/client';
 import type { Prettify, PublicUser } from '~/types';
 
 // GET
@@ -43,7 +43,7 @@ export type GetPendingContributions = Prettify<Omit<Contribution, 'status'> & {
 	status: typeof Status.PENDING,
 	coAuthors: PublicUser[],
 	owner: PublicUser,
-	poll: {
+	poll: Poll & {
 		upvotes: PublicUser[],
 		downvotes: PublicUser[],
 	}

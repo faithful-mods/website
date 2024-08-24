@@ -8,10 +8,10 @@ import { HiDownload } from 'react-icons/hi';
 
 import { Button, Group, Pagination, Progress, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
 import { usePrevious } from '@mantine/hooks';
+import { useViewportSize } from '@mantine/hooks';
 import { Resolution } from '@prisma/client';
 
-import { Tile } from '~/components/tile';
-import { useDeviceSize } from '~/hooks/use-device-size';
+import { Tile } from '~/components/base/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, RESOLUTIONS_COLORS, EMPTY_PROGRESSION, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { getModFromForgeId } from '~/server/data/mods';
@@ -24,7 +24,7 @@ export default function ModPage() {
 	const modId = useParams().modId as string;
 	const [mod, setMod] = useState<Mod | null>(null);
 
-	const [windowWidth] = useDeviceSize();
+	const { width } = useViewportSize();
 
 	const itemsPerPage = useMemo(() => ITEMS_PER_PAGE, []);
 	const [activePage, setActivePage] = useState(1);
@@ -168,9 +168,9 @@ export default function ModPage() {
 								</Group>
 
 								<Group
-									gap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'md' : 'sm'}
-									wrap={windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
-									style={{ flexDirection: windowWidth <= BREAKPOINT_MOBILE_LARGE ? 'column-reverse' : 'row' }}
+									gap={width <= BREAKPOINT_MOBILE_LARGE ? 'md' : 'sm'}
+									wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+									style={{ flexDirection: width <= BREAKPOINT_MOBILE_LARGE ? 'column-reverse' : 'row' }}
 								>
 									<Group w="100%" wrap="nowrap" gap="sm">
 										{resolutions.map((res) => (
@@ -188,7 +188,7 @@ export default function ModPage() {
 													leftSection={<HiDownload size={14} />}
 													variant="light"
 													color={RESOLUTIONS_COLORS[res]}
-													w={windowWidth <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'auto'}
+													w={width <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'auto'}
 													className={progressions?.[ver.id]?.textures.done[res] === 0 ? 'button-disabled-with-bg' : ''}
 													disabled={progressions?.[ver.id]?.textures.done[res] === 0}
 													onClick={() => handlePackDownload(ver.id, res)}
