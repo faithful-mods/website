@@ -1,8 +1,8 @@
 
 import { Badge, FileInput, Group, MultiSelect, Stack, TextInput, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
+import { Texture } from 'react-minecraft';
 
-import { TextureImage } from '~/components/textures/texture-img';
 import { BREAKPOINT_MOBILE_LARGE, MODS_LOADERS } from '~/lib/constants';
 
 import type { ModModalFormValues } from './mods-modal';
@@ -31,11 +31,12 @@ export function ModModalGeneral({ previewImg, mod, form }: ModModalGeneralProps)
 	return (
 		<Group gap="md" align="start" mt="md">
 			<Stack align="center" gap="sm" ml="auto" mr="auto">
-				<TextureImage
-					notPixelated
+				<Texture
+					src={previewImg.length === 0 ? '/icon.png' : previewImg}
 					size={imageWidth}
-					src={previewImg}
-					alt={mod?.name + ' image'}
+					background={{
+						color: 'rgba(0, 0, 0, 0.1)',
+					}}
 				/>
 				{mod &&
 					<>

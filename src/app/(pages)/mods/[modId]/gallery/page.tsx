@@ -99,7 +99,7 @@ export default function ModGalleryPage() {
 		<Stack gap="sm" mb="sm" ref={texturesGroupRef} maw="1384">
 			<Group gap="sm" wrap={width <= BREAKPOINT_TABLET ? 'wrap' : 'nowrap'}>
 				<Group
-					w={width <= BREAKPOINT_TABLET ? '100%' : '30%'}
+					w={width <= BREAKPOINT_TABLET ? '100%' : 'calc((100% - var(--mantine-spacing-sm)) * .3)'}
 					gap="sm"
 					wrap="nowrap"
 				>
@@ -122,14 +122,14 @@ export default function ModGalleryPage() {
 						searchable
 					/>
 				</Group>
+
 				<Group
-					w={width <= BREAKPOINT_TABLET ? '100%' : '70%'}
+					w={width <= BREAKPOINT_TABLET ? '100%' : 'calc((100% - var(--mantine-spacing-sm)) * .7)'}
 					gap="sm"
 					wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
 				>
 					<TextInput
-						w="100%"
-						maw={width > BREAKPOINT_MOBILE_LARGE ? 'calc(100% - 240px - var(--mantine-spacing-sm))' : undefined}
+						w={width <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'calc(100% - (2 * var(--mantine-spacing-sm)) - 240px)'}
 						label="Search"
 						value={search}
 						onChange={(e) => setSearch(e.currentTarget.value)}
@@ -147,7 +147,7 @@ export default function ModGalleryPage() {
 						value={texturesShownPerPage}
 						onChange={(e) => e ? setTexturesShownPerPage(e) : null}
 						checkIconPosition="right"
-						w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+						w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - (var(--mantine-spacing-sm) / 2))' : 120}
 					/>
 					<Select
 						label="Textures per row"
@@ -155,7 +155,7 @@ export default function ModGalleryPage() {
 						value={texturesShownPerRow.toString()}
 						onChange={(e) => e ? setTexturesShownPerRow(parseInt(e)) : null}
 						checkIconPosition="right"
-						w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - var(--mantine-spacing-sm) / 2)' : 120}
+						w={width <= BREAKPOINT_MOBILE_LARGE ? 'calc(50% - (var(--mantine-spacing-sm) / 2))' : 120}
 					/>
 				</Group>
 			</Group>

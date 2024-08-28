@@ -11,9 +11,9 @@ import { TfiWorld } from 'react-icons/tfi';
 
 import { Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
+import { Texture } from 'react-minecraft';
 
 import { TabsLayout } from '~/components/base/tabs-layout';
-import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 import { getModDownloads, getModFromForgeId } from '~/server/data/mods';
@@ -81,22 +81,19 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 		<Stack gap="sm">
 			<Stack gap="xs">
 				<Group wrap="nowrap" align="start">
-					<TextureImage
-						src={mod.image ?? './icon.png'}
-						alt={mod.name}
+					<Texture
+						src={mod.image ?? '../icon.png'}
 						size={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
-						styles={{
-							borderRadius: 5,
-							backgroundImage: 'none',
-							minHeight: 'auto',
-							height: 'auto',
+						style={{
+							borderRadius: 'var(--mantine-radius-sm)',
 						}}
 					/>
+
 					<Stack
 						align="start"
 						gap="xs"
 						mih={width <= BREAKPOINT_MOBILE_LARGE ? 85 : 120}
-						w="100%"
+						w={`calc(100% - var(--mantine-spacing-md) - ${width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'})`}
 					>
 						<Stack gap={0}>
 							<Group gap={5} align="baseline">

@@ -12,9 +12,9 @@ import { TfiWorld } from 'react-icons/tfi';
 
 import { ActionIcon, Button, Checkbox, Group, InputLabel, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useViewportSize, usePrevious } from '@mantine/hooks';
+import { Texture } from 'react-minecraft';
 
 import { Tile } from '~/components/base/tile';
-import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
 import { searchFilter, sortByName, sortBySemver } from '~/lib/utils';
@@ -184,9 +184,10 @@ export default function ModsPage() {
 	const details = (m: ModOfModsPage) => {
 		return (
 			<Group
-				gap={width <= BREAKPOINT_MOBILE_LARGE ? 0 : 'md'}
-				justify={width <= BREAKPOINT_MOBILE_LARGE ? 'space-between' : 'start'}
+				gap="md"
+				justify={width <= BREAKPOINT_MOBILE_LARGE ? 'end' : 'start'}
 				mb={width <= BREAKPOINT_MOBILE_LARGE ? -10 : 0}
+				mih="36"
 			>
 				{m.url && (
 					<Button
@@ -284,14 +285,15 @@ export default function ModsPage() {
 						>
 							<Stack gap="xs">
 								<Group align="start" wrap="nowrap">
-									<TextureImage
+									<Texture
 										src={m.image ?? './icon.png'}
-										alt={m.name}
 										size={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
+										className="solid-background"
+										style={{ borderRadius: 'var(--mantine-radius-sm)' }}
 									/>
 									<Stack
 										justify="space-between"
-										w="100%"
+										w={`calc(100% - var(--mantine-spacing-md) - ${width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'})`}
 										h={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 									>
 										<Stack gap={0}>

@@ -45,3 +45,9 @@
 :where([data-mantine-color-scheme='light']) .hover-card-popup {
 	background-color: var(--mantine-color-white);
 }
+
+.mantine-List-itemLabel {
+	display: inline-flex;
+	gap: 5px;
+	align-items: center;
+}

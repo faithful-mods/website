@@ -8,7 +8,7 @@ import { Button, Group, Image, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET } from '~/lib/constants';
 import { forkRepository, getFork } from '~/server/actions/octokit';
 
 import { Tile } from './base/tile';
@@ -41,7 +41,7 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 
 	if (forkUrl) {
 		return (
-			<Tile p="xs" pl={width <= BREAKPOINT_MOBILE_LARGE ? 'xs' : 'md'} color="teal" mih={56}>
+			<Tile p="xs" color="teal" mih={56}>
 				<Group justify="space-between" gap="sm" mt="auto" mb="auto">
 					<Group gap="sm">
 						<GoCheckCircle size={20} color="white" />
@@ -55,18 +55,20 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 						</Group>
 					</Group>
 
-					<Group gap="sm">
-						<Button
-							variant="outline"
-							color="white"
-							onClick={() => window.location.href = `x-github-client://openRepo/${forkUrl}`}
-							loading={loading}
-							fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
-							rightSection={<Image src="/gh_desktop.png" alt="" h={20} />}
-						>
-							Open with GitHub Desktop
-						</Button>
-					</Group>
+					{width > BREAKPOINT_TABLET && (
+						<Group gap="sm">
+							<Button
+								variant="outline"
+								color="white"
+								onClick={() => window.location.href = `x-github-client://openRepo/${forkUrl}`}
+								loading={loading}
+								fullWidth={width <= BREAKPOINT_TABLET}
+								rightSection={<Image src="/gh_desktop.png" alt="" h={20} />}
+							>
+								{width > BREAKPOINT_TABLET ? 'Open with GitHub Desktop' : 'Open'}
+							</Button>
+						</Group>
+					)}
 				</Group>
 			</Tile>
 		);

@@ -1,7 +1,7 @@
 
 .mod-card {
 	&:hover {
-		background-color: #1d1d1d;
+		background-color: #ddd;
 	}
 }
 
@@ -9,6 +9,14 @@
 	--ai-bd: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-gray-4) !important;
 }
 
-:where([data-mantine-color-scheme='dark']) .filter-icon {
-	--ai-bd: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-dark-4) !important;
+:where([data-mantine-color-scheme='dark']) {
+	.filter-icon {
+		--ai-bd: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-dark-4) !important;
+	}
+
+	.mod-card {
+		&:hover {
+			background-color: #1d1d1d;
+		}
+	}
 }
