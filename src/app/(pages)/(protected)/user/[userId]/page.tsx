@@ -4,21 +4,16 @@ import { useParams, useRouter } from 'next/navigation';
 
 import { useState, useTransition } from 'react';
 
-import { Button, Text, TextInput, Group, Stack, Badge } from '@mantine/core';
+import { Group, Image, Stack, Divider, Text, TextInput, Button, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useViewportSize } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
-import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 
-import { Tile } from '~/components/base/tile';
-import ForkInfo from '~/components/fork';
-import { TextureImage } from '~/components/textures/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
+import { GRADIENT, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '~/lib/constants';
 import { notify } from '~/lib/utils';
-import { deleteFork } from '~/server/actions/octokit';
 import { getUserById } from '~/server/data/user';
 import { updateUser } from '~/server/data/user';
 
@@ -28,7 +23,6 @@ export default function UserPage() {
 	const params = useParams();
 	const user = useCurrentUser()!;
 	const self = params.userId === 'me';
-	const [forkUrl, setForkUrl] = useState<string | null>(null);
 
 	const [displayedUser, setDisplayedUser] = useState<User>();
 	const router = useRouter();
@@ -81,134 +75,87 @@ export default function UserPage() {
 		});
 	};
 
-	const handleForkDelete = async () => {
-		startTransition(async () => {
-			await deleteFork();
-			setForkUrl(null);
-		});
-	};
-
 	useEffectOnce(() => {
 		reload();
 	});
 
 	return (displayedUser && (
-		<Stack gap="xl">
+		<Group w="100%" wrap="nowrap" align="start" gap="xl">
+			<Stack
+				align="center"
+				w={'calc(100% - 200px - (2 * var(--mantine-spacing-xl) - 1px))'}
+			>
+				<Text w="100%" fw={700}>Profile Information</Text>
+				<TextInput
+					label="Name"
+					required
+					w="100%"
+					{...form.getInputProps('name')}
+				/>
+				<TextInput
+					label="Picture URL"
+					w="100%"
+					{...form.getInputProps('image')}
+				/>
+				<Button
+					mt={25}
+					w={200}
+					variant="gradient"
+					gradient={GRADIENT}
+					onClick={() => onSubmit(form.values)}
+					disabled={loading || !form.isValid() || user === undefined}
+					loading={loading}
+				>
+					Save
+				</Button>
+			</Stack>
+			<Divider orientation="vertical" />
+			<Stack w={200} align="center">
+				<Image
+					src={form.values['image'] ?? ''}
+					alt="User avatar"
+					w={200}
+				/>
+				<Badge
+					color={user?.role === UserRole.BANNED ? 'red' : 'teal'}
+					variant="filled"
+				>
+					{user?.role ?? '?'}
+				</Badge>
+			</Stack>
+		</Group>
+
+	/*
+			<Stack gap="xl">
+			 <Button
+				variant="gradient"
+				gradient={GRADIENT_DANGER}
+				justify={width <= BREAKPOINT_MOBILE_LARGE ? 'center' : 'right'}
+				fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
+				onClick={() => signOut({ callbackUrl: '/' })}
+			>
+				Sign out
+			</Button>
+
 			<Group
 				wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
 				gap="xs"
 				align="start"
 				justify="center"
 			>
-				<Stack w={160} align="center" gap="xs">
-					<TextureImage
-						src={form.values['image'] ?? ''}
-						alt="User avatar"
-						styles={{
-							borderRadius: 'var(--mantine-radius-default)',
-						}}
-						size={160}
-					/>
+				<Stack w={220} align="center" gap="xs">
 
-					<Badge
-						color={user?.role === UserRole.BANNED ? 'red' : 'teal'}
-						variant="filled"
-					>
-						{user?.role ?? '?'}
-					</Badge>
 				</Stack>
 
-				<Tile w="100%" p="sm" h={width <= BREAKPOINT_MOBILE_LARGE ? 'auto' : 160}>
-					<Group
-						h="100%"
-						justify="space-between"
-						wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
-					>
-						<Stack
-							h="100%"
-							w="100%"
-							justify="space-between"
-						>
-							<TextInput
-								label="Name"
-								required
-								w="100%"
-								{...form.getInputProps('name')}
-							/>
-							<TextInput
-								label="Picture URL"
-								w="100%"
-								{...form.getInputProps('image')}
-							/>
-						</Stack>
-
-						<Stack
-							h="100%"
-							w="100%"
-							justify="space-between"
-							align="flex-end"
-							style={{
-								flexDirection: width <= BREAKPOINT_MOBILE_LARGE ? 'column-reverse' : 'column',
-							}}
-						>
-							<Button
-								justify={width <= BREAKPOINT_MOBILE_LARGE ? 'center' : 'right'}
-								fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
-								variant="transparent"
-								color="red"
-								onClick={() => signOut({ callbackUrl: '/' })}
-							>
-								Sign out
-							</Button>
-							<Button
-								variant="gradient"
-								gradient={GRADIENT}
-								onClick={() => onSubmit(form.values)}
-								disabled={loading || !form.isValid() || user === undefined}
-								fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
-								loading={loading}
-							>
-								Save
-							</Button>
-						</Stack>
-					</Group>
-				</Tile>
-			</Group>
-
-			<Stack gap="xs">
-				<Text fw={700}>Contributions Repository</Text>
-				<ForkInfo onUrlUpdate={setForkUrl} forkUrl={forkUrl} />
-			</Stack>
-
-			<Stack gap="xs" mb="sm">
-				<Text fw={700}>Danger Zone</Text>
-				<Tile
-					p="xs"
-					pl="md"
-					withBorder
-					style={{
-						backgroundColor: 'transparent',
-						borderColor: 'var(--mantine-color-red-filled)',
-					}}
+				<Group
+					wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+					h={width <= BREAKPOINT_MOBILE_LARGE ? 'auto' : 220}
+					align="center"
+					w="100%"
 				>
-					<Group justify="space-between" style={{ opacity: forkUrl ? 1 : .5 }}>
-						<Stack gap={0}>
-							<Text>Delete the forked repository</Text>
-							<Text c="dimmed" size="xs">This action is irreversible, all contributions will be lost.</Text>
-						</Stack>
-						<Button
-							variant="default"
-							style={{ color: 'var(--mantine-color-red-text)' }}
-							onClick={handleForkDelete}
-							disabled={!forkUrl}
-							loading={loading}
-							fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
-						>
-							Delete Fork
-						</Button>
-					</Group>
-				</Tile>
-			</Stack>
-		</Stack>
+
+				</Group>
+			</Group>
+		</Stack>*/
 	));
 };
