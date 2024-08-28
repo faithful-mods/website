@@ -9,3 +9,7 @@
 .dashboard-item:hover {
 	background-color: #1d1d1d;
 }
+
+:where([data-mantine-color-scheme='light']) .dashboard-item:hover {
+	background-color: #ddd;
+}

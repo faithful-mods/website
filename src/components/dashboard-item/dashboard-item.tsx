@@ -1,8 +1,9 @@
 
 import type { FC } from 'react';
 
-import { Group, Image, Stack, Text } from '@mantine/core';
+import { Group, Stack, Text } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
+import { Texture } from 'react-minecraft';
 
 import { BREAKPOINT_DESKTOP_LARGE, BREAKPOINT_DESKTOP_MEDIUM, BREAKPOINT_MOBILE_LARGE } from '~/lib/constants';
 
@@ -46,20 +47,17 @@ export const DashboardItem: FC<Props> = ({ image, title, description, onClick, w
 					position: 'relative',
 				}}
 			>
-				<Image
-					radius="sm"
-					className="cursor-pointer solid-background"
+				<Texture
+					className="solid-background"
 					src={image ?? '/icon.png'}
-					alt=""
-					width={90}
-					height={90}
-					fit="contain"
-					style={{ maxWidth: '90px', maxHeight: '90px', minWidth: '90px', minHeight: '90px' }}
+					size={90}
 				/>
-				<Stack gap="0" align="flex-start" mt="sm" pr="sm">
+
+				<Stack gap="0" align="flex-start" mt="sm" pr="sm" w="calc(100% - var(--mantine-spacing-sm) - 90px)">
 					<Text size="sm" fw={700}>{title}</Text>
 					<Text size="xs" lineClamp={2}>{description?.trim() ?? 'No description'}</Text>
 				</Stack>
+
 				{warning && (
 					<WarningIcon
 						style={{

@@ -6,7 +6,7 @@ import type { FC, RefObject } from 'react';
 import { GoHash, GoLinkExternal, GoLog, GoPeople, GoPerson } from 'react-icons/go';
 import { PiApproximateEquals } from 'react-icons/pi';
 
-import { Avatar, Group, Stack, Text } from '@mantine/core';
+import { Avatar, Group, Stack, Text, useMantineColorScheme } from '@mantine/core';
 
 import { SmallTile } from '~/components/base/small-tile';
 import { TextureImage } from '~/components/textures/texture-img';
@@ -66,6 +66,9 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 			.then(setVanillaContribution);
 	});
 
+	const { colorScheme } = useMantineColorScheme();
+	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-6)' : 'var(--mantine-color-gray-2)';
+
 	return (
 		<TextureImage
 			alt={texture.name}
@@ -81,12 +84,12 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 			}}
 		>
 			<Stack gap={2} align="start" miw={450} maw={450}>
-				<SmallTile color="gray">
+				<SmallTile color={tileColor}>
 					<Text fw={500} ta="center">{texture.name}</Text>
 				</SmallTile>
 				{resolution !== 'x16' && (contribution || vanillaContribution) && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<Avatar
 								className="navbar-icon-fix"
 								src={contribution ? contribution.owner.image : vanillaContribution?.owner.image}
@@ -94,7 +97,7 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 								radius={5}
 							/>
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Group gap={3.3}>
 								<Text component="span" size="xs">{contribution ? contribution.owner.name : vanillaContribution?.owner.username}</Text>
 							</Group>
@@ -103,10 +106,10 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				)}
 				{resolution !== 'x16' && (contribution && contribution.coAuthors.length > 0) || (filteredVanillaCoAuthors.length > 0) && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<GoPeople />
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Text size="xs">
 								{contribution ? contribution.coAuthors.map((ca) => ca.name).join(', ') : filteredVanillaCoAuthors.map((ca) => ca.username).join(', ')}
 							</Text>
@@ -115,10 +118,10 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				)}
 				{resolution !== 'x16' && !contribution && !vanillaContribution && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<GoPerson />
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Text size="xs" c="dimmed">
 								No contribution
 							</Text>
@@ -127,10 +130,10 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				)}
 				{resolution !== 'x16' && texture.vanillaTextureId && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }} >
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }} >
 							<GoLinkExternal />
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Text size="xs">
 								<Link
 									href={`https://webapp.faithfulpack.net/gallery/java/${getVanillaResolution(resolution)}/java-snapshot/all?show=${texture.vanillaTextureId}`}
@@ -144,10 +147,10 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				)}
 				{!texture.vanillaTextureId && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<GoHash />
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Text size="xs" c="dimmed">
 								Texture ID: {texture.id}
 							</Text>
@@ -156,10 +159,10 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				)}
 				{(resolution === 'x16' && !texture.vanillaTextureId || !contribution && !vanillaContribution) && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<GoLog />
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Text size="xs" c="dimmed">
 								{texture.hash}
 							</Text>
@@ -168,10 +171,10 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				)}
 				{texture.vanillaTextureId && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<GoHash />
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Text size="xs" c="dimmed">
 								Vanilla Texture ID: {texture.vanillaTextureId}
 							</Text>
@@ -180,10 +183,10 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				)}
 				{texture.aliases.length > 0 && (
 					<Group gap={2} w="100%" wrap="nowrap" align="start">
-						<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+						<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 							<PiApproximateEquals />
 						</SmallTile>
-						<SmallTile color="gray">
+						<SmallTile color={tileColor}>
 							<Text size="xs" c="dimmed">
 								{texture.aliases.join(', ')}
 							</Text>

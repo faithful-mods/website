@@ -25,7 +25,7 @@ export const Tile: FC<PolymorphicComponentProps<'div', CardProps> & Props> = ({
 			{...props}
 			className={transparent ? `transparent ${props.className}` : props.className}
 			style={{
-				backgroundColor: color ? `var(--mantine-color-${color}-filled)` : undefined,
+				backgroundColor: color ?? undefined,
 				...props.style,
 			}}
 		>

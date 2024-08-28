@@ -18,7 +18,7 @@ import ForkInfo from '~/components/fork';
 import { TextureImage } from '~/components/textures/texture-img';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, COLORS, gitBlobUrl, gitCommitUrl, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { getContributionsOfFork } from '~/server/actions/octokit';
 import { archiveContributions, createContributionsFromGitFiles, deleteContributions, deleteContributionsOrArchive, getContributionsOfUser, submitContributions } from '~/server/data/contributions';
 import { getTextures } from '~/server/data/texture';
@@ -117,6 +117,17 @@ export default function ContributeSubmissionsPage() {
 		setSelectedContributions([]);
 	}, [activeTab]);
 
+	const parseStatus = (status: Status): string => {
+		switch (status) {
+			case Status.DRAFT:
+				return 'Drafted';
+			case Status.PENDING:
+				return 'Reviewed';
+			default:
+				return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+		}
+	};
+
 	const controls = Object.entries(Status).map(([key, value], index) => {
 		const isLast = index === Object.keys(Status).length - 1;
 
@@ -134,12 +145,7 @@ export default function ContributeSubmissionsPage() {
 				leftSection={
 					<>
 						<Indicator color={COLORS[value]} mr="md" />
-						{value === Status.DRAFT
-							? 'Drafted'
-							: value === Status.PENDING
-								? 'Reviewed'
-								: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
-						}
+						{parseStatus(value)}
 					</>
 				}
 				rightSection={contributions.filter((c) => c.status === Object.keys(Status)[index]).length ?? 0}
@@ -158,6 +164,15 @@ export default function ContributeSubmissionsPage() {
 		);
 	});
 
+	const iconBtnWidth = '36px';
+	const resSelectWidth = '90px';
+	const buttonWidth = width <= BREAKPOINT_MOBILE_LARGE
+		? '100%'
+		: `calc((2 * ${iconBtnWidth}) + ${resSelectWidth} + (2 * var(--mantine-spacing-xs)))`;
+	const buttonGrpWidth = width <= BREAKPOINT_MOBILE_LARGE
+		? `calc(100% - (2 * ${iconBtnWidth}) - ${resSelectWidth} - (3 * var(--mantine-spacing-xs)))`
+		: `calc(100% - (2 * ${buttonWidth}) + (2 * var(--mantine-spacing-xs)))`;
+
 	return (
 		<Stack gap="xs">
 
@@ -167,7 +182,7 @@ export default function ContributeSubmissionsPage() {
 			/>
 
 			<Group
-				wrap="nowrap"
+				wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
 				gap="xs"
 			>
 				<ActionIcon
@@ -188,7 +203,7 @@ export default function ContributeSubmissionsPage() {
 				</ActionIcon>
 
 				<Select
-					w={120}
+					w={resSelectWidth}
 					data={Object.keys(Resolution)}
 					checkIconPosition="right"
 					value={resolution}
@@ -196,35 +211,58 @@ export default function ContributeSubmissionsPage() {
 					clearable={false}
 				/>
 
-				<Button.Group
-					w="calc(100% - 34px - 34px - 120px - 180px - (3 * var(--mantine-spacing-xs)))"
-					ref={setGroupRef}
-					style={{
-						position: 'relative',
-					}}
-					orientation={width <= BREAKPOINT_MOBILE_LARGE ? 'vertical' : 'horizontal'}
-				>
-					{controls}
-					<FloatingIndicator
-						target={controlsRefs[activeTab]}
-						parent={groupRef}
+				{width > BREAKPOINT_TABLET && (
+					<Button.Group
+						w={buttonGrpWidth}
+						ref={setGroupRef}
+						orientation="horizontal"
 						style={{
-							border: 'calc(0.0625rem * var(--mantine-scale)) solid #fff3',
-							borderRadius: (() => {
-								if (activeTab === 0) return 'calc(0.25rem * var(--mantine-scale)) 0 0 calc(0.25rem * var(--mantine-scale))';
-								if (activeTab === Object.keys(Status).length - 1) return '0 calc(0.25rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale)) 0';
-								return '0';
-							})(),
-							backgroundColor: '#0002',
-							cursor: 'pointer',
-							zIndex: 200,
+							position: 'relative',
 						}}
+					>
+						{controls}
+						<FloatingIndicator
+							target={controlsRefs[activeTab]}
+							parent={groupRef}
+							style={{
+								border: 'calc(0.0625rem * var(--mantine-scale)) solid #fff3',
+								borderRadius: (() => {
+									if (activeTab === 0) return 'calc(0.25rem * var(--mantine-scale)) 0 0 calc(0.25rem * var(--mantine-scale))';
+									if (activeTab === Object.keys(Status).length - 1) return '0 calc(0.25rem * var(--mantine-scale)) calc(0.25rem * var(--mantine-scale)) 0';
+									return '0';
+								})(),
+								backgroundColor: '#0002',
+								cursor: 'pointer',
+								zIndex: 200,
+							}}
+						/>
+					</Button.Group>
+				)}
+
+				{width <= BREAKPOINT_TABLET && (
+					<Select
+						w={buttonGrpWidth}
+						data={Object.entries(Status).map(([key, value]) => ({ label: parseStatus(value), value: key }))}
+						value={Object.keys(Status)[activeTab]}
+						onChange={(e) => e ? setActiveTab(Object.keys(Status).indexOf(e as Status)) : null}
+						checkIconPosition="right"
+						renderOption={({ option }) => (
+							<Group justify="space-between">
+								<Group gap="md">
+									<Indicator color={COLORS[option.value as Status]} />
+									<Text>{option.label}</Text>
+								</Group>
+
+								{contributions.filter((c) => c.status === option.value).length ?? '0'}
+							</Group>
+
+						)}
 					/>
-				</Button.Group>
+				)}
 
 				{activeTab === 0 && (
 					<Button
-						w={180}
+						w={buttonWidth}
 						variant="gradient"
 						gradient={GRADIENT}
 						disabled={selectedContributions.length === 0}
@@ -241,7 +279,7 @@ export default function ContributeSubmissionsPage() {
 
 				{activeTab !== 0 && activeTab !== 4 && (
 					<Button
-						w={180}
+						w={buttonWidth}
 						variant="gradient"
 						gradient={GRADIENT_DANGER}
 						disabled={selectedContributions.length === 0}
@@ -258,7 +296,7 @@ export default function ContributeSubmissionsPage() {
 
 				{activeTab === 4 && (
 					<Button
-						w={180}
+						w={buttonWidth}
 						variant="gradient"
 						gradient={GRADIENT_DANGER}
 						disabled={selectedContributions.length === 0}
@@ -281,21 +319,21 @@ export default function ContributeSubmissionsPage() {
 						To contribute, you need to:
 					</Text>
 					<List ml="sm">
-						<List.Item><Text fw={360}>If not already, fork the default textures repository using the &quot;Create Fork&quot; button;</Text></List.Item>
-						<List.Item><Text fw={360}>Clone it to your local machine using <Link href="https://git-scm.com/" target="_blank">Git</Link> or <Link href="https://desktop.github.com/download/" target="_blank">GitHub Desktop</Link> (recommended);</Text></List.Item>
-						<List.Item><Text fw={360}>Switch to the branch corresponding to the resolution you want to contribute to;</Text></List.Item>
-						<List.Item><Text fw={360}>Add textures to the repository, <Text component="span" fw={700}>each texture should have the same name as the contributed texture name in the <Link href="https://github.com/faithful-mods/resources-default" target="_blank">default repository</Link></Text>;</Text></List.Item>
-						<List.Item><Text fw={360}>Commit your changes and push them to your fork;</Text></List.Item>
-						<List.Item><Text fw={360}>Click the reload button to see your contributions here.</Text></List.Item>
+						<List.Item>If not already, fork the default textures repository using the &quot;Create Fork&quot; button;</List.Item>
+						<List.Item>Clone it to your local machine using <Link href="https://git-scm.com/" target="_blank">Git</Link> or <Link href="https://desktop.github.com/download/" target="_blank">GitHub Desktop</Link> (recommended);</List.Item>
+						<List.Item>Switch to the branch corresponding to the resolution you want to contribute to;</List.Item>
+						<List.Item>Add textures to the repository, <Text fw={700}>each texture should have the same name as the contributed texture name in the <Link href="https://github.com/faithful-mods/resources-default" target="_blank">default repository</Link></Text>;</List.Item>
+						<List.Item>Commit your changes and push them to your fork;</List.Item>
+						<List.Item>Click the reload button to see your contributions here.</List.Item>
 					</List>
 
 					<Text mt="md">
 						When reloading:
 					</Text>
 					<List ml="sm">
-						<List.Item>New contributions will be added to the <Badge component="span" color={COLORS.DRAFT}>Drafted</Badge> tab;</List.Item>
-						<List.Item>Missing contributions that are either <Badge component="span" color={COLORS.PENDING}>Reviewed</Badge> or <Badge component="span" color={COLORS.REJECTED}>Rejected</Badge> will be deleted from the database;</List.Item>
-						<List.Item>Missing contributions that are <Badge component="span" color={COLORS.ACCEPTED}>Accepted</Badge> will be <Badge component="span" color={COLORS.ARCHIVED} style={{ color: 'black' }}>Archived</Badge>.</List.Item>
+						<List.Item>New contributions will be added to the <Badge color={COLORS.DRAFT}>Drafted</Badge> tab;</List.Item>
+						<List.Item>Missing contributions that are either <Badge color={COLORS.PENDING}>Reviewed</Badge> or <Badge color={COLORS.REJECTED}>Rejected</Badge> will be deleted from the database;</List.Item>
+						<List.Item>Missing contributions that are <Badge color={COLORS.ACCEPTED}>Accepted</Badge> will be <Badge color={COLORS.ARCHIVED} style={{ color: 'black' }}>Archived</Badge>.</List.Item>
 					</List>
 
 					<Text mt="md">
@@ -303,7 +341,7 @@ export default function ContributeSubmissionsPage() {
 					</Text>
 					<List ml="sm">
 						<List.Item>You have to click on contributions before submitting/archiving/deleting them.</List.Item>
-						<List.Item>You can hit <Kbd component="span">{os === 'macos' ? '⌘' : 'Ctrl'}</Kbd> + <Kbd component="span">A</Kbd> to select them all</List.Item>
+						<List.Item>You can hit <Kbd>{os === 'macos' ? '⌘' : 'Ctrl'}</Kbd> + <Kbd>A</Kbd> to select them all.</List.Item>
 						<List.Item>If you delete an archived contribution, make sure to delete it from your fork first, otherwise it will be re-added to the database as a draft.</List.Item>
 					</List>
 				</Tile>
@@ -317,7 +355,7 @@ export default function ContributeSubmissionsPage() {
 					w="100%"
 					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 				>
-					<Text c="dimmed">No contributions to show</Text>
+					<Text c="dimmed" ta="center">No contributions to show</Text>
 				</Group>
 			)}
 
@@ -329,7 +367,7 @@ export default function ContributeSubmissionsPage() {
 					w="100%"
 					style={{ height: 'calc(81% - (2 * var(--mantine-spacing-sm) - 62px))' }}
 				>
-					<Text c="dimmed">No contributions, you need to push some textures to your fork first!</Text>
+					<Text c="dimmed" ta="center">No contributions, you need to push some textures to your fork first!</Text>
 				</Group>
 			)}
 
