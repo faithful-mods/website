@@ -80,5 +80,11 @@ export async function commitAndPush(message: string) {
 	const remote = await remoteUrl();
 
 	await git.commit(message);
-	await git.push(remote, 'main');
+
+	try {
+		await git.push(remote, 'main');
+	} catch {
+		await git.addConfig('http.postBuffer', '524288000');
+		await git.push(remote, 'main');
+	}
 }
