@@ -13,9 +13,14 @@ import { db } from '~/lib/db';
 import { getOctokit, getUserGitHubUsername } from './octokit';
 
 const REMOTE_REPOSITORY_URL = `https://github.com/${GITHUB_ORG_NAME}/${GITHUB_DEFAULT_REPO_NAME}.git` as const;
-const LOCAL_REPOSITORY_PATH = process.env.NODE_ENV === 'production'
-	? '/var/www/html/data.faithfulmods.net/textures/'
-	: process.env.DEV_LOCAL_REPOSITORY_PATH!;
+const LOCAL_REPOSITORY_PATH = (() => {
+	const prodPath = '/var/www/html/data.faithfulmods.net/textures/';
+
+	if (process.env.NODE_ENV !== 'production' || !existsSync(prodPath)) {
+		return process.env.DEV_LOCAL_REPOSITORY_PATH!;
+	}
+	return prodPath;
+})()
 
 const git = simpleGit(LOCAL_REPOSITORY_PATH);
 
