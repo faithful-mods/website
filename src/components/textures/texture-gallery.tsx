@@ -41,6 +41,7 @@ export const GalleryTexture: FC<Props> = ({
 			className={className}
 			onClick={onClick}
 			size={size}
+			isTiled={texture.name.includes('flow')}
 			popupStyles={{
 				backgroundColor: 'transparent',
 				padding: 0,

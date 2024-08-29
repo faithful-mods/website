@@ -26,6 +26,7 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 			<TextureImage
 				src={texture.filepath}
 				alt={texture.name}
+				isTiled={texture.name.includes('flow')}
 				size={256}
 				styles={{ margin: 'auto' }}
 				mcmeta={mcmeta}

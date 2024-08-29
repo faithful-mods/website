@@ -76,6 +76,7 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 			mcmeta={mcmeta}
 			isTransparent={resolution !== 'x16' && !contribution && !texture.vanillaTextureId}
 			size={size}
+			isTiled={texture.name.includes('flow')}
 			popupStyles={{
 				backgroundColor: 'transparent',
 				padding: 0,

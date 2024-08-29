@@ -94,6 +94,7 @@ export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
 											animation={{
 												mcmeta: { animation: mcmeta.animation! },
 												paused: sprite.tick,
+												tiled: texture.name.includes('flow'),
 											}}
 											background={{
 												url: colorScheme === 'dark' ? '/transparent.png' : '/transparent_light.png',

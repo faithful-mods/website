@@ -388,6 +388,7 @@ export default function ContributeSubmissionsPage() {
 									key={index}
 									src={contribution.filepath}
 									alt={contribution.filename}
+									isTiled={texture?.name.includes('flow')}
 									onClick={() => {
 										if (!canContributionBeSubmitted(contribution)) return;
 
