@@ -65,7 +65,7 @@ export default function ForkInfo({ onUrlUpdate, forkUrl, hideIfForked }: Props) 
 								fullWidth={width <= BREAKPOINT_TABLET}
 								rightSection={<Image src="/gh_desktop.png" alt="" h={20} />}
 							>
-								{width > BREAKPOINT_TABLET ? 'Open with GitHub Desktop' : 'Open'}
+								Open with GitHub Desktop
 							</Button>
 						</Group>
 					)}
