@@ -6,7 +6,6 @@ import { useState, useTransition } from 'react';
 
 import { Group, Image, Stack, Divider, Text, TextInput, Button, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useViewportSize } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 
@@ -29,7 +28,6 @@ export default function UserPage() {
 
 	const { update } = useSession();
 	const [loading, startTransition] = useTransition();
-	const { width } = useViewportSize();
 
 	const form = useForm<Pick<User, 'name' | 'image'>>({
 		initialValues: { name: user.name!, image: user.image! },
