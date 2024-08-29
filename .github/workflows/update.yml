@@ -16,3 +16,8 @@ jobs:
     needs: linting
     if: ${{ needs.linting.result == 'success' }}
     uses: ./.github/workflows/codeql.yml
+
+  build:
+    needs: linting
+    if: ${{ needs.linting.result == 'success' }}
+    uses: ./.github/workflows/build.yml
