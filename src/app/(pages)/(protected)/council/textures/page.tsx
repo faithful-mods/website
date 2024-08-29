@@ -135,7 +135,7 @@ export default function CouncilTexturesPage() {
 				<TextInput
 					label="Search"
 					placeholder="Search for a texture name..."
-					w="100%"
+					w="calc(100% - (2 * 120px) - (2 * var(--mantine-spacing-sm))"
 					maw="calc(100% - var(--mantine-spacing-sm) - 240px)"
 					onChange={(e) => setSearch(e.currentTarget.value)}
 				/>
