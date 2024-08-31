@@ -8,7 +8,7 @@ import { GoAlert, GoCommit, GoHash, GoHourglass, GoQuestion, GoRelFilePath } fro
 import { IoReload } from 'react-icons/io5';
 import { LuArrowUpDown } from 'react-icons/lu';
 
-import { ActionIcon, Badge, Button, FloatingIndicator, Group, Indicator, Kbd, List, Select, Stack, Text } from '@mantine/core';
+import { ActionIcon, Badge, Button, FloatingIndicator, Group, Indicator, Kbd, List, Select, Stack, Text, useMantineColorScheme } from '@mantine/core';
 import { useHotkeys, useOs, usePrevious, useViewportSize } from '@mantine/hooks';
 import { Resolution, Status } from '@prisma/client';
 
@@ -163,6 +163,9 @@ export default function ContributeSubmissionsPage() {
 			/>
 		);
 	});
+
+	const { colorScheme } = useMantineColorScheme();
+	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-6)' : 'var(--mantine-color-gray-2)';
 
 	const iconBtnWidth = '36px';
 	const resSelectWidth = '90px';
@@ -413,7 +416,7 @@ export default function ContributeSubmissionsPage() {
 									<Stack gap={2}>
 										<Group gap={2}>
 											{texture && (
-												<SmallTile color="gray" w={125} h="100%">
+												<SmallTile color={tileColor} w={125} h="100%">
 													<Group w="100%" h="100%" justify="center" align="center">
 														<TextureImage
 															src={texture.filepath}
@@ -425,15 +428,15 @@ export default function ContributeSubmissionsPage() {
 												</SmallTile>
 											)}
 											<Stack gap={2} align="start" miw={468} maw={468}>
-												<SmallTile color="gray">
+												<SmallTile color={tileColor}>
 													<Text fw={500} ta="center">{texture?.name}</Text>
 												</SmallTile>
 
 												<Group gap={2} w="100%" wrap="nowrap" align="start">
-													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 														<GoCommit />
 													</SmallTile>
-													<SmallTile color="gray">
+													<SmallTile color={tileColor}>
 														<Text size="xs">
 															<a
 																href={gitCommitUrl({ orgOrUser, repository, commitSha })}
@@ -447,10 +450,10 @@ export default function ContributeSubmissionsPage() {
 												</Group>
 
 												<Group gap={2} w="100%" wrap="nowrap" align="start">
-													<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+													<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 														<GoRelFilePath />
 													</SmallTile>
-													<SmallTile color="gray">
+													<SmallTile color={tileColor}>
 														<Text size="xs">
 															<a
 																href={gitBlobUrl({ orgOrUser, repository, branchOrCommit: commitSha, path: contribution.filename })}
@@ -465,30 +468,30 @@ export default function ContributeSubmissionsPage() {
 
 												<Group gap={2} w="100%">
 													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
-														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+														<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 															<LuArrowUpDown />
 														</SmallTile>
-														<SmallTile color="gray">
+														<SmallTile color={tileColor}>
 															<Text size="xs">
 																{contribution.poll.upvotes.length - contribution.poll.downvotes.length}
 															</Text>
 														</SmallTile>
 													</Group>
 													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
-														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+														<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 															<GoHash />
 														</SmallTile>
-														<SmallTile color="gray">
+														<SmallTile color={tileColor}>
 															<Text size="xs">
 																{contribution.textureId}
 															</Text>
 														</SmallTile>
 													</Group>
 													<Group gap={2} w="calc((100% - 4px) / 3)" wrap="nowrap" align="start">
-														<SmallTile color="gray" className="navbar-icon-fix" style={{ '--size': '28px' }}>
+														<SmallTile color={tileColor} className="navbar-icon-fix" style={{ '--size': '28px' }}>
 															<GoHourglass />
 														</SmallTile>
-														<SmallTile color="gray">
+														<SmallTile color={tileColor}>
 															<Text size="xs">
 																{contribution.status}
 															</Text>
