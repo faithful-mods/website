@@ -18,7 +18,7 @@ import type { Contribution, Resolution, Texture } from '@prisma/client';
 import type { FPStoredContribution, Prettify, PublicUser } from '~/types';
 
 interface Props {
-	container: RefObject<HTMLDivElement>;
+	container?: RefObject<HTMLDivElement>;
 	rowItemsGap: number;
 	rowItemsLength: number;
 	texture: Texture;
@@ -51,7 +51,7 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 		return contribution.mcmeta;
 	}, [texture, resolution, contribution]);
 
-	const size = useMemo(() => ((container.current?.clientWidth ?? 1) - (rowItemsGap * (rowItemsLength - 1))) / rowItemsLength,
+	const size = useMemo(() => ((container?.current?.clientWidth ?? 1) - (rowItemsGap * (rowItemsLength - 1))) / rowItemsLength,
 		[container, rowItemsGap, rowItemsLength]
 	);
 

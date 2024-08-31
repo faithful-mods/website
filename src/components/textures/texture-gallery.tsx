@@ -12,7 +12,7 @@ import { TextureImage } from '~/components/textures/texture-img';
 import type { Texture } from '@prisma/client';
 
 interface Props {
-	container: RefObject<HTMLDivElement>;
+	container?: RefObject<HTMLDivElement>;
 	rowItemsGap: number;
 	rowItemsLength: number;
 	texture: Texture;
@@ -29,7 +29,7 @@ export const GalleryTexture: FC<Props> = ({
 	onClick,
 }) => {
 
-	const size = useMemo(() => ((container.current?.clientWidth ?? 1) - (rowItemsGap * (rowItemsLength - 1))) / rowItemsLength,
+	const size = useMemo(() => ((container?.current?.clientWidth ?? 1) - (rowItemsGap * (rowItemsLength - 1))) / rowItemsLength,
 		[container, rowItemsGap, rowItemsLength]
 	);
 

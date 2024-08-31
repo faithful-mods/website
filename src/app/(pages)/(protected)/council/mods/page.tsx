@@ -2,16 +2,17 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
 
-import { Badge, Button, Group, Pagination, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
+import { Badge, Button, Group, Stack, Switch, Text } from '@mantine/core';
 import { useDisclosure, usePrevious, useViewportSize } from '@mantine/hooks';
 import { UserRole } from '@prisma/client';
 
 import { Modal } from '~/components/base/modal';
+import { PaginatedList } from '~/components/base/paginated-list';
 import { DashboardItem } from '~/components/dashboard-item/dashboard-item';
 import { ModUpload } from '~/components/mods-upload';
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
+import { GRADIENT_DANGER, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
 import { searchFilter, sortByName } from '~/lib/utils';
 import { getMods, modHasUnknownVersion, voidMods } from '~/server/data/mods';
 
@@ -126,7 +127,7 @@ export default function ModsPage() {
 					<ModModal mod={modalMod} onClose={handleModalClose} />
 				</Modal>
 			)}
-			<Stack gap="sm">
+			<Stack gap="sm" mb="sm">
 				<Stack gap={0}>
 					<Group justify="space-between">
 						<Text size="md" fw={700}>Mods</Text>
@@ -140,42 +141,59 @@ export default function ModsPage() {
 				</Stack>
 
 				<ModUpload onUpload={handleOnUpload} />
+			</Stack>
 
-				<Group
-					align="center"
-					gap="sm"
-					wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
-				>
-					<Group align="center" gap="sm" wrap="nowrap" className="w-full">
-						<Select
-							data={itemsPerPage}
-							value={modsShownPerPage}
-							onChange={(e) => e ? setModsShownPerPage(e) : null}
-							label="Items per page"
-							withCheckIcon={false}
-							w={250}
-						/>
-						<TextInput
-							className="w-full"
-							placeholder="Search mods..."
-							label="Search"
-							onChange={(e) => setSearch(e.currentTarget.value)}
-						/>
-					</Group>
-
+			<PaginatedList
+				items={mods}
+				rightFilters={
 					<Switch
 						label="Only show mods with unknown MC version"
-						mt={width <= BREAKPOINT_MOBILE_LARGE ? 0 : 22}
-						className="w-full"
+						mt="28px"
+						h="28px"
+						w="500px"
 						checked={showUnknown}
 						onChange={(e) =>{
 							setShowUnknown(e.currentTarget.checked);
 						}}
 					/>
-				</Group>
-			</Stack>
+				}
+				renderItem={(mod) => (
+					<DashboardItem
+						key={mod.id}
+						image={mod.image}
+						title={mod.name}
+						description={mod.description}
+						onClick={() => handleModalOpen(mod)}
+						warning={mod.unknownVersion ? true : undefined}
+					/>
+				)}
+			/>
 
-			{mods.length === 0 && (
+			{/* <Group
+				align="center"
+				gap="sm"
+				wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
+			>
+				<Group align="center" gap="sm" wrap="nowrap" className="w-full">
+					<Select
+						data={itemsPerPage}
+						value={modsShownPerPage}
+						onChange={(e) => e ? setModsShownPerPage(e) : null}
+						label="Items per page"
+						withCheckIcon={false}
+						w={250}
+					/>
+					<TextInput
+						className="w-full"
+						placeholder="Search mods..."
+						label="Search"
+						onChange={(e) => setSearch(e.currentTarget.value)}
+					/>
+				</Group>
+
+			</Group> */}
+
+			{/* {mods.length === 0 && (
 				<Group
 					align="center"
 					justify="center"
@@ -218,7 +236,7 @@ export default function ModsPage() {
 
 			<Group mt="md" justify="center">
 				<Pagination total={modsShown.length} value={activePage} onChange={setActivePage} />
-			</Group>
+			</Group> */}
 
 			{mods.length > 0 && user.role === UserRole.ADMIN &&
 					<Group justify="flex-end" mt="md">

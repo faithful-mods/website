@@ -10,7 +10,7 @@ export const MIN_NAME_LENGTH = 3;
 
 export const NOTIFICATIONS_DURATION_MS = 3000;
 
-export const ITEMS_PER_PAGE = ['6', '12', '18', '24', '48', '96'] as const;
+export const ITEMS_PER_PAGE = ['6', '18', '24', '48', '96', '192', '256'] as const;
 export const ITEMS_PER_PAGE_DEFAULT = '24';
 
 export const ITEMS_PER_ROW = ['1', '4', '8', '12', '18'] as const;

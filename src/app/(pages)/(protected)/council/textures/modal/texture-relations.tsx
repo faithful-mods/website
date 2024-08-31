@@ -1,19 +1,21 @@
 
 import { useState } from 'react';
+import type { RefObject } from 'react';
 
 import { TbPlus } from 'react-icons/tb';
 
 import { Button, Group, MultiSelect, Stack, Text } from '@mantine/core';
-import { useViewportSize } from '@mantine/hooks';
 
+import { PaginatedList } from '~/components/base/paginated-list';
+import { GalleryTexture } from '~/components/textures/texture-gallery';
 import { TextureImage } from '~/components/textures/texture-img';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
+import { GRADIENT } from '~/lib/constants';
 import { sortByName } from '~/lib/utils';
 import { addRelationsToTexture, getRelatedTextures, removeRelationFromTexture } from '~/server/data/texture';
 
 import type { MultiSelectProps } from '@mantine/core';
-import type{ Texture } from '@prisma/client';
+import type { Texture } from '@prisma/client';
 
 interface TextureRelationsProps {
 	texture: Texture;
@@ -24,15 +26,8 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 	const [relatedTextures, setRelatedTextures] = useState<Texture[]>([]);
 	const [newRelatedTextures, setNewRelatedTexturesIds] = useState<number[]>([]);
 
-	const { width } = useViewportSize();
-
-	const texturePerRow = width <= BREAKPOINT_MOBILE_LARGE ? 2 : width <= BREAKPOINT_TABLET ? 4 : 6;
-	const parentWidth = width <= BREAKPOINT_MOBILE_LARGE
-		? `${width}px`
-		: `calc(${width}px - (2 * var(--modal-inner-x-offset, var(--modal-x-offset))))`;
-
-	// texture width = (parent width - side padding - gap) / items per row
-	const textureWidth = `calc((${parentWidth} - (2 * var(--mantine-spacing-md)) - (${texturePerRow - 1} * var(--mantine-spacing-md))) / ${texturePerRow})`;
+	const [itemsPerRow, setItemsPerRow] = useState(0);
+	const [texturesGroupRef, setRef] = useState<RefObject<HTMLDivElement>>();
 
 	useEffectOnce(() => {
 		getRelatedTextures(texture.id)
@@ -108,33 +103,27 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 				</Button>
 			</Group>
 
-			<Text fw={500} size="var(--input-label-size, var(--mantine-font-size-sm))">Related to</Text>
-			<Group mt={-10}>
-				{relatedTextures.length === 0 && (
-					<Text size="xs" c="dimmed">No relation yet.</Text>
+			<PaginatedList
+				items={relatedTextures}
+
+				onUpdate={({ itemsPerRow, containerRef }) => {
+					setItemsPerRow(itemsPerRow);
+					setRef(containerRef);
+				}}
+
+				renderItem={(relatedTexture) => (
+					<GalleryTexture
+						key={relatedTexture.id}
+						texture={relatedTexture}
+						rowItemsGap={10}
+						rowItemsLength={itemsPerRow}
+						container={texturesGroupRef}
+
+						className="cursor-pointer"
+						onClick={() => handleRelationRemove(relatedTexture.id)}
+					/>
 				)}
-
-				{relatedTextures.length > 0 && relatedTextures.map((t) => (
-					<TextureImage
-						key={t.id}
-						src={t.filepath}
-						alt={t.name}
-						size={textureWidth}
-					>
-						<Stack gap="xs">
-							{t.name}
-
-							<Button
-								variant="gradient"
-								gradient={GRADIENT_DANGER}
-								onClick={() => handleRelationRemove(t.id)}
-							>
-								Delete relation
-							</Button>
-						</Stack>
-					</TextureImage>
-				))}
-			</Group>
+			/>
 		</Stack>
 	);
 }
