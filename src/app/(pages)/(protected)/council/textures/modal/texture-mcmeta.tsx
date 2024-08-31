@@ -19,11 +19,14 @@ export interface TextureUsesProps {
 }
 
 export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
-	const [mcmeta, setMCMETA] = useState<TextureMCMeta | null>(texture.mcmeta);
-	const [mcmetaString, setMCMETAString] = useState<string>(JSON.stringify(mcmeta, null, 2));
+	const [mcmeta, setMCMETA] = useState<TextureMCMeta | undefined>(texture.mcmeta ?? undefined);
+	const [mcmetaString, setMCMETAString] = useState<string>(mcmeta ? JSON.stringify(mcmeta, null, 2) : '');
 	const [isValid, setValid] = useState(false);
 
-	const { sprites } = useAnimation({ src: texture.filepath, mcmeta: mcmeta ?? {} });
+	// use memo to avoid calling useAnimation on every render
+	const filepath = useMemo(() => texture.filepath, [texture]);
+
+	const { sprites } = useAnimation({ src: filepath, mcmeta });
 	const { colorScheme } = useMantineColorScheme();
 
 	// to get the tick to pause the animation for each frame
@@ -53,6 +56,7 @@ export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
 			setMCMETA(parsed);
 		} catch {
 			setValid(false);
+			setMCMETA(undefined);
 		}
 
 	}, [mcmetaString]);
@@ -61,11 +65,11 @@ export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
 		if (!isValid) return;
 
 		updateMCMETA(texture.id, mcmeta ?? undefined)
-			.then(() => onUpdate(mcmeta));
+			.then(() => onUpdate(mcmeta ?? null));
 	};
 
 	const handleDelete = () => {
-		setMCMETA(null);
+		setMCMETA(undefined);
 		updateMCMETA(texture.id, undefined)
 			.then(() => onUpdate(null));
 	};
