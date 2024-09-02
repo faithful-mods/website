@@ -168,7 +168,7 @@ export default function ContributeSubmissionsPage() {
 	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-6)' : 'var(--mantine-color-gray-2)';
 
 	const iconBtnWidth = '36px';
-	const resSelectWidth = '90px';
+	const resSelectWidth = '100px';
 	const buttonWidth = width <= BREAKPOINT_MOBILE_LARGE
 		? '100%'
 		: `calc((2 * ${iconBtnWidth}) + ${resSelectWidth} + (2 * var(--mantine-spacing-xs)))`;
