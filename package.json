@@ -17,7 +17,7 @@
 		"@ltd/j-toml": "^1.38.0",
 		"@mantine/carousel": "^7.12.1",
 		"@mantine/core": "^7.12.1",
-		"@mantine/dates": "^7.12.1",
+		"@mantine/dates": "^7.12.2",
 		"@mantine/dropzone": "^7.12.1",
 		"@mantine/form": "^7.12.1",
 		"@mantine/hooks": "^7.12.1",
