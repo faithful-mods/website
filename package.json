@@ -21,7 +21,7 @@
 		"@mantine/dropzone": "^7.12.1",
 		"@mantine/form": "^7.12.1",
 		"@mantine/hooks": "^7.12.1",
-		"@mantine/modals": "^7.12.1",
+		"@mantine/modals": "^7.12.2",
 		"@mantine/notifications": "^7.12.1",
 		"@octokit/rest": "^21.0.2",
 		"@types/unzipper": "^0.10.9",
