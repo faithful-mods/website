@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { Carousel } from '@mantine/carousel';
+// import { Carousel } from '@mantine/carousel';
 import { Button, Group, JsonInput, Stack, useMantineColorScheme } from '@mantine/core';
-import { Texture as TextureComponent, useAnimation } from 'react-minecraft';
+import { useAnimation } from 'react-minecraft';
 
-import { FakeInputDescription, FakeInputLabel } from '~/components/base/fake-input-label';
+import { FakeInputLabel } from '~/components/base/fake-input-label';
 import { GRADIENT, GRADIENT_DANGER } from '~/lib/constants';
 import { updateMCMETA } from '~/server/data/texture';
 
@@ -82,7 +82,8 @@ export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
 			>
 				{mcmeta && (
 					<FakeInputLabel label="Frames" style={{ width: '100%' }}>
-						<Carousel
+						NYI
+						{/* <Carousel
 							slideGap="sm"
 							slideSize={200}
 							align="start"
@@ -111,7 +112,7 @@ export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
 									</Stack>
 								</Carousel.Slide>
 							))}
-						</Carousel>
+						</Carousel> */}
 					</FakeInputLabel>
 				)}
 
