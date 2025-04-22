@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { HiDownload } from 'react-icons/hi';
 import { IoExtensionPuzzleOutline } from 'react-icons/io5';
 import { LuFilter } from 'react-icons/lu';
-import { SiMojangstudios } from 'react-icons/si';
 import { TfiWorld } from 'react-icons/tfi';
 
 import { ActionIcon, Button, Checkbox, Group, InputLabel, MultiSelect, Pagination, Radio, Select, Stack, Text, TextInput } from '@mantine/core';
@@ -15,6 +14,7 @@ import { useViewportSize, usePrevious } from '@mantine/hooks';
 import { Texture } from 'react-minecraft';
 
 import { Tile } from '~/components/base/tile';
+import { MojangIcon } from '~/components/icons/mojang';
 import { useEffectOnce } from '~/hooks/use-effect-once';
 import { BREAKPOINT_MOBILE_LARGE, BREAKPOINT_TABLET, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, MODS_LOADERS } from '~/lib/constants';
 import { searchFilter, sortByName, sortBySemver } from '~/lib/utils';
@@ -201,7 +201,7 @@ export default function ModsPage() {
 					</Button>
 				)}
 				<Group gap="xs" wrap="nowrap">
-					<SiMojangstudios color="var(--mantine-color-dimmed)" />
+					<MojangIcon />
 					<Text size="sm" c="dimmed">
 						{m.versions.sort(sortBySemver).unique().reverse().slice(0, maxOptionsShown).join(', ')}
 						{m.versions.unique().length > maxOptionsShown && ', ...'}
