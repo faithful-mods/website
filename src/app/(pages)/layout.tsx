@@ -13,7 +13,6 @@ import type { Metadata } from 'next';
 // All packages except `@mantine/hooks` require styles imports
 import '@mantine/core/styles.css';
 import '@mantine/dropzone/styles.css';
-import '@mantine/carousel/styles.css';
 import '../globals.scss';
 
 import '~/lib/polyfills';

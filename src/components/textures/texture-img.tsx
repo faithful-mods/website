@@ -50,7 +50,7 @@ export const TextureImage: FC<Props> = ({
 					animation={mcmeta && mcmeta.animation
 						? {
 							mcmeta: { animation: mcmeta.animation },
-							tiled: isTiled,
+							isTiled,
 						}
 						: undefined
 					}
