@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { existsSync, readdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import simpleGit from 'simple-git';
@@ -20,7 +20,11 @@ const LOCAL_REPOSITORY_PATH = (() => {
 		return process.env.DEV_LOCAL_REPOSITORY_PATH!;
 	}
 	return prodPath;
-})()
+})();
+
+if (!existsSync(LOCAL_REPOSITORY_PATH)) {
+	mkdirSync(LOCAL_REPOSITORY_PATH, { recursive: true });
+}
 
 const git = simpleGit(LOCAL_REPOSITORY_PATH);
 
