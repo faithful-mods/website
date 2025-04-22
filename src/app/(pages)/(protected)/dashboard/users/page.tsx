@@ -8,7 +8,7 @@ import { FaArrowRight } from 'react-icons/fa';
 
 import { Avatar, Badge, Button, Group, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { UserRole } from '@prisma/client';
+import { UserRole, type User } from '@prisma/client';
 
 import { Tile } from '~/components/base/tile';
 import { useCurrentUser } from '~/hooks/use-current-user';
@@ -17,11 +17,9 @@ import { GRADIENT, MINIMUM_CARD_WIDTH } from '~/lib/constants';
 import { notify } from '~/lib/utils';
 import { getUsers, updateUserRole } from '~/server/data/user';
 
-import type { UserWithReports } from '~/types';
-
 export default function DashboardUsersPage() {
-	const [users, setUsers] = useState<UserWithReports[] | undefined>();
-	const [filteredUsers, setFilteredUsers] = useState<UserWithReports[] | undefined>();
+	const [users, setUsers] = useState<User[] | undefined>();
+	const [filteredUsers, setFilteredUsers] = useState<User[] | undefined>();
 	const loggedUser = useCurrentUser()!;
 
 	const form = useForm({
@@ -30,7 +28,7 @@ export default function DashboardUsersPage() {
 		},
 	});
 
-	const sortUsers = (a: UserWithReports, b: UserWithReports) => a.name?.localeCompare(b.name ?? '') || 0;
+	const sortUsers = (a: User, b: User) => a.name?.localeCompare(b.name ?? '') || 0;
 
 	const filterUsers = () => {
 		const search = form.values['search'];
@@ -86,7 +84,6 @@ export default function DashboardUsersPage() {
 								</Avatar>
 								<Stack gap="0">
 									<Text>{user.name ?? 'Unknown User'}</Text>
-									{user.reports.length > 0 && <Text c="orange" size="xs">Report(s): {user.reports.length}</Text>}
 								</Stack>
 							</Group>
 							<Group gap="sm">

@@ -4,7 +4,6 @@ import type {
 	ModpackVersion,
 	ModVersion,
 	Poll,
-	Report,
 	Resolution,
 	Resource,
 	User,
@@ -68,9 +67,6 @@ export type Progression = {
 }
 
 export type Downloads = Record<Resolution, number | undefined>;
-
-export type ReportWithReporter = Report & { reporter: PublicUser };
-export type UserWithReports = Prettify<User & { reports: Report[] }>;
 
 export interface PollResults {
 	upvotes: number;

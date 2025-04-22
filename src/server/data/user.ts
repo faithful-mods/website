@@ -7,17 +7,17 @@ import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
 
 import type { User } from '@prisma/client';
-import type { PublicUser, UserWithReports } from '~/types';
+import type { PublicUser } from '~/types';
 
 // GET
 
 /**
  * Get all users from the database
- * @returns {Promise<UserWithReports[]>} - A promise that resolves to an array of users
+ * @returns {Promise<User[]>} - A promise that resolves to an array of users
  */
-export async function getUsers(): Promise<UserWithReports[]> {
+export async function getUsers(): Promise<User[]> {
 	await canAccess();
-	return db.user.findMany({ include: { reports: true } });
+	return db.user.findMany();
 }
 
 export async function getPublicUsers(): Promise<PublicUser[]> {

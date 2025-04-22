@@ -9,7 +9,6 @@ interface Props {
 export default function UserLayout({ children }: Props) {
 	const tabs = [
 		{ value: 'profile', label: 'Profile', layoutTab: true },
-		{ value: 'reports', label: 'Reports' },
 		{ value: 'settings', label: 'Settings' },
 	];
 
