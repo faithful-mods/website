@@ -34,13 +34,13 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 				return null;
 			},
 			mcVersion: (value) => {
-				if (!value) return 'MC Version is required';
+				if (!value) return 'Minecraft Version is required';
 				if (value.length === 0) return 'Automatic version detection failed, please enter the version manually';
 				if (value
 					.split(',')
 					.map((s) => s.trim())
 					.some((v) => extractSemver(v) === null)
-				) return 'Invalid MC Version';
+				) return 'Invalid Minecraft Version';
 				return null;
 			},
 		},
@@ -89,14 +89,14 @@ export function ModVersionModal({ mod, modVersion, onClose }: { mod: Mod, modVer
 	return (
 		<Stack gap="md">
 			<TextInput
-				label="Version"
+				label="Mod Version"
 				placeholder="1.2.4"
 				description="The version number/name"
 				required
 				{...form.getInputProps('version')}
 			/>
 			<TextInput
-				label="MC Version(s)"
+				label="Minecraft Version(s)"
 				placeholder="1.7.10"
 				description="Separate multiple versions with a comma"
 				required
