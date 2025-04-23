@@ -6,7 +6,7 @@ import type { FC, RefObject } from 'react';
 import { GoHash, GoLinkExternal, GoLog, GoPeople, GoPerson } from 'react-icons/go';
 import { PiApproximateEquals } from 'react-icons/pi';
 
-import { Avatar, Group, Stack, Text, useMantineColorScheme } from '@mantine/core';
+import { Avatar, Group, Stack, Text, useComputedColorScheme } from '@mantine/core';
 
 import { SmallTile } from '~/components/base/small-tile';
 import { TextureImage } from '~/components/textures/texture-img';
@@ -66,8 +66,8 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 			.then(setVanillaContribution);
 	});
 
-	const { colorScheme } = useMantineColorScheme();
-	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-6)' : 'var(--mantine-color-gray-2)';
+	const colorScheme = useComputedColorScheme();
+	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-8)' : 'var(--mantine-color-gray-2)';
 
 	return (
 		<TextureImage

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-import { HoverCard, useMantineColorScheme } from '@mantine/core';
+import { HoverCard, useComputedColorScheme } from '@mantine/core';
 import { Texture } from 'react-minecraft';
 
 import type { TextureMCMeta } from 'react-minecraft';
@@ -39,7 +39,7 @@ export const TextureImage: FC<Props> = ({
 	onPopupClick,
 }) => {
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
-	const { colorScheme } = useMantineColorScheme();
+	const colorScheme = useComputedColorScheme();
 
 	const image = () => {
 		return (

@@ -4,7 +4,7 @@ import type { FC, RefObject } from 'react';
 import { GoAlert, GoHash, GoLog } from 'react-icons/go';
 import { PiApproximateEquals } from 'react-icons/pi';
 
-import { Group, Stack, Text, useMantineColorScheme } from '@mantine/core';
+import { Group, Stack, Text, useComputedColorScheme } from '@mantine/core';
 
 import { SmallTile } from '~/components/base/small-tile';
 import { TextureImage } from '~/components/textures/texture-img';
@@ -33,7 +33,7 @@ export const GalleryTexture: FC<Props> = ({
 		[container, rowItemsGap, rowItemsLength]
 	);
 
-	const { colorScheme } = useMantineColorScheme();
+	const colorScheme = useComputedColorScheme();
 	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-6)' : 'var(--mantine-color-gray-2)';
 
 	return (

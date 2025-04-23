@@ -8,7 +8,7 @@ import { GoAlert, GoCommit, GoHash, GoHourglass, GoQuestion, GoRelFilePath } fro
 import { IoReload } from 'react-icons/io5';
 import { LuArrowUpDown } from 'react-icons/lu';
 
-import { ActionIcon, Badge, Button, FloatingIndicator, Group, Indicator, Kbd, List, Select, Stack, Text, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, Badge, Button, FloatingIndicator, Group, Indicator, Kbd, List, Select, Stack, Text, useComputedColorScheme } from '@mantine/core';
 import { useHotkeys, useOs, usePrevious, useViewportSize } from '@mantine/hooks';
 import { Resolution, Status } from '@prisma/client';
 
@@ -164,7 +164,7 @@ export default function ContributeSubmissionsPage() {
 		);
 	});
 
-	const { colorScheme } = useMantineColorScheme();
+	const colorScheme = useComputedColorScheme();
 	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-6)' : 'var(--mantine-color-gray-2)';
 
 	const iconBtnWidth = '36px';
