@@ -81,8 +81,12 @@ export async function deleteFile(filename: string) {
  * @param message the commit message
  */
 export async function commitAndPush(message: string) {
-	const remote = await remoteUrl();
+	if (readdirSync(LOCAL_REPOSITORY_PATH).length === 0) {
+		await git.clone(REMOTE_REPOSITORY_URL, LOCAL_REPOSITORY_PATH);
+		await git.pull();
+	}
 
+	const remote = await remoteUrl();
 	await git.commit(message);
 
 	try {
