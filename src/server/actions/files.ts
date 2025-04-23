@@ -40,7 +40,7 @@ export async function upload(file: File, path: `${string}/` = '/'): Promise<stri
 	const filePath = join(fileDirPrv, `${uuid}_${file.name}`);
 
 	if (!existsSync(fileDirPrv)) mkdirSync(fileDirPrv, { recursive: true });
-	writeFileSync(filePath, buffer);
+	writeFileSync(filePath, buffer.toString('binary'), { encoding: 'binary' });
 
 	return encodeURI(
 		join(fileDirPub, `${uuid}_${file.name}`)
@@ -339,10 +339,10 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 				mcmeta,
 			});
 
-			const filepath = gitRawUrl({ orgOrUser: GITHUB_ORG_NAME, repository: GITHUB_DEFAULT_REPO_NAME, path: `${hash}.png` });
+			const filepath = gitRawUrl({ orgOrUser: GITHUB_ORG_NAME, repository: GITHUB_DEFAULT_REPO_NAME, path: `textures/${hash}.png` });
 			await db.texture.update({ where: { id: texture.id }, data: { filepath } });
 
-			await addFile(buffer, `${hash}.png`);
+			await addFile(buffer, `textures/${hash}.png`);
 		}
 		else {
 			if (texture.name !== textureName && !texture.aliases.includes(textureName)) {

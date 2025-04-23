@@ -2,7 +2,7 @@
 import 'server-only';
 
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
 
 import simpleGit from 'simple-git';
 
@@ -57,7 +57,8 @@ export async function addFile(file: Buffer, filename: string) {
 	}
 
 	const filepath = join(LOCAL_REPOSITORY_PATH, filename);
-	writeFileSync(filepath, file);
+	if (!existsSync(dirname(filepath))) mkdirSync(dirname(filepath), { recursive: true });
+	writeFileSync(filepath, file.toString('binary'), { encoding: 'binary' });
 
 	await git.add(filepath);
 }
