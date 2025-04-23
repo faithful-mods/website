@@ -25,6 +25,12 @@ enum Resolution {
   x64
 }
 
+enum Pack {
+  FAITHFUL
+  CLASSIC_FAITHFUL
+  CLASSIC_FAITHFUL_JAPPA
+}
+
 enum Status {
   DRAFT
   PENDING
@@ -182,7 +188,9 @@ model ContributionDeactivation {
 
   textureId  Int         @map("texture_id")
   texture    Texture     @relation(fields: [textureId], references: [id])
-  resolution Resolution? // No resolution means all resolutions
+
+  /// [ContributionDeactivationSettingsType]
+  settings Json
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -245,6 +253,7 @@ model Contribution {
   coAuthors User[] @relation("contributions_to_coauthors")
 
   resolution Resolution
+  pack       Pack
   status     Status     @default(DRAFT)
 
   pollId String @unique

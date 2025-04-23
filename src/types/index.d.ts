@@ -6,7 +6,6 @@ import type {
 	Poll,
 	Resolution,
 	Resource,
-	User,
 } from '@prisma/client';
 import type { ModLoaders } from '~/lib/constants';
 
