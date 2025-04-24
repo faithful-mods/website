@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FC, RefObject } from 'react';
 
 import { GoHash, GoLinkExternal, GoLog, GoPeople, GoPerson } from 'react-icons/go';
@@ -69,6 +69,14 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 	const colorScheme = useComputedColorScheme();
 	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-8)' : 'var(--mantine-color-gray-2)';
 
+	const [showFullHash, setShowFullHash] = useState(false);
+	const [hash, setHash] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (showFullHash) setHash(texture.hash);
+		else setHash(texture.hash.slice(0, 8) + '...' + texture.hash.slice(-8));
+	}, [texture, showFullHash]);
+
 	return (
 		<TextureImage
 			alt={texture.name}
@@ -84,7 +92,7 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 				boxShadow: 'none',
 			}}
 		>
-			<Stack gap={2} align="start" miw={450} maw={450}>
+			<Stack gap={2} align="start" maw={450}>
 				<SmallTile color={tileColor}>
 					<Text fw={500} ta="center">{texture.name}</Text>
 				</SmallTile>
@@ -164,8 +172,13 @@ export const GalleryTextureWithContribution: FC<Props> = ({
 							<GoLog />
 						</SmallTile>
 						<SmallTile color={tileColor}>
-							<Text size="xs" c="dimmed">
-								{texture.hash}
+							<Text
+								size="xs"
+								onMouseEnter={() => setShowFullHash(true)}
+								onMouseLeave={() => setShowFullHash(false)}
+								className="cursor-pointer"
+							>
+								{hash}
 							</Text>
 						</SmallTile>
 					</Group>
