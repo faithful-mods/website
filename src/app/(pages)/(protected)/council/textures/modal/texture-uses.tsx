@@ -58,7 +58,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 	});
 
 	return (
-		<Stack ml={0} gap="md" mt="md">
+		<Stack mt="md">
 			<Modal
 				opened={modalOpened}
 				onClose={() => closeModal()}
@@ -86,7 +86,7 @@ export function TextureUses({ texture }: TextureUsesProps) {
 							<Stack key={mv.id} gap={0} >
 								<Group gap="xs">
 									<LuFolderGit />
-									<Text fw={300}>{mv.version}&nbsp;{!mv.mcVersion.some((v) => extractSemver(v) === null) && mv.mcVersion.length > 0 && `(MC: ${mv.mcVersion.join(', ')})`}</Text>
+									<Text fw={300}>{mv.version}&nbsp;{!mv.mcVersion.some((v) => extractSemver(v) === null) && mv.mcVersion.length > 0 && `(Minecraft: ${mv.mcVersion.join(', ')})`}</Text>
 								</Group>
 
 								<Stack ml="xs" gap={0}>
@@ -129,11 +129,13 @@ export function TextureUses({ texture }: TextureUsesProps) {
 				</Tile>
 			))}
 			<Button
+				w="400px"
+				mx="auto"
 				variant="gradient"
 				gradient={GRADIENT}
 				onClick={() => openModal()}
 			>
-				Add a linked Texture
+				Add a new linked Texture
 			</Button>
 		</Stack>
 	);

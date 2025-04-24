@@ -5,7 +5,7 @@ import { Stack, Text } from '@mantine/core';
 interface Props {
 	children: React.ReactNode;
 	label: string;
-	description?: string;
+	description?: React.ReactNode;
 	gap?: number | string;
 	style?: React.CSSProperties;
 }

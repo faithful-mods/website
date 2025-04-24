@@ -67,9 +67,9 @@ export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
 				/>
 			</Stack>
 
-			<Group gap="md">
+			<Group gap="md" mx="auto">
 				<Button
-					w={'calc(50% - (var(--mantine-spacing-md) / 2))'}
+					w="400px"
 					disabled={!texture.mcmeta}
 					onClick={handleDelete}
 					variant="gradient"
@@ -78,7 +78,7 @@ export function TextureMCMetaEdition({ texture, onUpdate }: TextureUsesProps) {
 					Delete
 				</Button>
 				<Button
-					w={'calc(50% - (var(--mantine-spacing-md) / 2))'}
+					w="400px"
 					disabled={!isValid}
 					onClick={handleUpdate}
 					variant="gradient"

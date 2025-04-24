@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 
-import { Stack, Tabs } from '@mantine/core';
+import { Group, Stack, Tabs, Text } from '@mantine/core';
 
 import { TextureImage } from '~/components/textures/texture-img';
 
@@ -22,16 +22,24 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 	const [mcmeta, setMCMETA] = useState<TextureMCMeta | null>(texture.mcmeta);
 
 	return (
-		<Stack>
-			<TextureImage
-				src={texture.filepath}
-				alt={texture.name}
-				isTiled={texture.name.includes('flow')}
-				size={256}
-				styles={{ margin: 'auto' }}
-				mcmeta={mcmeta}
-			/>
-			<Tabs defaultValue="general">
+		<Group
+			h="calc(100vh - 90px)"
+			gap="md"
+			align="start"
+			wrap="nowrap"
+		>
+			<Stack>
+				<TextureImage
+					src={texture.filepath}
+					alt={texture.name}
+					isTiled={texture.name.includes('flow')}
+					size={512}
+					styles={{ margin: 'auto' }}
+					mcmeta={mcmeta}
+				/>
+				<Text size="xs" mx="auto" ff="monospace">{texture.hash}</Text>
+			</Stack>
+			<Tabs defaultValue="general" w="100%">
 				<Tabs.List>
 					<Tabs.Tab value="general">
 						General
@@ -43,7 +51,7 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 						Relations
 					</Tabs.Tab>
 					<Tabs.Tab value="mcmeta">
-						MCMETA
+						Animation
 					</Tabs.Tab>
 				</Tabs.List>
 
@@ -60,6 +68,6 @@ export function TextureModal({ texture, textures }: TextureModalProps) {
 					<TextureMCMetaEdition texture={texture} onUpdate={setMCMETA} />
 				</Tabs.Panel>
 			</Tabs>
-		</Stack>
+		</Group>
 	);
 }

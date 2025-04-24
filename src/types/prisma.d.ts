@@ -11,9 +11,7 @@ declare global {
 
 		type ContributionDeactivationSettingsType = {
 			all: boolean;
-			packs: {
-				[key: Pack]: Resolution[];
-			}
-		}
+			packs: Partial<Record<Pack, Resolution[]>>;
+		};
 	}
 }

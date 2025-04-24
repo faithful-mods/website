@@ -68,14 +68,11 @@ export function TextureRelations({ texture, textures }: TextureRelationsProps) {
 
 	return (
 		<Stack mt="md">
-			<Text size="sm">
-				Here you can add relations to this texture. Relations are textures that are similar to this one.
-			</Text>
-
 			<Group wrap="nowrap" align="end" gap="sm">
 				<MultiSelect
 					limit={10}
 					label="Add relations"
+					description="Relations are textures that are similar to this one."
 					placeholder="Select or search textures..."
 					data={textures
 						.filter((t) => t.id !== texture.id)

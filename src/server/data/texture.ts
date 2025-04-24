@@ -10,7 +10,7 @@ import { deleteFile } from '../actions/simple-git';
 
 import type { ContributionDeactivation, Texture } from '@prisma/client';
 import type { TextureMCMeta } from 'react-minecraft';
-import type { ContributionActivationStatus, Prettify, Progression } from '~/types';
+import type { Prettify, Progression } from '~/types';
 
 import '~/lib/polyfills';
 
@@ -45,25 +45,10 @@ export async function getRelatedTextures(id: number): Promise<Texture[]> {
 		});
 }
 
-export async function getTextureStatus(textureId: number): Promise<ContributionActivationStatus[]> {
+export async function getTextureStatus(textureId: number): Promise<PrismaJson.ContributionDeactivationSettingsType> {
 	return db.contributionDeactivation
-		.findMany({
-			where: {
-				textureId,
-			},
-		})
-		.then((response) => {
-			const general = response.find((r) => r.resolution === null);
-			const resolutions = response.filter((r) => r.resolution !== null);
-
-			return [
-				...(Object.keys(Resolution) as Resolution[]).map((res) => ({
-					resolution: res,
-					status: !resolutions.some((r) => r.resolution === res),
-				})),
-				{ resolution: null, status: !general },
-			];
-		});
+		.findFirst({ where: { textureId }, select: { settings: true } })
+		.then((res) => res?.settings ?? { all: false, packs: {} });
 }
 
 export async function getGlobalProgression() {
@@ -168,24 +153,37 @@ interface UpdateTextureParams {
 	id: number;
 	name: string;
 	aliases: string[];
-	contributions: ContributionActivationStatus[];
+	contributionsSettings?: PrismaJson.ContributionDeactivationSettingsType;
 	vanillaTextureId: string | null;
 }
 
-export async function updateTexture({ id, name, aliases, contributions, vanillaTextureId }: UpdateTextureParams): Promise<Texture> {
+export async function updateTexture({ id, name, aliases, contributionsSettings, vanillaTextureId }: UpdateTextureParams): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
-	const editedGeneral = contributions.find(cs => cs.resolution === null);
-	const editedResolutions = contributions.filter(cs => cs.resolution !== null);
+	if (contributionsSettings) {
+		let contributionsDeactivation = await db.contributionDeactivation.findFirst({ where: { textureId: id } });
 
-	// clean up
-	await db.contributionDeactivation.deleteMany({ where: { textureId: id } });
-	// general contributions are disabled: only add general
-	if (editedGeneral && !editedGeneral.status) await db.contributionDeactivation.create({ data: { textureId: id } });
-	// general contributions are enabled: check for resolutions deactivation
-	if (editedGeneral && editedGeneral.status) {
-		for (const eRes of editedResolutions) {
-			if (!eRes.status) await db.contributionDeactivation.create({ data: { textureId: id, resolution: eRes.resolution } });
+		if (!contributionsDeactivation && (contributionsSettings.all === true || Object.keys(contributionsSettings.packs).length > 0)) {
+			contributionsDeactivation = await db.contributionDeactivation.create({
+				data: {
+					textureId: id,
+					settings: contributionsSettings,
+				},
+			});
+		}
+
+		else if (contributionsDeactivation) {
+			if (!contributionsSettings.all && Object.values(contributionsSettings.packs).flat().length === 0) {
+				await db.contributionDeactivation.delete({ where: { id: contributionsDeactivation.id } });
+			}
+			else {
+				contributionsDeactivation = await db.contributionDeactivation.update({
+					where: { id: contributionsDeactivation.id },
+					data: {
+						settings: contributionsSettings,
+					},
+				});
+			}
 		}
 	}
 

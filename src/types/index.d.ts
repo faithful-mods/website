@@ -49,12 +49,6 @@ export type FullPoll = Prettify<Poll & {
 	upvotes: PublicUser[];
 }>
 
-export type ContributionActivationStatus = {
-	/** null means any resolution */
-	resolution: Resolution | null;
-	status: boolean;
-}
-
 export type Progression = {
 	linkedTextures: number;
 	textures: {
