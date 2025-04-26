@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
 
-import { Resolution, Status, UserRole } from '@prisma/client';
+import { Status, UserRole } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
 import { db } from '~/lib/db';
@@ -10,7 +10,7 @@ import { deleteFile } from '../actions/simple-git';
 
 import type { ContributionDeactivation, DefaultPack, Texture } from '@prisma/client';
 import type { TextureMCMeta } from 'react-minecraft';
-import type { Prettify, Progression } from '~/types';
+import type { Prettify } from '~/types';
 
 import '~/lib/polyfills';
 
@@ -49,42 +49,6 @@ export async function getTextureStatus(textureId: number): Promise<PrismaJson.Co
 	return db.contributionDeactivation
 		.findFirst({ where: { textureId }, select: { settings: true } })
 		.then((res) => res?.settings ?? { all: false, packs: {} });
-}
-
-export async function getGlobalProgression() {
-	const emptyRes = Object.keys(Resolution).reduce(
-		(acc, res) => ({ ...acc, [res]: 0 }),
-		{}
-	) as Progression['textures']['done'];
-
-	const todo = await db.texture.count();
-	const linkedTextures = await db.linkedTexture.count();
-
-	const contributedTextures = await db.texture
-		.findMany({ where: { contributions: { some: {} } }, include: { contributions: true } })
-		// keep contributions only
-		.then((textures) => textures.map((texture) => texture.contributions).flat())
-		// remove multiple contributions on the same resolution for the same texture
-		.then((contributions) =>
-			contributions.filter(
-				(c, i, arr) => arr.findIndex((c2) => c2.textureId === c.textureId && c2.resolution === c.resolution) === i
-			)
-		)
-		// count contributions per resolution
-		.then((contributions) => {
-			const output = emptyRes;
-
-			for (const contribution of contributions) {
-				output[contribution.resolution] += 1;
-			}
-
-			return output;
-		});
-
-	return {
-		linkedTextures,
-		textures: { done: contributedTextures, todo },
-	};
 }
 
 export async function findTexture({ hash }: { hash: string }): Promise<Texture | null> {

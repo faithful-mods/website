@@ -130,7 +130,12 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 							<Group gap="xs" wrap="nowrap" align="center" style={{ height: '36px' }}>
 								<HiDownload color="var(--mantine-color-dimmed)" />
 								<Text size="sm" c="dimmed">
-									{downloads ? Object.values(downloads).reduce<number>((acc, curr) => acc + (curr ?? 0), 0) : 0}
+									{downloads
+										? Object.values(downloads).reduce<number>((acc, curr) => {
+											return acc + Object.values(curr).reduce<number>((a, c) => a + c, 0);
+										}, 0)
+										: 0
+									}
 								</Text>
 							</Group>
 						</Group>

@@ -1,9 +1,9 @@
-
 import { showNotification } from '@mantine/notifications';
+import { DefaultPack, Pack } from '@prisma/client';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-import { NOTIFICATIONS_DURATION_MS, PACK_FORMAT_VERSIONS } from './constants';
+import { NOTIFICATIONS_DURATION_MS, PACK_FORMAT_VERSIONS, INTERNAL_PACK_TO_VANILLA_PACK } from './constants';
 
 import type { MantineColor } from '@mantine/core';
 import type { Resolution } from '@prisma/client';
@@ -20,6 +20,21 @@ export function capitalize(str: string) {
 	return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLocaleLowerCase()).join(' ');
 }
 
+export function asReadablePackName(pack: Pack | DefaultPack) {
+	if (Object.keys(DefaultPack).includes(pack)) {
+		switch (pack as DefaultPack) {
+			case 'DEFAULT_PROGART': return 'Programer Art';
+			case 'DEFAULT_JAPPA': return 'Default';
+		}
+	}
+
+	return pack
+		.toLowerCase()
+		.split('_')
+		.map((str) => capitalize(str))
+		.join(' ');
+}
+
 export function notify(title: string, message: React.ReactNode, color: MantineColor) {
 	showNotification({
 		title,
@@ -32,7 +47,7 @@ export function notify(title: string, message: React.ReactNode, color: MantineCo
 
 export function sortByName<T extends { name: string, id?: string | number }>(a: T, b: T) {
 	// If same name, sort by id to keep consistent order between reloads (since id is unique)
-	return a.name.localeCompare(b.name) || `${a.id}`.localeCompare(`${b.id}` ?? '') || 0;
+	return a.name.localeCompare(b.name) || `${a.id}`.localeCompare(`${b.id}`) || 0;
 }
 
 export function searchFilter<T extends { id: string | number; name: string, aliases?: string[] }>(search: string) {
@@ -121,6 +136,11 @@ export function getVanillaResolution(resolution: Resolution) {
 	return `faithful_${resolution.replace('x', '') as `${number}`}x` as const;
 }
 
-export function getVanillaTextureSrc(vanillaId: string, resolution: Resolution) {
-	return `https://api.faithfulpack.net/v2/textures/${vanillaId}/url/${getVanillaResolution(resolution)}/latest`;
+export function getVanillaTextureSrc(vanillaId: string, res: Resolution, pack: Pack) {
+	const vanillaPack = INTERNAL_PACK_TO_VANILLA_PACK[pack][res];
+	if (!vanillaPack) {
+		throw new Error(`No vanilla pack found for ${pack} and ${res}`);
+	}
+
+	return `https://api.faithfulpack.net/v2/textures/${vanillaId}/url/${vanillaPack}/latest`;
 }

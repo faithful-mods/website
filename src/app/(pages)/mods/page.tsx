@@ -217,7 +217,9 @@ export default function ModsPage() {
 				<Group gap="xs" wrap="nowrap" >
 					<HiDownload color="var(--mantine-color-dimmed)" />
 					<Text size="sm" c="dimmed">
-						{Object.values(m.downloads).reduce<number>((acc, curr) => acc + (curr ?? 0), 0)}
+						{Object.values(m.downloads).reduce<number>((acc, curr) => {
+							return acc + Object.values(curr).reduce<number>((a, c) => a + c, 0);
+						}, 0)}
 					</Text>
 				</Group>
 			</Group>

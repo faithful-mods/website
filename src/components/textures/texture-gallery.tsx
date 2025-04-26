@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { FC, RefObject } from 'react';
+import type { RefObject } from 'react';
 
 import { Group, Stack, Text, useComputedColorScheme } from '@mantine/core';
 
@@ -8,60 +8,58 @@ import { TextureImage } from '~/components/textures/texture-img';
 
 import type { Texture } from '@prisma/client';
 
-interface Props {
+interface Props<T> {
 	container?: RefObject<HTMLDivElement>;
 	rowItemsGap: number;
 	rowItemsLength: number;
 	texture: Texture;
 	className?: string;
-	tiles?: TileProp[];
-	// drill down to the texture image
+	data?: T
+	tiles?: (data: T) => TileProp[];
+	src?: (data: T) => string;
 	onClick?: () => void;
-	onMouseEnter?: () => void;
-	isTransparent?: boolean;
-	// ---
+	isTransparent?: (data: T) => boolean;
 }
 
 interface TileProp {
 	shown: boolean;
 	icon: React.ReactNode;
 	iconAction?: () => void;
-	iconHoverAction?: () => void;
+	iconHoverAction?: (isHovering: boolean) => void;
 	description: React.ReactNode;
 	descriptionAction?: () => void;
-	descriptionHoverAction?: () => void;
+	descriptionHoverAction?: (isHovering: boolean) => void;
 }
 
-export const GalleryTexture: FC<Props> = ({
+export function GalleryTexture<T>({
 	container,
 	className,
 	rowItemsGap,
 	rowItemsLength,
 	texture,
+	data,
+	src,
 	tiles,
-	// drill down to the texture image
 	onClick,
-	onMouseEnter,
 	isTransparent,
-}) => {
+}: Props<T>) {
 
 	const size = useMemo(() => ((container?.current?.clientWidth ?? 1) - (rowItemsGap * (rowItemsLength - 1))) / rowItemsLength,
 		[container, rowItemsGap, rowItemsLength]
 	);
 
 	const colorScheme = useComputedColorScheme();
-	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-8)' : 'var(--mantine-color-gray-2)';
+	const tileColor = colorScheme === 'dark' ? 'var(--mantine-color-gray-8)' : 'var(--mantine-color-gray-3)';
 
 	return (
 		<TextureImage
 			// drill down to the texture image
 			onClick={onClick}
-			onMouseEnter={onMouseEnter}
-			isTransparent={isTransparent}
+			isTransparent={data && (isTransparent?.(data) ?? false)}
 			// ---
 
 			alt={texture.name}
-			src={texture.filepath}
+			src={(data && src) ? src(data) : texture.filepath}
 			mcmeta={texture.mcmeta}
 			className={className}
 			size={size}
@@ -77,7 +75,7 @@ export const GalleryTexture: FC<Props> = ({
 				<SmallTile color={tileColor}>
 					<Text fw={500} ta="center">{texture.name}</Text>
 				</SmallTile>
-				{tiles?.map((tile, index) => (
+				{data && tiles?.(data)?.map((tile, index) => (
 					tile.shown &&
 					<Group key={index} gap={2} w="100%" wrap="nowrap" align="start">
 						<SmallTile
@@ -85,16 +83,16 @@ export const GalleryTexture: FC<Props> = ({
 							className="navbar-icon-fix"
 							style={{ '--size': '28px' }}
 							onClick={() => tile.iconAction?.()}
-							onMouseEnter={() => tile.iconHoverAction?.()}
-							onMouseLeave={() => tile.iconHoverAction?.()}
+							onMouseEnter={() => tile.iconHoverAction?.(true)}
+							onMouseLeave={() => tile.iconHoverAction?.(false)}
 						>
 							{tile.icon}
 						</SmallTile>
 						<SmallTile
 							color={tileColor}
 							onClick={() => tile.descriptionAction?.()}
-							onMouseEnter={() => tile.descriptionHoverAction?.()}
-							onMouseLeave={() => tile.descriptionHoverAction?.()}
+							onMouseEnter={() => tile.descriptionHoverAction?.(true)}
+							onMouseLeave={() => tile.descriptionHoverAction?.(false)}
 						>
 							<Text size="xs">
 								{tile.description}

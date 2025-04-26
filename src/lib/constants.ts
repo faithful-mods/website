@@ -1,9 +1,8 @@
 import { join } from 'path';
 
-import { Resolution, Status } from '@prisma/client';
+import { Pack, Resolution, Status } from '@prisma/client';
 
 import type { MantineColor, MantineGradient } from '@mantine/core';
-import type { Progression } from '~/types';
 
 export const MAX_NAME_LENGTH = 32;
 export const MIN_NAME_LENGTH = 3;
@@ -70,15 +69,6 @@ export const PACK_FORMAT_VERSIONS = {
 	34: { min: '1.21.0', max: '2.0.0' },
 } as const;
 
-export const EMPTY_PROGRESSION_RES = Object
-	.keys(Resolution)
-	.reduce((acc, res) => ({ ...acc, [res]: 0 }), {}) as Progression['textures']['done'];
-
-export const EMPTY_PROGRESSION: Progression = {
-	linkedTextures: 0,
-	textures: { done: EMPTY_PROGRESSION_RES, todo: 0 },
-} as const;
-
 export const GRADIENT: MantineGradient = {
 	from: 'cyan',
 	to: 'blue',
@@ -141,3 +131,38 @@ export type BlobUrl = `https://github.com/${string}/${string}/blob/${string}/${s
 export const gitBlobUrl = ({ orgOrUser, repository, branchOrCommit, path }: FileGitParams): BlobUrl => {
 	return `https://github.com/${orgOrUser}/${repository}/blob/${branchOrCommit}/${path}`;
 };
+
+export const INTERNAL_PACK_TO_VANILLA_PACK = {
+	[Pack.FAITHFUL]: {
+		[Resolution.x32]: 'faithful_32x',
+		[Resolution.x64]: 'faithful_64x',
+	},
+	[Pack.CLASSIC_FAITHFUL]: {
+		[Resolution.x32]: 'classic_faithful_32x_progart',
+		[Resolution.x64]: 'classic_faithful_64x_progart',
+	},
+	[Pack.CLASSIC_FAITHFUL_JAPPA]: {
+		[Resolution.x32]: 'classic_faithful_32x',
+		[Resolution.x64]: 'classic_faithful_64x',
+	},
+} as const;
+
+export const VANILLA_PACK_TO_INTERNAL_PACK = Object.entries(INTERNAL_PACK_TO_VANILLA_PACK).reduce((acc, [pack, resolutions]) => {
+	return {
+		...acc,
+		...Object.entries(resolutions).reduce((acc2, [res, vanillaPack]) => ({
+			...acc2,
+			[vanillaPack]: pack as Pack,
+		}), {}),
+	};
+}, {} as Record<string, Pack>);
+
+export const VANILLA_PACK_TO_INTERNAL_RES = Object.entries(INTERNAL_PACK_TO_VANILLA_PACK).reduce((acc, [pack, resolutions]) => {
+	return {
+		...acc,
+		...Object.entries(resolutions).reduce((acc2, [res, vanillaPack]) => ({
+			...acc2,
+			[vanillaPack]: res as Resolution,
+		}), {}),
+	};
+}, {} as Record<string, Resolution>);

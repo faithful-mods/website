@@ -7,13 +7,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { HiDownload } from 'react-icons/hi';
 
 import { Button, Group, Pagination, Progress, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
-import { usePrevious } from '@mantine/hooks';
-import { useViewportSize } from '@mantine/hooks';
-import { Resolution } from '@prisma/client';
+import { usePrevious, useViewportSize } from '@mantine/hooks';
+import { Pack, Resolution } from '@prisma/client';
 
 import { Tile } from '~/components/base/tile';
 import { useEffectOnce } from '~/hooks/use-effect-once';
-import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, RESOLUTIONS_COLORS, EMPTY_PROGRESSION, ITEMS_PER_PAGE_DEFAULT } from '~/lib/constants';
+import { BREAKPOINT_MOBILE_LARGE, ITEMS_PER_PAGE, ITEMS_PER_PAGE_DEFAULT, RESOLUTIONS_COLORS } from '~/lib/constants';
+import { asReadablePackName } from '~/lib/utils';
 import { getModFromForgeId } from '~/server/data/mods';
 import { getModVersionFromModForgeId, getModVersionProgressionFromModForgeId } from '~/server/data/mods-version';
 
@@ -35,30 +35,13 @@ export default function ModPage() {
 	const [progressions, setProgressions] = useState<Record<string, Progression> | null>(null);
 
 	const resolutions = useMemo(() => Object.keys(Resolution) as Resolution[], []);
-	const percentages = useMemo(() => {
-		const p = versions?.map((modVer) => progressions?.[modVer.id]
-			? ({ id: modVer.id, progression: progressions?.[modVer.id]! })
-			: ({ id: modVer.id, progression: Object.assign({}, EMPTY_PROGRESSION) }))
-			?? [];
-
-		const output: Partial<Record<Resolution, Record<string, number>>> = {};
-
-		for (const res of resolutions) {
-			for (const { id, progression } of p) {
-				if (output[res] === undefined) output[res] = {};
-				if (output[res][id] === undefined) output[res][id] = 0;
-
-				output[res][id] = progression.textures.todo === 0 ? 100 : (progression.textures.done[res] * 100) / progression.textures.todo;
-			}
-		}
-
-		return output;
-	}, [versions, progressions, resolutions]);
+	const packs = useMemo(() => Object.keys(Pack) as Pack[], []);
 
 	const linkRef = useRef<HTMLAnchorElement>(null);
 
-	const handlePackDownload = async (modVerId: string, resolution: Resolution) => {
-		const response = await fetch(`/api/download/mods/${modVerId}/${resolution}`, { method: 'GET' });
+	// TODO: add packs to the download
+	const handlePackDownload = async (modVerId: string, resolution: Resolution, pack: Pack) => {
+		const response = await fetch(`/api/download/mods/${modVerId}/${pack}/${resolution}`, { method: 'GET' });
 
 		const blob = await response.blob();
 		const url = URL.createObjectURL(blob);
@@ -67,7 +50,7 @@ export default function ModPage() {
 		if (!link) return;
 
 		link.href = url;
-		link.download = `Faithful Modded ${resolution} - ${mod?.name ?? modId} - ${versions?.find((v) => v.id === modVerId)!.version}.zip`;
+		link.download = `${asReadablePackName(pack)} Modded ${resolution} - ${mod?.name ?? modId} - ${versions?.find((v) => v.id === modVerId)!.version}.zip`;
 		link.click();
 		window.URL.revokeObjectURL(url);
 	};
@@ -161,57 +144,85 @@ export default function ModPage() {
 									</Group>
 									<Group gap="xs" wrap="nowrap" align="center">
 										<Text size="sm" c="dimmed">
-											{ver.downloads ? Object.values(ver.downloads).reduce<number>((acc, curr) => acc + (curr ?? 0), 0) : 0}
+											{ver.downloads
+												? Object.values(ver.downloads).reduce<number>((acc, curr) => {
+													return acc + Object.values(curr).reduce<number>((a, c) => a + c, 0);
+												}, 0)
+												: 0
+											}
 										</Text>
 										<HiDownload color="var(--mantine-color-dimmed)" />
 									</Group>
 								</Group>
 
-								<Group
-									gap={width <= BREAKPOINT_MOBILE_LARGE ? 'md' : 'sm'}
-									wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
-									style={{ flexDirection: width <= BREAKPOINT_MOBILE_LARGE ? 'column-reverse' : 'row' }}
-								>
-									<Group w="100%" wrap="nowrap" gap="sm">
-										{resolutions.map((res) => (
-											<Tooltip
-												position="bottom"
-												label={progressions?.[ver.id]?.textures.done[res] === 0
-													? 'No textures to download yet...'
-													: !ver.downloads[res]
-														? 'Nobody has downloaded this resolution yet'
-														: `${ver.downloads[res]} download${ver.downloads[res] && ver.downloads[res] > 1 ? 's' : ''}`
+								{progressions?.[ver.id]?.all === 0 && (
+									<Text size="xs" c="dimmed">No textures available for this mod version</Text>
+								)}
+								{progressions?.[ver.id]?.all !== 0 && (
+									<Group justify="space-between" wrap="nowrap" style={{ flexDirection: width >= BREAKPOINT_MOBILE_LARGE ? 'row' : 'column' }}>
+										{packs.map((pack) => (
+											<Stack key={pack} gap="sm" w="100%">
+												<Text size="md" fw={400} w="100%">
+													{asReadablePackName(pack)}
+												</Text>
+
+												<Stack w="100%" gap={3}>
+													{resolutions.map((res) => (
+														<Group key={res} wrap="nowrap" gap="sm">
+															<Tooltip
+																label={`${((progressions?.[ver.id]?.[pack]?.[res] ?? 0) / (progressions?.[ver.id]?.all || 1) * 100).toFixed(0)} % (${progressions?.[ver.id]?.[pack]?.[res] ?? 0}/${progressions?.[ver.id]?.all ?? 1})`}
+															>
+																<Group wrap="nowrap" gap="sm" w={width > BREAKPOINT_MOBILE_LARGE ? '300px' : '100%'}>
+																	<Text size="xs" w="30px" ta="right">{res}</Text>
+																	<Progress.Root size="md" w="100%">
+																		<Progress.Section
+																			value={(progressions?.[ver.id]?.[pack]?.[res] ?? 0) / (progressions?.[ver.id]?.all ?? 1) * 100}
+																			color={RESOLUTIONS_COLORS[res]}
+																		/>
+																	</Progress.Root>
+																</Group>
+															</Tooltip>
+
+															{width > BREAKPOINT_MOBILE_LARGE && (
+																<Button
+																	size="compact-xs"
+																	leftSection={<HiDownload size={14} />}
+																	variant="light"
+																	color={RESOLUTIONS_COLORS[res]}
+																	className={progressions?.[ver.id]?.[pack]?.[res] === 0 ? 'button-disabled-with-bg' : ''}
+																	disabled={progressions?.[ver.id]?.[pack]?.[res] === 0}
+																	onClick={() => handlePackDownload(ver.id, res, pack)}
+																>
+																	Download
+																</Button>
+															)}
+														</Group>
+													))}
+												</Stack>
+
+												{width <= BREAKPOINT_MOBILE_LARGE &&
+													<Group w="100%" wrap="nowrap" gap="sm">
+														{resolutions.map((res) => (
+															<Button
+																key={res}
+																size="xs"
+																fullWidth
+																leftSection={<HiDownload size={14} />}
+																variant="light"
+																color={RESOLUTIONS_COLORS[res]}
+																className={progressions?.[ver.id]?.[pack]?.[res] === 0 ? 'button-disabled-with-bg' : ''}
+																disabled={progressions?.[ver.id]?.[pack]?.[res] === 0}
+																onClick={() => handlePackDownload(ver.id, res, pack)}
+															>
+																Download {res}
+															</Button>
+														))}
+													</Group>
 												}
-												key={res}
-											>
-												<Button
-													leftSection={<HiDownload size={14} />}
-													variant="light"
-													color={RESOLUTIONS_COLORS[res]}
-													w={width <= BREAKPOINT_MOBILE_LARGE ? '100%' : 'auto'}
-													className={progressions?.[ver.id]?.textures.done[res] === 0 ? 'button-disabled-with-bg' : ''}
-													disabled={progressions?.[ver.id]?.textures.done[res] === 0}
-													onClick={() => handlePackDownload(ver.id, res)}
-												>
-													{res}
-												</Button>
-											</Tooltip>
+											</Stack>
 										))}
 									</Group>
-
-									<Stack gap="sm" w="100%">
-										{resolutions.map((res) => (
-											<Tooltip key={res} label={`${progressions?.[ver.id]?.textures.done[res]}/${progressions?.[ver.id]?.textures.todo === 0 ? '?' : progressions?.[ver.id]?.textures.todo} (${(percentages[res]?.[ver.id] ?? 0).toFixed(2)}%)`}>
-												<Group wrap="nowrap" gap="sm">
-													<Text size="xs" w="30px" ta="right">{res}</Text>
-													<Progress.Root size="md" w="100%">
-														<Progress.Section value={percentages[res]?.[ver.id] ?? 0} color={RESOLUTIONS_COLORS[res]} />
-													</Progress.Root>
-												</Group>
-											</Tooltip>
-										))}
-									</Stack>
-								</Group>
+								)}
 
 							</Stack>
 						</Tile>

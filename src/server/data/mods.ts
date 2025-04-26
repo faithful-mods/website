@@ -1,17 +1,17 @@
 'use server';
 import 'server-only';
 
-import { UserRole } from '@prisma/client';
+import { Pack, UserRole } from '@prisma/client';
+import { Resolution } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
-import { EMPTY_PROGRESSION_RES } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { extractSemver } from '~/lib/utils';
 
 import { deleteModVersion } from './mods-version';
 import { remove, upload } from '../actions/files';
 
-import type { Mod, Resolution } from '@prisma/client';
+import type { Mod } from '@prisma/client';
 import type { Downloads } from '~/types';
 
 // GET
@@ -57,15 +57,23 @@ export async function getModDownloads(id: string): Promise<Downloads | null> {
 	return results?.versions
 		.map((v) => v.downloads)
 		.reduce<Downloads>((acc, curr) => {
-			const resolutions = Object.keys(curr) as Resolution[];
+			const packs = Object.keys(curr) as Pack[];
 
-			for (const res of resolutions) {
-				if (!acc[res]) acc[res] = curr[res] ?? 0;
-				else acc[res] += curr[res] ?? 0;
+			for (const pack of packs) {
+				if (!acc[pack]) {
+					acc[pack] = curr[pack];
+					continue; // skip res as it's the first time we see this pack (acc[pack][res] === curr[pack][res])
+				}
+
+				const resolutions = Object.keys(!curr[pack]) as Resolution[];
+				for (const res of resolutions) {
+					if (!acc[pack][res]) acc[pack][res] = curr[pack]?.[res] ?? 0;
+					else acc[pack][res] += curr[pack]?.[res] ?? 0;
+				}
 			}
 
 			return acc;
-		}, Object.assign({}, EMPTY_PROGRESSION_RES));
+		}, {});
 }
 
 export type ModOfModsPage = Mod & {
@@ -105,15 +113,23 @@ export async function getModsOfModsPage(): Promise<ModOfModsPage[]> {
 					downloads: mod.versions
 						.map((v) => v.downloads)
 						.reduce<Downloads>((acc, curr) => {
-							const resolutions = Object.keys(curr) as Resolution[];
+							const packs = Object.keys(curr) as Pack[];
 
-							for (const res of resolutions) {
-								if (!acc[res]) acc[res] = curr[res] ?? 0;
-								else acc[res] += curr[res] ?? 0;
+							for (const pack of packs) {
+								if (!acc[pack]) {
+									acc[pack] = curr[pack];
+									continue; // skip res as it's the first time we see this pack (acc[pack][res] === curr[pack][res])
+								}
+
+								const resolutions = Object.keys(!curr[pack]) as Resolution[];
+								for (const res of resolutions) {
+									if (!acc[pack][res]) acc[pack][res] = curr[pack]?.[res] ?? 0;
+									else acc[pack][res] += curr[pack]?.[res] ?? 0;
+								}
 							}
 
 							return acc;
-						}, Object.assign({}, EMPTY_PROGRESSION_RES)),
+						}, Object.assign({})),
 				};
 			})
 		);

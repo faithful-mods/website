@@ -8,36 +8,10 @@ import { db } from '~/lib/db';
 
 import { getCounselors } from './user';
 
-import type { GitFile } from '../actions/octokit';
-import type { Contribution, Poll, Resolution } from '@prisma/client';
+import type { Contribution, Pack, Poll, Resolution } from '@prisma/client';
 import type { Prettify, PublicUser } from '~/types';
 
 // GET
-
-export type GetContributionsOfUser = Prettify<Contribution & {
-	coAuthors: PublicUser[],
-	owner: PublicUser,
-	poll: {
-		upvotes: PublicUser[],
-		downvotes: PublicUser[],
-	}
-}>
-
-/**
- * Get all contributions of a user, including the co-authors and the poll
- */
-export async function getContributionsOfUser(ownerId: string, resolution: Resolution): Promise<GetContributionsOfUser[]> {
-	await canAccess(UserRole.ADMIN, ownerId);
-
-	return await db.contribution.findMany({
-		where: { ownerId, resolution },
-		include: {
-			coAuthors: { select: { id: true, name: true, image: true } },
-			owner: { select: { id: true, name: true, image: true } },
-			poll: { select: { downvotes: true, upvotes: true } },
-		},
-	});
-}
 
 export type GetPendingContributions = Prettify<Omit<Contribution, 'status'> & {
 	status: typeof Status.PENDING,
@@ -76,7 +50,7 @@ export type GetLatestContributionsOfModVersion = Prettify<Omit<Contribution, 'st
 	owner: PublicUser,
 }>
 
-export async function getLatestContributionsOfModVersion(modVersionId: string, res: Resolution): Promise<GetLatestContributionsOfModVersion[]> {
+export async function getLatestContributionsOfModVersion(modVersionId: string, res: Resolution, pack: Pack): Promise<GetLatestContributionsOfModVersion[]> {
 	return db.resource.findMany({
 		where: {
 			modVersionId,
@@ -93,6 +67,7 @@ export async function getLatestContributionsOfModVersion(modVersionId: string, r
 								where: {
 									status: Status.ACCEPTED,
 									resolution: res,
+									pack,
 								},
 								take: 1,
 								include: {
@@ -116,24 +91,6 @@ export async function getLatestContributionsOfModVersion(modVersionId: string, r
 }
 
 // POST
-
-export async function submitContributions(ownerId: string, contributionsIds: string[]) {
-	await canAccess(UserRole.ADMIN, ownerId);
-
-	await db.contribution.updateMany({
-		where: { id: { in: contributionsIds }, ownerId },
-		data: { status: Status.PENDING },
-	});
-}
-
-export async function archiveContributions(ownerId: string, contributionsIds: string[]) {
-	await canAccess(UserRole.ADMIN, ownerId);
-
-	await db.contribution.updateMany({
-		where: { id: { in: contributionsIds }, ownerId },
-		data: { status: Status.ARCHIVED },
-	});
-}
 
 export async function checkContributionStatus(contributionId: string) {
 	await canAccess(UserRole.COUNCIL);
@@ -167,70 +124,7 @@ export async function checkContributionStatus(contributionId: string) {
 	}
 }
 
-export async function createContributionsFromGitFiles(ownerId: string, resolution: Resolution, files: GitFile[]) {
-	await canAccess(UserRole.ADMIN, ownerId);
-
-	for (const file of files) {
-		const existingContribution = await db.contribution.findFirst({ where: { hash: file.sha } });
-		if (existingContribution) continue;
-
-		const hash = (file.path.includes('/') ? file.path.split('/')[1] : file.path)?.replace('.png', '');
-		const texture = await db.texture.findFirst({ where: { hash } });
-
-		if (!texture) continue;
-
-		const poll = await db.poll.create({ data: {} });
-		const contribution = await db.contribution.create({
-			data: {
-				ownerId,
-				filepath: file.url,
-				hash: file.sha,
-				status: Status.DRAFT,
-				pollId: poll.id,
-				filename: file.path,
-				resolution,
-				textureId: texture.id,
-			},
-		});
-
-		// reset poll
-		await db.poll.update({
-			where: { id: contribution.pollId },
-			data: {
-				upvotes: { set: [] },
-				downvotes: { set: [] },
-			},
-		});
-	}
-}
-
 // DELETE
-
-export async function deleteContributionsOrArchive(
-	ownerId: string,
-	ids: string[]
-): Promise<void> {
-	await canAccess(UserRole.ADMIN, ownerId);
-
-	const contributions = await db.contribution.findMany({
-		where: { id: { in: ids } },
-		include: { coAuthors: { select: { id: true } } },
-	});
-
-	for (const contribution of contributions) {
-		// removed from git without being accepted
-		if (contribution.status !== Status.ACCEPTED && contribution.status !== Status.ARCHIVED) {
-			await db.contribution.delete({ where: { id: contribution.id } });
-			await db.poll.delete({ where: { id: contribution.pollId } });
-		}
-		else {
-			await db.contribution.update({
-				where: { id: contribution.id },
-				data: { status: Status.ARCHIVED },
-			});
-		}
-	}
-}
 
 export async function deleteContributions(ownerId: string, ids: string[]) {
 	await canAccess(UserRole.ADMIN, ownerId);

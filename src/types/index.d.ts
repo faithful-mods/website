@@ -3,11 +3,12 @@ import type {
 	Modpack,
 	ModpackVersion,
 	ModVersion,
+	Pack,
 	Poll,
 	Resolution,
 	Resource,
 } from '@prisma/client';
-import type { ModLoaders } from '~/lib/constants';
+import type { ModLoaders, INTERNAL_PACK_TO_VANILLA_PACK } from '~/lib/constants';
 
 export type Prettify<T> = {
 	[K in keyof T]: T[K];
@@ -50,16 +51,10 @@ export type FullPoll = Prettify<Poll & {
 }>
 
 export type Progression = {
-	linkedTextures: number;
-	textures: {
-		done: {
-			[key in Resolution]: number;
-		}
-		todo: number;
-	};
-}
+	all: number;
+} & Partial<Record<Pack, Record<Resolution, number>>>;
 
-export type Downloads = Record<Resolution, number | undefined>;
+export type Downloads = Partial<Record<Pack, Partial<Record<Resolution, number>>>>;
 
 export interface PollResults {
 	upvotes: number;
@@ -275,7 +270,7 @@ export type FPContributionsRaw = Record<FPContribution['id'], FPContribution>;
 export type FPContributions = Array<FPContribution>;
 export type FPContribution = {
 	date: number;
-	pack: `faithful_${number}x` | `classic_faithful_${number}x`;
+	pack: typeof INTERNAL_PACK_TO_VANILLA_PACK[Pack][Resolution];
 	authors: string[];
 	texture: string;
 	id: string;

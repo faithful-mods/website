@@ -1,21 +1,22 @@
 import { createReadStream } from 'fs';
 
-import { Resolution, Status } from '@prisma/client';
+import { Pack, Resolution, Status } from '@prisma/client';
 import JSZip from 'jszip';
 
 import { PUBLIC_PATH } from '~/lib/constants';
 import { db } from '~/lib/db';
-import { getPackFormatVersion, getVanillaTextureSrc, sortBySemver } from '~/lib/utils';
+import { asReadablePackName, getPackFormatVersion, getVanillaTextureSrc, sortBySemver } from '~/lib/utils';
 import { getModVersionProgression } from '~/server/data/mods-version';
 
 interface Params {
 	params: {
 		modVerId: string;
+		pack: Pack;
 		res: Resolution;
 	};
 };
 
-export async function GET(req: Request, { params: { modVerId, res } }: Params) {
+export async function GET(req: Request, { params: { modVerId, pack, res } }: Params) {
 	const modVersion = await db.modVersion.findUnique({
 		where: {
 			id: modVerId,
@@ -33,13 +34,16 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 		return new Response('Not found', { status: 404 });
 	}
 
-	const downloads = modVersion.downloads[res] ?? 0;
+	const downloads = modVersion.downloads[pack]?.[res] ?? 0;
 	await db.modVersion.update({
 		where: { id: modVerId },
 		data: {
 			downloads: {
 				...modVersion.downloads,
-				[res]: downloads + 1,
+				[pack]: {
+					...modVersion.downloads[pack],
+					[res]: downloads + 1,
+				},
 			},
 		},
 	});
@@ -59,6 +63,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 						where: {
 							status: Status.ACCEPTED,
 							resolution: res,
+							pack: pack,
 						},
 						take: 1,
 						select: {
@@ -98,7 +103,7 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 
 		const vanillaTextureId = linkedTexture.texture.vanillaTextureId;
 		if (vanillaTextureId) {
-			const vanillaTexture = await fetch(getVanillaTextureSrc(vanillaTextureId, res));
+			const vanillaTexture = await fetch(getVanillaTextureSrc(vanillaTextureId, res, pack));
 			zip.file<'arraybuffer'>(`${linkedTexture.assetPath}`, vanillaTexture.arrayBuffer());
 
 			if (linkedTexture.texture.mcmeta) {
@@ -114,9 +119,9 @@ export async function GET(req: Request, { params: { modVerId, res } }: Params) {
 	const packMcmeta = {
 		pack: {
 			pack_format: getPackFormatVersion(modVersion.mcVersion.sort(sortBySemver).reverse()[0] ?? ''),
-			description: `Faithful Mods ${res} - ${!progression
+			description: `${asReadablePackName(pack)} Modded ${res} - ${!progression
 				? 'No info on % of completion'
-				: `${progression.textures.done[res]}/${progression.textures.todo} textures done (${((progression.textures.done[res] * 100) / progression.textures.todo).toFixed(2)} %)`}`,
+				: `${progression[pack]?.[res]}/${progression.all} textures done (${(((progression[pack]?.[res] ?? 0) * 100) / progression.all).toFixed(2)} %)`}`,
 		},
 	};
 

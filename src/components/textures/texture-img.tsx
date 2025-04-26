@@ -38,14 +38,13 @@ export const TextureImage: FC<Props> = ({
 	fallback,
 	onClick,
 	onPopupClick,
-	onMouseEnter,
 }) => {
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
 	const colorScheme = useComputedColorScheme();
 
 	const image = () => {
 		return (
-			<div onClick={onClick} onMouseEnter={onMouseEnter}>
+			<div onClick={onClick}>
 				<Texture
 					src={src}
 					alt={alt}

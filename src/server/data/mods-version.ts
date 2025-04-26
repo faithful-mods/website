@@ -2,16 +2,15 @@
 import 'server-only';
 
 import { Resolution, Status, UserRole } from '@prisma/client';
+import { Pack } from '@prisma/client';
 
 import { canAccess } from '~/lib/auth';
-import { EMPTY_PROGRESSION_RES } from '~/lib/constants';
 import { db } from '~/lib/db';
 import { socket } from '~/lib/serversocket';
 import { sortBySemver } from '~/lib/utils';
 
 import { removeModFromModpackVersion } from './modpacks-version';
 import { deleteResource } from './resource';
-import { isVanillaTextureContributed } from '../actions/faithful-pack';
 import { extractModVersionsFromJAR } from '../actions/files';
 import { commitAndPush } from '../actions/simple-git';
 
@@ -110,41 +109,31 @@ export async function getModVersionProgression(modVersionId: string): Promise<Pr
 		select: {
 			textureId: true,
 			resolution: true,
+			pack: true,
 			id: true,
 		},
 	});
 
-	// keep only one contribution per resolution per texture
-	const contributions = contributionsIds.filter(
-		(c, i, arr) => arr.findIndex((c2) => c2.textureId === c.textureId && c2.resolution === c.resolution) === i
-	);
+	const progression = Object
+		.keys(Pack)
+		.reduce((acc, pack) => ({
+			...acc,
+			[pack]: Object
+				.keys(Resolution)
+				.reduce((acc2, res) => ({ ...acc2, [res]: 0 }), {} as Record<Resolution, number>),
+		}), {} as Record<Pack, Record<Resolution, number>>);
 
-	// split contributions per resolution
-	const progression: Progression = {
-		textures: {
-			done: Object.assign({}, EMPTY_PROGRESSION_RES),
-			todo: uniqueTextures.length,
-		},
-		linkedTextures: linkedTexturesIds.length,
+	contributionsIds
+		// keep only one contribution per resolution per texture per pack
+		// (we don't care about the date of the contribution)
+		.filter((c, i, arr) => arr.findIndex((c2) => c2.textureId === c.textureId && c2.resolution === c.resolution && c2.pack === c.pack) === i)
+		// count the filtered contributions
+		.forEach((contribution) => progression[contribution.pack][contribution.resolution] += 1);
+
+	return {
+		...progression,
+		all: linkedTexturesIds.length,
 	};
-
-	for (const contribution of contributions) {
-		progression.textures.done[contribution.resolution] += 1;
-	}
-
-	const vanillaTextures = uniqueTextures
-		.map((t) => t.texture.vanillaTextureId)
-		.filter((vt) => vt !== null)
-		.unique();
-
-	for (const vanillaId of vanillaTextures) {
-		for (const res of Object.keys(Resolution) as Resolution[]) {
-			const contribution = await isVanillaTextureContributed(vanillaId, res);
-			if (contribution) progression.textures.done[res] += 1;
-		}
-	}
-
-	return progression;
 }
 
 // POST

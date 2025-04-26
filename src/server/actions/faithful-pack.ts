@@ -2,10 +2,10 @@
 import 'server-only';
 
 import { db } from '~/lib/db';
-import { getVanillaResolution } from '~/lib/utils';
 
-import type { FaithfulCached, Resolution } from '@prisma/client';
+import type { FaithfulCached, Pack, Resolution } from '@prisma/client';
 import type { FPContributions, FPContributionsRaw, FPStoredContribution, FPStoredContributions, FPTexture, FPTexturesRaw, FPUsersRaw } from '~/types';
+import { INTERNAL_PACK_TO_VANILLA_PACK } from '~/lib/constants';
 
 export async function updateCachedFPTexture(textureId: string): Promise<FaithfulCached> {
 	const texture: FPTexture = await fetch(`https://api.faithfulpack.net/v2/textures/${textureId}`, { method: 'GET' })
@@ -159,30 +159,30 @@ export async function getVanillaTextures(): Promise<FaithfulCached[]> {
 	return db.faithfulCached.findMany({ orderBy: { textureName: 'asc' } });
 }
 
-export async function isVanillaTextureContributed(textureId: string, resolution: Resolution): Promise<boolean> {
-	return getVanillaTextureContributions(textureId, resolution)
+export async function isVanillaTextureContributed(textureId: string, resolution: Resolution, pack: Pack): Promise<boolean> {
+	return getVanillaTextureContributions(textureId, resolution, pack)
 		.then((res) => res.length > 0);
 }
 
-export async function getVanillaTextureContributions(textureId: string, resolution: Resolution): Promise<FPStoredContributions> {
+export async function getVanillaTextureContributions(textureId: string, resolution: Resolution, pack: Pack): Promise<FPStoredContributions> {
 	const texture = await db.faithfulCached.findFirst({ where: { textureId }, select: { contributions: true, updatedAt: true } });
 
 	// check if cache is older than 1h, if so, update
 	if (!texture || texture.updatedAt && Date.now() - texture.updatedAt.getTime() > 1000 * 60 * 60) {
 		return updateCachedFPTexture(textureId)
-			.then((t) => t.contributions.filter((c) => c.pack === getVanillaResolution(resolution)));
+			.then((t) => t.contributions.filter((c) => c.pack === INTERNAL_PACK_TO_VANILLA_PACK[pack][resolution]));
 	}
 
 	return texture.contributions
-		.filter((c) => c.pack === getVanillaResolution(resolution));
+		.filter((c) => c.pack === INTERNAL_PACK_TO_VANILLA_PACK[pack][resolution]);
 }
 
-export async function getLatestVanillaTextureContribution(textureId: string, resolution: Resolution): Promise<FPStoredContribution | null> {
-	const contributions = await getVanillaTextureContributions(textureId, resolution);
+export async function getLatestVanillaTextureContribution(textureId: string, resolution: Resolution, pack: Pack): Promise<FPStoredContribution | null> {
+	const contributions = await getVanillaTextureContributions(textureId, resolution, pack);
 	if (contributions.length === 0) return null;
 
 	return contributions
-		.filter((c) => c.pack === getVanillaResolution(resolution))
+		.filter((c) => c.pack === INTERNAL_PACK_TO_VANILLA_PACK[pack][resolution])
 		.sort((a, b) => b.date - a.date)
 		.shift() ?? null;
 }

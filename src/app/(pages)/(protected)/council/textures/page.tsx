@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import type { RefObject } from 'react';
 
 import { GoAlert, GoHash, GoLog } from 'react-icons/go';
@@ -34,13 +34,6 @@ export default function CouncilTexturesPage() {
 	const [texturesGroupRef, setRef] = useState<RefObject<HTMLDivElement>>();
 
 	const [showFullHash, setShowFullHash] = useState(false);
-	const [fullHash, setFullHash] = useState<string>('');
-	const [hash, setHash] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (showFullHash) setHash(fullHash);
-		else setHash(fullHash.slice(0, 8) + '...' + fullHash.slice(-8));
-	}, [fullHash, showFullHash]);
 
 	useEffectOnce(() => {
 		startTransition(() => {
@@ -122,12 +115,8 @@ export default function CouncilTexturesPage() {
 						className="cursor-pointer"
 						onClick={() => handleModalOpen(texture)}
 
-						onMouseEnter={() => {
-							setFullHash(texture.hash);
-							setShowFullHash(false);
-						}}
-
-						tiles={[
+						data={true}
+						tiles={() => [
 							{
 								shown: !!texture.vanillaTextureId,
 								icon: <GoAlert color="orange" />,
@@ -141,8 +130,8 @@ export default function CouncilTexturesPage() {
 							{
 								shown: true,
 								icon: <GoLog />,
-								description: `${hash}`,
-								descriptionHoverAction: () => setShowFullHash(!showFullHash),
+								description: showFullHash ? texture.hash : texture.hash.slice(0, 8) + '...' + texture.hash.slice(-8),
+								descriptionHoverAction: (isHovering) => setShowFullHash(isHovering),
 							},
 							{
 								shown: texture.aliases.length > 0,
