@@ -82,7 +82,7 @@ export default function ModLayout({ children }: { children: React.ReactNode }) {
 			<Stack gap="xs">
 				<Group wrap="nowrap" align="start">
 					<Texture
-						src={mod.image ?? '../icon.png'}
+						src={mod.image ?? '/icon.png'}
 						size={width <= BREAKPOINT_MOBILE_LARGE ? '85px' : '120px'}
 						style={{
 							borderRadius: 'var(--mantine-radius-sm)',
