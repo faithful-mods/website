@@ -8,7 +8,6 @@ import { useState } from 'react';
 import { FaHome } from 'react-icons/fa';
 import { GoLaw } from 'react-icons/go';
 import { HiOutlineMenu } from 'react-icons/hi';
-import { IoMdCloudUpload } from 'react-icons/io';
 import { IoLogOut } from 'react-icons/io5';
 import { MdDashboard } from 'react-icons/md';
 import { TbPackage, TbPackages } from 'react-icons/tb';
@@ -45,13 +44,6 @@ export const Navbar = () => {
 			icon: <TbPackage />,
 		},
 	];
-
-	if (user) links.push({
-		href: '/contribute',
-		label: 'Contribute',
-		disabled: user.role === 'BANNED',
-		icon: <IoMdCloudUpload />,
-	});
 
 	if (width < BREAKPOINT_TABLET) links.unshift({
 		href: '/',
