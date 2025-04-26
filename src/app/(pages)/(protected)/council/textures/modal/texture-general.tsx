@@ -162,12 +162,9 @@ export function TextureGeneral({ texture }: TextureGeneralProps) {
 			<FakeInputLabel
 				label="Contributions"
 				description={
-					<Stack gap={3}>
+					<Stack gap={3} component="span">
 						{vanillaTexture !== null && (
-							<Text
-								component="span"
-								c="red"
-							>
+							<Text component="span" c="red">
 								A vanilla texture is selected, contributions are disabled automatically
 							</Text>
 						)}
