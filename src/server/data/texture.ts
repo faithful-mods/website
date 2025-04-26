@@ -8,7 +8,7 @@ import { db } from '~/lib/db';
 
 import { deleteFile } from '../actions/simple-git';
 
-import type { ContributionDeactivation, Texture } from '@prisma/client';
+import type { ContributionDeactivation, DefaultPack, Texture } from '@prisma/client';
 import type { TextureMCMeta } from 'react-minecraft';
 import type { Prettify, Progression } from '~/types';
 
@@ -117,23 +117,20 @@ export async function getTexturesFromModVersion(modVersionId: string): Promise<T
 
 // POST
 
-export async function createTexture({
-	name,
-	filepath,
-	hash,
-	mcmeta,
-}: {
-	name: string;
-	filepath: string;
-	hash: string;
-	mcmeta?: TextureMCMeta;
-}): Promise<Texture> {
+export async function createTexture(
+	name: string,
+	filepath: string,
+	hash: string,
+	pack: DefaultPack,
+	mcmeta?: TextureMCMeta,
+): Promise<Texture> {
 	await canAccess(UserRole.COUNCIL);
 
 	return db.texture.create({
 		data: {
 			name,
 			filepath,
+			pack,
 			hash,
 			mcmeta,
 		},

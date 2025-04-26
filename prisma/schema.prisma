@@ -25,6 +25,11 @@ enum Resolution {
   x64
 }
 
+enum DefaultPack {
+  DEFAULT_PROGART
+  DEFAULT_JAPPA
+}
+
 enum Pack {
   FAITHFUL
   CLASSIC_FAITHFUL
@@ -155,6 +160,7 @@ model Texture {
 
   /// [TextureMCMETAType]
   mcmeta         Json?
+  pack           DefaultPack
 
   // tags TextureTag[] @relation("texture_tags_to_textures")
 

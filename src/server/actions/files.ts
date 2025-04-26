@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import TOML from '@ltd/j-toml';
+import { DefaultPack } from '@prisma/client';
 import unzipper from 'unzipper';
 
 import { FILE_DIR, gitRawUrl, FILE_PATH, GITHUB_ORG_NAME, GITHUB_DEFAULT_REPO_NAME } from '~/lib/constants';
@@ -281,7 +282,12 @@ export async function extractModVersionsFromJAR(jar: File, socketId: string, sta
  * @param socketId The socket id to send the progression to
  * @param status The socket status to update
  */
-export async function extractDefaultResourcePack(jar: File, modVersion: ModVersion, socketId: string, status: SocketModUpload): Promise<SocketModUpload> {
+export async function extractDefaultResourcePack(
+	jar: File,
+	modVersion: ModVersion,
+	socketId: string,
+	status: SocketModUpload
+): Promise<SocketModUpload> {
 	const bytes = await jar.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 
@@ -332,12 +338,13 @@ export async function extractDefaultResourcePack(jar: File, modVersion: ModVersi
 				});
 			}
 
-			texture = await createTexture({
-				filepath: '',
+			texture = await createTexture(
+				textureName,
+				'',
 				hash,
-				name: textureName,
+				DefaultPack.DEFAULT_JAPPA,	// TODO: add support for other packs (ProgArt)
 				mcmeta,
-			});
+			);
 
 			const filepath = gitRawUrl({ orgOrUser: GITHUB_ORG_NAME, repository: GITHUB_DEFAULT_REPO_NAME, path: `textures/${hash}.png` });
 			await db.texture.update({ where: { id: texture.id }, data: { filepath } });
