@@ -1,5 +1,5 @@
 
-import { ColorSchemeScript, createTheme, MantineProvider } from '@mantine/core';
+import { ColorSchemeScript, createTheme, mantineHtmlProps, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { SessionProvider } from 'next-auth/react';
 
@@ -29,9 +29,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	const session = await auth();
 
 	return (
-		<html lang='en'>
+		<html lang='en' {...mantineHtmlProps}>
 			<head>
-				<ColorSchemeScript />
+				<ColorSchemeScript defaultColorScheme="auto" />
 			</head>
 			<body style={{ maxWidth: BREAKPOINT_DESKTOP_LARGE, padding: '0 var(--mantine-spacing-sm)' }}>
 				<SessionProvider session={session}>

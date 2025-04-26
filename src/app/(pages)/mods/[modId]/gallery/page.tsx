@@ -62,11 +62,7 @@ export default function ModGalleryPage() {
 
 	useEffect(() => {
 		if (!modVersionShown || resolution === 'x16' || pack === DefaultPack.DEFAULT_JAPPA || pack === DefaultPack.DEFAULT_PROGART) return;
-		getLatestContributionsOfModVersion(modVersionShown, resolution, pack)
-			.then((c) => {
-				console.log(c);
-				setContributions(c);
-			});
+		getLatestContributionsOfModVersion(modVersionShown, resolution, pack).then(setContributions);
 	}, [modVersionShown, pack, resolution]);
 
 	useEffect(() => {
