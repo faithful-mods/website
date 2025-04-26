@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import type { RefObject } from 'react';
+
+import { GoAlert, GoHash, GoLog } from 'react-icons/go';
+import { PiApproximateEquals } from 'react-icons/pi';
 
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -29,6 +32,15 @@ export default function CouncilTexturesPage() {
 	const [itemsPerRow, setItemsPerRow] = useState(0);
 
 	const [texturesGroupRef, setRef] = useState<RefObject<HTMLDivElement>>();
+
+	const [showFullHash, setShowFullHash] = useState(false);
+	const [fullHash, setFullHash] = useState<string>('');
+	const [hash, setHash] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (showFullHash) setHash(fullHash);
+		else setHash(fullHash.slice(0, 8) + '...' + fullHash.slice(-8));
+	}, [fullHash, showFullHash]);
 
 	useEffectOnce(() => {
 		startTransition(() => {
@@ -109,6 +121,35 @@ export default function CouncilTexturesPage() {
 
 						className="cursor-pointer"
 						onClick={() => handleModalOpen(texture)}
+
+						onMouseEnter={() => {
+							setFullHash(texture.hash);
+							setShowFullHash(false);
+						}}
+
+						tiles={[
+							{
+								shown: !!texture.vanillaTextureId,
+								icon: <GoAlert color="orange" />,
+								description: `Vanilla texture : ${texture.vanillaTextureId}`,
+							},
+							{
+								shown: true,
+								icon: <GoHash />,
+								description: `ID: ${texture.id}`,
+							},
+							{
+								shown: true,
+								icon: <GoLog />,
+								description: `${hash}`,
+								descriptionHoverAction: () => setShowFullHash(!showFullHash),
+							},
+							{
+								shown: texture.aliases.length > 0,
+								icon: <PiApproximateEquals />,
+								description: texture.aliases.join(', '),
+							},
+						]}
 					/>
 				)}
 			/>

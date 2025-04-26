@@ -21,6 +21,7 @@ interface Props {
 	withArrow?: boolean;
 	onPopupClick?: () => void;
 	onClick?: () => void;
+	onMouseEnter?: () => void;
 }
 
 export const TextureImage: FC<Props> = ({
@@ -37,13 +38,14 @@ export const TextureImage: FC<Props> = ({
 	fallback,
 	onClick,
 	onPopupClick,
+	onMouseEnter,
 }) => {
 	const trueSize = size ? typeof size === 'number' ? `${size}px` : size : '200px';
 	const colorScheme = useComputedColorScheme();
 
 	const image = () => {
 		return (
-			<div onClick={onClick}>
+			<div onClick={onClick} onMouseEnter={onMouseEnter}>
 				<Texture
 					src={src}
 					alt={alt}
