@@ -7,7 +7,7 @@ import { useState, useTransition } from 'react';
 import { Group, Image, Stack, Divider, Text, TextInput, Button, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { UserRole } from '@prisma/client';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 import { useCurrentUser } from '~/hooks/use-current-user';
 import { useEffectOnce } from '~/hooks/use-effect-once';
@@ -120,40 +120,14 @@ export default function UserPage() {
 				>
 					{user?.role ?? '?'}
 				</Badge>
+				<Button
+					color="red"
+					variant="transparent"
+					onClick={() => signOut({ callbackUrl: '/' })}
+				>
+					Sign out
+				</Button>
 			</Stack>
 		</Group>
-
-	/*
-			<Stack gap="xl">
-			 <Button
-				variant="gradient"
-				gradient={GRADIENT_DANGER}
-				justify={width <= BREAKPOINT_MOBILE_LARGE ? 'center' : 'right'}
-				fullWidth={width <= BREAKPOINT_MOBILE_LARGE}
-				onClick={() => signOut({ callbackUrl: '/' })}
-			>
-				Sign out
-			</Button>
-
-			<Group
-				wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
-				gap="xs"
-				align="start"
-				justify="center"
-			>
-				<Stack w={220} align="center" gap="xs">
-
-				</Stack>
-
-				<Group
-					wrap={width <= BREAKPOINT_MOBILE_LARGE ? 'wrap' : 'nowrap'}
-					h={width <= BREAKPOINT_MOBILE_LARGE ? 'auto' : 220}
-					align="center"
-					w="100%"
-				>
-
-				</Group>
-			</Group>
-		</Stack>*/
 	));
 };
